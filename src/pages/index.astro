@@ -1,17 +1,55 @@
 ---
-
+import Layout from '../layouts/Layout.astro';
+import ConceptGrid from '@/components/ConceptGrid.astro';
+import { Button } from '@/components/ui/button';
+import { ArrowRight } from 'lucide-react';
 ---
+<Layout title="bitmap.audio | Sonic Architecture">
+  {/* FIX 3: Ensure this section fills the remaining height of the viewport.
+      FIX 4: Added 'flex-1' and 'justify-center' to force the div into the vertical middle.
+  */}
+  <section class="flex-1 flex flex-col items-center justify-center text-center mx-auto py-32 relative">
+    
+    {/* Hero Content Wrapper */}
+    <div class="w-full max-w-4xl mx-auto flex flex-col items-center text-center">
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+      {/* 1. The Small "b." Logo Box */}
+      <div class="mb-12 animate-fade-in">
+        <div class="w-12 h-12 bg-primary flex items-center justify-center shadow-[0_0_66px_hsl(var(--primary)/0.5)]">
+          <span class="text-black font-mono text-lg font-bold">b.</span>
+        </div>
+      </div>
+
+      {/* 2. Main Title - Note the font-light and tracking */}
+      <h1 class="font-mono text-4xl md:text-6xl lg:text-7xl font-light text-foreground tracking-tighter mb-6 animate-fade-in-up" style="animation-delay: 0.1s;">
+        bitmap<span class="inline-block w-[0.12em] h-[0.12em] bg-accent mx-[0.1em] mb-[0em]"></span><span class="text-accent font-medium tracking-tighter">audio</span>
+      </h1>
+
+      {/* 3. Subtitle - Increased tracking and light weight */}
+      <p class="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-4 font-mono animate-fade-in-up" style="animation-delay: 0.2s;">
+        Sonic Branding & Immersive Audio
+      </p>
+      
+      {/* 4. Description - Tightened max-width and reduced opacity */}
+      <p class="text-sm md:text-base text-muted-foreground/80 max-w-xl mx-auto mb-12 animate-fade-in-up" style="animation-delay: 0.3s;">
+        Architecting the sonic infrastructure that maps digital data to human emotion.
+      </p>
+      
+      {/* 5. The Glow Buttons */}
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up" style="animation-delay: 0.4s;">
+         {/* FIX 5: Use asChild so the Button STYLES the <a> tag correctly */}
+         <a href="/home">
+          <Button variant="default" size="xl">EXPLORE
+            <ArrowRight className="w-4 h-4 ml-2" />
+          </Button>
+        </a>
+         <Button variant="outline" size="xl">
+           <a href="/contact">Get In Touch</a>
+         </Button>
+       </div>
+       <div class="w-full mt-20 animate-fade-in-up" style="animation-delay: 0.5s">
+      <ConceptGrid />
+    </div>
+    </div>
+  </section>
+</Layout>

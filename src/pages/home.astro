@@ -1,0 +1,59 @@
+---
+/* src/pages/home.astro */
+import Layout from '../layouts/Layout.astro';
+import { Button } from '@/components/ui/button';
+import { Radio, Layers, Headphones, ArrowRight } from 'lucide-react';
+
+const services = [
+  { 
+    icon: Radio, 
+    title: "Sonic Branding", 
+    href: "/solutions/sonic-branding",
+    desc: "Define your brand's audio identity with custom sound logos and sonic systems."
+  },
+  { 
+    icon: Layers, 
+    title: "UI/UX Sound", 
+    href: "/solutions/uiux-sound",
+    desc: "Enhance digital products with intuitive audio feedback and interface sounds."
+  },
+  { 
+    icon: Headphones, 
+    title: "Immersive Audio", 
+    href: "/solutions/immersive-audio",
+    desc: "Create spatial audio experiences for AR/VR and experiential environments."
+  },
+];
+---
+
+<Layout title="Home | bitmap.audio">
+  <div class="container mx-auto py-24 px-6">
+    <div class="text-center mb-16 animate-fade-in">
+      <p class="font-mono text-sm uppercase tracking-widest text-accent mb-4">What We Do</p>
+      <h2 class="font-mono text-3xl md:text-4xl font-medium text-foreground">
+        Three pillars of sonic design
+      </h2>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      {services.map((s) => (
+        <div class="group border border-border p-8 bg-card/50 backdrop-blur-sm card-glow transition-all duration-300 hover:-translate-y-1">
+          <s.icon className="w-8 h-8 text-accent mb-6" />
+          <h3 class="font-mono text-xl font-medium text-foreground mb-3 group-hover:text-primary transition-colors">
+            {s.title}
+          </h3>
+          <p class="text-sm text-muted-foreground mb-8">
+            {s.desc}
+          </p>
+          
+          {/* This is the Button you were missing */}
+          <Button variant="minimal" size="sm" asChild className="p-0 h-auto">
+            <a href={s.href} class="flex items-center gap-2">
+              LEARN MORE <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+            </a>
+          </Button>
+        </div>
+      ))}
+    </div>
+  </div>
+</Layout>

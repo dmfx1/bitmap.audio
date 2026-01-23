@@ -1,0 +1,35 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+---
+
+<Layout title="About Us | bitmap.audio">
+  <section class="pt-32 pb-20 px-6">
+    <div class="container mx-auto max-w-4xl">
+      <p class="font-mono text-sm uppercase tracking-widest text-primary mb-4 animate-fade-in">
+        About Us
+      </p>
+      <h1 class="font-mono text-4xl md:text-6xl font-medium text-foreground mb-8 animate-fade-in-up leading-tight">
+        Two minds,<br />
+        <span class="text-primary">one sonic vision</span>
+      </h1>
+      <p class="text-lg text-muted-foreground max-w-2xl animate-fade-in-up">
+        bitmap.audio is the collaboration of two audio specialists who share a passion for the intersection of technology and human experience.
+      </p>
+    </div>
+  </section>
+
+  <section class="py-20 px-6 border-t border-border text-center">
+    <div class="container mx-auto max-w-4xl">
+      <h2 class="font-mono text-3xl md:text-4xl font-medium text-foreground mb-6">
+        Let's create together
+      </h2>
+      <Button variant="glow" size="xl" asChild>
+        <a href="mailto:hello@bitmap.audio">
+          Start a Conversation <ArrowRight className="w-5 h-5 ml-2" />
+        </a>
+      </Button>
+    </div>
+  </section>
+</Layout>

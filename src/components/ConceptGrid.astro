@@ -1,0 +1,17 @@
+---
+/* src/components/ConceptGrid.astro */
+const concepts = [
+  { title: "BIT", desc: "The digital pulse, software logic, and raw binary data of technology." },
+  { title: "MAP", desc: "The spatial layout, UI/UX flow, and human sensory landscape." },
+  { title: "SYNTHESIS", desc: "Micro engineers linking sonic data and human emotion." }
+];
+---
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto w-full text-left">
+  {concepts.map((item) => (
+    <div class="border border-primary/50 p-6 bg-card/50 backdrop-blur-sm card-glow">
+      <h3 class="text-accent font-mono text-xs uppercase tracking-widest mb-3">{item.title}</h3>
+      <p class="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+    </div>
+  ))}
+</div>

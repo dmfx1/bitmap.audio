@@ -1,0 +1,198 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* 1. THE VOID: Deep Obsidian (Cool, desaturated dark teal) */
+    --background: 180 15% 2%;
+    --foreground: 0 0% 95%;
+
+    --card: 220 20% 7%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 220 20% 6%;
+    --popover-foreground: 0 0% 95%;
+
+    /* 2. THE SYSTEM: Retro-Industrial Teal */
+    --primary: 200 80% 90%; 
+    --primary-foreground: 180 100% 5%;
+
+    --secondary: 220 15% 12%;
+    --secondary-foreground: 0 0% 85%;
+
+    --muted: 220 15% 15%;
+    --muted-foreground: 0 0% 60%;
+
+    /* 3. THE SOUL: Solaris Amber */
+    --accent: 35 100% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 98%;
+
+    /* Border: Very faint warm gray for the grid lines */
+    --border: 180 15% 12%;
+    --input: 220 15% 12%;
+    --ring: 35 100% 55%;
+    --radius: 0.25rem;
+
+    /* Custom brand colors */
+    --bitmap-cyan: 30 100% 50%; /* Rename this to --bitmap-orange eventually */
+    --bitmap-dark: 220 20% 4%;
+    --bitmap-gray: 220 10% 25%;
+    --bitmap-light: 0 0% 95%;
+    
+    /* Gradients */
+    --gradient-glow: linear-gradient(135deg, hsl(185 100% 50% / 0.2), hsl(200 100% 60% / 0.1));
+    --gradient-text: linear-gradient(90deg, hsl(185 100% 60%), hsl(200 100% 70%));
+    --gradient-border: linear-gradient(90deg, hsl(185 100% 50% / 0.5), hsl(185 100% 50% / 0.1));
+
+    /* Sidebar */
+    --sidebar-background: 220 20% 6%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-primary: 185 100% 50%;
+    --sidebar-primary-foreground: 220 20% 4%;
+    --sidebar-accent: 220 15% 12%;
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 220 15% 15%;
+    --sidebar-ring: 185 100% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html, body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', sans-serif;
+    color: hsl(var(--foreground));
+    
+    /* Only hide cursor on desktop; touch devices don't use them */
+    @media (min-width: 768px) {
+      cursor: none !important;
+    }
+
+    /* Ensure interactive elements still show something is clickable */
+    a, button {
+      cursor: none !important;
+    }
+  }
+
+  /* Optional: Make the block expand when hovering over links */
+  a:hover ~ #block-cursor,
+  button:hover ~ #block-cursor {
+    transform: scale(1.5);
+    background-color: white;
+  } 
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+@layer components {
+  /* Grid pattern overlay */
+  .bitmap-grid {
+    background-image: 
+      linear-gradient(hsl(var(--border)) 1.5px, transparent 2px),
+      linear-gradient(90deg, hsl(var(--border)) 1.5px, transparent 2px);
+    background-size: 40px 40px;
+  }
+
+  /* Glowing text effect */
+  .text-glow {
+    text-shadow: 0 0 40px hsl(var(--primary) / 0.5);
+  }
+
+  /* Animated underline */
+  .link-underline {
+    position: relative;
+  }
+
+  .link-underline::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: hsl(var(--primary));
+    transition: width 0.3s ease;
+  }
+
+  .link-underline:hover::after {
+    width: 100%;
+  }
+
+  /* Card hover glow */
+  .card-glow {
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+
+  .card-glow:hover {
+    box-shadow: 0 0 40px hsl(var(--primary) / 0.15);
+    border-color: hsl(var(--primary) / 0.3);
+  }
+
+  /* Pixel cursor effect */
+  .cursor-pixel {
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Crect fill='%2300e5ff' width='4' height='4'/%3E%3C/svg%3E"), auto;
+  }
+}
+
+@layer utilities {
+  /* Fade in animation */
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease forwards;
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.8s ease forwards;
+  }
+
+  .animate-pulse-glow {
+    animation: pulseGlow 3s ease-in-out infinite;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes fadeInUp {
+    from { 
+      opacity: 0; 
+      transform: translateY(20px);
+    }
+    to { 
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% { 
+      box-shadow: 0 0 20px hsl(var(--primary) / 0.2);
+    }
+    50% { 
+      box-shadow: 0 0 40px hsl(var(--primary) / 0.4);
+    }
+  }
+}
+
+#cursor-glow {
+  /* This makes the glow 'stretch' slightly as you move fast */
+  will-change: transform, left, top;
+}
+
