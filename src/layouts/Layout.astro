@@ -85,32 +85,36 @@ const isLandingPage = currentPath === "/" || currentPath === "/index.html";
       document.addEventListener('mouseenter', () => toggleCursor(true));
       document.addEventListener('mouseleave', () => toggleCursor(false));
 
+      /* Inside Layout.astro <script> */
+
       interactiveElements.forEach(el => {
         el.addEventListener('mouseenter', () => {
-          // 1. Fade the dot out completely on hover
           if (cursor) cursor.style.opacity = '0';
-          
-          // 2. Standard pointer so buttons feel 'clickable'
-          el.style.cursor = 'pointer';
+          el.style.setProperty('cursor', 'none', 'important');
           
           if (glow) {
-            // Bloom the atmospheric background light
-            glow.style.transform = 'translate(-50%, -50%) scale(1.8)';
-            glow.style.opacity = '0.45';
-            
-            // Color-sync: Solaris vs Primary Teal
-            if (el.classList.contains('text-accent') || el.textContent?.toLowerCase().includes('audio')) {
-              glow.style.backgroundColor = 'hsl(var(--accent) / 0.3)';
+            if (el.classList.contains('morph-accent')) {
+              // Apply the pulsing animation to the background glow
+              glow.classList.add('animate-glow-pulse');
+            } else {
+              // Standard static bloom for other buttons
+              glow.style.transform = 'translate(-50%, -50%) scale(1.8)';
+              glow.style.opacity = '0.45';
+              glow.style.backgroundColor = el.textContent?.toLowerCase().includes('audio') 
+                ? 'hsl(var(--accent) / 0.3)' 
+                : 'hsl(var(--primary) / 0.3)';
             }
           }
         });
 
         el.addEventListener('mouseleave', () => {
-          // 1. Bring back the dot when leaving
           if (cursor) cursor.style.opacity = '1';
+          el.style.removeProperty('cursor');
           
           if (glow) {
-            // Reset atmosphere
+            // Remove the pulse and reset to default
+            glow.classList.remove('animate-glow-pulse');
+            glow.style.transition = 'all 0.6s ease-out';
             glow.style.transform = 'translate(-50%, -50%) scale(1)';
             glow.style.opacity = '0.2';
             glow.style.backgroundColor = 'hsl(var(--primary) / 0.2)';
