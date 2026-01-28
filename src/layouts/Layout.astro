@@ -92,17 +92,33 @@ const isLandingPage = currentPath === "/" || currentPath === "/index.html";
           if (cursor) cursor.style.opacity = '0';
           el.style.setProperty('cursor', 'none', 'important');
           
+          const text = el.textContent?.toLowerCase() || "";
+          const isLink = el.tagName === 'A' || el.closest('a'); // Check if it's a link
+          const isExplore = text.includes('explore');
+          const isConceptCard = el.classList.contains('concept-card');
+          const isLogo = el.classList.contains('logo-box');
+
+          // SCENARIO 1: The "Explore" Button (Stay Black text, Teal background)
+          if (isExplore) {
+            el.classList.add('is-electric-primary');
+          } 
+          // SCENARIO 2: Logo Box (Fill Pulse)
+          else if (isLogo) {
+            el.classList.add('is-filling');
+          } 
+          // SCENARIO 3: Concept Cards that are NOT links (Electrify only)
+          else if (isConceptCard && !isLink) {
+            el.classList.add('is-electric-card');
+          }
+          // SCENARIO 4: Actual Navigation Links & Buttons (Full Morph)
+          else {
+            el.classList.add('is-morphing');
+          }
+
           if (glow) {
-            if (el.classList.contains('morph-accent')) {
-              // Apply the pulsing animation to the background glow
-              glow.classList.add('animate-glow-pulse');
-            } else {
-              // Standard static bloom for other buttons
-              glow.style.transform = 'translate(-50%, -50%) scale(1.8)';
-              glow.style.opacity = '0.45';
-              glow.style.backgroundColor = el.textContent?.toLowerCase().includes('audio') 
-                ? 'hsl(var(--accent) / 0.3)' 
-                : 'hsl(var(--primary) / 0.3)';
+            glow.classList.add('animate-glow-pulse');
+            if (text.includes('audio') || text.includes('synthesis')) {
+              glow.style.backgroundColor = 'hsl(var(--accent) / 0.3)';
             }
           }
         });
@@ -111,12 +127,11 @@ const isLandingPage = currentPath === "/" || currentPath === "/index.html";
           if (cursor) cursor.style.opacity = '1';
           el.style.removeProperty('cursor');
           
+          // Clean up all possible states
+          el.classList.remove('is-electric-primary', 'is-electric-card', 'is-morphing', 'is-filling');
+          
           if (glow) {
-            // Remove the pulse and reset to default
             glow.classList.remove('animate-glow-pulse');
-            glow.style.transition = 'all 0.6s ease-out';
-            glow.style.transform = 'translate(-50%, -50%) scale(1)';
-            glow.style.opacity = '0.2';
             glow.style.backgroundColor = 'hsl(var(--primary) / 0.2)';
           }
         });

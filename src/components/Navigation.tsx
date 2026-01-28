@@ -35,15 +35,15 @@ const Navigation = ({ currentPath }: NavigationProps) => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
-            <a href="/home" className={`font-mono text-sm uppercase tracking-wider link-underline transition-colors ${isActive("/home") ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}>
+            <a href="/home" className={`font-mono text-sm uppercase morph-accent tracking-wider link-underline transition-colors ${isActive("/home") ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}>
               Home
             </a>
-            <a href="/about" className={`font-mono text-sm uppercase tracking-wider link-underline transition-colors ${isActive("/about") ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}>
+            <a href="/about" className={`font-mono text-sm uppercase morph-accent  tracking-wider link-underline transition-colors ${isActive("/about") ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}>
               About
             </a>
 
             <div className="relative" onMouseEnter={() => setSolutionsOpen(true)} onMouseLeave={() => setSolutionsOpen(false)}>
-              <button className={`flex items-center gap-1 font-mono text-sm uppercase tracking-wider transition-colors ${isSolutionsActive ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}>
+              <button className={`flex items-center gap-1 font-mono text-sm uppercase morph-accent  tracking-wider transition-colors ${isSolutionsActive ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}>
                 Solutions <ChevronDown className={`w-4 h-4 transition-transform ${solutionsOpen ? "rotate-180" : ""}`} />
               </button>
 
@@ -59,7 +59,7 @@ const Navigation = ({ currentPath }: NavigationProps) => {
               )}
             </div>
 
-            <Button variant="outline" size="sm" asChild>
+            <Button variant="outline" size="sm" asChild className="morph-accent">
               <a href="/contact">Contact</a>
             </Button>
           </div>
