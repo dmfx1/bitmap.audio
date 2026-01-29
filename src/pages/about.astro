@@ -1,35 +1,33 @@
 ---
+/* src/pages/about.astro */
 import Layout from '../layouts/Layout.astro';
-import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import Section from '../components/Section.astro';
+/* 1. Import the new Intro wrapper */
+import AboutIntro from '../components/modules/AboutIntro.tsx';
+import Founders from '../components/modules/Founders.tsx';
+import AboutPhilosophy from '../components/modules/AboutPhilosophy.tsx';
+//import Values from '../components/modules/Values.astro';
+import CTA from '../components/modules/CTA.tsx';
 ---
 
-<Layout title="About Us | bitmap.audio">
-  <section class="pt-32 pb-20 px-6">
-    <div class="container mx-auto max-w-4xl">
-      <p class="font-mono text-sm uppercase tracking-widest text-primary mb-4 animate-fade-in">
-        About Us
-      </p>
-      <h1 class="font-mono text-4xl md:text-6xl font-medium text-foreground mb-8 animate-fade-in-up leading-tight">
-        Two minds,<br />
-        <span class="text-primary">one sonic vision</span>
-      </h1>
-      <p class="text-lg text-muted-foreground max-w-2xl animate-fade-in-up">
-        bitmap.audio is the collaboration of two audio specialists who share a passion for the intersection of technology and human experience.
-      </p>
-    </div>
-  </section>
+<Layout title="About | bitmap.audio">
+  {/* 2. Wrap the intro in your Section component */}
+  <Section id="intro" delay="0.1s">
+    {/* 3. Use client:load so the typewriter starts immediately */}
+    <AboutIntro client:load />
+  </Section>
 
-  <section class="py-20 px-6 border-t border-border text-center">
-    <div class="container mx-auto max-w-4xl">
-      <h2 class="font-mono text-3xl md:text-4xl font-medium text-foreground mb-6">
-        Let's create together
-      </h2>
-      <Button variant="glow" size="xl" asChild>
-        <a href="mailto:hello@bitmap.audio">
-          Start a Conversation <ArrowRight className="w-5 h-5 ml-2" />
-        </a>
-      </Button>
-    </div>
-  </section>
+  <Section id="founders" delay="0.2s">
+    <Founders client:visible />
+  </Section>
+
+  <Section id="philosophy" delay="0.3s">
+    <AboutPhilosophy client:visible />
+  </Section>
+
+  
+
+  <Section id="cta" delay="0.5s" isFullWidth={true}>
+    <CTA client:visible />
+  </Section>
 </Layout>

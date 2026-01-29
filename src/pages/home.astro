@@ -1,15 +1,28 @@
 ---
 /* src/pages/home.astro */
 import Layout from '../layouts/Layout.astro';
-import Section from '../components/Section.astro'; // Your structural wrapper
-import Hero from '../components/modules/Hero.tsx'; // Hero module
-import ServicePillars from '../components/modules/ServicePillars'; // Service Boxes
+import Section from '../components/Section.astro';
+import Hero from '../components/modules/Hero.tsx';
+import ServicePillars from '../components/modules/ServicePillars';
+import Philosophy from '../components/modules/Philosophy.tsx';
+import CTA from '../components/modules/CTA.tsx';
 ---
 
 <Layout title="Home | bitmap.audio">
-  {/* The Hero is the first module in the rack */}
   <Section id="hero" delay="0.1s">
     <Hero client:load /> 
+  </Section>
+
+  <Section id="services" delay="0.2s">
     <ServicePillars client:visible />
+  </Section>
+
+  <Section id="philosophy" delay="0.3s">
+    <Philosophy client:visible />
+  </Section>
+
+  {/* FIXED: Changed ID from philosophy to cta */}
+  <Section id="cta" delay="0.4s">
+    <CTA client:visible />
   </Section>
 </Layout>

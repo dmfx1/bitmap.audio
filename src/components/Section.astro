@@ -5,7 +5,7 @@ interface Props {
   className?: string;
   isFullWidth?: boolean;
   animate?: boolean;
-  delay?: string;
+  delay?: string; // FIXED: Added delay to interface
 }
 
 const { 
@@ -20,17 +20,32 @@ const {
 <section 
   id={id} 
   class:list={[
-    "relative py-16 md:py-24 flex justify-center w-full z-10",
-    animate && "animate-fade-in-up opacity-0",
+    "relative py-12 md:py-16 flex justify-center w-full z-10 full-width-line-section",
+    animate && "reveal-on-scroll opacity-0 translate-y-6",
     className
   ]}
-  style={animate ? `animation-delay: ${delay}; animation-fill-mode: forwards;` : ""}
+  style={`transition-delay: ${delay};`} 
 >
   <div class:list={[
-    "w-full px-6 md:px-12",
-    /* The Global Inset Parameter: 6xl creates the narrow 'spine' */
+    "w-full px-10 md:px-12",
+    /* Unified to 6xl for a consistent central column */
     !isFullWidth && "max-w-6xl" 
   ]}>
     <slot />
   </div>
 </section>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const target = entry.target as HTMLElement;
+        target.style.opacity = "1";
+        target.style.transform = "translateY(0)";
+        observer.unobserve(target);
+      }
+    });
+  }, { threshold: 0.2 });
+
+  document.querySelectorAll('.reveal-on-scroll').forEach((el) => observer.observe(el));
+</script>

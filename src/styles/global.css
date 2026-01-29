@@ -83,96 +83,58 @@
     @apply bg-background text-foreground antialiased;
     font-family: 'Inter', sans-serif;
     color: hsl(var(--foreground));
+    /* Smooth behavior remains, but without snapping constraints */
+    scroll-behavior: smooth; 
     
-    /* Only hide cursor on desktop; touch devices don't use them */
     @media (min-width: 768px) {
       cursor: none !important;
     }
 
-    /* Ensure interactive elements still show something is clickable */
     a, button {
       cursor: none !important;
     }
   }
 
-  /* Optional: Make the block expand when hovering over links */
-  a:hover ~ #block-cursor,
-  button:hover ~ #block-cursor {
-    transform: scale(1.5);
-    background-color: white;
-  } 
-
-  h1, h2, h3, h4, h5, h6 {
+  h1, h2, h3, h4, h5, h6, .font-mono {
     font-family: 'JetBrains Mono', monospace;
   }
 
-  .font-mono {
-    font-family: 'JetBrains Mono', monospace;
-  }
-
-  /* SEO Lazy-Loading Infrastructure */
   section {
-    /* Ensures the section always tries to fill the horizontal viewport */
-    @apply w-full border-t border-b;
-    border-color: hsl(var(--border) / 0.4); /* Faint industrial line */
-    
-    /* Technical layout logic */
+    /* REMOVED ALL BORDERS to ensure only the middle line appears */
+    @apply w-full;
     position: relative;
     content-visibility: auto;
-    contain-intrinsic-size: 1px 500px;
+    contain-intrinsic-size: 1px 400px;
+    /* Smoother transition for the fade-up */
+    transition: opacity 1s ease-out, transform 1s ease-out;
   }
 
-  @media (max-width: 768px) {
-    section {
-      /* Slightly tighter padding on mobile to maximize content space */
-      padding-top: 4rem;
-      padding-bottom: 4rem;
-    }
-  }
-
-  /* FULL WIDTH SECTION DIVIDERS */
   .full-width-line-section {
     position: relative;
     width: 100%;
   }
 
-  /* These pseudo-elements create lines that ignore parent padding */
-  .full-width-line-section::before,
-  .full-width-line-section::after {
+  /* THE SINGLE MIDDLE LINE: Only using ::before ensures a clean single divider */
+  .full-width-line-section::before {
     content: '';
     position: absolute;
+    top: 0;
     left: 50%;
-    /* 100vw ensures it hits the browser edges regardless of container */
     width: 100vw;
     height: 1px;
-    background-color: hsl(var(--border) / 0.4);
+    background-color: hsl(var(--primary) / 0.5);
     transform: translateX(-50%);
     z-index: 10;
   }
 
-  .full-width-line-section::before { top: 0; }
-  .full-width-line-section::after { bottom: 0; }
-
-  /* SYNCED TEXT PULSE - Perfectly matched to the status label */
+  /* SYNCED TEXT PULSE (emotion) */
   .pulse-sync-active {
-    /* 1. Use the SAME animation speed (3s) and the SAME easing */
     animation: emotion-heartbeat var(--animation-speed) ease-in-out infinite;
   }
 
   @keyframes emotion-heartbeat {
-    /* 2. When 'ACTIVATED' is at 0% (Bright), 'emotion' is at 0% (Dim) */
-    0%, 100% { 
-      opacity: 1; 
-      filter: brightness(1);
-      text-shadow: 0 0 0px transparent;
-    }
-    
-    /* 3. When 'ACTIVATED' is at 50% (Dim), 'emotion' is at 50% (Peak Bright) */
-    50% { 
-      opacity: 1; 
-      filter: brightness(1.5);
-      text-shadow: 0 0 30px hsl(var(--accent) / 0.6);
-    }
+    0%, 100% { opacity: 1; filter: brightness(1); text-shadow: none; }
+    50% { opacity: 1; filter: brightness(1.5); text-shadow: 0 0 30px hsl(var(--accent) / 0.6); }
   }
 }
 
@@ -366,7 +328,8 @@
   }
 
   .animate-fade-in-up {
-    animation: fadeInUp 0.8s ease forwards;
+    /* 1.5s is much more 'deliberate' and cinematic than 0.8s or 1.2s */
+    animation: fadeInUp 1.5s cubic-bezier(0.2, 0, 0, 1) forwards;
   }
 
   .animate-pulse-glow {
@@ -379,11 +342,12 @@
   }
 
   @keyframes fadeInUp {
-    from { 
+    0% { 
       opacity: 0; 
-      transform: translateY(20px);
+      /* Start deeper for a more pronounced "rising" effect */
+      transform: translateY(40px); 
     }
-    to { 
+    100% { 
       opacity: 1;
       transform: translateY(0);
     }
