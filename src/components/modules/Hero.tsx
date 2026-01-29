@@ -4,18 +4,36 @@ import { Button } from '@/components/ui/button';
 
 export default function Hero() {
   const [phase, setPhase] = useState<'idle' | 'grow' | 'expand' | 'active'>('idle');
+  // Individual states for precise text control
+  const [activeText, setActiveText] = useState<'syncing' | 'connection' | 'activated' | null>(null);
 
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase('grow'), 600);
-    const t2 = setTimeout(() => setPhase('expand'), 1600);
-    const t3 = setTimeout(() => setPhase('active'), 3200);
-    return () => [t1, t2, t3].forEach(clearTimeout);
+    // 1. MECHANICAL: Start growing the center line
+    const tGrow = setTimeout(() => setPhase('grow'), 600);
+    
+    // 2. TEXT: "Syncing" appears once the line is roughly half-way up (~400ms after grow starts)
+    const tSyncText = setTimeout(() => setActiveText('syncing'), 600);
+    
+    // 3. MECHANICAL: Expansion begins
+    const tExpand = setTimeout(() => setPhase('expand'), 1800);
+    
+    // 4. TEXT: "Connection" appears only AFTER the breakout is well underway
+    const tConnText = setTimeout(() => setActiveText('connection'), 2400);
+    
+    // 5. MECHANICAL: Wave activates
+    const tActive = setTimeout(() => setPhase('active'), 3400);
+    
+    // 6. TEXT: "Activated" appears as a final confirmation after the wave stabilizes
+    const tActiveText = setTimeout(() => setActiveText('activated'), 3600);
+
+    return () => {
+      [tGrow, tSyncText, tExpand, tConnText, tActive, tActiveText].forEach(clearTimeout);
+    };
   }, []);
 
   return (
     <section className="full-width-line-section">
-      {/* Container for content constraints */}
-      <div className="max-w-[1440px] mx-auto px-10 flex flex-col md:flex-row items-center justify-between gap-16 py-12 md:py-24 min-h-[60vh]">
+      <div className="max-w-[1440px] mx-auto px-10 flex flex-col md:flex-row items-center justify-between gap-16 py-12 md:py-24 min-h-[80vh]">
         
         {/* TEXT CONTENT */}
         <div className="flex-1 space-y-8 animate-fade-in-up">
@@ -57,8 +75,11 @@ export default function Hero() {
               ))}
             </div>
             
-            <div className="status-label">
-              {phase === 'active' ? "Activated" : "Syncing"}
+            {/* The label uses activeText for content and a long duration for smooth transitions */}
+            <div className={`status-label transition-all duration-1000 ${activeText ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
+              {activeText === 'activated' ? "Activated" : 
+               activeText === 'connection' ? "Connecting" : 
+               activeText === 'syncing' ? "Syncing" : ""}
             </div>
           </div>
         </div>

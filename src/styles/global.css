@@ -153,21 +153,25 @@
   .full-width-line-section::before { top: 0; }
   .full-width-line-section::after { bottom: 0; }
 
-  /* SYNCED TEXT PULSE */
+  /* SYNCED TEXT PULSE - Perfectly matched to the status label */
   .pulse-sync-active {
-    /* Matches your --animation-speed (3s) and easing exactly */
-    animation: text-glow-pulse var(--animation-speed) ease-in-out infinite;
+    /* 1. Use the SAME animation speed (3s) and the SAME easing */
+    animation: emotion-heartbeat var(--animation-speed) ease-in-out infinite;
   }
 
-  @keyframes text-glow-pulse {
-    100%, 0% {
+  @keyframes emotion-heartbeat {
+    /* 2. When 'ACTIVATED' is at 0% (Bright), 'emotion' is at 0% (Dim) */
+    0%, 100% { 
+      opacity: 1; 
       filter: brightness(1);
       text-shadow: 0 0 0px transparent;
     }
-    50% {
-      /* Brightens in sync with the wave peak */
-      filter: brightness(1.4);
-      text-shadow: 0 0 20px hsl(var(--accent) / 0.5);
+    
+    /* 3. When 'ACTIVATED' is at 50% (Dim), 'emotion' is at 50% (Peak Bright) */
+    50% { 
+      opacity: 1; 
+      filter: brightness(1.5);
+      text-shadow: 0 0 30px hsl(var(--accent) / 0.6);
     }
   }
 }
@@ -236,6 +240,15 @@
 
   .text-body-muted {
     @apply text-muted-foreground text-base text-muted-foreground leading-relaxed font-light;
+  }
+
+  /* THE GRID GRIP: Makes cards look like they share internal borders */
+  .gap-1px {
+    gap: 1px;
+  }
+
+  .heading-section {
+    @apply font-mono text-3xl md:text-5xl font-light leading-tight tracking-tight text-white;
   }
 
   /* THE VISUALIZER CONTAINER */
@@ -312,16 +325,26 @@
 
   /* STATUS LABEL: Higher position and high-frequency sync pulse */
   .status-label {
-    @apply mt-4 font-mono text-[9px] tracking-[1em] uppercase transition-all duration-300;
+    @apply mt-6 font-mono text-[9px] tracking-[1em] uppercase transition-all;
+    /* Smooth vertical slide-in when opacity changes */
+    transform: translateY(10px);
+    
+  }
+
+  /* When the 'opacity-100' utility is applied by React */
+  .status-label.opacity-100 {
+    transform: translateY(0);
   }
 
   .phase-grow .status-label,
   .phase-expand .status-label {
+    /* Fast pulse for loading states */
     animation: rapid-sync 0.5s ease-in-out infinite; 
     color: hsl(var(--accent-peak));
   }
 
   .phase-active .status-label {
+    /* Slow architectural pulse for 'Activated' */
     animation: active-pulse var(--animation-speed) ease-in-out infinite;
   }
 
