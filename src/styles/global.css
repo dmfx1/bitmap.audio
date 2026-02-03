@@ -361,6 +361,88 @@
       box-shadow: 0 0 40px hsl(var(--primary) / 0.4);
     }
   }
+
+  .label-tape {
+    display: block;
+    width: 100%;
+    text-align: center;
+    
+    /* VERTICAL CENTER LOGIC:
+      Total line height is 2.2em. 
+      We want a 1.6em tape strip.
+      (2.2 - 1.6) / 2 = 0.3em buffer on top and bottom.
+    */
+    background: linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 0.3em,              /* Top Gap */
+      rgba(255, 255, 255, 0.75) 0.2em, /* Tape Start */
+      rgba(255, 255, 255, 0.75) 1.8em, /* Tape End (0.3 + 1.6) */
+      transparent 1.9em,               /* Bottom Gap */
+      transparent 2.2em
+    );
+    
+    background-size: 100% 2.2em;
+    line-height: 2.2em; 
+    
+    color: black;
+    padding: 0; 
+    
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+  }
+
+  /* THE LOGO POWER-UP */
+  @keyframes power-up-sequence {
+    0% { 
+      opacity: 1; 
+      background-color: hsl(var(--primary)); 
+      box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+    }
+    15%, 25%, 35%, 45% { opacity: 0; }
+    10%, 20%, 30%, 40% { opacity: 1; }
+    /* The Morph starts here */
+    50% { 
+      background-color: hsl(var(--primary)); 
+    }
+    100% { 
+      opacity: 1; 
+      background-color: hsl(var(--accent)); 
+      box-shadow: 0 0 50px hsl(var(--accent) / 0.5);
+    }
+  }
+
+  .animate-power-up {
+    animation: power-up-sequence 1.5s ease-in-out forwards;
+  }
+
+  @keyframes morph-breathing {
+    /* 0%: Primary Teal / White */
+    0%, 100% {
+      border-color: hsl(var(--primary) / 0.4);
+      color: hsl(var(--foreground)); 
+      text-shadow: 0 0 0px transparent;
+      box-shadow: 0 0 0px transparent;
+    }
+    /* 50%: Solaris Amber */
+    50% {
+      border-color: hsl(var(--accent));
+      color: hsl(var(--accent));
+      text-shadow: 0 0 15px hsl(var(--accent) / 0.4);
+      box-shadow: 0 0 25px hsl(var(--accent) / 0.2), inset 0 0 15px hsl(var(--accent) / 0.1);
+    }
+  }
+
+  .animate-morph {
+    animation: morph-breathing 6s ease-in-out infinite;
+    /* 5s delay from initial page load */
+    animation-delay: 5s;
+    /* 'backwards' ensures 0% styles apply during the 10s wait */
+    animation-fill-mode: backwards;
+  }
 }
 
 #cursor-glow {
@@ -464,12 +546,8 @@
   }
 }
 
+
 .animate-fade-in-up {
   animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
-
-
-
-
-
 

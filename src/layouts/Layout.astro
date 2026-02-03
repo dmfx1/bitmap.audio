@@ -4,6 +4,8 @@ import '../styles/global.css';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { SoundProvider } from '../context/SoundContext.tsx';
+import SoundToggle from '../components/modules/SoundToggle.tsx';
 import Navigation from '../components/Navigation.tsx';
 import Footer from '../components/Footer.astro';
 import GridBackground from '../components/GridBackground.astro';
@@ -18,28 +20,39 @@ const isLandingPage = currentPath === "/" || currentPath === "/index.html";
 ---
 
 <!doctype html>
-<html lang="en" class="dark">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{title}</title>
-  </head>
-  <body class="bg-black text-foreground antialiased selection:bg-primary/30">
-    <TooltipProvider client:load>
-      <GridBackground />
-      {!isLandingPage && <Navigation currentPath={currentPath} client:load />}
-      <div class="relative flex flex-col min-h-screen">
-        <main class="flex-1 flex flex-col">
-          <slot />
-        </main>
-        {!isLandingPage && <Footer />}
-        {isLandingPage && (
-          <div class="absolute bottom-8 w-full text-center opacity-30 font-mono text-[10px] tracking-widest">
-            © 2026 BITMAP.AUDIO — ALL RIGHTS RESERVED
+  <html lang="en" class="dark">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>{title}</title>
+    </head>
+    <body class="bg-black text-foreground antialiased selection:bg-primary/30">
+      {/* IMPORTANT: Wrap everything inside the body with the SoundProvider. 
+          'client:load' is required to make the React state work in Astro.
+      */}
+      {/* <SoundProvider client:load>  */}
+        <TooltipProvider client:load>
+          <GridBackground />
+          
+          {!isLandingPage && <Navigation currentPath={currentPath} client:load />}
+          
+          <div class="relative flex flex-col min-h-screen">
+            <main class="flex-1 flex flex-col">
+              <slot />
+            </main>
+            {!isLandingPage && <Footer />}
+            {isLandingPage && (
+              <div class="absolute bottom-8 w-full text-center opacity-30 font-mono text-[10px] tracking-widest">
+                © 2026 BITMAP.AUDIO — ALL RIGHTS RESERVED
+              </div>
+            )}
           </div>
-        )}
-      </div>
-    </TooltipProvider>
+
+          {/* The persistent Global Toggle */}
+          {/* </SoundProvider> */}
+
+        </TooltipProvider>
+      </SoundProvider>
 
     {/* Lead Block: Minimalist dot cursor */}
     <div id="block-cursor" class="fixed w-1.5 h-1.5 bg-white pointer-events-none z-[9999] hidden md:block mix-blend-difference transition-opacity duration-300 translate-x-[-50%] translate-y-[-50%]"></div>

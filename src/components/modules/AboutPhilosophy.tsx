@@ -9,7 +9,7 @@ const concepts = [
 
 export default function AboutPhilosophy() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24 py-12">
       <div className="space-y-6">
         <p className="text-eyebrow text-accent">The Bitmap Philosophy</p>
         <h2 className="text-3xl font-mono text-white leading-tight">

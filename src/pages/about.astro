@@ -4,9 +4,8 @@ import Layout from '../layouts/Layout.astro';
 import Section from '../components/Section.astro';
 /* 1. Import the new Intro wrapper */
 import AboutIntro from '../components/modules/AboutIntro.tsx';
-import Founders from '../components/modules/Founders.tsx';
 import AboutPhilosophy from '../components/modules/AboutPhilosophy.tsx';
-//import Values from '../components/modules/Values.astro';
+import Values from '../components/modules/Values.tsx';
 import CTA from '../components/modules/CTA.tsx';
 ---
 
@@ -17,17 +16,20 @@ import CTA from '../components/modules/CTA.tsx';
     <AboutIntro client:load />
   </Section>
 
-  <Section id="founders" delay="0.2s">
-    <Founders client:visible />
-  </Section>
-
   <Section id="philosophy" delay="0.3s">
     <AboutPhilosophy client:visible />
   </Section>
 
-  
+  <Section id="Values" delay="0.4s">
+    <Values client:visible />
+  </Section>
 
-  <Section id="cta" delay="0.5s" isFullWidth={true}>
-    <CTA client:visible />
+  <Section id="cta" delay="0.4s">
+    <CTA 
+      client:visible
+      title="Define your brand's audio identity"
+      description="Let's explore how a sonic brand can strengthen your identity and deepen audience connection."
+      buttonText="START YOUR SONIC BRAND"
+    />
   </Section>
 </Layout>
