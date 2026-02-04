@@ -42,10 +42,14 @@ export default function AboutIntro() {
           alt="Founders Wireframe" 
           className="w-full h-auto opacity-50 grayscale brightness-200 contrast-125"
         />
-        <div 
-          className="absolute top-0 bottom-0 w-[1px] bg-accent/50 shadow-[0_0_15px_hsl(var(--accent))]"
-          style={{ left: `${revealProgress}%` }}
-        />
+        
+        {/* FIXED: The line now only renders while revealProgress is less than 100 */}
+        {revealProgress < 100 && (
+          <div 
+            className="absolute top-0 bottom-0 w-[1px] bg-accent/50 shadow-[0_0_15px_hsl(var(--accent))]"
+            style={{ left: `${revealProgress}%` }}
+          />
+        )}
       </div>
 
       {/* 2. HERO SECTION */}

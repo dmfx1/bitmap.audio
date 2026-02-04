@@ -10,7 +10,7 @@ export default function SonicAnalysis() {
           <p className="text-xs font-mono text-accent tracking-[0.4em] uppercase">The Challenge</p>
           <h2 className="text-3xl font-mono text-white leading-tight">In a world of visual noise, sound cuts through.</h2>
         </div>
-        <div className="space-y-6 text-body-muted text-sm leading-relaxed">
+        <div className="space-y-6 text-body-muted text-base leading-relaxed">
           <p>Your audience encounters thousands of visual messages daily. But sound operates differently—it bypasses rational filters and connects directly to emotion and memory.</p>
           <p>A thoughtfully crafted sonic brand becomes instantly recognizable, consistently memorable, and emotionally resonant across every touchpoint.</p>
         </div>
@@ -22,7 +22,7 @@ export default function SonicAnalysis() {
           <p className="text-xs font-mono text-accent tracking-[0.4em] uppercase">Our Approach</p>
           <h2 className="text-3xl font-mono text-white leading-tight">From brand essence to sonic expression.</h2>
         </div>
-        <div className="space-y-6 text-body-muted text-sm leading-relaxed">
+        <div className="space-y-6 text-body-muted text-base leading-relaxed">
           <p>We begin by understanding your brand's core values, personality, and audience. We translate these abstract qualities into concrete sonic attributes—tempo, texture, timbre, and tone.</p>
           <p>The result is a comprehensive audio identity system that scales from a two-second notification sound to a full musical composition.</p>
         </div>
