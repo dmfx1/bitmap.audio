@@ -3,7 +3,15 @@ import { ChevronLeft } from 'lucide-react';
 import TypewriterHero from '../TypewriterHero';
 import * as Icons from '../../ui/icons';
 
-const ICON_POOL = [Icons.BitmapPlay, Icons.BitmapArrow, Icons.BitmapHeart, Icons.BitmapWave, Icons.BitmapNode, Icons.BitmapMeter];
+const ICON_POOL = [
+  Icons.BitmapPlay, 
+  Icons.BitmapArrow, 
+  Icons.BitmapHeart, 
+  Icons.BitmapWave, 
+  Icons.BitmapNode, 
+  Icons.BitmapMeter, 
+  Icons.BitmapChevron
+];
 
 export default function SonicHero() {
   const [showContent, setShowContent] = useState(false);

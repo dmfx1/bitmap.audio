@@ -1,18 +1,11 @@
 ---
 /* src/layouts/Layout.astro */
 import '../styles/global.css';
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SoundProvider } from '../context/SoundContext.tsx';
-import SoundToggle from '../components/modules/SoundToggle.tsx';
 import Navigation from '../components/Navigation.tsx';
 import Footer from '../components/Footer.astro';
 import GridBackground from '../components/GridBackground.astro';
-
-interface Props {
-  title: string;
-}
 
 const { title } = Astro.props;
 const currentPath = Astro.url.pathname;
@@ -20,129 +13,63 @@ const isLandingPage = currentPath === "/" || currentPath === "/index.html";
 ---
 
 <!doctype html>
-  <html lang="en" class="dark">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>{title}</title>
-    </head>
-    <body class="bg-black text-foreground antialiased selection:bg-primary/30">
-      {/* IMPORTANT: Wrap everything inside the body with the SoundProvider. 
-          'client:load' is required to make the React state work in Astro.
-      */}
-      {/* <SoundProvider client:load>  */}
-        <TooltipProvider client:load>
-          <GridBackground />
-          
-          {!isLandingPage && <Navigation currentPath={currentPath} client:load />}
-          
-          <div class="relative flex flex-col min-h-screen">
-            <main class="flex-1 flex flex-col">
-              <slot />
-            </main>
-            {!isLandingPage && <Footer />}
-            {isLandingPage && (
-              <div class="absolute bottom-8 w-full text-center opacity-30 font-mono text-[10px] tracking-widest">
-                © 2026 BITMAP.AUDIO — ALL RIGHTS RESERVED
-              </div>
-            )}
-          </div>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+  </head>
+  <body class="bg-black text-foreground antialiased selection:bg-primary/30">
+    <SoundProvider client:load>
+      <TooltipProvider client:load>
+        <GridBackground />
+        
+        {/* FIXED: Navigation now renders on all pages */}
+        <Navigation currentPath={currentPath} client:load />
+        
+        <div class="relative flex flex-col min-h-screen">
+          <main class="flex-1 flex flex-col">
+            <slot />
+          </main>
+          {!isLandingPage && <Footer />}
+          {isLandingPage && (
+            <div class="absolute bottom-8 w-full text-center opacity-30 font-mono text-[10px] tracking-widest">
+              © 2026 BITMAP.AUDIO — ALL RIGHTS RESERVED
+            </div>
+          )}
+        </div>
+      </TooltipProvider>
+    </SoundProvider>
 
-          {/* The persistent Global Toggle */}
-          {/* </SoundProvider> */}
-
-        </TooltipProvider>
-      </SoundProvider>
-
-    {/* Lead Block: Minimalist dot cursor */}
-    <div id="block-cursor" class="fixed w-1.5 h-1.5 bg-white pointer-events-none z-[9999] hidden md:block mix-blend-difference transition-opacity duration-300 translate-x-[-50%] translate-y-[-50%]"></div>
-
-    {/* The Tail: Atmospheric washed-out teal glow */}
     <div id="cursor-glow" class="fixed w-32 h-32 bg-primary/20 rounded-full blur-[80px] pointer-events-none z-[9998] hidden md:block translate-x-[-50%] translate-y-[-50%] transition-transform duration-700 ease-out"></div>
 
     <script>
-      const cursor = document.getElementById('block-cursor');
       const glow = document.getElementById('cursor-glow');
-      const interactiveElements = document.querySelectorAll('a, button, [role="button"], .concept-card') as NodeListOf<HTMLElement>;
+      const interactiveElements = document.querySelectorAll('a, button, [role="button"], .concept-card');
 
-      let mouseX = 0;
-      let mouseY = 0;
-      let ticking = false;
-      
       document.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-
-        if (!ticking) {
-          window.requestAnimationFrame(() => {
-            if (cursor) {
-              cursor.style.left = `${mouseX}px`;
-              cursor.style.top = `${mouseY}px`;
-            }
-            if (glow) {
-              glow.style.left = `${mouseX}px`;
-              glow.style.top = `${mouseY}px`;
-            }
-            ticking = false;
-          });
-          ticking = true;
-        }
+        window.requestAnimationFrame(() => {
+          if (glow) {
+            glow.style.left = `${e.clientX}px`;
+            glow.style.top = `${e.clientY}px`;
+          }
+        });
       });
-
-      const toggleCursor = (show: boolean) => {
-        const display = show ? 'block' : 'none';
-        if (cursor) cursor.style.display = display;
-        if (glow) glow.style.display = display;
-      };
-
-      document.addEventListener('mouseenter', () => toggleCursor(true));
-      document.addEventListener('mouseleave', () => toggleCursor(false));
-
-      /* Inside Layout.astro <script> */
 
       interactiveElements.forEach(el => {
         el.addEventListener('mouseenter', () => {
-          if (cursor) cursor.style.opacity = '0';
-          el.style.setProperty('cursor', 'none', 'important');
-          
           const text = el.textContent?.toLowerCase() || "";
-          const isLink = el.tagName === 'A' || el.closest('a'); // Check if it's a link
-          const isExplore = text.includes('explore');
-          const isConceptCard = el.classList.contains('concept-card');
-          const isLogo = el.classList.contains('logo-box');
-
-          // SCENARIO 1: The "Explore" Button (Stay Black text, Teal background)
-          if (isExplore) {
-            el.classList.add('is-electric-primary');
-          } 
-          // SCENARIO 2: Logo Box (Fill Pulse)
-          else if (isLogo) {
-            el.classList.add('is-filling');
-          } 
-          // SCENARIO 3: Concept Cards that are NOT links (Electrify only)
-          else if (isConceptCard && !isLink) {
-            el.classList.add('is-electric-card');
-          }
-          // SCENARIO 4: Actual Navigation Links & Buttons (Full Morph)
-          else {
-            el.classList.add('is-morphing');
-          }
+          if (text.includes('explore')) el.classList.add('is-electric-primary');
+          else el.classList.add('is-morphing');
 
           if (glow) {
             glow.classList.add('animate-glow-pulse');
-            if (text.includes('audio') || text.includes('synthesis')) {
-              glow.style.backgroundColor = 'hsl(var(--accent) / 0.3)';
-            }
+            if (text.includes('audio')) glow.style.backgroundColor = 'hsl(var(--accent) / 0.3)';
           }
         });
 
         el.addEventListener('mouseleave', () => {
-          if (cursor) cursor.style.opacity = '1';
-          el.style.removeProperty('cursor');
-          
-          // Clean up all possible states
-          el.classList.remove('is-electric-primary', 'is-electric-card', 'is-morphing', 'is-filling');
-          
+          el.classList.remove('is-electric-primary', 'is-morphing');
           if (glow) {
             glow.classList.remove('animate-glow-pulse');
             glow.style.backgroundColor = 'hsl(var(--primary) / 0.2)';

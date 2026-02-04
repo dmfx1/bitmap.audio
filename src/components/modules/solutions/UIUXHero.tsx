@@ -9,7 +9,8 @@ const ICON_POOL = [
   Icons.BitmapHeart, 
   Icons.BitmapWave, 
   Icons.BitmapNode, 
-  Icons.BitmapMeter
+  Icons.BitmapMeter,
+  Icons.BitmapChevron
 ];
 
 export default function UIUXHero() {

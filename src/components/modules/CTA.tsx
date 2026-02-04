@@ -34,7 +34,7 @@ export default function CTA({
           size="xl" 
           className="rounded-none bg-primary text-black font-mono tracking-widest transition-all duration-300 morph-accent-fill px-10 py-8 text-sm"
         >
-          {buttonText} <ArrowRight className="w-5 h-5 ml-3" />
+          {buttonText}
         </Button>
       </a>
     </div>

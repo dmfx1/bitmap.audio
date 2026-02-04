@@ -53,7 +53,7 @@ export default function Hero() {
             <div className="flex items-center gap-6">
               <a href="/about">
                 <Button variant="default" size="xl" className="rounded-none">
-                  OUR STORY <ArrowRight className="w-4 h-4 ml-2" />
+                  OUR STORY
                 </Button>
               </a>
               <Button variant="outline" size="xl" className="morph-accent rounded-none">

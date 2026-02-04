@@ -1,68 +1,44 @@
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
-
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    /* 1. THE VOID: Deep Obsidian (Cool, desaturated dark teal) */
     --background: 180 15% 2%;
     --foreground: 0 0% 95%;
-
     --card: 220 20% 7%;
     --card-foreground: 0 0% 95%;
-
     --popover: 220 20% 6%;
     --popover-foreground: 0 0% 95%;
-
-    /* 2. THE SYSTEM: Retro-Industrial Teal */
     --primary: 200 80% 90%; 
     --primary-foreground: 180 100% 5%;
-
     --secondary: 220 15% 12%;
     --secondary-foreground: 0 0% 85%;
-
     --muted: 220 15% 15%;
     --muted-foreground: 0 0% 60%;
-
-    /* 3. THE SOUL: Solaris Amber */
     --accent: 35 100% 55%;
     --accent-foreground: 0 0% 100%;
-
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 98%;
-
-    /* Border: Very faint warm gray for the grid lines */
     --border: 180 15% 12%;
     --input: 220 15% 12%;
     --ring: 35 100% 55%;
     --radius: 0.25rem;
-
-    /* Custom brand colors */
-    --bitmap-cyan: 30 100% 50%; /* Rename this to --bitmap-orange eventually */
+    --bitmap-cyan: 30 100% 50%; 
     --bitmap-dark: 220 20% 4%;
     --bitmap-gray: 220 10% 25%;
     --bitmap-light: 0 0% 95%;
-    
-    /* Gradients */
     --gradient-glow: linear-gradient(135deg, hsl(185 100% 50% / 0.2), hsl(200 100% 60% / 0.1));
     --gradient-text: linear-gradient(90deg, hsl(185 100% 60%), hsl(200 100% 70%));
     --gradient-border: linear-gradient(90deg, hsl(185 100% 50% / 0.5), hsl(185 100% 50% / 0.1));
-
-    /* REFINED INDUSTRIAL CONTROLS */
     --bar-width: 6px;
-    --bar-max-height: 120px;     /* The peak of the initial bar and wave */
-    --bar-radius: 1px;           /* Technical square-round */
-    --animation-speed: 3s;       /* Significantly slower for architectural feel */
-    
-    /* COLOR & LUMINOSITY */
-    --accent-muted: 35 100% 15%;  /* Very dark orange */
-    --accent-peak: 35 100% 60%;   /* High-intensity Solaris Amber */
-
-    /* Sidebar */
+    --bar-max-height: 120px;     
+    --bar-radius: 1px;           
+    --animation-speed: 3s;       
+    --accent-muted: 35 100% 15%;  
+    --accent-peak: 35 100% 60%;   
     --sidebar-background: 220 20% 6%;
     --sidebar-foreground: 0 0% 90%;
     --sidebar-primary: 185 100% 50%;
@@ -72,9 +48,7 @@
     --sidebar-border: 220 15% 15%;
     --sidebar-ring: 185 100% 50%;
   }
-}
 
-@layer base {
   * {
     @apply border-border;
   }
@@ -83,15 +57,25 @@
     @apply bg-background text-foreground antialiased;
     font-family: 'Inter', sans-serif;
     color: hsl(var(--foreground));
-    /* Smooth behavior remains, but without snapping constraints */
     scroll-behavior: smooth; 
     
+    /* MAIN CURSOR: Primary Teal Pixel Dot */
     @media (min-width: 768px) {
-      cursor: none !important;
+      cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Crect fill='hsl(200, 80%25, 90%25)' x='6' y='6' width='4' height='4'/%3E%3C/svg%3E") 8 8, auto;
     }
+  }
 
-    a, button {
-      cursor: none !important;
+  /* HOVER CURSOR: Amber BitmapArrow */
+  a, button, [role="button"], .concept-card, .cursor-pointer {
+    @media (min-width: 768px) {
+      cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 16 16'%3E%3Cpath fill='%23ffcc00' d='M2 7h6v2H2V7zm6-2h2v6H8V5zm2 2h2v2h-2V7zm-2-4h2v2H8V3zm0 8h2v2H8v-2z'/%3E%3C/svg%3E") 0 0, pointer !important;
+    }
+  }
+
+  /* CONTEXTUAL HOVER: Black Arrow (For Primary Teal Buttons) */
+  .is-electric-primary, .bg-primary {
+    @media (min-width: 768px) {
+      cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 16 16'%3E%3Cpath fill='%23000000' d='M2 7h6v2H2V7zm6-2h2v6H8V5zm2 2h2v2h-2V7zm-2-4h2v2H8V3zm0 8h2v2H8v-2z'/%3E%3C/svg%3E") 0 0, pointer !important;
     }
   }
 
@@ -100,12 +84,10 @@
   }
 
   section {
-    /* REMOVED ALL BORDERS to ensure only the middle line appears */
     @apply w-full;
     position: relative;
     content-visibility: auto;
     contain-intrinsic-size: 1px 400px;
-    /* Smoother transition for the fade-up */
     transition: opacity 1s ease-out, transform 1s ease-out;
   }
 
@@ -114,7 +96,6 @@
     width: 100%;
   }
 
-  /* THE SINGLE MIDDLE LINE: Only using ::before ensures a clean single divider */
   .full-width-line-section::before {
     content: '';
     position: absolute;
@@ -127,7 +108,6 @@
     z-index: 10;
   }
 
-  /* SYNCED TEXT PULSE (emotion) */
   .pulse-sync-active {
     animation: emotion-heartbeat var(--animation-speed) ease-in-out infinite;
   }
@@ -139,7 +119,6 @@
 }
 
 @layer components {
-  /* Grid pattern overlay */
   .bitmap-grid {
     background-image: 
       linear-gradient(hsl(var(--border)) 1.5px, transparent 2px),
@@ -147,12 +126,10 @@
     background-size: 40px 40px;
   }
 
-  /* Glowing text effect */
   .text-glow {
     text-shadow: 0 0 40px hsl(var(--primary) / 0.5);
   }
 
-  /* Animated underline */
   .link-underline {
     position: relative;
   }
@@ -172,7 +149,6 @@
     width: 100%;
   }
 
-  /* Card hover glow */
   .card-glow {
     transition: box-shadow 0.3s ease, border-color 0.3s ease;
   }
@@ -182,12 +158,6 @@
     border-color: hsl(var(--primary) / 0.3);
   }
 
-  /* Pixel cursor effect */
-  .cursor-pixel {
-    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Crect fill='%2300e5ff' width='4' height='4'/%3E%3C/svg%3E"), auto;
-  }
-
-  /* Module typography */
   .heading-hero {
     @apply font-mono text-5xl md:text-6xl font-light leading-[1.05] tracking-tight text-white;
   }
@@ -204,19 +174,13 @@
     @apply text-muted-foreground text-base text-muted-foreground leading-relaxed font-light;
   }
 
-  /* THE GRID GRIP: Makes cards look like they share internal borders */
   .gap-1px {
     gap: 1px;
   }
 
-  .heading-section {
-    @apply font-mono text-3xl md:text-5xl font-light leading-tight tracking-tight text-white;
-  }
-
-  /* THE VISUALIZER CONTAINER */
   .visualizer-stage {
     @apply relative flex flex-col items-center justify-center;
-    min-height: 300px; /* Reduced to pull text up */
+    min-height: 300px; 
   }
 
   .bar-element {
@@ -229,10 +193,7 @@
     background-color: hsl(var(--accent-muted));
     border-radius: var(--bar-radius);
     transform: translateX(-50%);
-    
-    /* Z-INDEX: Center bar is 50. Outer bars slide out from behind. */
     z-index: calc(50 - abs(var(--i) - 18));
-
     transition: 
       transform 0.7s cubic-bezier(0.85, 0, 0.15, 1),
       height 1s cubic-bezier(0.33, 1, 0.68, 1),
@@ -240,7 +201,6 @@
       filter 0.5s ease;
   }
 
-  /* PHASE 1: Vertical Grow */
   .phase-grow .bar-element {
     opacity: 1;
     height: var(--bar-max-height);
@@ -248,7 +208,6 @@
     filter: brightness(1.6);
   }
 
-  /* PHASE 2: Expansion (Stay Bright & High) */
   .phase-expand .bar-element {
     opacity: 1;
     height: var(--bar-max-height);
@@ -258,20 +217,14 @@
     transition-delay: calc(abs(var(--i) - 18) * 0.04s);
   }
 
-  /* PHASE 3: Activated (Periphery-to-Center Wave) */
   .phase-active .bar-element {
     opacity: 1;
     transform: translateX(calc((var(--i) - 18) * 11px - 50%));
-    
-    /* THE FIX: 'backwards' ensures bars stay at 0% (peak height) during the delay */
     animation: master-wave var(--animation-speed) ease-in-out infinite backwards;
-    
-    /* SYMMETRICAL DELAY: Ends (0 and 35) move first, Center (18) moves last */
     --dist-from-edge: min(var(--i), calc(35 - var(--i)));
     animation-delay: calc(var(--dist-from-edge) * 0.1s);
   }
 
-  /* WAVE PROPAGATION: Starts at Peak height (0%) to prevent any jump */
   @keyframes master-wave {
     0%, 100% {
       height: var(--bar-max-height);
@@ -285,28 +238,22 @@
     }
   }
 
-  /* STATUS LABEL: Higher position and high-frequency sync pulse */
   .status-label {
     @apply mt-6 font-mono text-[9px] tracking-[1em] uppercase transition-all;
-    /* Smooth vertical slide-in when opacity changes */
     transform: translateY(10px);
-    
   }
 
-  /* When the 'opacity-100' utility is applied by React */
   .status-label.opacity-100 {
     transform: translateY(0);
   }
 
   .phase-grow .status-label,
   .phase-expand .status-label {
-    /* Fast pulse for loading states */
     animation: rapid-sync 0.5s ease-in-out infinite; 
     color: hsl(var(--accent-peak));
   }
 
   .phase-active .status-label {
-    /* Slow architectural pulse for 'Activated' */
     animation: active-pulse var(--animation-speed) ease-in-out infinite;
   }
 
@@ -322,13 +269,11 @@
 }
 
 @layer utilities {
-  /* Fade in animation */
   .animate-fade-in {
     animation: fadeIn 0.6s ease forwards;
   }
 
   .animate-fade-in-up {
-    /* 1.5s is much more 'deliberate' and cinematic than 0.8s or 1.2s */
     animation: fadeInUp 1.5s cubic-bezier(0.2, 0, 0, 1) forwards;
   }
 
@@ -344,7 +289,6 @@
   @keyframes fadeInUp {
     0% { 
       opacity: 0; 
-      /* Start deeper for a more pronounced "rising" effect */
       transform: translateY(40px); 
     }
     100% { 
@@ -366,28 +310,19 @@
     display: block;
     width: 100%;
     text-align: center;
-    
-    /* VERTICAL CENTER LOGIC:
-      Total line height is 2.2em. 
-      We want a 1.6em tape strip.
-      (2.2 - 1.6) / 2 = 0.3em buffer on top and bottom.
-    */
     background: linear-gradient(
       to bottom,
       transparent 0,
-      transparent 0.3em,              /* Top Gap */
-      rgba(255, 255, 255, 0.75) 0.2em, /* Tape Start */
-      rgba(255, 255, 255, 0.75) 1.8em, /* Tape End (0.3 + 1.6) */
-      transparent 1.9em,               /* Bottom Gap */
+      transparent 0.3em,              
+      rgba(255, 255, 255, 0.75) 0.2em, 
+      rgba(255, 255, 255, 0.75) 1.8em, 
+      transparent 1.9em,               
       transparent 2.2em
     );
-    
     background-size: 100% 2.2em;
     line-height: 2.2em; 
-    
     color: black;
     padding: 0; 
-    
     font-family: 'JetBrains Mono', monospace;
     font-weight: 600;
     text-transform: uppercase;
@@ -395,7 +330,6 @@
     letter-spacing: 0.05em;
   }
 
-  /* THE LOGO POWER-UP */
   @keyframes power-up-sequence {
     0% { 
       opacity: 1; 
@@ -404,7 +338,6 @@
     }
     15%, 25%, 35%, 45% { opacity: 0; }
     10%, 20%, 30%, 40% { opacity: 1; }
-    /* The Morph starts here */
     50% { 
       background-color: hsl(var(--primary)); 
     }
@@ -420,14 +353,12 @@
   }
 
   @keyframes morph-breathing {
-    /* 0%: Primary Teal / White */
     0%, 100% {
       border-color: hsl(var(--primary) / 0.4);
       color: hsl(var(--foreground)); 
       text-shadow: 0 0 0px transparent;
       box-shadow: 0 0 0px transparent;
     }
-    /* 50%: Solaris Amber */
     50% {
       border-color: hsl(var(--accent));
       color: hsl(var(--accent));
@@ -438,20 +369,15 @@
 
   .animate-morph {
     animation: morph-breathing 6s ease-in-out infinite;
-    /* 5s delay from initial page load */
     animation-delay: 5s;
-    /* 'backwards' ensures 0% styles apply during the 10s wait */
     animation-fill-mode: backwards;
   }
 }
 
 #cursor-glow {
-  /* This makes the glow 'stretch' slightly as you move fast */
   will-change: transform, left, top;
 }
 
-
-/* 1. Standard Morph (For Buttons & Cards - Text/Border only) */
 @keyframes morph-pulse-outline {
   0%, 100% {
     border-color: hsl(var(--primary) / 0.3);
@@ -467,7 +393,6 @@
   }
 }
 
-/* 2. Fill Morph (Specifically for the "b." Logo Box) */
 @keyframes morph-pulse-fill {
   0%, 100% {
     background-color: hsl(var(--primary));
@@ -479,16 +404,14 @@
   }
 }
 
-/* 1. The Primary "Electric" state (Teal only) */
 .is-electric-primary {
   border-color: hsl(var(--primary)) !important;
-  background-color: hsl(var(--primary)) !important; /* Force background for 'Explore' */
-  color: #000000 !important; /* Ensure text stays black */
+  background-color: hsl(var(--primary)) !important; 
+  color: #000000 !important; 
   box-shadow: 0 0 30px hsl(var(--primary) / 0.4) !important;
   transition: all 0.3s ease;
 }
 
-/* 2. Special Electric state for Cards (No background fill) */
 .is-electric-card {
   border-color: hsl(var(--primary)) !important;
   color: hsl(var(--primary)) !important;
@@ -496,45 +419,14 @@
   transition: all 0.4s ease;
 }
 
-/* 1. Standard Morph (For Buttons & Cards - Text/Border only) */
-@keyframes morph-pulse-outline {
-  0%, 100% {
-    border-color: hsl(var(--primary) / 0.3);
-    color: hsl(var(--primary));
-    text-shadow: none;
-    box-shadow: none;
-  }
-  50% {
-    border-color: hsl(var(--accent));
-    color: hsl(var(--accent));
-    text-shadow: 0 0 15px hsl(var(--accent) / 0.5);
-    box-shadow: inset 0 0 20px hsl(var(--accent) / 0.15), 0 0 30px hsl(var(--accent) / 0.1);
-  }
-}
-
-/* 2. Fill Morph (Specifically for the "b." Logo Box) */
-@keyframes morph-pulse-fill {
-  0%, 100% {
-    background-color: hsl(var(--primary));
-    box-shadow: 0 0 66px hsl(var(--primary) / 0.5);
-  }
-  50% {
-    background-color: hsl(var(--accent));
-    box-shadow: 0 0 80px hsl(var(--accent) / 0.6);
-  }
-}
-
-/* Base class for buttons/cards */
 .morph-accent:hover {
   animation: morph-pulse-outline 4s infinite ease-in-out;
 }
 
-/* Special class for the filled logo box */
 .morph-accent-fill:hover {
   animation: morph-pulse-fill 4s infinite ease-in-out;
 }
 
-/* Optimized Reveal Animation */
 @keyframes fadeInUp {
   from { 
     opacity: 0; 
@@ -546,8 +438,6 @@
   }
 }
 
-
 .animate-fade-in-up {
   animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
-
