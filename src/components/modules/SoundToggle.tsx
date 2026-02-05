@@ -21,7 +21,7 @@ export default function SoundToggle() {
         </span>
       </div>
       
-      <div className="flex items-end gap-[2px] h-4 w-4 border border-white/10 p-[2px]">
+      <div className="flex items-end gap-[2px] h-4 w-4 border border-foreground/10 p-[2px]">
         {[1, 2, 3].map((i) => (
           <div 
             key={i}

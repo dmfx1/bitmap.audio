@@ -20,7 +20,7 @@ export default function SonicHero() {
   const constellation = useMemo(() => {
     const slots = [
       // The "Hero" icon - now higher opacity (30%) and positioned more centrally under text
-      { size: 'w-32 h-32', color: 'text-white/30', t: [45, 55], r: [35, 50], delay: '0s' },
+      { size: 'w-32 h-32', color: 'text-foreground/30', t: [45, 55], r: [35, 50], delay: '0s' },
       // Support icons - spread out
       { size: 'w-24 h-24', color: 'text-primary/40', t: [10, 25], r: [5, 20], delay: '0.2s' },
       { size: 'w-16 h-16', color: 'text-accent/60', t: [60, 80], r: [15, 30], delay: '0.4s' },
@@ -67,8 +67,8 @@ export default function SonicHero() {
              />
            ))}
            
-           <div className="absolute top-[30%] right-0 w-full h-px bg-white/5" />
-           <div className="absolute top-0 right-[45%] w-px h-full bg-white/5" />
+           <div className="absolute top-[30%] right-0 w-full h-px bg-foreground/5" />
+           <div className="absolute top-0 right-[45%] w-px h-full bg-foreground/5" />
         </div>
 
         {/* FIX: Line disappears when reveal is finished */}

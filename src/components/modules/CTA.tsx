@@ -19,12 +19,12 @@ export default function CTA({
   return (
     <div className="w-full flex flex-col items-center text-center py-24">
       {/* HEADER: Solaris Amber Pulse */}
-      <h2 className="text-3xl md:text-5xl lg:text-4xl font-mono text-accent animate-pulse mb-8 tracking-tight uppercase">
+      <h2 className="text-3xl md:text-4xl font-mono text-accent animate-pulse mb-8 tracking-tight">
         {title}
       </h2>
 
       {/* SUBTEXT: Technical Muted */}
-      <p className="text-body-muted text-lg max-w-2xl mb-12">
+      <p className="text-body-muted text-base max-w-xl mb-12">
         {description}
       </p>
 

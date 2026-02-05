@@ -1,31 +1,41 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { Mail, MapPin } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import Section from '../components/Section.astro';
+import ContactHero from '../components/modules/ContactHero.tsx';
+import ConceptGrid from '../components/modules/ConceptGrid.tsx';
+import SocialsGrid from '@/components/modules/SocialsGrid';
+import CTA from '../components/modules/CTA.tsx';
+
+const contactCards = [
+  {
+    title: "EMAIL US",
+    subtitle: "hello@bitmap.audio",
+    desc: "For project inquiries, collaborations, or just to say hello.",
+    icon: "mail" 
+  },
+  {
+    title: "LOCATION",
+    subtitle: "Remote / Global",
+    desc: "We work remotely with clients worldwide from our modular hubs.",
+    icon: "map"
+  }
+];
 ---
 
 <Layout title="Contact | bitmap.audio">
-  <section class="pt-32 pb-20 px-6">
-    <div class="container mx-auto max-w-4xl">
-      <p class="font-mono text-sm uppercase tracking-widest text-primary mb-4">Contact</p>
-      <h1 class="font-mono text-4xl md:text-6xl font-medium text-foreground mb-8 leading-tight">
-        Let's start a <span class="text-primary">conversation</span>
-      </h1>
-    </div>
-  </section>
+  <Section id="hero" delay="0.1s">
+    <ContactHero client:load />
+  </Section>
 
-  <section class="py-20 px-6 border-t border-border">
-    <div class="container mx-auto max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-12">
-      <div class="border border-border p-8 bg-card/50 backdrop-blur-sm card-glow">
-        <Mail className="w-8 h-8 text-primary mb-6" />
-        <h2 class="font-mono text-xl mb-2">Email Us</h2>
-        <a href="mailto:hello@bitmap.audio" class="font-mono text-primary hover:underline">hello@bitmap.audio</a>
-      </div>
-      <div class="border border-border p-8 bg-card/50 backdrop-blur-sm card-glow">
-        <MapPin className="w-8 h-8 text-primary mb-6" />
-        <h2 class="font-mono text-xl mb-2">Location</h2>
-        <span class="font-mono text-foreground">Remote / Global</span>
-      </div>
-    </div>
-  </section>
+  <Section id="details" delay="0.5s">
+    <ConceptGrid 
+      client:visible 
+      items={contactCards} 
+      className="py-0"
+    />
+  </Section>
+
+  <Section id="socials" delay="1.2s">
+    <SocialsGrid client:visible />
+  </Section>
 </Layout>

@@ -30,7 +30,7 @@ export default function ServicePillars() {
       {/* HEADER AREA */}
       <div className="text-center mb-20 animate-fade-in-up">
         <p className="text-eyebrow text-accent text-sm mb-4">What We Do</p>
-        <h2 className="text-4xl font-mono text-white">
+        <h2 className="text-4xl font-mono text-foreground">
           Three pillars of sonic design
         </h2>
       </div>
@@ -40,12 +40,12 @@ export default function ServicePillars() {
         {services.map((s, i) => (
           <div 
             key={i} 
-            className="group relative flex flex-col p-10 md:p-12 transition-all duration-500 hover:bg-white/[0.02] card-glow overflow-hidden border border-border/20"
+            className="group relative flex flex-col p-10 md:p-12 transition-all duration-500 hover:bg-foreground/[0.02] card-glow overflow-hidden border border-border/20"
           >
             {/* ICON CHANGED TO SOLARIS (text-accent) */}
             <s.icon className="w-8 h-8 text-accent mb-8 transition-all duration-500 group-hover:scale-110 group-hover:drop-shadow-[0_0_8px_rgba(255,165,0,0.5)]" />
             
-            <h3 className="font-mono text-xl font-medium text-white mb-4 tracking-tight group-hover:text-accent transition-colors duration-300">
+            <h3 className="font-mono text-xl font-medium text-foreground mb-4 tracking-tight group-hover:text-accent transition-colors duration-300">
               {s.title}
             </h3>
             

@@ -68,21 +68,21 @@ export default function AboutIntro() {
       </div>
 
       {/* 3. FOUNDERS MODULE (Integrated - No Line) */}
-      <div className={`grid grid-cols-1 md:grid-cols-2 mt-24 gap-px bg-white/5 w-full transition-all duration-1000 delay-500
+      <div className={`grid grid-cols-1 md:grid-cols-2 mt-24 gap-px bg-foreground/5 w-full transition-all duration-1000 delay-500
         ${showContent ? 'opacity-100' : 'opacity-0'}`}>
         
         {founders.map((f, index) => {
           const formattedId = String(index).padStart(4, '0');
           return (
-            <div key={index} className="group relative bg-background/50 p-12 overflow-hidden border-r border-white/5 last:border-0">
+            <div key={index} className="group relative bg-background/50 p-12 overflow-hidden border-r border-foreground/5 last:border-0">
               
               {/* Card Decoration: Corner Bracket */}
-              <div className="absolute top-0 left-0 w-4 h-4 border-t border-l border-white/10 group-hover:border-accent transition-colors" />
+              <div className="absolute top-0 left-0 w-4 h-4 border-t border-l border-foreground/10 group-hover:border-accent transition-colors" />
               
               <div className="relative z-10">
                 <span className="font-mono text-[10px] text-accent block mb-6 tracking-widest">{formattedId}</span>
                 
-                <h3 className="text-white font-mono text-2xl mb-2 transition-all group-hover:translate-x-2">
+                <h3 className="text-foreground font-mono text-2xl mb-2 transition-all group-hover:translate-x-2">
                    {f.name}
                 </h3>
                 
@@ -90,9 +90,9 @@ export default function AboutIntro() {
                   {f.role}
                 </p>
                 
-                <div className="h-px w-8 bg-white/10 mb-8 group-hover:w-full transition-all duration-700" />
+                <div className="h-px w-8 bg-foreground/10 mb-8 group-hover:w-full transition-all duration-700" />
                 
-                <p className="text-muted-foreground text-sm leading-relaxed max-w-sm group-hover:text-white transition-colors">
+                <p className="text-muted-foreground text-sm leading-relaxed max-w-sm group-hover:text-foreground transition-colors">
                   {f.bio}
                 </p>
               </div>

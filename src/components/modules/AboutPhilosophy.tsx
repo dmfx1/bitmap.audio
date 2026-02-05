@@ -12,7 +12,7 @@ export default function AboutPhilosophy() {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24 py-12">
       <div className="space-y-6">
         <p className="text-eyebrow text-accent">The Bitmap Philosophy</p>
-        <h2 className="text-3xl font-mono text-white leading-tight">
+        <h2 className="text-3xl font-mono text-foreground leading-tight">
           In computer science, a bitmap is a data structure that represents a spatially mapped array of bits.
         </h2>
       </div>
@@ -21,7 +21,7 @@ export default function AboutPhilosophy() {
           <div key={i} className="group space-y-3">
             <h4 className="text-accent font-mono text-sm tracking-widest uppercase flex items-center gap-4">
               {c.term}
-              <span className="h-px flex-1 bg-white/10 group-hover:bg-accent/30 transition-colors" />
+              <span className="h-px flex-1 bg-foreground/10 group-hover:bg-accent/30 transition-colors" />
             </h4>
             <p className="text-body-muted leading-relaxed">
               {c.def}

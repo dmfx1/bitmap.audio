@@ -6,6 +6,7 @@ import { SoundProvider } from '../context/SoundContext.tsx';
 import Navigation from '../components/Navigation.tsx';
 import Footer from '../components/Footer.astro';
 import GridBackground from '../components/GridBackground.astro';
+import ThemeSwitcher from '../components/ThemeSwitcher.tsx';
 
 const { title } = Astro.props;
 const currentPath = Astro.url.pathname;
@@ -24,14 +25,20 @@ const isLandingPage = currentPath === "/" || currentPath === "/index.html";
       <TooltipProvider client:load>
         <GridBackground />
         
-        {/* FIXED: Navigation now renders on all pages */}
-        <Navigation currentPath={currentPath} client:load />
+        {/* UPDATED: Only show Navigation if NOT on the landing page */}
+        { !isLandingPage && <Navigation currentPath={currentPath} client:load /> }
+
+        <ThemeSwitcher client:load />
         
         <div class="relative flex flex-col min-h-screen">
           <main class="flex-1 flex flex-col">
             <slot />
           </main>
+          
+          {/* Footer logic remains the same (hidden on landing) */}
           {!isLandingPage && <Footer />}
+          
+          {/* Copyright for Landing Page */}
           {isLandingPage && (
             <div class="absolute bottom-8 w-full text-center opacity-30 font-mono text-[10px] tracking-widest">
               © 2026 BITMAP.AUDIO — ALL RIGHTS RESERVED

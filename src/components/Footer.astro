@@ -1,17 +1,29 @@
 ---
 /* src/components/Footer.astro */
-import { Instagram, Linkedin, Mail } from "lucide-react";
+import { 
+  BitmapMail, 
+  BitmapInstagram, 
+  BitmapLinkedin, 
+  BitmapThreads,
+  BitmapChevron 
+} from "./ui/icons";
+
+const footerFAQs = [
+  { q: "How do we start?", href: "/faq#process" },
+  { q: "What is 'Sonic UI'?", href: "/faq#definitions" },
+  { q: "Licensing terms?", href: "/faq#legal" }
+];
 ---
 <footer class="border-t border-border bg-background relative z-10">
   <div class="container mx-auto px-6 py-12">
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-8">
       <div class="md:col-span-2">
         <a href="/" class="flex items-center gap-2 group mb-4">
           <div class="w-8 h-8 bg-primary flex items-center justify-center">
             <span class="text-primary-foreground font-mono text-xs font-bold">b.</span>
           </div>
-          <span class="font-mono text-lg font-medium text-foreground group-hover:text-primary transition-colors">
-            bitmap<span class="text-primary">.audio</span>
+          <span class="font-mono text-lg font-light text-foreground group-hover:text-primary transition-colors">
+            bitmap<span class="text-accent font-bold">.audio</span>
           </span>
         </a>
         <p class="text-sm text-muted-foreground max-w-xs font-mono">
@@ -20,27 +32,62 @@ import { Instagram, Linkedin, Mail } from "lucide-react";
       </div>
 
       <div>
+        <h4 class="font-mono text-sm uppercase tracking-wider text-foreground mb-4">FAQ</h4>
+        <ul class="space-y-2">
+          {footerFAQs.map(faq => (
+            <li>
+              <a href={faq.href} class="text-sm text-muted-foreground hover:text-accent transition-colors font-mono">
+                {faq.q}
+              </a>
+            </li>
+          ))}
+          <li class="pt-2">
+            <a href="/faq" class="text-[10px] uppercase tracking-widest text-primary flex items-center gap-1 group font-bold">
+              View All <BitmapChevron client:load className="w-2 h-2 group-hover:translate-x-1 transition-transform" />
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div>
         <h4 class="font-mono text-sm uppercase tracking-wider text-foreground mb-4">Solutions</h4>
         <ul class="space-y-2">
-          <li><a href="/solutions/sonic-branding" class="text-sm text-muted-foreground hover:text-primary transition-colors">Sonic Branding</a></li>
-          <li><a href="/solutions/uiux-sound" class="text-sm text-muted-foreground hover:text-primary transition-colors">UI/UX Sound</a></li>
-          <li><a href="/solutions/immersive-audio" class="text-sm text-muted-foreground hover:text-primary transition-colors">Immersive Audio</a></li>
+          <li><a href="/solutions/sonic-branding" class="font-mono text-sm text-muted-foreground hover:text-accent transition-colors">Sonic Branding</a></li>
+          <li><a href="/solutions/uiux-sound" class="font-mono text-sm text-muted-foreground hover:text-accent transition-colors">UI/UX Sound</a></li>
+          <li><a href="/solutions/immersive-audio" class="font-mono text-sm text-muted-foreground hover:text-accent transition-colors">Immersive Audio</a></li>
         </ul>
       </div>
 
       <div>
         <h4 class="font-mono text-sm uppercase tracking-wider text-foreground mb-4">Connect</h4>
-        <div class="flex gap-4">
-          <a href="mailto:hello@bitmap.audio" class="w-10 h-10 border border-border flex items-center justify-center hover:border-primary hover:text-primary transition-colors"><Mail class="w-4 h-4" /></a>
-          <a href="https://instagram.com" target="_blank" class="w-10 h-10 border border-border flex items-center justify-center hover:border-primary hover:text-primary transition-colors"><Instagram class="w-4 h-4" /></a>
-          <a href="https://linkedin.com" target="_blank" class="w-10 h-10 border border-border flex items-center justify-center hover:border-primary hover:text-primary transition-colors"><Linkedin class="w-4 h-4" /></a>
+        <div class="flex flex-wrap gap-3">
+          <a href="mailto:hello@bitmap.audio" 
+             class="w-10 h-10 border border-border flex items-center justify-center hover:border-accent hover:bg-primary/5 text-foreground hover:text-accent transition-all group">
+            <BitmapMail client:load className="w-4 h-4" />
+          </a>
+          <a href="https://instagram.com/bitmap.audio" target="_blank" 
+             class="w-10 h-10 border border-border flex items-center justify-center hover:border-accent hover:bg-primary/5 text-foreground hover:text-accent transition-all group">
+            <BitmapInstagram client:load className="w-4 h-4" />
+          </a>
+          <a href="https://threads.net/@bitmap.audio" target="_blank" 
+             class="w-10 h-10 border border-border flex items-center justify-center hover:border-accent hover:bg-primary/5 text-foreground hover:text-accent transition-all group">
+            <BitmapThreads client:load className="w-4 h-4" />
+          </a>
+          <a href="https://linkedin.com/company/bitmapaudio" target="_blank" 
+             class="w-10 h-10 border border-border flex items-center justify-center hover:border-accent hover:bg-primary/5 text-foreground hover:text-accent transition-all group">
+            <BitmapLinkedin client:load className="w-4 h-4" />
+          </a>
         </div>
       </div>
     </div>
 
-    <div class="mt-12 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
-      <p class="text-xs text-muted-foreground font-mono">© 2026 bitmap.audio — All rights reserved.</p>
-      <p class="text-xs text-muted-foreground font-mono">Micro engineers linking sonic data and human emotion.</p>
+    <div class="mt-12 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
+      <p class="text-[10px] text-muted-foreground font-mono uppercase tracking-widest">
+        © 2026 bitmap.audio — All rights reserved.
+      </p>
+      <p class="text-[10px] text-muted-foreground font-mono uppercase tracking-widest opacity-60">
+        Micro engineers linking sonic data and human emotion.
+      </p>
     </div>
   </div>
 </footer>

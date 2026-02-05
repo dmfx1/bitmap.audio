@@ -33,12 +33,12 @@ export default function Values() {
           <div key={v.id} className="group flex flex-col items-center text-center px-4">
             
             <span className="font-mono text-5xl md:text-6xl font-light animate-pulse mb-6 
-                           transition-all group-hover:text-white 
+                           transition-all group-hover:text-foreground 
                            group-hover:drop-shadow-[0_0_15px_rgba(0,229,255,0.4)]">
               {v.id}
             </span>
 
-            <h3 className="text-white font-mono text-xl md:text-2xl mb-4 tracking-tight">
+            <h3 className="text-foreground font-mono text-xl md:text-2xl mb-4 tracking-tight">
               {v.title}
             </h3>
 

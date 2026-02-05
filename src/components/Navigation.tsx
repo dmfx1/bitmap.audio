@@ -30,8 +30,8 @@ const Navigation = ({ currentPath }: { currentPath: string }) => {
             <div className="w-8 h-8 bg-primary flex items-center justify-center">
               <span className="text-primary-foreground font-mono text-xs font-bold">b.</span>
             </div>
-            <span className="font-mono text-lg font-medium text-foreground group-hover:text-primary transition-colors">
-              bitmap<span className="text-primary">.audio</span>
+            <span className="font-mono text-lg font-light text-foreground group-hover:text-primary transition-colors">
+              bitmap<span className="text-accent font-bold">.audio</span>
             </span>
           </a>
 
@@ -43,14 +43,14 @@ const Navigation = ({ currentPath }: { currentPath: string }) => {
                 <NavigationMenuItem>
                   <a href="/home" className={cn(
                     "font-mono text-sm uppercase tracking-wider link-underline transition-colors",
-                    isActive("/home") ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                    isActive("/home") ? "text-primary hover:text-accent" : "text-muted-foreground hover:text-accent"
                   )}>Home</a>
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>
                   <a href="/about" className={cn(
                     "font-mono text-sm uppercase tracking-wider link-underline transition-colors",
-                    isActive("/about") ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                    isActive("/about") ? "text-primary hover:text-accent" : "text-muted-foreground hover:text-accent"
                   )}>About</a>
                 </NavigationMenuItem>
 
@@ -65,7 +65,7 @@ const Navigation = ({ currentPath }: { currentPath: string }) => {
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
                     {/* Added rounded-none to the container below */}
-                    <div className="w-64 bg-popover border border-border shadow-xl flex flex-col rounded-none">
+                    <div className="w-64 bg-background/75 border border-border shadow-xl flex flex-col rounded-none">
                       {solutions.map((s) => (
                         <a 
                           key={s.href} 

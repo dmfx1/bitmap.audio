@@ -45,26 +45,39 @@ export default function TypewriterHero({
   }, [fullText, speed, onComplete]);
 
   const renderText = () => {
-    // 1. Handle Brand Logic (Solaris dot/suffix)
-    if (isBrand && displayedText.includes('.')) {
-      const dotIndex = displayedText.indexOf('.');
-      const main = displayedText.slice(0, dotIndex);
-      const suffix = displayedText.slice(dotIndex);
-      return (
-        <>
-          {main}<span className="text-accent font-medium">{suffix}</span>
-        </>
-      );
-    }
-
-    // 2. Handle Multi-line Logic (recognizes \n)
     const lines = displayedText.split('\n');
-    return lines.map((line, i) => (
-      <React.Fragment key={i}>
-        {line}
-        {i < lines.length - 1 && <br />}
-      </React.Fragment>
-    ));
+
+    return lines.map((line, i) => {
+      const isFirstLine = i === 0;
+      
+      // Content for this specific line
+      let lineContent: React.ReactNode = line;
+
+      // Logic for the FIRST line (Brand logic: Solaris dot/suffix)
+      if (isFirstLine && isBrand && line.includes('.')) {
+        const dotIndex = line.indexOf('.');
+        const main = line.slice(0, dotIndex);
+        const suffix = line.slice(dotIndex);
+        lineContent = (
+          <>
+            {main}<span className="text-accent font-medium">{suffix}</span>
+          </>
+        );
+      } 
+      // Logic for EVERY line after the first \n
+      else if (!isFirstLine) {
+        lineContent = (
+          <span className="text-accent font-medium">{line}</span>
+        );
+      }
+
+      return (
+        <React.Fragment key={i}>
+          {lineContent}
+          {i < lines.length - 1 && <br />}
+        </React.Fragment>
+      );
+    });
   };
 
   return (

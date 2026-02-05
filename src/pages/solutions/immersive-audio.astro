@@ -1,24 +1,80 @@
 ---
+/* src/pages/solutions/sonic-branding.astro */
 import Layout from '../../layouts/Layout.astro';
-import { CheckCircle, ArrowLeft } from 'lucide-react';
-const deliverables = ["3D Audio Design", "Ambisonics", "Interactive Systems", "Generative Sound"];
+import Section from '../../components/Section.astro';
+import ImmersiveHero from '../../components/modules/solutions/ImmersiveHero.tsx';
+import ImmersiveAnalysis from '../../components/modules/solutions/ImmersiveAnalysis.tsx';
+import ConceptGrid from '../../components/modules/ConceptGrid.tsx';
+import DeliverablesGrid from '../../components/modules/solutions/DeliverablesGrid.tsx';
+import CTA from '../../components/modules/CTA.tsx';
+
+// DEFINING THE DATA SET FOR THIS PAGE
+const immersiveAudioApplications = [
+  { 
+    title: "Virtual Reality",
+    subtitle: "VR Experiences & Games", 
+    desc: "Full 3D audio design for VR environments, including ambisonic soundscapes, interactive object audio, and spatial music." 
+  },
+  { 
+    title: "Augmented Reality",
+    subtitle: "AR Applications", 
+    desc: "Audio that bridges digital and physical, anchoring virtual objects in real space through precise spatial audio cues." 
+  },
+  { 
+    title: "Physical Space",
+    subtitle: "Installations & Exhibitions", 
+    desc: "Multi-channel audio installations for museums, galleries, and experiential marketing that respond to visitor presence and movement." 
+  },
+  { 
+    title: "Generative",
+    subtitle: "Interactive Soundscapes", 
+    desc: "Algorithmic and generative audio systems that create unique, never-repeating sonic environments based on data or user interaction." 
+  }
+];
+
+const immersiveDeliverables = [
+  "3D / Spatial Audio Design",
+  "Ambisonics & Binaural Mixes",
+  "Interactive Audio Systems",
+  "Generative Soundscapes",
+  "Installation Audio",
+  "Technical Integration Support"
+];
 ---
 
-<Layout title="Immersive Audio | bitmap.audio">
-  <section class="pt-32 pb-20 px-6">
-    <div class="container mx-auto max-w-4xl">
-      <a href="/home" class="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary mb-8 transition-colors">
-        <ArrowLeft className="w-4 h-4" /> Back
-      </a>
-      <h1 class="font-mono text-5xl mb-8">Sound in <span class="text-primary">Space</span></h1>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {deliverables.map(d => (
-          <div class="flex items-center gap-4 border border-border p-4 bg-card/50">
-            <CheckCircle className="w-5 h-5 text-primary" />
-            <span class="font-mono text-sm">{d}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  </section>
+<Layout title="Immersive Sound | bitmap.audio">
+  <Section id="hero" delay="0.1s">
+    <ImmersiveHero client:load />
+  </Section>
+
+  <Section id="analysis" delay="0.5s">
+    <ImmersiveAnalysis client:visible />
+  </Section>
+
+  {/* FIXED: Passing the defined items to ConceptGrid */}
+  <Section id="applications" delay="0.8s">
+    <ConceptGrid 
+      client:visible
+      eyebrow="Applications"
+      sectionTitle="Where we create"
+      items={immersiveAudioApplications}
+    />
+  </Section>
+
+  <Section id="deliverables" delay="1.2s">
+    <DeliverablesGrid 
+      client:visible 
+      items={immersiveDeliverables} 
+      sectionTitle="What you'll receive" 
+    />
+  </Section>
+
+  <Section id="cta" delay="1.5s">
+    <CTA 
+      client:visible
+      title="Enter new dimensions"
+      description="Let's create immersive audio experiences that transport your audience to new realities."
+      buttonText="Explore possibilities"
+    />
+  </Section>
 </Layout>

@@ -23,6 +23,15 @@ const uiuxApplications = [
     desc: "Power states, connectivity, errors, and physical button feedback sounds." 
   }
 ];
+
+const uiuxDeliverables = [
+  "Interaction Sound Library",
+  "State & Feedback Sounds",
+  "Notification Hierarchy",
+  "Error & Success Indicators",
+  "Loading & Progress Audio",
+  "Implementation Guidelines"
+];
 ---
 
 <Layout title="UI/UX Sound | bitmap.audio">
@@ -45,15 +54,19 @@ const uiuxApplications = [
   </Section>
 
   <Section id="deliverables" delay="1.2s">
-    <DeliverablesGrid client:visible />
+    <DeliverablesGrid 
+      client:visible 
+      items={uiuxDeliverables} 
+      sectionTitle="What you'll receive" 
+    />
   </Section>
 
   <Section id="cta" delay="1.5s">
     <CTA 
       client:visible
-      title="Does your interface have a voice?"
-      description="Let's architect a functional sound system that improves usability and strengthens brand recall."
-      buttonText="START YOUR UI/UX PROJECT"
+      title="Make your product speak"
+      description="Let's design sound that makes your digital product feel alive, responsive, and human."
+      buttonText="Discuss your product"
     />
   </Section>
 </Layout>

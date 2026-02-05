@@ -2,11 +2,19 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { cn } from "@/lib/utils";
 import { useBinaryScramble } from '@/hooks/use-binary-scramble';
+import { BitmapMail, BitmapMap } from '../ui/icons'; 
+
+const ICON_MAP: Record<string, React.ElementType> = {
+  mail: BitmapMail,
+  map: BitmapMap,
+};
 
 interface Concept {
   id?: number;
-  title: string;
+  title: string;    
+  subtitle?: string; 
   desc: string;
+  icon?: string;
   vimeoId?: string;
   previewVideoWebm?: string;
   previewVideoMp4?: string;
@@ -25,41 +33,42 @@ interface ConceptGridProps {
 export default function ConceptGrid({ 
   eyebrow, 
   sectionTitle, 
-  items, 
+  items = [], 
   className, 
   isScanning: propIsScanning, 
   onProjectClick 
 }: ConceptGridProps) {
   const [internalScan, setInternalScan] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-
-  // Determine visibility state
   const activeScan = propIsScanning ?? internalScan;
 
-  useEffect(() => {
-    // Only apply scroll-based logic if not controlled by HomeHero
-    if (propIsScanning !== undefined) return;
+  const getGridConfig = () => {
+    const count = items.length;
+    if (count === 1) return "md:grid-cols-1 max-w-2xl"; 
+    if (count === 2) return "md:grid-cols-2 max-w-5xl"; 
+    if (count === 3) return "md:grid-cols-3 max-w-6xl"; 
+    return "md:grid-cols-2 max-w-6xl"; 
+  };
 
+  useEffect(() => {
+    if (propIsScanning !== undefined) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          // Maintain the 800ms delay for sub-pages
           setTimeout(() => setInternalScan(true), 800);
         } else {
-          // Reset when leaving viewport
           setInternalScan(false);
         }
       },
       { threshold: 0.1 }
     );
-
     if (containerRef.current) observer.observe(containerRef.current);
     return () => observer.disconnect();
   }, [propIsScanning]);
 
   return (
     <div 
-      ref={containerRef}
+      ref={containerRef} 
       className={cn(
         "w-full py-12 transition-all duration-1000 ease-out", 
         activeScan ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4", 
@@ -69,19 +78,22 @@ export default function ConceptGrid({
       {(eyebrow || sectionTitle) && (
         <div className="text-center mb-16 space-y-4">
           {eyebrow && (
-            <p className="text-eyebrow text-accent uppercase tracking-[0.5em] text-xs">
+            <p className="text-eyebrow text-accent uppercase tracking-[0.5em] text-[10px] font-medium">
               {eyebrow}
             </p>
           )}
           {sectionTitle && (
-            <h2 className="text-3xl md:text-4xl font-mono text-white tracking-tight px-4">
+            <h2 className="text-3xl md:text-4xl font-mono text-foreground tracking-tight px-4 font-light">
               {sectionTitle}
             </h2>
           )}
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto w-full text-left p-4">
+      <div className={cn(
+        "grid grid-cols-1 gap-8 mx-auto w-full text-left p-4",
+        getGridConfig()
+      )}>
         {items.map((item, index) => (
           <ProjectCard 
             key={index} 
@@ -95,13 +107,15 @@ export default function ConceptGrid({
   );
 }
 
-/* Internal Sub-component */
 function ProjectCard({ item, onClick, isScanning }: { item: Concept; onClick?: () => void; isScanning: boolean; }) {
   const [isHovered, setIsHovered] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  
+  const Icon = item.icon ? ICON_MAP[item.icon] : null;
 
-  const scrambledTitle = useBinaryScramble(item.title, isScanning, 45);
-  const scrambledDesc = useBinaryScramble(item.desc, isScanning, 55);
+  const scrambledTitle = useBinaryScramble(item.title, isScanning, 40);
+  const scrambledSubtitle = useBinaryScramble(item.subtitle || "", isScanning, 50);
+  const scrambledDesc = useBinaryScramble(item.desc, isScanning, 60);
 
   const handleMouseEnter = () => {
     if (!onClick) return;
@@ -119,45 +133,44 @@ function ProjectCard({ item, onClick, isScanning }: { item: Concept; onClick?: (
 
   return (
     <div 
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onClick={onClick}
+      onMouseEnter={handleMouseEnter} 
+      onMouseLeave={handleMouseLeave} 
+      onClick={onClick} 
       className={cn(
-        "concept-card group relative p-8 border border-primary/20 bg-card/30 backdrop-blur-sm transition-all duration-500 ease-out overflow-hidden",
+        "concept-card group relative p-10 border border-primary/20 bg-card/30 backdrop-blur-sm transition-all duration-500 ease-out overflow-hidden", 
         onClick ? "cursor-none hover:border-primary/80 hover:bg-card/50 hover:shadow-[0_0_30px_hsl(var(--primary)/0.2)]" : "cursor-default"
       )}
     >
+      {/* CORNER BRACKET: Moved to root level, positioned absolute to card, color set to accent */}
+      <div className="absolute top-2 right-2 w-3 h-3 border-t border-r border-transparent group-hover:border-accent transition-all duration-500 ease-out z-20" />
+
       {hasVideo && (
         <div className={cn("absolute inset-0 z-0 transition-opacity duration-700 pointer-events-none", isHovered ? "opacity-30" : "opacity-0")}>
-          <video
-            ref={videoRef}
-            muted
-            loop
-            playsInline
-            src={item.previewVideoMp4 || item.previewVideo} 
-            className="w-full h-full object-cover grayscale brightness-125 contrast-125"
-          >
-            {item.previewVideoWebm && <source src={item.previewVideoWebm} type="video/webm" />}
-            {item.previewVideoMp4 && <source src={item.previewVideoMp4} type="video/mp4" />}
-          </video>
+          <video ref={videoRef} muted loop playsInline src={item.previewVideoMp4 || item.previewVideo} className="w-full h-full object-cover grayscale brightness-125 contrast-125" />
           <div className="absolute inset-0 bitmap-grid opacity-30" />
         </div>
       )}
 
       <div className="relative z-10 pointer-events-none">
-        <h3 className="text-accent font-mono text-xs uppercase tracking-[0.3em] mb-4 min-h-[1em]
-                   group-hover:text-accent group-hover:brightness-125 group-hover:tracking-[0.4em] transition-all duration-500">
+        {Icon && (
+          <div className="mb-6 text-primary group-hover:text-accent transition-colors duration-500">
+            <Icon className="w-6 h-6" />
+          </div>
+        )}
+
+        <h3 className="text-accent font-mono text-xs uppercase tracking-[0.3em] mb-2 min-h-[1em] group-hover:text-accent group-hover:brightness-125 group-hover:tracking-[0.4em] transition-all duration-500">
           {scrambledTitle}
         </h3>
+
+        {item.subtitle && (
+          <p className="text-foreground font-mono text-xl tracking-tight mb-4 group-hover:translate-x-1 transition-transform duration-500">
+            {scrambledSubtitle}
+          </p>
+        )}
         
-        <p className="text-sm text-muted-foreground leading-relaxed min-h-[4em] group-hover:text-foreground transition-colors duration-500">
+        <p className="text-sm text-muted-foreground leading-relaxed min-h-[4em] group-hover:text-foreground transition-colors duration-500 font-light">
           {scrambledDesc}
         </p>
-
-        {onClick && (
-          <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-transparent 
-                      group-hover:border-primary/50 transition-all duration-700 delay-100"></div>
-        )}
       </div>
     </div>
   );

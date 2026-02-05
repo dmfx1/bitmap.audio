@@ -2,14 +2,14 @@
 import { cva } from "class-variance-authority";
 
 export const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-4 whitespace-nowrap text-sm font-medium font-mono uppercase tracking-wider transition-all duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-4 foregroundspace-nowrap text-sm font-medium font-mono uppercase tracking-wider transition-all duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         /* EXPLORE: Solid background with an 'Inner Filament' glow on hover */
         default: `
           bg-primary text-primary-foreground border border-primary/20
-          hover:bg-primary/90 hover:border-white/40
+          hover:bg-primary/90 hover:border-foreground/40
           hover:shadow-[0_0_25px_hsl(var(--primary)/0.5),inset_0_0_0_2px_rgba(255,255,255,0.3)]
           active:scale-95
         `,

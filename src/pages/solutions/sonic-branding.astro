@@ -6,6 +6,15 @@ import SonicHero from '../../components/modules/solutions/SonicHero.tsx';
 import SonicAnalysis from '../../components/modules/solutions/SonicAnalysis.tsx';
 import DeliverablesGrid from '../../components/modules/solutions/DeliverablesGrid.tsx';
 import CTA from '../../components/modules/CTA.tsx';
+
+const sonicDeliverables = [
+  "Audio Logo / Sonic Mnemonic",
+  "Brand Sound Guidelines",
+  "Adaptive Audio Assets",
+  "Notification & Alert Sounds",
+  "Hold Music & Ambience",
+  "Podcast & Video Intros/Outros"
+];
 ---
 
 <Layout title="Sonic Branding | bitmap.audio">
@@ -17,8 +26,12 @@ import CTA from '../../components/modules/CTA.tsx';
     <SonicAnalysis client:visible />
   </Section>
 
-  <Section id="deliverables" delay="1s">
-    <DeliverablesGrid client:visible />
+  <Section id="deliverables" delay="1.2s">
+    <DeliverablesGrid 
+      client:visible 
+      items={sonicDeliverables} 
+      sectionTitle="What you'll receive" 
+    />
   </Section>
 
   {/* REUSABLE CTA: Passing specific props for this page */}

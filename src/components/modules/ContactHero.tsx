@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { ChevronLeft } from 'lucide-react';
-import TypewriterHero from '../TypewriterHero';
-import * as Icons from '../../ui/icons';
+import TypewriterHero from './TypewriterHero';
+import * as Icons from '../ui/icons';
 
 const ICON_POOL = [
   Icons.BitmapPlay, 
@@ -13,7 +13,7 @@ const ICON_POOL = [
   Icons.BitmapChevron
 ];
 
-export default function UIUXHero() {
+export default function ContactHero() {
   const [showContent, setShowContent] = useState(false);
   const [revealProgress, setRevealProgress] = useState(0);
 
@@ -84,26 +84,19 @@ export default function UIUXHero() {
 
       {/* 2. HERO CONTENT */}
       <div className="w-full md:max-w-4xl pl-0 md:pl-12 relative z-10">
-        <a 
-          href="/home" 
-          className="group inline-flex items-center text-xs font-mono tracking-widest text-primary/60 hover:text-primary transition-colors mb-12"
-        >
-          <ChevronLeft className="w-3 h-3 mr-1 group-hover:-translate-x-1 transition-transform" />
-          BACK TO HOME
-        </a>
 
         <p className="text-eyebrow text-accent font-bold animate-fade-in mb-4">
-          Solutions <span className="opacity-50">/</span> UI + UX Sound
+          CONTACT <span className="opacity-50">/</span>
         </p>
         
         <TypewriterHero 
-          text={"Sound that makes\ninterfaces intuitive"} 
+          text={"Let's start a\nconversation"} 
           onComplete={() => setTimeout(() => setShowContent(true), 200)} 
         />
         
         <p className={`text-body-muted text-lg bg-background/50 max-w-[65%] transition-all duration-1000 mt-8 
           ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-          Enhance usability and provide critical feedback through purposeful audio. We bridge the gap between digital interaction and human intuition.
+            Have a project in mind? We'd love to hear about it. Get in touch and let's explore how we can architect your sonic vision together.
         </p>
       </div>
     </div>

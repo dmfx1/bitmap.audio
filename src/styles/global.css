@@ -6,39 +6,49 @@
 
 @layer base {
   :root {
+    /* =========================================
+       DEFAULT THEME (Cyan / Dark)
+       Edit these values to change the default look
+       ========================================= */
+       
     --background: 180 15% 2%;
     --foreground: 0 0% 95%;
+
     --card: 220 20% 7%;
     --card-foreground: 0 0% 95%;
     --popover: 220 20% 6%;
     --popover-foreground: 0 0% 95%;
-    --primary: 200 80% 90%; 
+
+    --primary: 200 80% 90%;
     --primary-foreground: 180 100% 5%;
+
     --secondary: 220 15% 12%;
     --secondary-foreground: 0 0% 85%;
+
     --muted: 220 15% 15%;
     --muted-foreground: 0 0% 60%;
+
     --accent: 35 100% 55%;
     --accent-foreground: 0 0% 100%;
+
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 98%;
+
     --border: 180 15% 12%;
     --input: 220 15% 12%;
     --ring: 35 100% 55%;
     --radius: 0.25rem;
-    --bitmap-cyan: 30 100% 50%; 
+
+    /* Visualizer & Bitmap Colors */
+    --bitmap-cyan: 30 100% 50%;
     --bitmap-dark: 220 20% 4%;
     --bitmap-gray: 220 10% 25%;
     --bitmap-light: 0 0% 95%;
-    --gradient-glow: linear-gradient(135deg, hsl(185 100% 50% / 0.2), hsl(200 100% 60% / 0.1));
-    --gradient-text: linear-gradient(90deg, hsl(185 100% 60%), hsl(200 100% 70%));
-    --gradient-border: linear-gradient(90deg, hsl(185 100% 50% / 0.5), hsl(185 100% 50% / 0.1));
-    --bar-width: 6px;
-    --bar-max-height: 120px;     
-    --bar-radius: 1px;           
-    --animation-speed: 3s;       
-    --accent-muted: 35 100% 15%;  
-    --accent-peak: 35 100% 60%;   
+    
+    --accent-muted: 35 100% 15%;
+    --accent-peak: 35 100% 60%;
+
+    /* Sidebar */
     --sidebar-background: 220 20% 6%;
     --sidebar-foreground: 0 0% 90%;
     --sidebar-primary: 185 100% 50%;
@@ -47,6 +57,93 @@
     --sidebar-accent-foreground: 0 0% 90%;
     --sidebar-border: 220 15% 15%;
     --sidebar-ring: 185 100% 50%;
+
+    /* Gradients & Configuration */
+    --gradient-glow: linear-gradient(135deg, hsl(185 100% 50% / 0.2), hsl(200 100% 60% / 0.1));
+    --gradient-text: linear-gradient(90deg, hsl(185 100% 60%), hsl(200 100% 70%));
+    --gradient-border: linear-gradient(90deg, hsl(185 100% 50% / 0.5), hsl(185 100% 50% / 0.1));
+    --bar-width: 6px;
+    --bar-max-height: 120px;
+    --bar-radius: 1px;
+    --animation-speed: 3s;
+  }
+
+  /* =========================================================
+     THEME PACKAGES (These OVERRIDE the defaults above)
+     ========================================================= */
+
+  /* OPTION 1: SOLARIS (Your Brand - likely Amber/Technical) */
+  .theme-solaris {
+    --background: 35 10% 5%;      /* Very dark warm brown/black */
+    --foreground: 35 20% 95%;
+    --primary: 35 100% 60%;       /* Intense Amber */
+    --primary-foreground: 0 0% 0%;
+    --accent: 200 80% 60%;        /* Cyan Accent */
+    --radius: 0px;                /* HARD EDGES for technical feel */
+    --bar-width: 4px;             /* Thinner, sharper bars */
+    --border: 35 20% 15%;
+    --sidebar-background: 35 15% 8%;
+  }
+
+  /* OPTION 5: THEME SOLARIS DAY (Cream Background / Navy Grid / Amber Accents) */
+  .theme-solaris-day {
+    /* 1. BACKGROUND: Warm Cream */
+    /* Hue 35 (matches Amber), Saturation 20%, Lightness 96% */
+    --background: 35 20% 96%;      
+
+    /* 2. TEXT & GRID: Deep Navy Blue */
+    /* Hue 220, Saturation 40%, Lightness 20% */
+    --foreground: 220 40% 20%;     
+
+    /* 3. BORDER (Controls the Bitmap Grid Lines) */
+    /* We make this slightly lighter than text so grid isn't too harsh */
+    --border: 220 30% 30%;         
+
+    /* 4. PRIMARY: The Classic Solaris Amber */
+    /* We keep the amber accent to maintain brand identity */
+    --primary: 35 100% 50%;        
+    --primary-foreground: 0 0% 100%;
+
+    /* 5. ACCENT: A variation of the Navy for hover states */
+    --accent: 220 40% 25%;
+    --accent-foreground: 35 20% 96%;
+
+    /* 6. SUBTLE ELEMENTS */
+    --muted: 220 20% 90%;
+    --muted-foreground: 220 20% 40%;
+    --card: 35 20% 94%;            /* Slightly darker cream for cards */
+    
+    /* 7. CONFIGURATION */
+    --radius: 0px;                 /* Keep the Solaris technical/sharp feel */
+    --glow-strength: 0.3;          /* Reduce glow intensity on light background */
+  }
+
+  /* OPTION 3: MATRIX (Terminal/Hacker - High Contrast) */
+  .theme-matrix {
+    --background: 120 10% 5%;
+    --foreground: 120 100% 85%;
+    --primary: 120 100% 50%;      /* Neon Green */
+    --accent: 120 100% 40%;       
+    --accent-peak: 120 100% 60%;
+    --accent-muted: 120 30% 15%;
+    --radius: 0px;                /* Blocky */
+    --border: 120 50% 20%;
+    --sidebar-background: 120 20% 8%;
+  }
+
+  /* OPTION 4: MONO (Swiss/Clean - No Glows) */
+  .theme-mono {
+    --background: 0 0% 92%;       /* Light Gray Mode! */
+    --foreground: 0 0% 10%;       
+    --primary: 0 0% 10%;          /* Black */
+    --accent: 0 0% 40%;           /* Gray */
+    --muted: 0 0% 85%;
+    --border: 0 0% 80%;
+    --radius: 0px;
+    --card: 0 0% 100%;            /* White Cards */
+    --sidebar-background: 0 0% 95%;
+    /* Hide Glows by making them transparent in this theme */
+    --glow-strength: 0; 
   }
 
   * {
@@ -57,8 +154,8 @@
     @apply bg-background text-foreground antialiased;
     font-family: 'Inter', sans-serif;
     color: hsl(var(--foreground));
-    scroll-behavior: smooth; 
-    
+    scroll-behavior: smooth;
+
     /* MAIN CURSOR: Primary Teal Pixel Dot */
     @media (min-width: 768px) {
       cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Crect fill='hsl(200, 80%25, 90%25)' x='6' y='6' width='4' height='4'/%3E%3C/svg%3E") 8 8, auto;
@@ -120,14 +217,16 @@
 
 @layer components {
   .bitmap-grid {
-    background-image: 
+    background-image:
       linear-gradient(hsl(var(--border)) 1.5px, transparent 2px),
       linear-gradient(90deg, hsl(var(--border)) 1.5px, transparent 2px);
     background-size: 40px 40px;
   }
 
+  /* New (Theme-aware) */
   .text-glow {
-    text-shadow: 0 0 40px hsl(var(--primary) / 0.5);
+    /* Now the Mono theme can turn this off by setting glow-strength to 0 */
+    text-shadow: 0 0 40px hsl(var(--primary) / var(--glow-strength, 0.5));
   }
 
   .link-underline {
@@ -141,7 +240,7 @@
     left: 0;
     width: 0;
     height: 1px;
-    background: hsl(var(--primary));
+    background: hsl(var(--accent));
     transition: width 0.3s ease;
   }
 
@@ -171,7 +270,7 @@
   }
 
   .text-body-muted {
-    @apply text-muted-foreground text-base text-muted-foreground leading-relaxed font-light;
+    @apply text-muted-foreground text-base leading-relaxed font-light;
   }
 
   .gap-1px {
@@ -180,13 +279,13 @@
 
   .visualizer-stage {
     @apply relative flex flex-col items-center justify-center;
-    min-height: 300px; 
+    min-height: 300px;
   }
 
   .bar-element {
     position: absolute;
     left: 50%;
-    bottom: 50%; 
+    bottom: 50%;
     width: var(--bar-width);
     height: 0;
     opacity: 0;
@@ -194,7 +293,7 @@
     border-radius: var(--bar-radius);
     transform: translateX(-50%);
     z-index: calc(50 - abs(var(--i) - 18));
-    transition: 
+    transition:
       transform 0.7s cubic-bezier(0.85, 0, 0.15, 1),
       height 1s cubic-bezier(0.33, 1, 0.68, 1),
       opacity 0.5s ease,
@@ -232,7 +331,7 @@
       filter: brightness(1.5);
     }
     50% {
-      height: 0px; 
+      height: 0px;
       background-color: hsl(var(--accent-muted));
       filter: brightness(0.4);
     }
@@ -249,7 +348,7 @@
 
   .phase-grow .status-label,
   .phase-expand .status-label {
-    animation: rapid-sync 0.5s ease-in-out infinite; 
+    animation: rapid-sync 0.5s ease-in-out infinite;
     color: hsl(var(--accent-peak));
   }
 
@@ -272,9 +371,10 @@
   .animate-fade-in {
     animation: fadeIn 0.6s ease forwards;
   }
-
+  
+  /* I kept the 0.8s version you had at the end of the file */
   .animate-fade-in-up {
-    animation: fadeInUp 1.5s cubic-bezier(0.2, 0, 0, 1) forwards;
+    animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
   .animate-pulse-glow {
@@ -286,22 +386,23 @@
     to { opacity: 1; }
   }
 
+  /* I kept the version you had at the end of the file */
   @keyframes fadeInUp {
-    0% { 
-      opacity: 0; 
-      transform: translateY(40px); 
+    from {
+      opacity: 0;
+      transform: translateY(30px);
     }
-    100% { 
+    to {
       opacity: 1;
       transform: translateY(0);
     }
   }
 
   @keyframes pulseGlow {
-    0%, 100% { 
+    0%, 100% {
       box-shadow: 0 0 20px hsl(var(--primary) / 0.2);
     }
-    50% { 
+    50% {
       box-shadow: 0 0 40px hsl(var(--primary) / 0.4);
     }
   }
@@ -313,16 +414,16 @@
     background: linear-gradient(
       to bottom,
       transparent 0,
-      transparent 0.3em,              
-      rgba(255, 255, 255, 0.75) 0.2em, 
-      rgba(255, 255, 255, 0.75) 1.8em, 
-      transparent 1.9em,               
+      transparent 0.3em,
+      rgba(255, 255, 255, 0.75) 0.2em,
+      rgba(255, 255, 255, 0.75) 1.8em,
+      transparent 1.9em,
       transparent 2.2em
     );
     background-size: 100% 2.2em;
-    line-height: 2.2em; 
+    line-height: 2.2em;
     color: black;
-    padding: 0; 
+    padding: 0;
     font-family: 'JetBrains Mono', monospace;
     font-weight: 600;
     text-transform: uppercase;
@@ -330,20 +431,21 @@
     letter-spacing: 0.05em;
   }
 
+  /* This is the animation used for the intro sequence "Big B" */
   @keyframes power-up-sequence {
-    0% { 
-      opacity: 1; 
-      background-color: hsl(var(--primary)); 
+    0% {
+      opacity: 1;
+      background-color: hsl(var(--primary));
       box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
     }
     15%, 25%, 35%, 45% { opacity: 0; }
     10%, 20%, 30%, 40% { opacity: 1; }
-    50% { 
-      background-color: hsl(var(--primary)); 
+    50% {
+      background-color: hsl(var(--primary));
     }
-    100% { 
-      opacity: 1; 
-      background-color: hsl(var(--accent)); 
+    100% {
+      opacity: 1;
+      background-color: hsl(var(--accent));
       box-shadow: 0 0 50px hsl(var(--accent) / 0.5);
     }
   }
@@ -355,7 +457,7 @@
   @keyframes morph-breathing {
     0%, 100% {
       border-color: hsl(var(--primary) / 0.4);
-      color: hsl(var(--foreground)); 
+      color: hsl(var(--foreground));
       text-shadow: 0 0 0px transparent;
       box-shadow: 0 0 0px transparent;
     }
@@ -406,8 +508,8 @@
 
 .is-electric-primary {
   border-color: hsl(var(--primary)) !important;
-  background-color: hsl(var(--primary)) !important; 
-  color: #000000 !important; 
+  background-color: hsl(var(--primary)) !important;
+  color: #000000 !important;
   box-shadow: 0 0 30px hsl(var(--primary) / 0.4) !important;
   transition: all 0.3s ease;
 }
@@ -425,19 +527,4 @@
 
 .morph-accent-fill:hover {
   animation: morph-pulse-fill 4s infinite ease-in-out;
-}
-
-@keyframes fadeInUp {
-  from { 
-    opacity: 0; 
-    transform: translateY(30px);
-  }
-  to { 
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-in-up {
-  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }

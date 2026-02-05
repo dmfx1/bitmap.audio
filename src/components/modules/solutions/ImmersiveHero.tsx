@@ -13,7 +13,7 @@ const ICON_POOL = [
   Icons.BitmapChevron
 ];
 
-export default function UIUXHero() {
+export default function ImmersiveHero() {
   const [showContent, setShowContent] = useState(false);
   const [revealProgress, setRevealProgress] = useState(0);
 
@@ -93,17 +93,17 @@ export default function UIUXHero() {
         </a>
 
         <p className="text-eyebrow text-accent font-bold animate-fade-in mb-4">
-          Solutions <span className="opacity-50">/</span> UI + UX Sound
+          Solutions <span className="opacity-50">/</span> Immersive Sound
         </p>
         
         <TypewriterHero 
-          text={"Sound that makes\ninterfaces intuitive"} 
+          text={"Sound that exists\nin space"} 
           onComplete={() => setTimeout(() => setShowContent(true), 200)} 
         />
         
         <p className={`text-body-muted text-lg bg-background/50 max-w-[65%] transition-all duration-1000 mt-8 
           ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-          Enhance usability and provide critical feedback through purposeful audio. We bridge the gap between digital interaction and human intuition.
+            We design spatial audio experiences for virtual reality, augmented reality, and physical installations that transport audiences into new dimensions of perception.
         </p>
       </div>
     </div>

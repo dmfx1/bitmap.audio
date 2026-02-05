@@ -45,7 +45,7 @@ export default function Philosophy() {
       <p className="text-eyebrow text-accent text-xs mb-8">Our Philosophy</p>
       
       <div className="max-w-4xl min-h-[160px] md:min-h-[200px]">
-        <h2 className="text-2xl md:text-4xl lg:text-5xl font-mono text-white leading-tight">
+        <h2 className="text-2xl md:text-4xl lg:text-5xl font-mono text-foreground leading-tight">
           {visibleText}
           <span className="inline-block w-[0.5ch] h-[0.9em] bg-accent brightness-125 ml-2 animate-pulse align-middle" />
         </h2>

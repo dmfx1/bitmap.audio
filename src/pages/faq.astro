@@ -1,0 +1,31 @@
+---
+/* src/pages/faq.astro */
+import Layout from '../layouts/Layout.astro';
+import Section from '../components/Section.astro';
+import FAQContent from '../components/modules/FAQContent.tsx';
+import CTA from '../components/modules/CTA.tsx';
+---
+
+<Layout title="FAQ | bitmap.audio">
+  <Section id="faq-hero" delay="0.1s" className="py-52 min-h-[40vh] flex items-end"> 
+    <div class="max-w-3xl">
+      <p class="text-eyebrow text-accent uppercase tracking-[0.5em] text-xs font-medium mb-4">
+        Knowledge Base
+      </p>
+      <h1 class="text-4xl font-mono text-foreground mb-8 tracking-tighter"> 
+        System <span class="mr-2">[</span>Inquiries<span class=" ml-2">]</span>
+      </h1>
+      <p class="text-muted-foreground font-mono text-sm max-w-xl leading-relaxed opacity-60 uppercase tracking-wide">
+        Documentation for our process, technical standards, and engagement models.
+      </p>
+    </div>
+  </Section>
+
+  <Section id="faq-list" delay="0.3s" className="pt-0">
+    <FAQContent client:load />
+  </Section>
+
+  <Section id="cta" delay="0.5s">
+    <CTA client:visible title="Still have questions?" />
+  </Section>
+</Layout>
