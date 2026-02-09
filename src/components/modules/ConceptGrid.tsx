@@ -91,7 +91,7 @@ export default function ConceptGrid({
       )}
 
       <div className={cn(
-        "grid grid-cols-1 gap-8 mx-auto w-full text-left p-4",
+        "grid grid-cols-1 gap-6 md:gap-8 mx-auto w-full text-left p-4",
         getGridConfig()
       )}>
         {items.map((item, index) => (
@@ -137,38 +137,63 @@ function ProjectCard({ item, onClick, isScanning }: { item: Concept; onClick?: (
       onMouseLeave={handleMouseLeave} 
       onClick={onClick} 
       className={cn(
-        "concept-card group relative p-10 border border-primary/20 bg-card/30 backdrop-blur-sm transition-all duration-500 ease-out overflow-hidden", 
-        onClick ? "cursor-none hover:border-primary/80 hover:bg-card/50 hover:shadow-[0_0_30px_hsl(var(--primary)/0.2)]" : "cursor-default"
+        // BASE STYLES: High opacity background to block grid lines, stronger border
+        "concept-card group relative p-8 md:p-10 border transition-all duration-500 ease-out overflow-hidden z-10",
+        
+        // STATIC STATE: Solid Card, Subtle Border
+        "bg-card/90 backdrop-blur-md border-muted-foreground shadow-lg",
+
+        // HOVER STATE: Massive Scale, Accent Border, Deep Glow
+        onClick ? [
+          "cursor-none",
+          "hover:scale-[1.03]", // Physical growth
+          "hover:-translate-y-2", // Lift up
+          "hover:border-accent", // Bright border color
+          "hover:bg-card/95", // Almost solid background on hover
+          "hover:shadow-[0_20px_80px_-10px_hsl(var(--accent)/0.3)]", // The "Electric" Glow
+          "hover:z-50" // Bring to front
+        ] : "cursor-default"
       )}
     >
-      {/* CORNER BRACKET: Moved to root level, positioned absolute to card, color set to accent */}
-      <div className="absolute top-2 right-2 w-3 h-3 border-t border-r border-transparent group-hover:border-accent transition-all duration-500 ease-out z-20" />
+      {/* CORNER BRACKET: Always visible, turns Accent on hover */}
+      <div className="absolute top-1 right-1 w-6 h-6 border-t-2 border-r-2 border-foreground group-hover:border-accent transition-colors duration-300 z-20" />
 
+      {/* VIDEO LAYER */}
       {hasVideo && (
-        <div className={cn("absolute inset-0 z-0 transition-opacity duration-700 pointer-events-none", isHovered ? "opacity-30" : "opacity-0")}>
-          <video ref={videoRef} muted loop playsInline src={item.previewVideoMp4 || item.previewVideo} className="w-full h-full object-cover grayscale brightness-125 contrast-125" />
-          <div className="absolute inset-0 bitmap-grid opacity-30" />
+        <div className={cn(
+          "absolute inset-0 z-0 transition-opacity duration-700 pointer-events-none mix-blend-overlay", 
+          isHovered ? "opacity-40" : "opacity-0"
+        )}>
+          <video 
+            ref={videoRef} 
+            muted loop playsInline 
+            src={item.previewVideoMp4 || item.previewVideo} 
+            className="w-full h-full object-cover grayscale contrast-125" 
+          />
         </div>
       )}
 
-      <div className="relative z-10 pointer-events-none">
-        {Icon && (
-          <div className="mb-6 text-primary group-hover:text-accent transition-colors duration-500">
-            <Icon className="w-6 h-6" />
-          </div>
-        )}
+      {/* CONTENT LAYER */}
+      <div className="relative z-10 pointer-events-none flex flex-col h-full justify-between">
+        <div>
+          {Icon && (
+            <div className="mb-6 text-primary/70 group-hover:text-accent transition-colors duration-500 group-hover:scale-110 origin-left transform">
+              <Icon className="w-8 h-8" />
+            </div>
+          )}
 
-        <h3 className="text-accent font-mono text-xs uppercase tracking-[0.3em] mb-2 min-h-[1em] group-hover:text-accent group-hover:brightness-125 group-hover:tracking-[0.4em] transition-all duration-500">
-          {scrambledTitle}
-        </h3>
+          <h3 className="text-primary font-mono text-base uppercase tracking-[0.2em] mb-3 min-h-[1em] group-hover:text-accent transition-colors duration-300">
+            {scrambledTitle}
+          </h3>
 
-        {item.subtitle && (
-          <p className="text-foreground font-mono text-xl tracking-tight mb-4 group-hover:translate-x-1 transition-transform duration-500">
-            {scrambledSubtitle}
-          </p>
-        )}
+          {item.subtitle && (
+            <p className="text-foreground font-mono text-xl tracking-tight mb-4">
+              {scrambledSubtitle}
+            </p>
+          )}
+        </div>
         
-        <p className="text-sm text-muted-foreground leading-relaxed min-h-[4em] group-hover:text-foreground transition-colors duration-500 font-light">
+        <p className="text-base text-foreground leading-relaxed font-light group-hover:text-foreground transition-colors duration-500 mt-4">
           {scrambledDesc}
         </p>
       </div>

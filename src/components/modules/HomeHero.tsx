@@ -41,7 +41,7 @@ export default function HomeHero() {
       {step === 0 && (
         <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
            <div className="w-24 h-24 bg-primary flex items-center justify-center shadow-[0_0_66px_hsl(var(--primary)/0.5)] animate-power-up">
-              <span className="text-black font-mono text-4xl font-bold">b.</span>
+              <span className="text-primary-foreground font-mono text-4xl font-bold">b.</span>
            </div>
         </div>
       )}
@@ -51,7 +51,7 @@ export default function HomeHero() {
           {/* Once we hit Step 1, the big center B is gone, and this small top B fades in */}
           {step >= 1 && (
             <div className="morph-accent-fill w-12 h-12 bg-primary flex items-center justify-center shadow-[0_0_66px_hsl(var(--primary)/0.5)] animate-fade-in">
-              <span className="text-black font-mono text-lg font-bold">b.</span>
+              <span className="text-foreground font-mono text-lg font-bold">b.</span>
             </div>
           )}
         </div>
@@ -72,7 +72,7 @@ export default function HomeHero() {
       {/* Main Content Area */}
       <div className="relative w-full transition-opacity duration-1000" style={{ opacity: isScanning ? 1 : 0 }}>
         <div className="space-y-12">
-          <p className="text-lg md:text-sm text-muted-foreground max-w-2xl mx-auto font-mono uppercase tracking-[0.2em] min-h-[1.5em]">
+          <p className="text-lg md:text-sm text-foreground max-w-2xl mx-auto font-mono uppercase tracking-[0.2em] min-h-[1.5em]">
             {scrambledSubtitle}
           </p>
 

@@ -1,27 +1,61 @@
 ---
 /* src/components/GridBackground.astro */
+interface Props {
+  showRain?: boolean;
+}
+
+const { showRain = true } = Astro.props;
 ---
 <div class="fixed inset-0 pointer-events-none z-0">
-  {/* Layer 1: The Grid - Boosted slightly to ensure it shows through the tighter gap */}
-  <div class="absolute inset-0 bitmap-grid opacity-40"></div>
   
-  {/* Layer 2: The Linear Overlay (Optional)
-      If you still want a bit of top-to-bottom depth, keep this, 
-      otherwise you can remove it for a pure spotlight look.
-  */}
-  <div class="absolute inset-0 bg-gradient-to-b from-transparent via-background/20 to-background"></div>
-  
-  {/* Layer 3: The Tight Peripheral Fade
-      Adjusting 'transparent 5%' to 'hsl(var(--background)) 50%' 
-      shrinks the visible grid area significantly.
-  */}
-  <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_5%,hsl(var(--background))_50%)]"></div>
+  {/* Layer 1: The Grid (Base - Always Visible) */}
+  <div class="absolute inset-0 bitmap-grid transition-opacity duration-500" style={{ opacity: 'var(--grid-opacity)' }}></div>
 
-  {/* Layer 4: Primary Glow Spot 
-      Centered and sharpened (blur reduced) to keep the light localized.
-  */}
-  <div class="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/3 w-[800px] h-[500px] bg-primary/10 rounded-full blur-[140px] opacity-60"></div>
+  {/* Layer 1.5: The Binary Parallax Waterfall (CONDITIONAL) */}
+  {showRain && (
+    <div class="absolute inset-0 binary-waterfall">
+      <div id="layer-deep" class="binary-layer layer-deep"></div>
+      <div id="layer-near" class="binary-layer layer-near"></div>
+    </div>
+  )}
   
-  {/* Layer 5: Subtle Content Glow */}
-  <div class="absolute top-[40%] left-1/2 -translate-x-1/2 w-[400px] h-[300px] bg-primary/20 rounded-full blur-[100px] opacity-40"></div>
+  {/* Layer 2: The Fog */}
+  <div 
+    class="absolute inset-0 bg-gradient-to-b from-transparent via-background/20 to-background transition-opacity duration-1000"
+    style={{ opacity: 'var(--fog-strength, 1)' }}
+  ></div>
+  
+  {/* Layer 3: Vignette Mask */}
+  <div 
+    class="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_5%,hsl(var(--background))_50%)] transition-opacity duration-1000"
+    style={{ opacity: 'var(--vignette-strength, 1)' }}
+  ></div>
+
+  {/* Layer 4: Glows */}
+  <div 
+    class="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/3 w-[800px] h-[500px] bg-primary/10 rounded-full blur-[140px] transition-opacity duration-1000"
+    style={{ opacity: 'var(--glow-strength, 0.5)' }}
+  ></div>
 </div>
+
+<script>
+  // TRUE PARALLAX SCRIPT
+  const deepLayer = document.getElementById('layer-deep');
+  const nearLayer = document.getElementById('layer-near');
+
+  const handleScroll = () => {
+    const scrolled = window.scrollY;
+    
+    // Check if elements exist before trying to move them (prevents errors on landing page)
+    if (deepLayer) {
+      deepLayer.style.transform = `translateY(${scrolled * 0.1}px)`;
+    }
+    if (nearLayer) {
+      nearLayer.style.transform = `translateY(${scrolled * 0.3}px)`;
+    }
+  };
+
+  window.addEventListener('scroll', () => {
+    window.requestAnimationFrame(handleScroll);
+  }, { passive: true });
+</script>

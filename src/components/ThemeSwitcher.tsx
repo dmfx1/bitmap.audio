@@ -3,9 +3,14 @@ import React, { useEffect, useState } from 'react';
 import { Palette } from 'lucide-react'; // Or use a bitmap icon if you prefer!
 
 const THEMES = [
-  { id: 'default', name: 'Default (Cyan)' },
-  { id: 'theme-solaris-day', name: 'Solaris (day)' },
-  { id: 'theme-mono', name: 'Mono (Light)' },
+  { id: 'default', name: 'Solaris (Night)' },
+  { id: 'theme-mono-light', name: 'Mono (Light)' },
+  { id: 'theme-palette-retro', name: 'Retro (Light)' },
+  { id: 'theme-vintage-navy', name: 'Vintage (Navy)' },
+  { id: 'theme-tech-solaris', name: 'Solaris (Tech)' },
+  { id: 'theme-retro-camp', name: 'Retro (Camp)' },
+  { id: 'theme-jade-architect', name: 'Architect (Jade)' },
+  { id: 'theme-solaris-architect', name: 'Architect (Solaris)' },
 ];
 
 export default function ThemeSwitcher() {
@@ -37,14 +42,14 @@ export default function ThemeSwitcher() {
       {/* Toggle Button */}
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="w-10 h-10 bg-primary text-black rounded-full flex items-center justify-center shadow-[0_0_20px_hsl(var(--primary)/0.5)] hover:scale-110 transition-transform"
+        className="w-10 h-10 bg-primary text-primary-foreground rounded-full flex items-center justify-center shadow-[0_0_20px_hsl(var(--primary)/0.5)] hover:scale-110 transition-transform"
       >
         <Palette className="w-5 h-5" />
       </button>
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute bottom-14 right-0 bg-black/90 border border-primary/30 p-2 min-w-[160px] rounded backdrop-blur-md animate-in slide-in-from-bottom-2 fade-in">
+        <div className="absolute bottom-14 right-0 bg-primary-foreground/90 border border-primary/30 p-2 min-w-[160px] rounded backdrop-blur-md animate-in slide-in-from-bottom-2 fade-in">
           <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-2 px-2 text-center">
             Select Theme
           </div>
@@ -55,8 +60,8 @@ export default function ThemeSwitcher() {
                 onClick={() => setTheme(theme.id)}
                 className={`w-full text-left px-3 py-2 text-xs uppercase tracking-wider transition-colors ${
                   currentTheme === theme.id 
-                    ? 'bg-primary text-black font-bold' 
-                    : 'text-foreground hover:bg-foreground/10'
+                    ? 'bg-primary text-primary-foreground font-bold' 
+                    : 'text-accent hover:bg-foreground/10'
                 }`}
               >
                 {theme.name}

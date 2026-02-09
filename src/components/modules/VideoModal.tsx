@@ -10,7 +10,7 @@ export default function VideoModal({ isOpen, onClose, vimeoId }: any) {
       <div className="absolute inset-0 bg-background/95 backdrop-blur-3xl animate-fade-in" onClick={onClose} />
 
       {/* DOUBLE-LOCK CONTAINER: aspect-ratio + min-height */}
-      <div className="relative w-full max-w-6xl bg-black border border-foreground/10 shadow-2xl animate-fade-in-up aspect-video min-h-[200px]">
+      <div className="relative w-full max-w-6xl bg-card border border-foreground/10 shadow-2xl animate-fade-in-up aspect-video min-h-[200px]">
         
         {/* CORNER BRACKETS */}
         <div className="absolute -top-px -left-px w-10 h-10 border-t border-l border-accent z-10" />

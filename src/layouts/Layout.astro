@@ -20,27 +20,39 @@ const isLandingPage = currentPath === "/" || currentPath === "/index.html";
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
   </head>
-  <body class="bg-black text-foreground antialiased selection:bg-primary/30">
+  <body class="bg-background text-foreground antialiased selection:bg-primary/30">
     <SoundProvider client:load>
       <TooltipProvider client:load>
-        <GridBackground />
         
-        {/* UPDATED: Only show Navigation if NOT on the landing page */}
+        {/* UPDATED: Pass false if we are on the landing page */}
+        <GridBackground showRain={!isLandingPage} />
+        
         { !isLandingPage && <Navigation currentPath={currentPath} client:load /> }
 
         <ThemeSwitcher client:load />
         
         <div class="relative flex flex-col min-h-screen">
-          <main class="flex-1 flex flex-col">
-            <slot />
+          <main class="flex-1 flex flex-col items-center"> 
+            
+            {/* CONDITIONAL LAYOUT LOGIC */}
+            {isLandingPage ? (
+              /* LANDING PAGE: Raw, no glass column */
+              <div class="w-full flex-1 flex flex-col">
+                <slot />
+              </div>
+            ) : (
+              /* INTERIOR PAGES: The "Glass Column" Architecture */
+              <div class="w-full max-w-[1400px] bg-background/85 backdrop-blur-md min-h-screen shadow-2xl relative z-10">
+                <slot />
+              </div>
+            )}
+
           </main>
           
-          {/* Footer logic remains the same (hidden on landing) */}
           {!isLandingPage && <Footer />}
           
-          {/* Copyright for Landing Page */}
           {isLandingPage && (
-            <div class="absolute bottom-8 w-full text-center opacity-30 font-mono text-[10px] tracking-widest">
+            <div class="absolute bottom-8 w-full text-center opacity-30 font-mono text-[10px] tracking-widest pointer-events-none">
               © 2026 BITMAP.AUDIO — ALL RIGHTS RESERVED
             </div>
           )}
