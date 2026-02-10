@@ -12,29 +12,46 @@ export default function ThemeSwitcher() {
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  // Initialize theme from local storage
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('site-theme') || 'default';
-    setTheme(savedTheme);
-    setMounted(true); // Prevents hydration mismatch
-  }, []);
-
-  const setTheme = (themeId: string) => {
-    // 1. Remove all possible theme classes
+  // 1. HELPER: Applies the theme to the DOM (Visuals only, no saving)
+  const applyTheme = (themeId: string) => {
+    // Remove all theme classes first
     document.body.classList.remove(...THEMES.map(t => t.id));
     
-    // 2. Add the selected theme class (unless it's default)
+    // Add the new class (unless it's default)
     if (themeId !== 'default') {
       document.body.classList.add(themeId);
     }
-
-    // 3. Save state
+    
     setCurrentTheme(themeId);
-    localStorage.setItem('site-theme', themeId);
-    setIsOpen(false); // Close menu on selection
   };
 
-  // Don't render until mounted to avoid server/client mismatch
+  // 2. HANDLER: User explicitly clicks a button (Visuals + Save to Storage)
+  const handleManualToggle = (themeId: string) => {
+    applyTheme(themeId);
+    localStorage.setItem('site-theme', themeId); // Persist the user's choice
+    setIsOpen(false);
+  };
+
+  // 3. INITIALIZATION: Check Storage -> Then Check Time
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('site-theme');
+
+    if (savedTheme) {
+      // A. User has a preference saved -> Obey it
+      applyTheme(savedTheme);
+    } else {
+      // B. No preference -> Check the Clock
+      const hour = new Date().getHours();
+      
+      // Logic: 07:00 to 19:00 = Light Mode
+      const isDayTime = hour >= 7 && hour < 19;
+      
+      applyTheme(isDayTime ? 'theme-solaris-architect' : 'default');
+    }
+    
+    setMounted(true);
+  }, []);
+
   if (!mounted) return null;
 
   return (
@@ -55,7 +72,7 @@ export default function ThemeSwitcher() {
           return (
             <button
               key={theme.id}
-              onClick={() => setTheme(theme.id)}
+              onClick={() => handleManualToggle(theme.id)} // Use the manual handler
               className={`
                 flex items-center gap-3 px-3 py-2 text-xs uppercase tracking-wider transition-colors rounded-sm w-40 text-left
                 ${isActive 
@@ -71,7 +88,7 @@ export default function ThemeSwitcher() {
         })}
       </div>
 
-      {/* Main Toggle Button (Using Bitmap Icon) */}
+      {/* Main Toggle Button */}
       <button 
         onClick={() => setIsOpen(!isOpen)}
         className={`
