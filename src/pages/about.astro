@@ -11,7 +11,7 @@ import CTA from '../components/modules/CTA.tsx';
 
 <Layout title="About | bitmap.audio">
   {/* 2. Wrap the intro in your Section component */}
-  <Section id="intro" delay="0.1s">
+  <Section id="intro" invert delay="0.1s">
     {/* 3. Use client:load so the typewriter starts immediately */}
     <AboutIntro client:load />
   </Section>
@@ -20,7 +20,7 @@ import CTA from '../components/modules/CTA.tsx';
     <AboutPhilosophy client:visible />
   </Section>
 
-  <Section id="Values" delay="0.4s">
+  <Section id="Values" invert delay="0.4s">
     <Values client:visible />
   </Section>
 

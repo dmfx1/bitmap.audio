@@ -305,3 +305,56 @@ export const BitmapTick = ({ className, style }: IconProps) => (
     <rect x="15" y="8" width="2" height="2" fill="currentColor" />
   </svg>
 );
+
+/** * BITMAP_MONITOR: CRT-style display with a heavy base */
+export const BitmapMonitor = ({ className, style }: IconProps) => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} style={style}>
+    {/* Screen Bezel Top/Bottom */}
+    <rect x="2" y="3" width="20" height="2" fill="currentColor" />
+    <rect x="2" y="15" width="20" height="2" fill="currentColor" />
+    {/* Screen Bezel Sides */}
+    <rect x="2" y="5" width="2" height="10" fill="currentColor" />
+    <rect x="20" y="5" width="2" height="10" fill="currentColor" />
+    {/* Stand Neck */}
+    <rect x="10" y="17" width="4" height="2" fill="currentColor" />
+    {/* Stand Base */}
+    <rect x="6" y="19" width="12" height="2" fill="currentColor" />
+    {/* Optional: Glare/Reflection on screen */}
+    <rect x="16" y="6" width="2" height="2" fill="currentColor" opacity="0.5" />
+  </svg>
+);
+
+/** * BITMAP_SUN: A square core with detached rays */
+export const BitmapSun = ({ className, style }: IconProps) => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} style={style}>
+    {/* Center Block */}
+    <rect x="8" y="8" width="8" height="8" fill="currentColor" />
+    {/* Cardinal Rays */}
+    <rect x="11" y="2" width="2" height="4" fill="currentColor" />
+    <rect x="11" y="18" width="2" height="4" fill="currentColor" />
+    <rect x="2" y="11" width="4" height="2" fill="currentColor" />
+    <rect x="18" y="11" width="4" height="2" fill="currentColor" />
+    {/* Diagonal Rays (Single dots) */}
+    <rect x="5" y="5" width="2" height="2" fill="currentColor" />
+    <rect x="17" y="5" width="2" height="2" fill="currentColor" />
+    <rect x="5" y="17" width="2" height="2" fill="currentColor" />
+    <rect x="17" y="17" width="2" height="2" fill="currentColor" />
+  </svg>
+);
+
+/** * BITMAP_MOON: A stepped crescent shape */
+export const BitmapMoon = ({ className, style }: IconProps) => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} style={style}>
+    {/* The main curve constructed of vertical bars */}
+    <rect x="6" y="8" width="2" height="8" fill="currentColor" />
+    <rect x="8" y="5" width="2" height="3" fill="currentColor" />
+    <rect x="8" y="16" width="2" height="3" fill="currentColor" />
+    <rect x="10" y="3" width="2" height="2" fill="currentColor" />
+    <rect x="10" y="19" width="2" height="2" fill="currentColor" />
+    
+    {/* The inner cutout illusion */}
+    <rect x="12" y="4" width="2" height="16" fill="currentColor" />
+    <rect x="14" y="6" width="2" height="12" fill="currentColor" />
+    <rect x="16" y="9" width="2" height="6" fill="currentColor" />
+  </svg>
+);

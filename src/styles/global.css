@@ -9,555 +9,134 @@
     /* ========================================================================
       LAYER 1: THE CANVAS (Surfaces)
     ======================================================================== */
-    --background: 180 15% 2%;       /* PAGE BACKGROUND (The Void / Paper) */
-    --foreground: 0 0% 95%;         /* MAIN TEXT (Body copy, Headings) */
+    --background: 200 10% 10%;       /* PAGE BACKGROUND (The Void) */
+    --foreground: 0 0% 95%;         /* MAIN TEXT */
 
-    --card: 220 20% 7%;             /* FLOATING PANELS (Cards, Modals) */
-    --card-foreground: 0 0% 95%;    /* TEXT INSIDE CARDS */
+    --card: 220 20% 7%;             /* CARDS */
+    --card-foreground: 0 0% 95%;
 
-    --popover: 220 20% 6%;          /* TOOLTIPS & DROPDOWNS BG */
-    --popover-foreground: 0 0% 95%; /* TOOLTIPS TEXT */
+    --popover: 220 20% 6%;
+    --popover-foreground: 0 0% 95%;
 
-    --sidebar-background: 220 20% 6%; /* NAVIGATION SIDEBAR BG */
-    --sidebar-foreground: 0 0% 90%;   /* NAVIGATION TEXT */
-
+    --sidebar-background: 220 20% 6%;
+    --sidebar-foreground: 0 0% 90%;
 
     /* ========================================================================
       LAYER 2: THE STRUCTURE (Lines & Boundaries)
     ======================================================================== */
-    --border: 180 15% 12%;          /* GRID LINES, DIVIDERS, BORDERS */
-    --grid-color: 180 15% 12%;      /* GRID COLOR */  
-    --input: 220 15% 12%;           /* FORM INPUT BORDERS */
-    --ring: 35 100% 55%;            /* FOCUS RINGS (Outline when clicking) */
+    --border: 180 15% 12%;
+    --grid-color: 180 15% 15%;      /* LIGHTER THAN BEFORE (Was 12%) TO POP */
+    --input: 220 15% 12%;
+    --ring: 35 100% 55%;
 
-    /* --- PATTERN DICTIONARY (Do not change these definitions) --- */
+    /* PATTERN DICTIONARY */
+    --grid-size: 40px;
+    --grid-thickness: 1px;          /* THINNER LINES LOOK CRISPER */
+    
     --pattern-solid: 
       linear-gradient(hsl(var(--grid-color)) var(--grid-thickness), transparent var(--grid-thickness)),
       linear-gradient(90deg, hsl(var(--grid-color)) var(--grid-thickness), transparent var(--grid-thickness));
-    --pattern-dots: 
-      radial-gradient(circle, hsl(var(--grid-color)) var(--grid-thickness), transparent var(--grid-thickness));
-    --pattern-tactical: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='monospace' font-size='14' fill='rgba(80, 80, 90, 0.25)'%3E+%3C/text%3E%3C/svg%3E");
-    --pattern-vector: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='monospace' font-size='10' fill='rgba(80, 80, 90, 0.4)'%3E›%3C/text%3E%3C/svg%3E");
-    --pattern-binary: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Ctext font-family='monospace' font-size='10' font-weight='bold' fill='rgba(80, 80, 90, 0.3)'%3E%3Ctspan x='5' y='15'%3E1%3C/tspan%3E%3Ctspan x='35' y='15'%3E0%3C/tspan%3E%3Ctspan x='20' y='45'%3E1%3C/tspan%3E%3Ctspan x='50' y='45'%3E0%3C/tspan%3E%3C/text%3E%3C/g%3E%3C/svg%3E");
-    --pattern-stream: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Ctext font-family='monospace' font-size='10' font-weight='bold' fill='rgba(80, 80, 90, 0.3)'%3E%3Ctspan x='10' y='20'%3E1%3C/tspan%3E%3Ctspan x='50' y='20'%3E›%3C/tspan%3E%3Ctspan x='30' y='60'%3E0%3C/tspan%3E%3Ctspan x='70' y='60'%3E1%3C/tspan%3E%3C/text%3E%3C/g%3E%3C/svg%3E");
+
     --pattern-binary-rain: url("data:image/svg+xml,%3Csvg width='600' height='800' viewBox='0 0 600 800' xmlns='http://www.w3.org/2000/svg'%3E%3Cstyle%3E text { font-family: monospace; font-weight: bold; fill: white; opacity: 0.3; } .heart { fill: white; opacity: 0.4; } %3C/style%3E%3C!-- STREAM 1 (Far Left): Binary --%3E%3Ctext x='20' y='50'%3E1%3C/text%3E%3Ctext x='20' y='70'%3E0%3C/text%3E%3Ctext x='20' y='200'%3E1%3C/text%3E%3Ctext x='20' y='220'%3E0%3C/text%3E%3Ctext x='20' y='600'%3E0%3C/text%3E%3C!-- STREAM 2 (Left): Heart --%3E%3Cg transform='translate(120, 150)' class='heart'%3E%3Crect x='3' y='4' width='3' height='3'/%3E%3Crect x='10' y='4' width='3' height='3'/%3E%3Crect x='2' y='6' width='12' height='3'/%3E%3Crect x='4' y='9' width='8' height='2'/%3E%3Crect x='6' y='11' width='4' height='2'/%3E%3Crect x='7' y='13' width='2' height='1'/%3E%3C/g%3E%3Ctext x='127' y='400'%3E1%3C/text%3E%3C!-- STREAM 3 (Mid-Left): Binary Burst --%3E%3Ctext x='240' y='80'%3E0%3C/text%3E%3Ctext x='240' y='100'%3E1%3C/text%3E%3Ctext x='240' y='120'%3E1%3C/text%3E%3Ctext x='240' y='550'%3E0%3C/text%3E%3Ctext x='240' y='570'%3E1%3C/text%3E%3C!-- STREAM 4 (Mid-Right): Heart Low --%3E%3Ctext x='360' y='300'%3E1%3C/text%3E%3Cg transform='translate(352, 650)' class='heart'%3E%3Crect x='3' y='4' width='3' height='3'/%3E%3Crect x='10' y='4' width='3' height='3'/%3E%3Crect x='2' y='6' width='12' height='3'/%3E%3Crect x='4' y='9' width='8' height='2'/%3E%3Crect x='6' y='11' width='4' height='2'/%3E%3Crect x='7' y='13' width='2' height='1'/%3E%3C/g%3E%3C!-- STREAM 5 (Right): High Heart --%3E%3Cg transform='translate(480, 50)' class='heart'%3E%3Crect x='3' y='4' width='3' height='3'/%3E%3Crect x='10' y='4' width='3' height='3'/%3E%3Crect x='2' y='6' width='12' height='3'/%3E%3Crect x='4' y='9' width='8' height='2'/%3E%3Crect x='6' y='11' width='4' height='2'/%3E%3Crect x='7' y='13' width='2' height='1'/%3E%3C/g%3E%3Ctext x='487' y='350'%3E0%3C/text%3E%3C!-- STREAM 6 (Far Right): Binary --%3E%3Ctext x='560' y='500'%3E1%3C/text%3E%3Ctext x='560' y='520'%3E0%3C/text%3E%3Ctext x='560' y='750'%3E1%3C/text%3E%3C/svg%3E");
 
-    /* --- DEFAULT GRID CONFIGURATION (The "Original" Look) --- */
-    --grid-pattern: var(--pattern-solid);  /* WHICH PATTERN TO USE? */
-    --grid-size: 40px;                     /* WIDTH/HEIGHT OF GRID SQUARES */
-    --grid-thickness: 2px;               /* THICKNESS OF LINES/DOTS */
+    /* DEFAULT GRID CONFIG */
+    --grid-pattern: var(--pattern-solid);
+    --grid-opacity: 1;            /* WAS 1 (TOO STRONG) OR 0.4 */
+    --rain-opacity: 1;            /* SUBTLE RAIN */
+    
+    /* ANIMATION: RESTORED! This was missing, causing static grid */
+    --active-grid-flow: none;
 
-    /* NEW: GLOBAL OPACITY CONTROLS (Default values) */
-    --grid-opacity: 0.4;   /* Opacity of the square grid lines */
-    --rain-opacity: 0.2;   /* Opacity of the binary numbers */
-
-    /* --- CURSOR DICTIONARY (What the mouse looks like) --- */
-    /* DEFAULT POINTER (The Dot) */
+    /* CURSORS */
     --cursor-dot: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Crect fill='hsl(200, 80%25, 90%25)' x='6' y='6' width='4' height='4'/%3E%3C/svg%3E") 8 8, auto;
-    /* HOVER POINTER (The Arrow) */
     --cursor-link: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 16 16'%3E%3Cpath fill='%23ffcc00' d='M2 7h6v2H2V7zm6-2h2v6H8V5zm2 2h2v2h-2V7zm-2-4h2v2H8V3zm0 8h2v2H8v-2z'/%3E%3C/svg%3E") 0 0, pointer;
 
+    /* ========================================================================
+      LAYER 3: THE INK
+    ======================================================================== */
+    --secondary: 220 15% 12%;
+    --secondary-foreground: 0 0% 85%;
+    --muted: 220 15% 15%;
+    --muted-foreground: 0 0% 60%;
 
     /* ========================================================================
-      LAYER 3: THE INK (Typography Hierarchies)
+      LAYER 4: THE ENERGY
     ======================================================================== */
-    --secondary: 220 15% 12%;       /* SECONDARY BUTTON BACKGROUNDS */
-    --secondary-foreground: 0 0% 85%; /* TEXT ON SECONDARY BUTTONS */
-
-    --muted: 220 15% 15%;           /* INACTIVE AREAS / STRIPES */
-    --muted-foreground: 0 0% 60%;   /* SUBTITLES / METADATA TEXT */
-
-
-    /* ========================================================================
-      LAYER 4: THE ENERGY (Brand Colors)
-    ======================================================================== */
-    --primary: 200 80% 90%;         /* MAIN BRAND COLOR (Teal) */
-    --primary-foreground: 180 100% 5%; /* TEXT ON PRIMARY BUTTONS */
-
-    --accent: 35 100% 55%;          /* ACTION COLOR (Amber/Gold) */
-    --accent-foreground: 0 0% 100%; /* TEXT ON ACCENT HIGHLIGHTS */
-
-    --destructive: 0 70% 50%;       /* ERROR / DELETE COLOR (Red) */
+    --primary: 200 80% 90%;
+    --primary-foreground: 180 100% 5%;
+    --accent: 35 100% 55%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    /* BITMAP SPECIFIC COLORS */
-    --bitmap-cyan: 30 100% 50%;     /* CYAN PIXEL ELEMENTS */
-    --bitmap-dark: 220 20% 4%;      /* DARK PIXEL SHADOWS */
-    --bitmap-gray: 220 10% 25%;     /* INACTIVE PIXELS */
-    
-    /* VISUALIZER BARS (Audio Waveform) */
-    --wave-peak-brightness: 1.5;
-    --accent-muted: 35 100% 15%;    /* QUIET AUDIO BAR COLOR */
-    --accent-peak: 35 100% 60%;     /* LOUD AUDIO BAR COLOR */
+    --bitmap-cyan: 30 100% 50%;
+    --bitmap-dark: 220 20% 4%;
+    --bitmap-gray: 220 10% 25%;
 
+    --wave-peak-brightness: 1.5;
+    --accent-muted: 35 100% 15%;
+    --accent-peak: 35 100% 60%;
 
     /* ========================================================================
-      LAYER 5: THE PHYSICS (Shape, Atmosphere, Movement)
+      LAYER 5: THE PHYSICS (FIXED FOR VISIBILITY)
     ======================================================================== */
-    --radius: 0.25rem;              /* CORNER ROUNDNESS (0px = Square) */
-    --bar-width: 6px;               /* WIDTH OF AUDIO BARS */
-    --bar-max-height: 120px;        /* MAX HEIGHT OF AUDIO BARS */
-    --animation-speed: 3s;          /* GLOBAL ANIMATION TIMING */
+    --radius: 0.25rem;
+    --bar-width: 6px;
+    --bar-max-height: 120px;
+    --animation-speed: 3s;
 
-    /* ATMOSPHERE SETTINGS */
-    --glow-strength: 0.5;           /* SPOTLIGHT INTENSITY (0=Off, 1=Neon) */
-    --fog-strength: 1;              /* BACKGROUND HAZE (0=Clear, 1=Misty) */
-    --vignette-strength: 1;         /* EDGE MASKING (0=Full Grid, 1=Hidden Edges) */
+    /* THE FIX: Lower fog/vignette so the grid isn't hidden */
+    --glow-strength: 0.5;
+    --fog-strength: 0.6;           /* REDUCED FROM 1 */
+    --vignette-strength: 0.6;      /* REDUCED FROM 1 */
 
     --gradient-glow: linear-gradient(135deg, hsl(185 100% 50% / 0.2), hsl(200 100% 60% / 0.1));
   }
 
-
   /* =========================================================
-    THEME PACKAGES
+    THEME: SOLARIS ARCHITECT
     ========================================================= */
-
-  /* OPTION: MONO LIGHT (Pale Grey / Charcoal / Retro Orange) */
-  .theme-mono-light {
-    /* 1. CANVAS (From your palette image) */
-    --background: 50 75% 92%;      /* Matches #EAEFEF (Pale Grey) */
-    --foreground: 205 26% 20%;      /* Matches #25343F (Deep Charcoal Blue) */
+  .theme-solaris-architect {
+    /* 1. CANVAS */
+    --background: 51 29% 92%;      /* Cream */
+    --foreground: 40 19% 14%;      /* Sepia */
 
     /* 2. STRUCTURE */
-    /* Matches #BFC9D1 (Soft Steel Grey) */
-    --grid-color: 50 100% 95%;      
-    --grid-size: 60px;
-    --grid-thickness: 10px;
+    --grid-color: 40 10% 80%;      /* Warm Grey */
+    --grid-size: 50px;
+    --grid-thickness: 2px;         
     
-    /* PATTERN ENGINE */
+    /* PATTERN OVERRIDE (For darker grid lines on light bg) */
     --grid-pattern: 
-      linear-gradient(hsl(var(--grid-color)) var(--grid-thickness), transparent var(--grid-thickness)),
-      linear-gradient(90deg, hsl(var(--grid-color)) var(--grid-thickness), transparent var(--grid-thickness));
+      linear-gradient(hsl(var(--grid-color) / 0.8) var(--grid-thickness), transparent var(--grid-thickness)),
+      linear-gradient(90deg, hsl(var(--grid-color) / 0.8) var(--grid-thickness), transparent var(--grid-thickness));
 
-    --grid-animation: grid-flow-diag 60s linear infinite;
+    --active-grid-flow: none;      /* Static Grid */
+    --grid-opacity: 0.6;  
+    --rain-opacity: 1; 
 
-    /* 3. ENERGY (Using the Palette) */
-    /* CARDS: Matches #25343F (Deep Charcoal) for high contrast blocks */
-    --card: 205 26% 20%;            
-    --card-foreground: 180 10% 93%; /* Light text on cards */
-    
-    --popover: 205 26% 20%;
-    --popover-foreground: 180 10% 93%;
-
-    /* PRIMARY BUTTONS: Deep Charcoal */
-    --primary: 205 26% 20%;        
-    --primary-foreground: 0 0% 100%;
-
-    /* ACCENT: Matches #FF9B51 (Retro Orange) */
-    --accent: 26 100% 66%;        
-    --accent-foreground: 0 0% 100%;
-
-    --border: 205 26% 20%;         /* Sharp dark borders */
-    --input: 205 26% 20%;
-    --ring: 26 100% 66%;           /* Focus ring is Orange */
+    /* 3. ENERGY */
+    --card: 0 0% 100%;            
+    --card-foreground: 40 19% 14%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 40 19% 14%;
+    --primary: 35 100% 55%;        /* Amber */
+    --primary-foreground: 40 19% 14%; 
+    --accent: 43 100% 60%;        
+    --accent-foreground: 40 19% 14%;
+    --border: 40 19% 14%;         
+    --input: 51 29% 92%;
+    --ring: 35 100% 55%;
 
     /* 4. CURSORS */
-    /* Standard Dot is Dark */
-    --cursor-dot: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Crect fill='%2325343F' x='6' y='6' width='4' height='4'/%3E%3C/svg%3E") 8 8, auto;
-    /* Hover Link is the Retro Orange */
-    --cursor-link: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 16 16'%3E%3Cpath fill='%23FF9B51' d='M2 7h6v2H2V7zm6-2h2v6H8V5zm2 2h2v2h-2V7zm-2-4h2v2H8V3zm0 8h2v2H8v-2z'/%3E%3C/svg%3E") 0 0, pointer;
-
-    /* VISUALIZER BARS (Audio Waveform) */
-    --wave-peak-brightness: 1;
-    --accent-muted: 205 26% 20%;    /* QUIET AUDIO BAR COLOR */
-    --accent-peak: 35 100% 60%;     /* LOUD AUDIO BAR COLOR */
+    --cursor-dot: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Crect fill='%232B261C' x='6' y='6' width='4' height='4'/%3E%3C/svg%3E") 8 8, auto;
+    --cursor-link: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 16 16'%3E%3Cpath fill='%23FF9F1C' d='M2 7h6v2H2V7zm6-2h2v6H8V5zm2 2h2v2h-2V7zm-2-4h2v2H8V3zm0 8h2v2H8v-2z'/%3E%3C/svg%3E") 0 0, pointer;
 
     /* 5. PHYSICS */
-    --glow-strength: 0.2;            
-    --fog-strength: 0.2;             
-    --vignette-strength: 0;        
+    --glow-strength: 0;         
+    --fog-strength: 0.1;           /* Very Clear */
+    --vignette-strength: 0.1;       
   }
-
-  /* OPTION: RETRO PALETTE (From Image) */
-.theme-palette-retro {
-  /* 1. CANVAS */
-  /* #F5F2F2 -> 0 6% 95% */
-  --background: 0 6% 95%;      
-  /* #2B2A2A -> 0 1% 17% */
-  --foreground: 0 1% 17%;      
-
-  /* 2. STRUCTURE */
-  /* #5A7ACD (Blue) -> 223 53% 58% */
-  /* Using the Blue for the grid gives a nice "Blueprint" vibe */
-  --grid-color: 223 53% 58%;      
-  --grid-size: 60px;
-  --grid-thickness: 1px; /* Thinner for a sharper look */
-  
-  /* PATTERN ENGINE */
-  --grid-pattern: 
-    linear-gradient(hsl(var(--grid-color) / 0.2) var(--grid-thickness), transparent var(--grid-thickness)),
-    linear-gradient(90deg, hsl(var(--grid-color) / 0.2) var(--grid-thickness), transparent var(--grid-thickness));
-
-  --grid-animation: grid-flow-diag 120s linear infinite;
-
-  /* 3. ENERGY */
-  /* CARDS: White clean cards with dark borders */
-  --card: 0 0% 100%;            
-  --card-foreground: 0 1% 17%; 
-  
-  --popover: 0 0% 100%;
-  --popover-foreground: 0 1% 17%;
-
-  /* PRIMARY BUTTONS: #2B2A2A (Black) */
-  --primary: 0 1% 17%;        
-  --primary-foreground: 0 0% 100%;
-
-  /* ACCENT: #FEB05D (Orange) -> 31 98% 68% */
-  --accent: 31 98% 68%;        
-  --accent-foreground: 0 1% 17%; /* Dark text on orange for readability */
-
-  --border: 0 1% 17%;         /* Sharp dark borders */
-  --input: 0 0% 100%;
-  --ring: 223 53% 58%;        /* Focus ring is Blue */
-
-  /* 4. CURSORS */
-  /* Standard Dot is Black #2B2A2A */
-  --cursor-dot: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Crect fill='%232B2A2A' x='6' y='6' width='4' height='4'/%3E%3C/svg%3E") 8 8, auto;
-  
-  /* Hover Link is Blue #5A7ACD */
-  --cursor-link: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 16 16'%3E%3Cpath fill='%235A7ACD' d='M2 7h6v2H2V7zm6-2h2v6H8V5zm2 2h2v2h-2V7zm-2-4h2v2H8V3zm0 8h2v2H8v-2z'/%3E%3C/svg%3E") 0 0, pointer;
-
-  /* VISUALIZER BARS (Audio Waveform) */
-  /* We tone down brightness because the Orange is already very bright */
-  --wave-peak-brightness: 1.1; 
-  
-  /* Quiet Audio = Blue */
-  --accent-muted: 223 53% 58%;    
-  /* Loud Audio = Orange */
-  --accent-peak: 31 98% 68%;     
-
-  /* 5. PHYSICS */
-  --glow-strength: 0.1; /* Low glow for cleaner look */           
-  --fog-strength: 0.1;             
-  --vignette-strength: 0;        
-}
-
-/* OPTION: VINTAGE NAVY (Deep Blue / Burnt Orange / Soft Apricot) */
-.theme-vintage-navy {
-  /* 1. CANVAS */
-  /* #001F3D (Deep Navy) -> 210 100% 12% */
-  --background: 210 100% 12%;      
-  /* #E6E6E6 (Light Grey) -> 0 0% 90% */
-  --foreground: 0 0% 90%;      
-
-  /* 2. STRUCTURE */
-  /* #F7B980 (Soft Apricot) -> 33 88% 74% */
-  /* A warm grid on a dark background looks like a star chart or radar */
-  --grid-color: 33 88% 74%;      
-  --grid-size: 80px;            /* Larger, more spacious grid */
-  --grid-thickness: 1px;
-  
-  /* PATTERN ENGINE */
-  --grid-pattern: 
-    linear-gradient(hsl(var(--grid-color) / 0.1) var(--grid-thickness), transparent var(--grid-thickness)),
-    linear-gradient(90deg, hsl(var(--grid-color) / 0.1) var(--grid-thickness), transparent var(--grid-thickness));
-
-  --grid-animation: grid-flow-diag 100s linear infinite;
-
-  /* 3. ENERGY */
-  /* CARDS: Using the background color but with a border to define it */
-  --card: 210 100% 12%;            
-  --card-foreground: 0 0% 90%;
-  
-  --popover: 210 100% 12%;
-  --popover-foreground: 0 0% 90%;
-
-  /* PRIMARY BUTTONS: #ED985F (Burnt Orange) -> 24 81% 65% */
-  --primary: 24 81% 65%;        
-  --primary-foreground: 210 100% 12%; /* Navy text on orange buttons */
-
-  /* ACCENT: #F7B980 (Soft Apricot) */
-  --accent: 33 88% 74%;        
-  --accent-foreground: 210 100% 12%;
-
-  /* BORDERS: Use the Burnt Orange for a "frame" effect */
-  --border: 24 81% 65%;         
-  --input: 210 100% 12%;
-  --ring: 33 88% 74%;           /* Focus ring is Apricot */
-
-  /* 4. CURSORS */
-  /* Standard Dot is Light Grey #E6E6E6 */
-  --cursor-dot: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Crect fill='%23E6E6E6' x='6' y='6' width='4' height='4'/%3E%3C/svg%3E") 8 8, auto;
-  
-  /* Hover Link is Soft Apricot #F7B980 */
-  --cursor-link: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 16 16'%3E%3Cpath fill='%23F7B980' d='M2 7h6v2H2V7zm6-2h2v6H8V5zm2 2h2v2h-2V7zm-2-4h2v2H8V3zm0 8h2v2H8v-2z'/%3E%3C/svg%3E") 0 0, pointer;
-
-  /* VISUALIZER BARS (Audio Waveform) */
-  /* Dark background allows for moderate brightness */
-  --wave-peak-brightness: 1.2;
-  
-  /* Quiet Audio = Soft Apricot (Warm and low) */
-  --accent-muted: 33 88% 74%;    
-  /* Loud Audio = Burnt Orange (Hot and intense) */
-  --accent-peak: 24 81% 65%;     
-
-  /* 5. PHYSICS */
-  --glow-strength: 0.4; /* Moderate glow, warm vibe */           
-  --fog-strength: 0.1;             
-  --vignette-strength: 0.2;        
-}
-
-/* OPTION: TECHNICAL SOLARIS (Cream / Heavy Ink / Solaris Amber) */
-.theme-tech-solaris {
-  /* 1. CANVAS */
-  /* #F2F0E4 (Engineering Paper Cream) -> 51 29% 92% */
-  --background: 51 29% 92%;      
-  /* #2B261C (Iron/Sepia Black) -> 40 19% 14% */
-  /* This isn't pure black; it's a very dark, warm iron color */
-  --foreground: 40 19% 14%;      
-
-  /* 2. STRUCTURE */
-  /* We use the Foreground color for the grid to look like printed lines */
-  --grid-color: 40 19% 14%;      
-  --grid-size: 50px;             /* Tighter, technical grid */
-  --grid-thickness: 2px;         /* THICK lines as requested */
-  
-  /* PATTERN ENGINE */
-  /* High opacity (0.08) creates a distinct, visible graph paper look */
-  --grid-pattern: 
-    linear-gradient(hsl(var(--grid-color) / 0.08) var(--grid-thickness), transparent var(--grid-thickness)),
-    linear-gradient(90deg, hsl(var(--grid-color) / 0.08) var(--grid-thickness), transparent var(--grid-thickness));
-
-  --grid-animation: grid-flow-diag 200s linear infinite; /* Very slow, stable movement */
-
-  /* 3. ENERGY */
-  /* CARDS: Cream background, but with a thick border to define it */
-  --card: 51 29% 92%;            
-  --card-foreground: 40 19% 14%;
-  
-  --popover: 51 29% 92%;
-  --popover-foreground: 40 19% 14%;
-
-  /* PRIMARY BUTTONS: The "Solaris" Amber */
-  /* #FF9F1C (Blazing Sun) -> 35 100% 55% */
-  --primary: 35 100% 55%;        
-  --primary-foreground: 40 19% 14%; /* Dark text on amber for industrial look */
-
-  /* ACCENT: Same Solaris Amber */
-  --accent: 35 100% 55%;        
-  --accent-foreground: 40 19% 14%;
-
-  /* BORDERS: The Dark Retro Ink */
-  --border: 40 19% 14%;         
-  --input: 51 29% 92%;
-  --ring: 35 100% 55%;          /* Focus ring is Amber */
-
-  /* 4. CURSORS */
-  /* Standard Dot is Dark Ink */
-  --cursor-dot: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Crect fill='%232B261C' x='6' y='6' width='4' height='4'/%3E%3C/svg%3E") 8 8, auto;
-  
-  /* Hover Link is Solaris Amber */
-  --cursor-link: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 16 16'%3E%3Cpath fill='%23FF9F1C' d='M2 7h6v2H2V7zm6-2h2v6H8V5zm2 2h2v2h-2V7zm-2-4h2v2H8V3zm0 8h2v2H8v-2z'/%3E%3C/svg%3E") 0 0, pointer;
-
-  /* VISUALIZER BARS */
-  /* Light mode, so we keep brightness normal to avoid washout */
-  --wave-peak-brightness: 1.0;
-  
-  /* Quiet Audio = Dark Ink (Structure) */
-  --accent-muted: 40 19% 14%;    
-  /* Loud Audio = Solaris Amber (Energy) */
-  --accent-peak: 35 100% 55%;     
-
-  /* 5. PHYSICS */
-  --glow-strength: 0;   /* No glow implies "Analogue/Paper" feel */        
-  --fog-strength: 0.05; /* Very little fog */            
-  --vignette-strength: 0.1; /* Slight edge darkening like old paper */       
-}
-
-/* OPTION: RETRO CAMP (Vintage Cream / Charcoal / Sage / Safety Orange) */
-.theme-retro-camp {
-  /* 1. CANVAS */
-  /* #E2E8CE (Vintage Cream) -> 74 30% 86% */
-  --background: 74 30% 86%;      
-  /* #262626 (Soft Charcoal) -> 0 0% 15% */
-  --foreground: 0 0% 15%;      
-
-  /* 2. STRUCTURE */
-  /* #ACBFA4 (Sage Green) -> 102 14% 70% */
-  /* We use the Sage for the grid. Since contrast is low against cream, 
-     we use a high opacity/thickness to make it look like a watermark. */
-  --grid-color: 102 14% 70%;      
-  --grid-size: 40px;            /* Tight, graph-paper grid */
-  --grid-thickness: 2px;        /* Chunky lines */
-  
-  /* PATTERN ENGINE */
-  /* Opacity 0.5 because the color itself is light */
-  --grid-pattern: 
-    linear-gradient(hsl(var(--grid-color) / 0.5) var(--grid-thickness), transparent var(--grid-thickness)),
-    linear-gradient(90deg, hsl(var(--grid-color) / 0.5) var(--grid-thickness), transparent var(--grid-thickness));
-
-  --grid-animation: grid-flow-diag 120s linear infinite;
-
-  /* 3. ENERGY */
-  /* CARDS: Use the Sage at very low opacity to tint the card background */
-  /* This creates a subtle "Green/Beige" two-tone effect */
-  --card: 102 14% 70%; 
-  /* We actually want the card bg to be cream, or a darkened cream? 
-     Let's use the main background color but with a border. */
-  --card: 74 30% 86%;           
-  --card-foreground: 0 0% 15%;
-  
-  --popover: 74 30% 86%;
-  --popover-foreground: 0 0% 15%;
-
-  /* PRIMARY BUTTONS: #FF7F11 (Safety Orange) -> 28 100% 53% */
-  --primary: 28 100% 53%;        
-  --primary-foreground: 0 0% 15%; /* Black text on Orange for maximum legibility */
-
-  /* ACCENT: The Safety Orange again */
-  --accent: 28 100% 53%;        
-  --accent-foreground: 0 0% 15%;
-
-  /* BORDERS: Use Sage for softer borders, or Black for hard edges. 
-     Let's use Black for a "Comic/Illustration" outline feel */
-  --border: 0 0% 15%;         
-  --input: 74 30% 86%;
-  --ring: 28 100% 53%;        /* Focus ring is Orange */
-
-  /* 4. CURSORS */
-  /* Standard Dot is Orange */
-  --cursor-dot: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Crect fill='%23FF7F11' x='6' y='6' width='4' height='4'/%3E%3C/svg%3E") 8 8, auto;
-  
-  /* Hover Link is Sage Green (Darkened slightly for visibility if needed, 
-     but let's stick to the palette: #ACBFA4) */
-  --cursor-link: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 16 16'%3E%3Cpath fill='%23ACBFA4' d='M2 7h6v2H2V7zm6-2h2v6H8V5zm2 2h2v2h-2V7zm-2-4h2v2H8V3zm0 8h2v2H8v-2z'/%3E%3C/svg%3E") 0 0, pointer;
-
-  /* VISUALIZER BARS */
-  /* Light background -> Normal brightness */
-  --wave-peak-brightness: 1.0;
-  
-  /* Quiet Audio = Sage Green (Natural) */
-  --accent-muted: 102 14% 70%;    
-  /* Loud Audio = Safety Orange (Alert) */
-  --accent-peak: 28 100% 53%;     
-
-  /* 5. PHYSICS */
-  --glow-strength: 0;   /* Matte finish (No neon glow) */        
-  --fog-strength: 0.1;             
-  --vignette-strength: 0.15; /* Warm vintage vignette */       
-}
-
-/* OPTION: JADE ARCHITECT (Cream / Light Grey / Gunmetal / Jade) */
-.theme-jade-architect {
-  /* 1. CANVAS */
-  --background: 50 25% 93%;      
-  --foreground: 200 13% 20%;      
-
-  /* 2. STRUCTURE */
-  --grid-color: 210 10% 84%;      
-  --grid-size: 50px;
-  --grid-thickness: 2px;         
-  
-  /* PATTERN ENGINE */
-  --grid-pattern: 
-    linear-gradient(hsl(var(--grid-color) / 0.8) var(--grid-thickness), transparent var(--grid-thickness)),
-    linear-gradient(90deg, hsl(var(--grid-color) / 0.8) var(--grid-thickness), transparent var(--grid-thickness));
-
-  /* SPEED FIX: Changed 20s back to 120s (Glacier Speed) */
-  --active-grid-flow: none;
-
-  /* OPACITY CONTROLS */
-  /* Bumped grid to 0.6 because Light Grey on Cream needs more contrast */
-  --grid-opacity: 0.6;  
-  --rain-opacity: 1; 
-
-  /* 3. ENERGY */
-  --card: 0 0% 100%;            
-  --card-foreground: 200 13% 20%;
-  
-  --popover: 0 0% 100%;
-  --popover-foreground: 200 13% 20%;
-
-  /* PRIMARY BUTTONS */
-  --primary: 158 100% 33%;        
-  --primary-foreground: 0 0% 100%;
-
-  /* ACCENT */
-  --accent: 158 100% 33%;        
-  --accent-foreground: 0 0% 100%;
-
-  /* BORDERS */
-  --border: 200 13% 20%;         
-  --input: 50 25% 93%;
-  --ring: 158 100% 33%;
-
-  /* 4. CURSORS */
-  --cursor-dot: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Crect fill='%232C3539' x='6' y='6' width='4' height='4'/%3E%3C/svg%3E") 8 8, auto;
-  --cursor-link: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 16 16'%3E%3Cpath fill='%2300A86B' d='M2 7h6v2H2V7zm6-2h2v6H8V5zm2 2h2v2h-2V7zm-2-4h2v2H8V3zm0 8h2v2H8v-2z'/%3E%3C/svg%3E") 0 0, pointer;
-
-  /* VISUALIZER BARS */
-  --wave-peak-brightness: 1.0;
-  --accent-muted: 200 13% 20%;    
-  --accent-peak: 158 100% 33%;     
-
-  /* 5. PHYSICS */
-  --glow-strength: 0;         
-  --fog-strength: 0.1;             
-  --vignette-strength: 0.1;       
-}
-
-/* OPTION: SOLARIS ARCHITECT (Cream / Warm Iron / Solaris Amber) */
-.theme-solaris-architect {
-  /* 1. CANVAS */
-  /* Solaris Cream */
-  --background: 51 29% 92%;      
-  /* Warm Iron/Sepia Black */
-  --foreground: 40 19% 14%;      
-
-  /* 2. STRUCTURE */
-  /* Warm Grey for the grid (matches the cream better than cool grey) */
-  --grid-color: 40 10% 80%;      
-  --grid-size: 50px;
-  --grid-thickness: 2px;         
-  
-  /* PATTERN ENGINE */
-  --grid-pattern: 
-    linear-gradient(hsl(var(--grid-color) / 0.8) var(--grid-thickness), transparent var(--grid-thickness)),
-    linear-gradient(90deg, hsl(var(--grid-color) / 0.8) var(--grid-thickness), transparent var(--grid-thickness));
-
-  /* SPEED FIX: No movement, same as Jade */
-  --active-grid-flow: none;
-
-  /* OPACITY CONTROLS */
-  --grid-opacity: 0.6;  
-  --rain-opacity: 1; 
-
-  /* 3. ENERGY */
-  --card: 0 0% 100%;            
-  --card-foreground: 40 19% 14%;
-  
-  --popover: 0 0% 100%;
-  --popover-foreground: 40 19% 14%;
-
-  /* PRIMARY BUTTONS: Solaris Amber */
-  --primary: 35 100% 55%;        
-  --primary-foreground: 40 19% 14%; /* Dark text on Amber */
-
-  /* ACCENT */
-  --accent: 43 100% 60%;        
-  --accent-foreground: 40 19% 14%;
-
-  /* BORDERS */
-  --border: 40 19% 14%;         
-  --input: 51 29% 92%;
-  --ring: 35 100% 55%;
-
-  /* 4. CURSORS */
-  /* Standard Dot is Dark Iron (#2B261C) */
-  --cursor-dot: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Crect fill='%232B261C' x='6' y='6' width='4' height='4'/%3E%3C/svg%3E") 8 8, auto;
-  /* Link is Solaris Amber (#FF9F1C) */
-  --cursor-link: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 16 16'%3E%3Cpath fill='%23FF9F1C' d='M2 7h6v2H2V7zm6-2h2v6H8V5zm2 2h2v2h-2V7zm-2-4h2v2H8V3zm0 8h2v2H8v-2z'/%3E%3C/svg%3E") 0 0, pointer;
-
-  /* VISUALIZER BARS */
-  --wave-peak-brightness: 1.0;
-  --accent-muted: 40 19% 14%;    
-  --accent-peak: 43 100% 60%;     
-
-  /* 5. PHYSICS */
-  --glow-strength: 0;         
-  --fog-strength: 0.1;             
-  --vignette-strength: 0.1;       
-}
 
   /* =========================================================
     END OF THEME PACKAGES
@@ -636,6 +215,47 @@
 }
 
 @layer components {
+  .section-inverted {
+    /* ==========================================
+       1. DEFAULT THEME (Dark Mode)
+       Goal: Stay Dark. Do NOT turn white.
+    ========================================== */
+    /* We just inherit the standard dark background. 
+       No changes needed, so it won't "flashbang" you. */
+    background-color: transparent;
+    color: hsl(var(--foreground));
+    
+    /* Optional: If you want it to look slightly distinct from the void, 
+       uncomment this to make it the slightly lighter "Card" color: */
+    /* background-color: hsl(var(--card)); */
+
+
+    /* ==========================================
+       2. ARCHITECT THEME (Light Mode)
+       Goal: Turn this section DARK.
+    ========================================== */
+    .theme-solaris-architect & {
+      /* We force the background to be the Dark Sepia (normally the text color) */
+      --background: 40 19% 14%; 
+      
+      /* We force the text to be Cream (normally the background color) */
+      --foreground: 51 29% 92%;
+
+      /* We update secondary/muted colors to be visible on dark */
+      --muted-foreground: 40 10% 70%;
+      --card: 40 20% 18%;
+      --card-foreground: 51 29% 92%;
+      --border: 40 10% 30%;
+
+      /* APPLY THE VARIABLES */
+      background-color: hsl(var(--background));
+      color: hsl(var(--foreground));
+      
+      /* Reset the grid lines to be subtle on this dark patch */
+      --grid-color: 40 10% 25%;
+    }
+  }
+
   /* 1. CONTAINER */
   .binary-waterfall {
     position: absolute;

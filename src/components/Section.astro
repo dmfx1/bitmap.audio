@@ -6,7 +6,7 @@ interface Props {
   isFullWidth?: boolean;
   animate?: boolean;
   delay?: string;
-  invert?: boolean; /* NEW: Toggle for high-contrast mode */
+  invert?: boolean; 
 }
 
 const { 
@@ -22,29 +22,39 @@ const {
 <section 
   id={id} 
   class:list={[
-    "relative py-12 md:py-16 flex justify-center w-full full-width-line-section transition-colors duration-500",
+    "relative py-20 md:py-32 flex justify-center w-full transition-colors duration-700 ease-in-out",
     
+    /* LAYOUT: Only apply line if NOT inverted (looks cleaner) */
+    !invert && "full-width-line-section",
+
     /* ANIMATION */
     animate && "reveal-on-scroll opacity-0 translate-y-6",
     
-    /* INVERT LOGIC: Added 'section-inverted' to the end of this string */
-    invert ? "bg-muted-foreground/40 text-background z-20 shadow-2xl overflow-hidden section-inverted" : "z-10",
+    /* INVERT LOGIC: 
+       We ONLY add the class 'section-inverted'. 
+       We do NOT add Tailwind color classes here. 
+       The CSS handles the variables. 
+    */
+    invert ? "section-inverted z-20 shadow-2xl" : "bg-background text-foreground z-10",
     
     className
   ]}
   style={`transition-delay: ${delay};`} 
 >
   
-  {/* If inverted, we add a subtle texture or noise to make it less flat (Optional) */}
-  {invert && <div class="absolute inset-0 bg-foreground pointer-events-none mix-blend-overlay"></div>}
-
   <div class:list={[
-    "w-full px-10 md:px-12 relative",
-    /* Unified to 6xl for a consistent central column */
-    !isFullWidth && "max-w-6xl" 
+    "w-full px-6 md:px-12 relative z-10",
+    !isFullWidth && "max-w-7xl" /* Standardized width */
   ]}>
     <slot />
   </div>
+
+  {/* Optional: Deep texture for inverted sections only */}
+  {invert && (
+    <div class="absolute inset-0 pointer-events-none opacity-[0.03]" 
+         style="background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIi8+CjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiMwMDAiLz4KPC9zdmc+');">
+    </div>
+  )}
 </section>
 
 <script>
@@ -57,7 +67,7 @@ const {
         observer.unobserve(target);
       }
     });
-  }, { threshold: 0.2 });
+  }, { threshold: 0.1 });
 
   document.querySelectorAll('.reveal-on-scroll').forEach((el) => observer.observe(el));
 </script>
