@@ -174,7 +174,7 @@ function ProjectCard({ item, onClick, isScanning }: { item: Concept; onClick?: (
       )}
 
       {/* CONTENT LAYER */}
-      <div className="relative z-10 pointer-events-none flex flex-col h-full justify-between">
+      <div className="relative z-10 pointer-events-none flex flex-col h-full justify-top">
         <div>
           {Icon && (
             <div className="mb-6 text-primary/70 group-hover:text-accent transition-colors duration-500 group-hover:scale-110 origin-left transform">
@@ -193,7 +193,7 @@ function ProjectCard({ item, onClick, isScanning }: { item: Concept; onClick?: (
           )}
         </div>
         
-        <p className="text-base text-foreground leading-relaxed font-light group-hover:text-foreground transition-colors duration-500 mt-4">
+        <p className="text-sm text-foreground font-mono leading-relaxed font-light group-hover:text-foreground transition-colors duration-500 mt-4">
           {scrambledDesc}
         </p>
       </div>

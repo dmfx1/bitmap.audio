@@ -1,3 +1,4 @@
+/* src/components/modules/HomeHero.tsx */
 import React, { useState, useEffect } from 'react';
 import VideoModal from './VideoModal';
 import TypewriterHero from './TypewriterHero';
@@ -13,10 +14,6 @@ const projects = [
 
 export default function HomeHero() {
   const [selectedVimeoId, setSelectedVimeoId] = useState<string | null>(null);
-  
-  // Step 0: Power Up (Center Screen)
-  // Step 1: Layout shift (Logo moves to top)
-  // Step 2: Content reveal
   const [step, setStep] = useState(0); 
   const [isScanning, setIsScanning] = useState(false);
 
@@ -25,7 +22,6 @@ export default function HomeHero() {
   const scrambledHandshake = useBinaryScramble("[INIT_HANDSHAKE]", isScanning);
 
   useEffect(() => {
-    // This timer matches your CSS animation-duration (1.5s)
     const timer = setTimeout(() => {
       setStep(1);
       setTimeout(() => setIsScanning(true), 800);
@@ -34,10 +30,10 @@ export default function HomeHero() {
   }, []);
 
   return (
-    <div className="relative w-full max-w-4xl mx-auto flex flex-col items-center text-center">
+    // MAIN WRAPPER: Matches ConceptGrid max width
+    <div className="relative w-full max-w-6xl mx-auto flex flex-col items-center text-center">
       
-      {/* --- RESTORED: THE INTRO SEQUENCE (Step 0) --- */}
-      {/* This puts the B in the absolute center for the first 1.6 seconds */}
+      {/* --- INTRO SEQUENCE --- */}
       {step === 0 && (
         <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
            <div className="w-24 h-24 bg-primary flex items-center justify-center shadow-[0_0_66px_hsl(var(--primary)/0.5)] animate-power-up">
@@ -46,12 +42,12 @@ export default function HomeHero() {
         </div>
       )}
 
+      {/* --- HEADER --- */}
       <div className="flex flex-col items-center mb-12">
         <div className="h-12 mb-12">
-          {/* Once we hit Step 1, the big center B is gone, and this small top B fades in */}
           {step >= 1 && (
             <div className="morph-accent-fill w-12 h-12 bg-primary flex items-center justify-center shadow-[0_0_66px_hsl(var(--primary)/0.5)] animate-fade-in">
-              <span className="text-foreground font-mono text-lg font-bold">b.</span>
+              <span className="text-background font-mono text-lg font-bold">b.</span>
             </div>
           )}
         </div>
@@ -69,27 +65,46 @@ export default function HomeHero() {
         </div>
       </div>
 
-      {/* Main Content Area */}
+      {/* --- CONTENT --- */}
       <div className="relative w-full transition-opacity duration-1000" style={{ opacity: isScanning ? 1 : 0 }}>
+        
         <div className="space-y-12">
           <p className="text-lg md:text-sm text-foreground max-w-2xl mx-auto font-mono uppercase tracking-[0.2em] min-h-[1.5em]">
             {scrambledSubtitle}
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-            <a href="/home">
-              <Button size="xl" className="rounded-none font-mono min-w-[220px]">
+          {/* BUTTON GRID: 
+             - Matches ConceptGrid structure exactly (max-w-5xl, gap-6/8).
+             - grid-cols-1 (mobile) -> grid-cols-2 (desktop).
+          */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mx-auto w-full p-4 max-w-3xl">
+            <a href="/home" className="w-full">
+              <Button 
+                size="xl" 
+                // w-full fills the grid cell. h-14 provides standard "block" height.
+                className="w-full rounded-none font-mono text-lg tracking-widest h-14 md:h-16"
+              >
                 {scrambledAccess}
               </Button>
             </a>
-            <a href="/contact">
-              <Button variant="outline" size="xl" className="animate-morph rounded-none font-mono min-w-[220px]">
+            
+            <a href="/contact" className="w-full">
+              <Button 
+                variant="outline" 
+                size="xl" 
+                className="w-full animate-morph bg-background/50 rounded-none font-mono text-lg tracking-widest h-14 md:h-16"
+              >
                 {scrambledHandshake}
               </Button>
             </a>
           </div>
         </div>
-        <ConceptGrid items={projects} isScanning={isScanning} onProjectClick={(vimeoId) => setSelectedVimeoId(vimeoId)} />
+
+        <ConceptGrid 
+          items={projects} 
+          isScanning={isScanning} 
+          onProjectClick={(vimeoId) => setSelectedVimeoId(vimeoId)} 
+        />
       </div>
 
       <VideoModal isOpen={!!selectedVimeoId} onClose={() => setSelectedVimeoId(null)} vimeoId={selectedVimeoId || "1108099090"} />
