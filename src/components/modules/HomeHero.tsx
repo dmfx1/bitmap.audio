@@ -1,19 +1,42 @@
-/* src/components/modules/HomeHero.tsx */
 import React, { useState, useEffect } from 'react';
 import VideoModal from './VideoModal';
 import TypewriterHero from './TypewriterHero';
-import ConceptGrid from './ConceptGrid'; 
+import ConceptGrid, { type Concept } from './ConceptGrid'; 
 import { useBinaryScramble } from '@/hooks/use-binary-scramble'; 
 import { Button } from '@/components/ui/button';
 
-const projects = [
-  { id: 1, title: 'SONIC BRANDING', desc: 'Sonic branding architecture for digital infrastructure.', vimeoId: '836174895', previewVideo: '/video/regency_silent.mp4' },
-  { id: 2, title: 'UI / UX SOUND', desc: 'UI/UX Sound Design for high-fidelity digital interfaces.', vimeoId: '708117517', previewVideo: '/video/seon_silent.mp4' },
-  { id: 3, title: 'IMMERSIVE', desc: 'Spatial audio mapping for immersive brand environments.', vimeoId: '1108099090', previewVideo: '/video/matchroom_silent.mp4' },
+// Explicitly type the array using the exported interface from ConceptGrid
+const projects: Concept[] = [
+  { 
+    id: 1, 
+    title: 'SONIC BRANDING', 
+    desc: 'Sonic branding architecture for digital infrastructure.', 
+    vimeoId: '836174895',
+    mobileVimeoId: '1163955176', 
+    previewVideo: '/video/regency_silent.mp4' 
+  },
+  { 
+    id: 2, 
+    title: 'UI / UX SOUND', 
+    desc: 'UI/UX Sound Design for high-fidelity digital interfaces.', 
+    vimeoId: '708117517', 
+    mobileVimeoId: '1163955194', 
+    previewVideo: '/video/seon_silent.mp4' 
+  },
+  { 
+    id: 3, 
+    title: 'IMMERSIVE', 
+    desc: 'Spatial audio mapping for immersive brand environments.', 
+    vimeoId: '1108099090', 
+    mobileVimeoId: '1163955124', 
+    previewVideo: '/video/matchroom_silent.mp4' 
+  },
 ];
 
 export default function HomeHero() {
-  const [selectedVimeoId, setSelectedVimeoId] = useState<string | null>(null);
+  // Explicitly type the state so it accepts the full object
+  const [activeProject, setActiveProject] = useState<Concept | null>(null);
+  
   const [step, setStep] = useState(0); 
   const [isScanning, setIsScanning] = useState(false);
 
@@ -30,7 +53,6 @@ export default function HomeHero() {
   }, []);
 
   return (
-    // MAIN WRAPPER: Matches ConceptGrid max width
     <div className="relative w-full max-w-6xl mx-auto flex flex-col items-center text-center">
       
       {/* --- INTRO SEQUENCE --- */}
@@ -73,15 +95,10 @@ export default function HomeHero() {
             {scrambledSubtitle}
           </p>
 
-          {/* BUTTON GRID: 
-             - Matches ConceptGrid structure exactly (max-w-5xl, gap-6/8).
-             - grid-cols-1 (mobile) -> grid-cols-2 (desktop).
-          */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mx-auto w-full p-4 max-w-3xl">
             <a href="/home" className="w-full">
               <Button 
                 size="xl" 
-                // w-full fills the grid cell. h-14 provides standard "block" height.
                 className="w-full rounded-none font-mono text-lg tracking-widest h-14 md:h-16"
               >
                 {scrambledAccess}
@@ -103,11 +120,16 @@ export default function HomeHero() {
         <ConceptGrid 
           items={projects} 
           isScanning={isScanning} 
-          onProjectClick={(vimeoId) => setSelectedVimeoId(vimeoId)} 
+          onProjectClick={(project) => setActiveProject(project)} 
         />
       </div>
 
-      <VideoModal isOpen={!!selectedVimeoId} onClose={() => setSelectedVimeoId(null)} vimeoId={selectedVimeoId || "1108099090"} />
+      <VideoModal 
+        isOpen={!!activeProject} 
+        onClose={() => setActiveProject(null)} 
+        vimeoId={activeProject?.vimeoId || ""}
+        mobileVimeoId={activeProject?.mobileVimeoId} 
+      />
     </div>
   );
 }

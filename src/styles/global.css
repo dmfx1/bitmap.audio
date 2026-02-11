@@ -24,7 +24,7 @@
     /* ========================================================================
       LAYER 2: THE STRUCTURE (Lines & Boundaries)
     ======================================================================== */
-    --border: 180 15% 12%;
+    --border: 240 100% 100%; 
     --grid-color: 180 15% 15%;      /* LIGHTER THAN BEFORE (Was 12%) TO POP */
     --input: 220 15% 12%;
     --ring: 35 100% 55%;
@@ -188,21 +188,24 @@
   }
 
   .full-width-line-section {
-    position: relative;
-    width: 100%;
-  }
+  position: relative;
+  width: 100%;
+}
 
-  .full-width-line-section::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 50%;
-    width: 100vw;
-    height: 1px;
-    background-color: hsl(var(--primary) / 0.5);
-    transform: translateX(-50%);
-    z-index: 10;
-  }
+.full-width-line-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 100vw;
+  /* CHANGED: Increased thickness from 1px to 2px (or try 4px for very thick) */
+  height: 10px; 
+  /* CHANGED: Use a border variable so it changes color in light/dark/inverted modes */
+  background-color: hsl(var(--border)); 
+  opacity: 0.5;
+  transform: translateX(-50%);
+  z-index: 10;
+}
 
   .pulse-sync-active {
     animation: emotion-heartbeat var(--animation-speed) ease-in-out infinite;
@@ -215,6 +218,20 @@
 }
 
 @layer components {
+  .theme-solaris-architect header {
+    /* 1. Make the paint slightly more transparent so the filter is visible */
+    background-color: hsl(var(--background) / 0.65) !important;
+    
+    /* 2. THE MAGIC COMBINATION:
+       - blur(12px): The frosted glass look you like.
+       - brightness(2): Forces dark sections (Sepia) to appear bright/washed out behind the glass.
+       - saturate(0.5): Desaturates the brown slightly to reduce visual noise.
+    */
+    backdrop-filter: blur(12px) brightness(2) saturate(0.5);
+    
+    /* Smooth transition for when you switch themes */
+    transition: all 0.5s ease;
+  }
   .section-inverted {
     /* ==========================================
        1. DEFAULT THEME (Dark Mode)

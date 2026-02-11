@@ -7,6 +7,7 @@ interface Props {
   animate?: boolean;
   delay?: string;
   invert?: boolean; 
+  hasBorder?: boolean; /* NEW PROP: Manual control if needed */
 }
 
 const { 
@@ -15,8 +16,13 @@ const {
   isFullWidth = false, 
   animate = true, 
   delay = "0s",
-  invert = false 
+  invert = false,
+  hasBorder = true /* Default to true so it appears everywhere */
 } = Astro.props;
+
+/* Logic to avoid double borders or weird top borders:
+   If this is the very first section (Hero), you might want to pass hasBorder={false}
+*/
 ---
 
 <section 
@@ -24,17 +30,16 @@ const {
   class:list={[
     "relative py-20 md:py-32 flex justify-center w-full transition-colors duration-700 ease-in-out",
     
-    /* LAYOUT: Only apply line if NOT inverted (looks cleaner) */
-    !invert && "full-width-line-section",
+    /* 1. THICKER BORDER LOGIC 
+       - border-t-2: Makes it 2px thick (use border-t-4 for very thick)
+       - border-border: Auto-colors it based on theme (Dark/Light/Invert)
+    */
+    hasBorder && "border-t-2 border-border",
 
-    /* ANIMATION */
+    /* 2. ANIMATION */
     animate && "reveal-on-scroll opacity-0 translate-y-6",
     
-    /* INVERT LOGIC: 
-       We ONLY add the class 'section-inverted'. 
-       We do NOT add Tailwind color classes here. 
-       The CSS handles the variables. 
-    */
+    /* 3. INVERT LOGIC */
     invert ? "section-inverted z-20 shadow-2xl" : "bg-background text-foreground z-10",
     
     className
@@ -44,7 +49,7 @@ const {
   
   <div class:list={[
     "w-full px-6 md:px-12 relative z-10",
-    !isFullWidth && "max-w-7xl" /* Standardized width */
+    !isFullWidth && "max-w-7xl"
   ]}>
     <slot />
   </div>

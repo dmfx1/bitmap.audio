@@ -1,4 +1,3 @@
-/* src/components/modules/ConceptGrid.tsx */
 import React, { useState, useRef, useEffect } from 'react';
 import { cn } from "@/lib/utils";
 import { useBinaryScramble } from '@/hooks/use-binary-scramble';
@@ -9,13 +8,16 @@ const ICON_MAP: Record<string, React.ElementType> = {
   map: BitmapMap,
 };
 
-interface Concept {
-  id?: number;
+// FIXED: 'id' is now required (removed the ?)
+// FIXED: 'mobileVimeoId' explicitly allows null
+export interface Concept {
+  id: number; 
   title: string;    
   subtitle?: string; 
   desc: string;
   icon?: string;
   vimeoId?: string;
+  mobileVimeoId?: string | null; 
   previewVideoWebm?: string;
   previewVideoMp4?: string;
   previewVideo?: string; 
@@ -27,7 +29,7 @@ interface ConceptGridProps {
   items: Concept[];
   className?: string;
   isScanning?: boolean; 
-  onProjectClick?: (vimeoId: string) => void;
+  onProjectClick?: (item: Concept) => void;
 }
 
 export default function ConceptGrid({ 
@@ -99,7 +101,7 @@ export default function ConceptGrid({
             key={index} 
             item={item} 
             isScanning={activeScan} 
-            onClick={item.vimeoId && onProjectClick ? () => onProjectClick(item.vimeoId!) : undefined} 
+            onClick={item.vimeoId && onProjectClick ? () => onProjectClick(item) : undefined} 
           />
         ))}
       </div>
@@ -137,28 +139,21 @@ function ProjectCard({ item, onClick, isScanning }: { item: Concept; onClick?: (
       onMouseLeave={handleMouseLeave} 
       onClick={onClick} 
       className={cn(
-        // BASE STYLES: High opacity background to block grid lines, stronger border
         "concept-card group relative p-8 md:p-10 border transition-all duration-500 ease-out overflow-hidden z-10",
-        
-        // STATIC STATE: Solid Card, Subtle Border
         "bg-card/90 backdrop-blur-md border-muted-foreground shadow-lg",
-
-        // HOVER STATE: Massive Scale, Accent Border, Deep Glow
         onClick ? [
           "cursor-none",
-          "hover:scale-[1.03]", // Physical growth
-          "hover:-translate-y-2", // Lift up
-          "hover:border-accent", // Bright border color
-          "hover:bg-card/95", // Almost solid background on hover
-          "hover:shadow-[0_20px_80px_-10px_hsl(var(--accent)/0.3)]", // The "Electric" Glow
-          "hover:z-50" // Bring to front
+          "hover:scale-[1.03]", 
+          "hover:-translate-y-2", 
+          "hover:border-accent", 
+          "hover:bg-card/95", 
+          "hover:shadow-[0_20px_80px_-10px_hsl(var(--accent)/0.3)]", 
+          "hover:z-50" 
         ] : "cursor-default"
       )}
     >
-      {/* CORNER BRACKET: Always visible, turns Accent on hover */}
       <div className="absolute top-1 right-1 w-6 h-6 border-t-2 border-r-2 border-foreground group-hover:border-accent transition-colors duration-300 z-20" />
 
-      {/* VIDEO LAYER */}
       {hasVideo && (
         <div className={cn(
           "absolute inset-0 z-0 transition-opacity duration-700 pointer-events-none mix-blend-overlay", 
@@ -173,7 +168,6 @@ function ProjectCard({ item, onClick, isScanning }: { item: Concept; onClick?: (
         </div>
       )}
 
-      {/* CONTENT LAYER */}
       <div className="relative z-10 pointer-events-none flex flex-col h-full justify-top">
         <div>
           {Icon && (

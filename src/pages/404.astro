@@ -1,0 +1,62 @@
+---
+/* src/pages/404.astro */
+import Layout from '../layouts/Layout.astro';
+import { Button } from '@/components/ui/button';
+import { BitmapMonitor } from '@/components/ui/icons';
+---
+
+<Layout title="404 | Signal Lost">
+  <main class="relative w-full section-inverted min-h-screen flex flex-col items-center justify-center pt-24 overflow-hidden bg-background">
+    
+    <div class="absolute inset-0 opacity-20 pointer-events-none" 
+         style="">
+    </div>
+
+    <div class="tv-static absolute inset-0 opacity-[0.03] pointer-events-none"></div>
+
+    <div class="relative z-10 flex flex-col items-center text-center p-6 max-w-2xl animate-fade-in-up">
+      
+      <div class="mb-8 text-destructive animate-pulse">
+        <BitmapMonitor className="w-24 h-24 md:w-32 md:h-32" />
+      </div>
+
+      <h1 class="text-lg md:text-lg font-mono font-bold leading-none tracking-tighter text-foreground mb-4" data-text="404">
+        404
+      </h1>
+
+      <div class="font-mono text-sm md:text-base text-muted-foreground space-y-2 mb-12 uppercase tracking-widest">
+        <p class="text-destructive">[ CRITICAL_ERROR: SECTOR_VOID ]</p>
+        <p>This page does not exist.</p>
+        <p class="opacity-50 text-xs mt-2">ERR_CODE: SIGNAL_LOST // INITIATE_RECOVERY</p>
+      </div>
+
+      <a href="/home">
+        <Button 
+          size="sm" 
+          variant="outline"
+          className="rounded-none font-mono border-foreground/50 hover:border-accent hover:text-accent hover:bg-accent/10 transition-all tracking-[0.2em] h-16 p-6"
+        >
+          [ RE-ESTABLISH_LINK ]
+        </Button>
+      </a>
+
+    </div>
+
+    <div class="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%] z-50 opacity-20"></div>
+
+  </main>
+</Layout>
+
+<style>
+  /* * TV STATIC ANIMATION */
+  .tv-static {
+    background: repeating-radial-gradient(#000 0 0.0001%,#fff 0 0.0002%) 50% 0/2500px 2500px,
+                repeating-conic-gradient(#000 0 0.0001%,#fff 0 0.0002%) 60% 60%/2500px 2500px;
+    background-blend-mode: difference;
+    animation: static-shift 0.2s infinite alternate;
+  }
+
+  @keyframes static-shift {
+    100% { background-position: 50% 0, 60% 50%; }
+  }
+</style>
