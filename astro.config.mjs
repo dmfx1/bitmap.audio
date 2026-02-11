@@ -4,4 +4,5 @@ import react from '@astrojs/react';
 
 export default defineConfig({
   integrations: [tailwind(), react()],
+  // Remove output: 'server' and the adapter line
 });
