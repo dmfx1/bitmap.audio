@@ -30,7 +30,7 @@
     --ring: 35 100% 55%;
 
     /* PATTERN DICTIONARY */
-    --grid-size: 40px;
+    --grid-size: 20px;
     --grid-thickness: 1px;          /* THINNER LINES LOOK CRISPER */
     
     --pattern-solid: 
@@ -103,7 +103,7 @@
 
     /* 2. STRUCTURE */
     --grid-color: 40 10% 80%;      /* Warm Grey */
-    --grid-size: 50px;
+    --grid-size: 20px;
     --grid-thickness: 2px;         
     
     /* PATTERN OVERRIDE (For darker grid lines on light bg) */
@@ -233,43 +233,44 @@
     transition: all 0.5s ease;
   }
   .section-inverted {
-    /* ==========================================
-       1. DEFAULT THEME (Dark Mode)
-       Goal: Stay Dark. Do NOT turn white.
-    ========================================== */
-    /* We just inherit the standard dark background. 
-       No changes needed, so it won't "flashbang" you. */
     background-color: transparent;
     color: hsl(var(--foreground));
     
-    /* Optional: If you want it to look slightly distinct from the void, 
-       uncomment this to make it the slightly lighter "Card" color: */
-    /* background-color: hsl(var(--card)); */
+    /* 1. RE-APPLY CURSOR HERE so it picks up local variables */
+    cursor: var(--cursor-dot);
 
+    /* Default Inverted Cursor (Bitmap Orange) */
+    --cursor-dot: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Crect fill='%23FF9F1C' x='6' y='6' width='4' height='4'/%3E%3C/svg%3E") 8 8, auto;
 
-    /* ==========================================
-       2. ARCHITECT THEME (Light Mode)
-       Goal: Turn this section DARK.
-    ========================================== */
     .theme-solaris-architect & {
-      /* We force the background to be the Dark Sepia (normally the text color) */
       --background: 40 19% 14%; 
-      
-      /* We force the text to be Cream (normally the background color) */
       --foreground: 51 29% 92%;
-
-      /* We update secondary/muted colors to be visible on dark */
       --muted-foreground: 40 10% 70%;
       --card: 40 20% 18%;
       --card-foreground: 51 29% 92%;
       --border: 40 10% 30%;
+      --grid-color: 40 10% 25%;
 
-      /* APPLY THE VARIABLES */
       background-color: hsl(var(--background));
       color: hsl(var(--foreground));
+
+      /* Architect Inverted Cursors */
+      --cursor-dot: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Crect fill='%23FF9F1C' x='6' y='6' width='4' height='4'/%3E%3C/svg%3E") 8 8, auto;
+      --cursor-link: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 16 16'%3E%3Cpath fill='%23F2EFE9' d='M2 7h6v2H2V7zm6-2h2v6H8V5zm2 2h2v2h-2V7zm-2-4h2v2H8V3zm0 8h2v2H8v-2z'/%3E%3C/svg%3E") 0 0, pointer;
       
-      /* Reset the grid lines to be subtle on this dark patch */
-      --grid-color: 40 10% 25%;
+      /* 2. ALSO RE-APPLY for links inside the section */
+      a, button, [role="button"], .concept-card, .cursor-pointer {
+        cursor: var(--cursor-link) !important;
+      }
+    }
+
+    /* Force visibility for specific components within inverted sections */
+    h2, h3, .concept-card h3, .text-eyebrow {
+      color: hsl(var(--primary)) !important;
+    }
+    
+    .text-eyebrow {
+      opacity: 1;
     }
   }
 
@@ -325,6 +326,8 @@
     filter: invert(1); 
   }
 
+  /* src/styles/global.css */
+
   .bitmap-grid {
     /* 1. SETUP */
     --size: var(--grid-size, 40px);
@@ -339,15 +342,21 @@
     background-size: var(--size) var(--size);
     
     /* 3. ANIMATION */
-    /* This listens to the theme. If the theme says 20s, it goes fast. */
     animation: var(--active-grid-flow);
 
-    /* 4. PERFORMANCE */
-    background-position: 0 0;
+    /* --- THE FIX --- 
+      1. Start at 50% (Center of screen).
+      2. Add half the grid size (+ var(--size) / 2) to push the edge (the line) to the center.
+      3. Subtract half the line thickness (- var(--thick) / 2) so the line itself is perfectly centered.
+    */
+    background-position: calc(50% - var(--size) / 2 - var(--thick) / 2) top; 
+  
+    /* Ensure resizing doesn't break the lock */
     will-change: background-position;
     
     /* 5. TRANSITION */
     transition: opacity 0.5s ease;
+    will-change: background-position;
   }
 
   /* New (Theme-aware) */
