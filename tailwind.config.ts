@@ -12,30 +12,39 @@ export default {
     },
     extend: {
       colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+        // Corrected syntax for transparency support
+        border: "hsl(var(--border) / <alpha-value>)",
+        input: "hsl(var(--input) / <alpha-value>)",
+        ring: "hsl(var(--ring) / <alpha-value>)",
+        background: "hsl(var(--background) / <alpha-value>)",
+        foreground: "hsl(var(--foreground) / <alpha-value>)",
+        
+        // This fixes the "bg-card does not exist" error
+        card: {
+          DEFAULT: "hsl(var(--card) / <alpha-value>)",
+          foreground: "hsl(var(--card-foreground) / <alpha-value>)",
+        },
+        
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: "hsl(var(--primary) / <alpha-value>)",
+          foreground: "hsl(var(--primary-foreground) / <alpha-value>)",
         },
         accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
+          DEFAULT: "hsl(var(--accent) / <alpha-value>)",
+          foreground: "hsl(var(--accent-foreground) / <alpha-value>)",
         },
-        // THIS IS THE ONE YOU NEED:
         muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+          DEFAULT: "hsl(var(--muted) / <alpha-value>)",
+          foreground: "hsl(var(--muted-foreground) / <alpha-value>)",
         },
-        // Custom Bitmap Audio Brand Colors
+        // Adding your grid color variable here too
+        "grid-color": "hsl(var(--grid-color) / <alpha-value>)",
+
         bitmap: {
-          cyan: "hsl(var(--bitmap-cyan))",
-          dark: "hsl(var(--bitmap-dark))",
-          gray: "hsl(var(--bitmap-gray))",
-          light: "hsl(var(--bitmap-light))",
+          cyan: "hsl(var(--bitmap-cyan) / <alpha-value>)",
+          dark: "hsl(var(--bitmap-dark) / <alpha-value>)",
+          gray: "hsl(var(--bitmap-gray) / <alpha-value>)",
+          light: "hsl(var(--bitmap-light) / <alpha-value>)",
         },
       },
       fontFamily: {

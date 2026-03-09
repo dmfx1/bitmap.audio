@@ -9,23 +9,23 @@ const projects: Concept[] = [
   { 
     id: 1, 
     title: 'SONIC BRANDING', 
-    desc: 'Sonic branding architecture for digital infrastructure.', 
+    desc: 'Sonic branding for digital infrastructure.', 
     vimeoId: '836174895',
     mobileVimeoId: '1163955176', 
     previewVideo: '/video/regency_silent.mp4' 
   },
   { 
     id: 2, 
-    title: 'UI / UX SOUND', 
-    desc: 'UI/UX Sound Design for high-fidelity digital interfaces.', 
+    title: 'USER EXPERIENCE', 
+    desc: 'UI/UX sound for digital interfaces + apps.', 
     vimeoId: '708117517', 
     mobileVimeoId: '1163955194', 
     previewVideo: '/video/seon_silent.mp4' 
   },
   { 
     id: 3, 
-    title: 'IMMERSIVE', 
-    desc: 'Spatial audio mapping for immersive brand environments.', 
+    title: 'IMMERSIVE AUDIO', 
+    desc: 'Spatial audio for immersive environments.', 
     vimeoId: '1108099090', 
     mobileVimeoId: '1163955124', 
     previewVideo: '/video/matchroom_silent.mp4' 
@@ -37,7 +37,7 @@ export default function HomeHero() {
   const [step, setStep] = useState(0); 
   const [isScanning, setIsScanning] = useState(false);
 
-  const scrambledSubtitle = useBinaryScramble("Sonic Branding & Immersive Audio", isScanning);
+  const scrambledSubtitle = useBinaryScramble("SONIC INFRASTRUCTURE", isScanning);
   const scrambledAccess = useBinaryScramble("ACCESS", isScanning);
   const scrambledHandshake = useBinaryScramble("[INIT_HANDSHAKE]", isScanning);
 
@@ -54,27 +54,29 @@ export default function HomeHero() {
       
       {/* --- INTRO SEQUENCE --- */}
       {step === 0 && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
-           <div className="w-24 h-24 bg-primary flex items-center justify-center shadow-[0_0_66px_hsl(var(--primary)/0.5)] animate-power-up">
-              <span className="text-primary-foreground font-mono text-4xl font-bold">b.</span>
+        <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none bg-background">
+           <div className="relative w-24 h-24 flex items-center justify-center animate-power-up">
+              <img 
+                src="/images/logo-b.png" 
+                alt="logo" 
+                className="w-full h-full object-contain shadow-[0_0_66px_hsl(var(--primary)/0.5)]" 
+              />
            </div>
         </div>
       )}
 
-      {/* =========================================================================
-          MOBILE WRAPPER (Updated)
-          1. min-h-[60svh]: Reduced from 85vh. This centers content in the top ~60% 
-             of the screen, pulling the grid up.
-          2. justify-center: Vertically centers the logo/buttons in that 60% space.
-      ========================================================================= */}
       <div className="flex flex-col w-full min-h-[60svh] justify-center md:min-h-0 md:justify-start">
         
         {/* --- HEADER --- */}
         <div className="flex flex-col items-center mb-8 md:mb-12">
           <div className="h-12 mb-8 md:mb-12">
             {step >= 1 && (
-              <div className="morph-accent-fill w-12 h-12 bg-primary flex items-center justify-center shadow-[0_0_66px_hsl(var(--primary)/0.5)] animate-fade-in">
-                <span className="text-background font-mono text-lg font-bold">b.</span>
+              <div className="w-12 h-12 flex items-center justify-center animate-fade-in">
+                <img 
+                  src="/images/logo-b.png" 
+                  alt="logo" 
+                  className="w-full h-full object-contain bg-primary" 
+                />
               </div>
             )}
           </div>
@@ -93,9 +95,9 @@ export default function HomeHero() {
         </div>
 
         {/* --- BUTTONS & SUBTITLE --- */}
-        <div className="w-full transition-opacity duration-1000" style={{ opacity: isScanning ? 1 : 0 }}>
-          <div className="space-y-8 md:space-y-12">
-            <p className="text-xs md:text-sm text-foreground max-w-2xl mx-auto font-mono uppercase tracking-[0.2em] min-h-[1.5em]">
+        <div className="w-[33vw] mx-auto transition-opacity duration-1000" style={{ opacity: isScanning ? 1 : 0 }}>
+          <div className="space-y-8 md:space-y-6">
+            <p className="text-xs md:text-xl text-foreground max-w-2xl mx-auto font-mono uppercase tracking-[0.2em] min-h-[1.5em]">
               {scrambledSubtitle}
             </p>
 
@@ -124,14 +126,10 @@ export default function HomeHero() {
 
       </div>
 
-      {/* --- GRID SECTION --- 
-          1. We pass 'py-4 md:py-12' to drastically reduce the top gap on mobile.
-      */}
-      <div className="w-full transition-opacity duration-1000" style={{ opacity: isScanning ? 1 : 0 }}>
+      <div className="w-5/6 transition-opacity duration-1000" style={{ opacity: isScanning ? 1 : 0 }}>
         <ConceptGrid 
           items={projects} 
           isScanning={isScanning}
-          // TIGHTER GAP: py-4 on mobile (was py-12 default)
           className="py-0 md:py-12" 
           onProjectClick={(project) => setActiveProject(project)} 
         />

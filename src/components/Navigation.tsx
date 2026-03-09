@@ -10,11 +10,18 @@ import {
   NavigationMenuTrigger,
 } from "./ui/navigation-menu"; // Assuming NavigationMenu.tsx is here
 import { cn } from "@/lib/utils";
+import { BitmapIcon } from "./BitmapText"; // Importing the BitmapIcon component for the logo
+
 
 const solutions = [
   { name: "Sonic Branding", href: "/solutions/sonic-branding", description: "Brand identity through sound" },
   { name: "UI/UX Sound", href: "/solutions/uiux-sound", description: "Sonic interfaces for technology" },
   { name: "Immersive Audio", href: "/solutions/immersive-audio", description: "AR/VR & spatial installations" },
+];
+
+const why = [
+  { name: "Returns", href: "/the-why/returns", description: "How audio enhances brand identity" },
+  { name: "Use Cases", href: "/the-why/use-cases", description: "Working Examples" },
 ];
 
 const Navigation = ({ currentPath }: { currentPath: string }) => {
@@ -25,12 +32,15 @@ const Navigation = ({ currentPath }: { currentPath: string }) => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/10">
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between h-16">
+          
           {/* LOGO BLOCK */}
           <a href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-mono text-xs font-bold">b.</span>
+            {/* Replacing the <span>b.</span> with your custom SVG icon */}
+            <div className="w-6 h-6 flex items-center justify-center bg-accent">
+              <BitmapIcon char="b" className="w-4 h-4 text-primary-foreground" />
             </div>
-            <span className="font-mono text-lg font-light text-foreground group-hover:text-primary transition-colors">
+            
+            <span className="font-mono font-light text-foreground group-hover:text-primary transition-colors">
               bitmap<span className="text-accent font-bold">.audio</span>
             </span>
           </a>
@@ -55,7 +65,7 @@ const Navigation = ({ currentPath }: { currentPath: string }) => {
                 </NavigationMenuItem>
 
                 {/* SOLUTIONS DROPDOWN (UPDATED FOR ACCENT & SQUARE EDGES) */}
-                <NavigationMenuItem>
+                <NavigationMenuItem className="relative">
                   <NavigationMenuTrigger className={cn(
                     "bg-transparent p-0 h-auto font-mono text-sm uppercase tracking-wider transition-colors rounded-none", // Added rounded-none
                     "hover:bg-transparent hover:text-accent focus:bg-transparent focus:text-accent data-[state=open]:text-accent", // Added accent colors
@@ -85,6 +95,14 @@ const Navigation = ({ currentPath }: { currentPath: string }) => {
                     </div>
                   </NavigationMenuContent>
                 </NavigationMenuItem>
+
+                <NavigationMenuItem>
+                  <a href="/returns" className={cn(
+                    "font-mono text-sm uppercase tracking-wider link-underline transition-colors",
+                    isActive("/returns") ? "text-primary hover:text-accent" : "text-muted-foreground hover:text-accent"
+                  )}>Returns</a>
+                </NavigationMenuItem>
+                
               </NavigationMenuList>
             </NavigationMenu>
 

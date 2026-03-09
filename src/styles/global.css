@@ -42,7 +42,7 @@
     /* DEFAULT GRID CONFIG */
     --grid-pattern: var(--pattern-solid);
     --grid-opacity: 1;            /* WAS 1 (TOO STRONG) OR 0.4 */
-    --rain-opacity: 1;            /* SUBTLE RAIN */
+    --rain-opacity: 0.5;            /* SUBTLE RAIN */
     
     /* ANIMATION: RESTORED! This was missing, causing static grid */
     --active-grid-flow: none;
@@ -113,7 +113,7 @@
 
     --active-grid-flow: none;      /* Static Grid */
     --grid-opacity: 0.6;  
-    --rain-opacity: 1; 
+    --rain-opacity: 0.8; 
 
     /* 3. ENERGY */
     --card: 0 0% 100%;            
@@ -279,7 +279,7 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
-    z-index: 0;
+    z-index: 1;
     overflow: hidden;
   }
 
@@ -602,26 +602,29 @@
   }
 
   .label-tape {
+    /* Define the variable with a default fallback */
+    --tape-opacity: 0.75;
+    
     display: block;
     width: 100%;
-    text-align: center;
     background: linear-gradient(
       to bottom,
       transparent 0,
       transparent 0.3em,
-      rgba(255, 255, 255, 0.75) 0.2em,
-      rgba(255, 255, 255, 0.75) 1.8em,
+      /* Use the variable inside the rgba function */
+      rgba(255, 255, 255, var(--tape-opacity)) 0.2em,
+      rgba(255, 255, 255, var(--tape-opacity)) 1.8em,
       transparent 1.9em,
       transparent 2.2em
     );
     background-size: 100% 2.2em;
     line-height: 2.2em;
     color: black;
-    padding: 0;
-    font-family: 'JetBrains Mono', monospace;
+    padding-left: 2px;
+    padding-right: 2px;
+    font-family: 'JetBrains Mono', monospace; /* Maps to your font-mono stack */
     font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     letter-spacing: 0.05em;
   }
 
@@ -721,4 +724,37 @@
 
 .morph-accent-fill:hover {
   animation: morph-pulse-fill 4s infinite ease-in-out;
+}
+
+/* --- SLICK FADE TRANSITIONS --- */
+.animate-page-in {
+  animation: slickFadeIn 400ms ease-out forwards;
+}
+
+.animate-page-out {
+  animation: slickFadeOut 150ms ease-in forwards;
+}
+
+@keyframes slickFadeOut {
+  from { 
+    opacity: 1; 
+    filter: blur(0); 
+  }
+  to { 
+    opacity: 0; 
+    /* A very subtle blur softens the exit */
+    filter: blur(4px); 
+  }
+}
+
+@keyframes slickFadeIn {
+  from {
+    opacity: 0;
+    /* Starts slightly out of focus */
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
 }

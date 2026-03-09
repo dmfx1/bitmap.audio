@@ -53,7 +53,7 @@ export default function AboutIntro() {
       </div>
 
       {/* 2. HERO SECTION */}
-      <div className="w-full md:max-w-4xl pl-0 md:pl-12 relative z-10 mb-24">
+      <div className="w-full md:max-w-4xl pl-0 md:pl-12 relative z-10 md:mb-24">
         <p className="text-eyebrow text-accent font-bold animate-fade-in mb-4">About Us</p>
         
         <TypewriterHero 
@@ -61,26 +61,26 @@ export default function AboutIntro() {
           onComplete={() => setTimeout(() => setShowContent(true), 200)} 
         />
         
-        <p className={`text-body-muted text-lg bg-background/50 max-w-[60%] transition-all duration-1000 
+        <p className={`text-body-muted text-lg font-mono bg-background/50 md:max-w-[60%] transition-all duration-1000 
           ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
           bitmap.audio is the collaboration of two audio specialists bridging the gap between digital data and human perception.
         </p>
       </div>
 
       {/* 3. FOUNDERS MODULE (Integrated - No Line) */}
-      <div className={`grid grid-cols-1 md:grid-cols-2 mt-24 gap-px bg-foreground/5 w-full transition-all duration-1000 delay-500
+      <div className={`grid grid-cols-1 md:grid-cols-2 mt-20 gap-px bg-foreground/5 w-full transition-all duration-1000 delay-500
         ${showContent ? 'opacity-100' : 'opacity-0'}`}>
         
         {founders.map((f, index) => {
           const formattedId = String(index).padStart(4, '0');
           return (
-            <div key={index} className="group relative bg-background/50 p-12 overflow-hidden border-r border-foreground/5 last:border-0">
+            <div key={index} className="group relative bg-background/50 p-4 md:p-12 overflow-hidden border-r border-foreground/5 last:border-0">
               
               {/* Card Decoration: Corner Bracket */}
-              <div className="absolute top-0 left-0 w-4 h-4 border-t border-l border-foreground/10 group-hover:border-accent transition-colors" />
+              <div className="absolute top-1 left-1 w-4 h-4 border-t border-l border-foreground/10 group-hover:border-accent transition-colors" />
               
               <div className="relative z-10">
-                <span className="font-mono text-[10px] text-accent block mb-6 tracking-widest">{formattedId}</span>
+                <span className="font-mono text-[10px] mt-8 md:mt-0 text-accent block mb-6 tracking-widest">{formattedId}</span>
                 
                 <h3 className="text-foreground font-mono text-2xl mb-2 transition-all group-hover:translate-x-2">
                    {f.name}
@@ -90,9 +90,9 @@ export default function AboutIntro() {
                   {f.role}
                 </p>
                 
-                <div className="h-px w-8 bg-foreground/10 mb-8 group-hover:w-full transition-all duration-700" />
+                <div className="h-px w-8 bg-foreground/50 mb-8 group-hover:w-full transition-all duration-700" />
                 
-                <p className="text-muted-foreground text-sm leading-relaxed max-w-sm group-hover:text-foreground transition-colors">
+                <p className="text-muted-foreground text-sm mb-12 md:mb-0 leading-relaxed max-w-sm group-hover:text-foreground transition-colors">
                   {f.bio}
                 </p>
               </div>

@@ -51,8 +51,8 @@ export default function Philosophy() {
         </h2>
       </div>
 
-      <p className="text-body-muted text-lg max-w-2xl mt-8 opacity-60">
-        We translate this concept to sound — mapping digital information to human emotion.
+      <p className="font-mono text-body-muted text-lg max-w-2xl mt-8 opacity-60">
+        We translate this concept to sound - mapping digital information to human emotion.
       </p>
     </div>
   );

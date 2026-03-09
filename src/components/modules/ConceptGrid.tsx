@@ -1,15 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { cn } from "@/lib/utils";
 import { useBinaryScramble } from '@/hooks/use-binary-scramble';
-import { BitmapMail, BitmapMap } from '../ui/icons'; 
+import { BitmapMail, BitmapMap, BitmapArrow, BitmapChevron, BitmapNode, BitmapTick } from '../ui/icons'; 
 
 const ICON_MAP: Record<string, React.ElementType> = {
   mail: BitmapMail,
   map: BitmapMap,
+  arrow: BitmapArrow,
+  chevron: BitmapChevron,
+  node: BitmapNode,
+  tick: BitmapTick,
 };
 
-// FIXED: 'id' is now required (removed the ?)
-// FIXED: 'mobileVimeoId' explicitly allows null
 export interface Concept {
   id: number; 
   title: string;    
@@ -18,9 +20,8 @@ export interface Concept {
   icon?: string;
   vimeoId?: string;
   mobileVimeoId?: string | null; 
-  previewVideoWebm?: string;
+  previewVideo?: string;
   previewVideoMp4?: string;
-  previewVideo?: string; 
 }
 
 interface ConceptGridProps {
@@ -41,15 +42,41 @@ export default function ConceptGrid({
   onProjectClick 
 }: ConceptGridProps) {
   const [internalScan, setInternalScan] = useState(false);
+  const [activeAutoIndex, setActiveAutoIndex] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  
   const activeScan = propIsScanning ?? internalScan;
+
+  // --- SEQUENTIAL AUTOPLAY LOGIC ---
+  useEffect(() => {
+    if (!activeScan || items.length === 0) return;
+
+    let interval: NodeJS.Timeout;
+
+    // 1. Initial Delay (Wait 5s before starting the sequence)
+    const startDelay = setTimeout(() => {
+      setActiveAutoIndex(0); // Start on the first (left) thumbnail
+
+      // 2. Start the rotation ONLY after the first one has played
+      interval = setInterval(() => {
+        setActiveAutoIndex((current) => {
+          if (current === null || current >= items.length - 1) return 0;
+          return current + 1;
+        });
+      }, 3500); // Duration each card stays active
+    }, 2500); // Initial entrance delay
+
+    return () => {
+      clearTimeout(startDelay);
+      if (interval) clearInterval(interval);
+    };
+  }, [activeScan, items.length]);
 
   const getGridConfig = () => {
     const count = items.length;
     if (count === 1) return "md:grid-cols-1 max-w-2xl"; 
     if (count === 2) return "md:grid-cols-2 max-w-5xl"; 
-    if (count === 3) return "md:grid-cols-3 max-w-6xl"; 
-    return "md:grid-cols-2 max-w-6xl"; 
+    return "md:grid-cols-3 max-w-6xl"; 
   };
 
   useEffect(() => {
@@ -80,7 +107,7 @@ export default function ConceptGrid({
       {(eyebrow || sectionTitle) && (
         <div className="text-center mb-16 space-y-4">
           {eyebrow && (
-            <p className="text-eyebrow text-accent uppercase tracking-[0.5em] text-[10px] font-medium">
+            <p className="text-accent uppercase tracking-[0.5em] text-[10px] font-mono">
               {eyebrow}
             </p>
           )}
@@ -98,9 +125,12 @@ export default function ConceptGrid({
       )}>
         {items.map((item, index) => (
           <ProjectCard 
-            key={index} 
+            key={item.id || index} 
             item={item} 
             isScanning={activeScan} 
+            forcePlay={activeAutoIndex === index}
+            // If user interacts with a card, kill the auto-sequence
+            onUserInteraction={() => setActiveAutoIndex(null)}
             onClick={item.vimeoId && onProjectClick ? () => onProjectClick(item) : undefined} 
           />
         ))}
@@ -109,87 +139,119 @@ export default function ConceptGrid({
   );
 }
 
-function ProjectCard({ item, onClick, isScanning }: { item: Concept; onClick?: () => void; isScanning: boolean; }) {
+function ProjectCard({ 
+    item, 
+    onClick, 
+    isScanning, 
+    forcePlay, 
+    onUserInteraction 
+  }: { 
+    item: Concept; 
+    onClick?: () => void; 
+    isScanning: boolean; 
+    forcePlay: boolean; 
+    onUserInteraction: () => void;
+  }) {
   const [isHovered, setIsHovered] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
-  
   const Icon = item.icon ? ICON_MAP[item.icon] : null;
 
   const scrambledTitle = useBinaryScramble(item.title, isScanning, 40);
-  const scrambledSubtitle = useBinaryScramble(item.subtitle || "", isScanning, 50);
   const scrambledDesc = useBinaryScramble(item.desc, isScanning, 60);
 
-  const handleMouseEnter = () => {
-    if (!onClick) return;
-    setIsHovered(true);
-    videoRef.current?.play().catch(() => {});
-  };
+  const shouldBePlaying = isHovered || forcePlay;
 
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-    videoRef.current?.pause();
-    if (videoRef.current) videoRef.current.currentTime = 0;
-  };
+  useEffect(() => {
+    if (shouldBePlaying) {
+      videoRef.current?.play().catch(() => {});
+    } else {
+      videoRef.current?.pause();
+      if (videoRef.current) videoRef.current.currentTime = 0;
+    }
+  }, [shouldBePlaying]);
 
   const hasVideo = item.previewVideo || item.previewVideoMp4;
 
   return (
-    <div 
-      onMouseEnter={handleMouseEnter} 
-      onMouseLeave={handleMouseLeave} 
-      onClick={onClick} 
-      className={cn(
-        "concept-card group relative p-8 md:p-10 border transition-all duration-500 ease-out overflow-hidden z-10",
-        "bg-card/90 backdrop-blur-md border-muted-foreground shadow-lg",
-        onClick ? [
-          "cursor-none",
-          "hover:scale-[1.03]", 
-          "hover:-translate-y-2", 
-          "hover:border-accent", 
-          "hover:bg-card/95", 
-          "hover:shadow-[0_20px_80px_-10px_hsl(var(--accent)/0.3)]", 
-          "hover:z-50" 
-        ] : "cursor-default"
-      )}
-    >
-      <div className="absolute top-1 right-1 w-6 h-6 border-t-2 border-r-2 border-foreground group-hover:border-accent transition-colors duration-300 z-20" />
-
-      {hasVideo && (
+    <div className="relative w-full h-full min-h-[200px]">
+      <div 
+        onMouseEnter={() => { onUserInteraction(); setIsHovered(true); }} 
+        onMouseLeave={() => setIsHovered(false)} 
+        onClick={onClick} 
+        className={cn(
+          // ADDED: 'cursor-pointer' to trigger the button's cursor logic
+          // ADDED: 'transition-transform' to match button feel
+          "absolute inset-0 group p-8 md:p-10 border transition-all duration-500 ease-out overflow-hidden flex flex-col justify-between cursor-pointer",
+          "bg-card/90 backdrop-blur-md shadow-lg",
+          shouldBePlaying ? "border-accent scale-[1.05] z-50 shadow-2xl" : "border-muted-foreground z-10 scale-100",
+        )}
+      >
+        {/* --- THE CORNER ACCENT: ICON SWAP --- */}
         <div className={cn(
-          "absolute inset-0 z-0 transition-opacity duration-700 pointer-events-none mix-blend-overlay", 
-          isHovered ? "opacity-40" : "opacity-0"
+          "absolute top-1 right-1 w-8 h-8 transition-all duration-500 flex items-center justify-center",
+          "border-t-2 border-r-2",
+          shouldBePlaying ? "border-accent" : "border-muted-foreground/20"
         )}>
-          <video 
-            ref={videoRef} 
-            muted loop playsInline 
-            src={item.previewVideoMp4 || item.previewVideo} 
-            className="w-full h-full object-cover grayscale contrast-125" 
-          />
+          <div className="flex items-center justify-center w-full h-full ">
+            {shouldBePlaying ? (
+              /* Active State: Chevron */
+              <BitmapNode 
+                className="w-6 h-6 text-accent" 
+              />
+            ) : (
+              /* Idle State: Node */
+              <BitmapNode 
+                className="w-2 h-2 text-muted-foreground opacity-30" 
+              />
+            )}
+          </div>
         </div>
-      )}
 
-      <div className="relative z-10 pointer-events-none flex flex-col h-full justify-top">
-        <div>
-          {Icon && (
-            <div className="mb-6 text-primary/70 group-hover:text-accent transition-colors duration-500 group-hover:scale-110 origin-left transform">
-              <Icon className="w-8 h-8" />
-            </div>
-          )}
+        {/* Video Preview */}
+        {hasVideo && (
+          <div className={cn(
+            "absolute inset-0 z-0 transition-opacity duration-700 pointer-events-none mix-blend-overlay", 
+            shouldBePlaying ? "opacity-40" : "opacity-0"
+          )}>
+            <video 
+              ref={videoRef} 
+              muted loop playsInline 
+              src={item.previewVideoMp4 || item.previewVideo} 
+              className="w-full h-full object-cover grayscale contrast-125" 
+            />
+          </div>
+        )}
 
-          <h3 className="text-primary font-mono text-base uppercase tracking-[0.2em] mb-3 min-h-[1em] group-hover:text-accent transition-colors duration-300">
-            {scrambledTitle}
-          </h3>
-
-          {item.subtitle && (
-            <p className="text-foreground font-mono text-xl tracking-tight mb-4">
-              {scrambledSubtitle}
+        <div className="relative z-10 pointer-events-none flex flex-col h-full justify-between">
+          <div>
+            {Icon && (
+              <div className={cn("mb-6 transition-all duration-500", shouldBePlaying ? "text-accent" : "text-primary")}>
+                <Icon className="w-8 h-8" />
+              </div>
+            )}
+            <h3 className={cn(
+              "font-mono text-base uppercase tracking-[0.2em] mb-3 transition-colors duration-300 px-1 -mx-1", 
+              shouldBePlaying ? "text-accent bg-primary/10" : "text-primary"
+            )}>
+              {scrambledTitle}
+            </h3>
+          </div>
+          
+          <div className="mt-4">
+            <p className={cn(
+              "font-mono transition-all duration-500 px-2 -mx-2",
+              shouldBePlaying 
+                ? "label-tape [--tape-opacity:0.75] text-background" 
+                : "text-foreground text-sm leading-relaxed font-light"
+            )}>
+              {scrambledDesc}
             </p>
+          </div>
+
+          {forcePlay && !isHovered && (
+            <div className="absolute bottom-0 left-0 h-[2px] bg-accent w-full animate-progress-reveal origin-left" />
           )}
         </div>
-        
-        <p className="text-sm text-foreground font-mono leading-relaxed font-light group-hover:text-foreground transition-colors duration-500 mt-4">
-          {scrambledDesc}
-        </p>
       </div>
     </div>
   );

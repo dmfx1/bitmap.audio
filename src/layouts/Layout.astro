@@ -18,54 +18,42 @@ const isLandingPage = currentPath === "/" || currentPath === "/index.html";
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-1 0.5 7 8' shape-rendering='crispEdges' fill='black' stroke='black' stroke-width='0.25'><rect x='0' y='1' width='1' height='1' /><rect x='1' y='2' width='1' height='5' /><rect x='0' y='4' width='4' height='1' /><rect x='4' y='4' width='1' height='3' /><rect x='1' y='7' width='3' height='1' /></svg>" />
     <title>{title}</title>
   </head>
-  <body class="bg-background text-foreground antialiased selection:bg-primary/30">
+  
+  <body class="bg-background text-foreground antialiased selection:bg-primary/30 opacity-0 animate-page-in">
     <SoundProvider client:load>
       <TooltipProvider client:load>
         
-        {/* UPDATED: Pass false if we are on the landing page */}
         <GridBackground showRain={!isLandingPage} />
         
         { !isLandingPage && <Navigation currentPath={currentPath} client:load /> }
-
         <ThemeSwitcher client:load />
         
         <div class="relative flex flex-col min-h-screen">
           <main class="flex-1 flex flex-col items-center"> 
-            
-            {/* CONDITIONAL LAYOUT LOGIC */}
             {isLandingPage ? (
-              /* LANDING PAGE: Raw, no glass column */
               <div class="w-full flex-1 flex flex-col">
                 <slot />
               </div>
             ) : (
-              /* INTERIOR PAGES: The "Glass Column" Architecture */
               <div class="w-full max-w-[1400px] bg-background/85 backdrop-blur-md min-h-screen shadow-2xl relative z-10">
                 <slot />
               </div>
             )}
-
           </main>
           
           {!isLandingPage && <Footer />}
-          
-          {isLandingPage && (
-            <div class="absolute bottom-8 w-full text-center opacity-30 font-mono text-[10px] tracking-widest pointer-events-none">
-              © 2026 BITMAP.AUDIO — ALL RIGHTS RESERVED
-            </div>
-          )}
         </div>
       </TooltipProvider>
     </SoundProvider>
 
     <div id="cursor-glow" class="fixed w-32 h-32 bg-primary/20 rounded-full blur-[80px] pointer-events-none z-[9998] hidden md:block translate-x-[-50%] translate-y-[-50%] transition-transform duration-700 ease-out"></div>
 
-    <script>
+    <script is:inline>
       const glow = document.getElementById('cursor-glow');
-      const interactiveElements = document.querySelectorAll('a, button, [role="button"], .concept-card');
-
+      
       document.addEventListener('mousemove', (e) => {
         window.requestAnimationFrame(() => {
           if (glow) {
@@ -75,24 +63,40 @@ const isLandingPage = currentPath === "/" || currentPath === "/index.html";
         });
       });
 
-      interactiveElements.forEach(el => {
-        el.addEventListener('mouseenter', () => {
-          const text = el.textContent?.toLowerCase() || "";
-          if (text.includes('explore')) el.classList.add('is-electric-primary');
-          else el.classList.add('is-morphing');
+      document.body.addEventListener('mouseover', (e) => {
+        const target = e.target.closest('a, button, [role="button"], .concept-card');
+        if (!target) return;
+        const text = target.textContent?.toLowerCase() || "";
+        if (text.includes('explore')) target.classList.add('is-electric-primary');
+        else target.classList.add('is-morphing');
+        if (glow) glow.classList.add('animate-glow-pulse');
+      });
 
-          if (glow) {
-            glow.classList.add('animate-glow-pulse');
-            if (text.includes('audio')) glow.style.backgroundColor = 'hsl(var(--accent) / 0.3)';
-          }
-        });
+      document.body.addEventListener('mouseout', (e) => {
+        const target = e.target.closest('a, button, [role="button"], .concept-card');
+        if (!target) return;
+        target.classList.remove('is-electric-primary', 'is-morphing');
+        if (glow) glow.classList.remove('animate-glow-pulse');
+      });
 
-        el.addEventListener('mouseleave', () => {
-          el.classList.remove('is-electric-primary', 'is-morphing');
-          if (glow) {
-            glow.classList.remove('animate-glow-pulse');
-            glow.style.backgroundColor = 'hsl(var(--primary) / 0.2)';
-          }
+      // ==========================================
+      // THE LATERAL FIX: MANUAL PAGE TRANSITIONS
+      // ==========================================
+      document.querySelectorAll('a[href^="/"]').forEach(link => {
+        link.addEventListener('click', (e) => {
+          if (e.ctrlKey || e.metaKey || e.shiftKey) return;
+          
+          const targetPath = link.getAttribute('href');
+          if (targetPath === window.location.pathname) return;
+
+          e.preventDefault();
+          document.body.classList.remove('animate-page-in');
+          document.body.classList.add('animate-page-out');
+          
+          // Exactly 150ms to match the signalFadeOut animation
+          setTimeout(() => {
+            window.location.href = targetPath;
+          }, 150);
         });
       });
     </script>

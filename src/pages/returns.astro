@@ -1,0 +1,295 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { Button } from "@/components/ui/button";
+
+// The 10 sections mapped strictly for the sidebars
+const sections = [
+  { id: "00", label: "Status" },
+  { id: "01", label: "Architecture" },
+  { id: "02", label: "Neurology.Processing" },
+  { id: "03", label: "Neurology.Memory" },
+  { id: "04", label: "ROI" },
+  { id: "05", label: "Metrics" },
+  { id: "06", label: "Distinctiveness" },
+  { id: "07", label: "Equity" },
+  { id: "08", label: "UX" },
+  { id: "09", label: "Execution" }
+];
+---
+
+<Layout title="The ROI of Audio | bitmap.audio">
+  <main class="bg-background text-foreground selection:bg-accent selection:text-white">
+    
+    <div class="fixed inset-0 bitmap-grid opacity-[0.05] z-0 pointer-events-none"></div>
+
+    <div id="scroll-track" class="relative w-full h-[1000vh]">
+      
+      <div class="absolute left-0 top-0 w-24 h-full z-50 pointer-events-none flex flex-col">
+        {sections.map((sec, index) => (
+          <aside class="h-screen w-full border-r border-border/20 bg-background/80 backdrop-blur-md flex flex-col items-center justify-center gap-8 shadow-[20px_0_40px_-15px_rgba(0,0,0,0.5)]">
+            <span class="font-mono text-muted-foreground text-[10px] tracking-widest rotate-180 [writing-mode:vertical-lr] uppercase">{sec.label}</span>
+            <div class="h-48 w-[1px] bg-border/30 relative">
+              <div class="indicator-line absolute top-0 w-[3px] -left-[1px] bg-accent shadow-[0_0_15px_hsl(var(--accent))] origin-top scale-y-0"></div>
+            </div>
+            <span class="font-mono text-accent text-[10px]">{sec.id}</span>
+          </aside>
+        ))}
+      </div>
+
+      <div class="sticky top-0 w-full h-screen overflow-hidden pointer-events-auto">
+        
+        <div id="horizontal-strip" class="flex w-max h-full will-change-transform">
+          
+          <section class="w-screen h-full flex-shrink-0 flex flex-col justify-center pl-32 pr-8 md:pl-48 md:pr-32 relative border-r border-border/20 overflow-hidden group bg-background">
+            <div class="absolute -right-20 bottom-0 text-[35vw] font-mono font-bold text-muted/5 select-none pointer-events-none transition-transform duration-1000 group-hover:scale-105">00</div>
+            <div class="relative z-10 pl-8 py-2">
+              <span class="text-eyebrow mb-8 block">[ Status // Critical ]</span>
+              <h2 class="font-mono text-6xl md:text-[8vw] leading-[0.9] tracking-tighter mb-12 uppercase text-foreground">
+                Your brand<br/>is <span class="text-accent drop-shadow-[0_0_20px_hsl(var(--accent)/0.3)]">Muted.</span>
+              </h2>
+              <div class="w-full max-w-2xl backdrop-blur-md bg-background/40 p-6 border-l-2 border-accent">
+                <p class="font-sans text-xl md:text-2xl text-muted-foreground leading-relaxed">
+                  Visuals reach the eyes, but sound hits the nervous system. Competing on screens alone is a losing battle. It's time to weaponize your audio.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section class="w-screen h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-primary/80">
+            <div class="flex flex-col justify-center pl-32 pr-8 md:pl-48 md:pr-16 relative z-10">
+              <div class="pl-8 py-2 backdrop-blur-sm">
+                <span class="text-eyebrow mb-8 block text-background">[ Architecture // bitmap Logic ]</span>
+                <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 uppercase">Audio as a<br/><span class="text-accent drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">Data Map.</span></h2>
+                <p class="font-sans text-xl text-background/50 leading-relaxed">
+                  We don't just write music. We build "rendering engines" using middleware that allow sound to react to user behavior in real-time. Every "bit" has an architectural purpose.
+                </p>
+              </div>
+            </div>
+            <div class="hidden md:flex flex-col items-center justify-center relative overflow-hidden border-l border-border/20 p-24 bg-background/50">
+               <div class="w-full space-y-8">
+                 <div class="border border-border/40 p-8 bg-card/40 backdrop-blur-md hover:border-primary/40 transition-colors">
+                   <h4 class="font-mono text-accent mb-3 uppercase tracking-widest">Exploded Minutiae</h4>
+                   <p class="font-sans text-muted-foreground">Deconstructing sound into "microsounds" (particles under 0.1s) to create unique, high-signal emotional anchors.</p>
+                 </div>
+                 <div class="border border-border/40 p-8 bg-card/40 backdrop-blur-md hover:border-primary/40 transition-colors">
+                   <h4 class="font-mono text-accent mb-3 uppercase tracking-widest">Sonic UX Audit</h4>
+                   <p class="font-sans text-muted-foreground">Evaluating digital flows to identify exactly where sound can reduce friction and build trust in milliseconds.</p>
+                 </div>
+               </div>
+            </div>
+          </section>
+
+          <section class="w-screen h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-card/30">
+            <div class="hidden md:flex flex-col items-center justify-center relative overflow-hidden">
+               <div class="absolute inset-0 bg-gradient-glow opacity-10"></div>
+               <h3 class="font-mono text-[12vw] leading-none text-foreground font-light tracking-tighter">
+                 8<span class="text-primary">-</span>10<span class="text-2xl tracking-tight text-muted-foreground">ms</span>
+               </h3>
+               <span class="font-mono text-primary tracking-[0.5em] uppercase mt-4">Brain Processing Speed</span>
+            </div>
+            <div class="flex flex-col justify-center pl-32 pr-8 md:pl-16 md:pr-32 relative z-10 border-l border-border/20 bg-background/40">
+              <div class="border-l-2 border-accent pl-8 py-2">
+                <span class="text-eyebrow mb-8 block text-accent">[ Neurology // Processing_Speed ]</span>
+                <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 uppercase">Faster than<br/><span class="text-accent">Sight.</span></h2>
+                <p class="font-sans text-xl text-muted-foreground leading-relaxed mb-8">
+                  Sound reaches the brain 2 to 4 times faster than visual stimuli. It establishes brand recognition in just <strong>0.05 seconds</strong>—before the eye even finishes processing a logo.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center text-right pl-32 pr-8 md:px-48 relative border-r border-border/20 bg-accent/5 overflow-hidden">
+            <div class="absolute inset-0 radial-gradient-center opacity-20 pointer-events-none"></div>
+            <div class="pl-8 py-2 max-w-4xl relative z-10">
+              <span class="text-eyebrow text-accent mb-8 block">[ Neurology // Echoic_Memory ]</span>
+              <h2 class="font-mono text-5xl md:text-[6vw] leading-[1.1] tracking-tighter mb-8 uppercase text-foreground">
+                Visuals fade.<br/><span class="text-primary">Sound echoes.</span>
+              </h2>
+              <p class="font-sans text-2xl text-muted-foreground leading-relaxed">
+                Auditory sensory memory persists for 2-5 seconds—<strong>10 to 20 times longer</strong> than visual memory. It shows significantly better resistance to decay and triggers emotional encoding via the limbic system.
+              </p>
+            </div>
+          </section>
+
+          <section class="w-screen h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-background">
+            <div class="flex flex-col justify-center pl-32 pr-8 md:pl-48 md:pr-16 relative z-10">
+              <div class="pl-8 py-2">
+                <span class="text-eyebrow mb-8 block">[ ROI // The_11%_Rule ]</span>
+                <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 uppercase">Double the<br/><span class="text-accent">Double.</span></h2>
+                <p class="font-sans text-xl text-muted-foreground leading-relaxed mb-6">
+                  Allocating just 11% of a media budget to audio can double a campaign’s overall business effectiveness.
+                </p>
+                <div class="border-l-2 border-accent pl-6 mt-4">
+                  <p class="font-sans text-xl text-foreground leading-relaxed">
+                    Pairing that spend with high "Creative Fluency" (unmistakable bespoke sonic assets) can <strong>quadruple</strong> the total ROI.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="hidden md:flex flex-col items-center justify-center text-center bg-primary/10 border-l border-primary/20 relative">
+               <h3 class="font-mono text-[18vw] leading-none text-primary font-light tracking-tighter drop-shadow-[0_0_40px_hsl(var(--primary)/0.4)]">
+                 4<span class="text-foreground">x</span>
+               </h3>
+               <span class="font-mono text-foreground tracking-[0.5em] uppercase mt-4">Total ROI Multiplier</span>
+            </div>
+          </section>
+
+          <section class="w-screen h-full flex-shrink-0 flex flex-col justify-center pl-32 pr-8 md:pl-48 relative border-r border-border/20 bg-card/20">
+            <div class="w-full max-w-5xl border-l-2 border-accent pl-8 py-2">
+              <span class="text-eyebrow mb-8 block">[ Metrics // Active_Engagement ]</span>
+              <h2 class="font-mono text-5xl md:text-7xl leading-[0.9] tracking-tighter mb-16 uppercase text-foreground">
+                Recall under<br/><span class="text-accent border-b-4 border-accent">Pressure.</span>
+              </h2>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="border border-border/50 p-8 bg-background/50 backdrop-blur hover:border-accent transition-colors">
+                  <span class="font-mono text-4xl text-accent block mb-4">12x</span>
+                  <p class="font-sans text-muted-foreground">More efficient at driving business results than "dull" visual advertising.</p>
+                </div>
+                <div class="border border-border/50 p-8 bg-background/50 backdrop-blur hover:border-accent transition-colors">
+                  <span class="font-mono text-4xl text-accent block mb-4">30%</span>
+                  <p class="font-sans text-muted-foreground">Brand recall delivered even during "highly distracted" environments.</p>
+                </div>
+                <div class="border border-border/50 p-8 bg-background/50 backdrop-blur hover:border-accent transition-colors">
+                  <span class="font-mono text-4xl text-accent block mb-4">78%</span>
+                  <p class="font-sans text-muted-foreground">Recall rate when listeners are actively tuned into audio advertising.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="w-screen h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-background">
+            <div class="hidden md:flex flex-col items-center justify-center bg-card/30 relative overflow-hidden border-r border-border/20">
+               <h3 class="font-mono text-[12vw] leading-none text-foreground font-light tracking-tighter">
+                 191<span class="text-accent">%</span>
+               </h3>
+               <span class="font-mono text-accent tracking-[0.5em] uppercase mt-4">Awareness Lift</span>
+            </div>
+            <div class="flex flex-col justify-center pl-32 pr-8 md:pl-16 md:pr-32 relative z-10">
+              <div class="border-l-2 border-accent pl-8 py-2">
+                <span class="text-eyebrow mb-8 block">[ Distinctiveness // The_Hook ]</span>
+                <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 uppercase">The 2-Second<br/><span class="text-primary">Advantage.</span></h2>
+                <p class="font-sans text-xl text-muted-foreground leading-relaxed mb-8">
+                  Sonic assets lift brand awareness by 191% in the first two seconds of exposure—<strong>5 times the impact of a visual logo.</strong> Furthermore, sonic logos that include the brand name are 9x more effective at driving actual attribution.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center text-left pl-32 pr-8 md:px-48 relative border-r border-border/20 bg-primary/5 overflow-hidden">
+            <div class="pl-8 py-2 z-10">
+              <span class="text-eyebrow mb-8 block">[ Equity // Ownership ]</span>
+              <h2 class="font-mono text-5xl md:text-[6vw] leading-[1.1] tracking-tighter mb-8 uppercase text-foreground">
+                Stop renting <br/>from the sea<br/>of <span class="text-accent">sameness.</span>
+              </h2>
+              <p class="font-sans text-2xl text-muted-foreground leading-relaxed max-w-4xl bg-background/60 backdrop-blur-md p-8 border border-border/20">
+                Only owned, coherent sonic identities "own" recall and trust. Short-term custom tracks may win the moment, but fail to build lasting equity. Leading sonic brands ensure at least <strong>30% of their audio assets are owned.</strong>
+              </p>
+            </div>
+          </section>
+
+          <section class="w-screen h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-accent">
+            <div class="flex flex-col justify-center pl-32 pr-8 md:pl-48 md:pr-16 relative z-10">
+              <div class="border-l-2 border-accent pl-8 py-2">
+                <span class="text-eyebrow text-background mb-8 block">[ UX // Error_Reduction ]</span>
+                <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 uppercase">In Sound<br/>we <span class="text-background drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">Trust.</span></h2>
+                <p class="font-sans text-xl text-foreground leading-relaxed mb-6">
+                  In high-stakes systems, auditory alerts reduce user error rates by up to <strong>34%</strong>. Audio cues increase task success rates by 25%.
+                </p>
+                <p class="font-sans text-xl text-foreground leading-relaxed">
+                  In banking, 10% of users associate transaction success primarily with sound cues rather than visual confirmations.
+                </p>
+              </div>
+            </div>
+            <div class="hidden md:flex flex-col items-center justify-center bg-primary/10 border-l border-border/20 relative">
+               <h3 class="font-mono text-[14vw] leading-none text-primary font-light tracking-tighter drop-shadow-[0_0_30px_hsl(var(--primary)/0.3)]">
+                 -34<span class="text-foreground">%</span>
+               </h3>
+               <span class="font-mono text-foreground tracking-[0.5em] uppercase mt-4">Error Rate Reduction</span>
+            </div>
+          </section>
+
+          <section class="w-screen h-full flex-shrink-0 flex flex-col items-center justify-center text-center pl-32 pr-8 md:pl-48 md:pr-32 relative overflow-hidden bg-background">
+             <div class="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
+               <div class="w-[60vw] h-[60vw] border border-accent rounded-full animate-ping [animation-duration:4s]"></div>
+               <div class="absolute w-[30vw] h-[30vw] border border-primary rounded-full animate-ping [animation-duration:2s] delay-1000"></div>
+             </div>
+             
+             <div class="relative z-10 flex flex-col items-end pl-8 py-2 text-right">
+                <span class="text-eyebrow mb-8 block text-accent">[ Execution // Final_Phase ]</span>
+                <h2 class="font-mono text-6xl md:text-[8vw] leading-none tracking-tighter mb-8 uppercase text-primary drop-shadow-[0_0_30px_hsl(var(--accent)/0.3)]">Master the<span class="text-accent"><br/>Signal.</span></h2>
+                <p class="font-sans text-2xl text-muted-foreground mb-16 max-w-2xl">
+                  You know the data. You know the ROI. Let's architect a bespoke audio identity that converts.
+                </p>
+                <Button variant="default" className="is-electric-primary font-mono uppercase tracking-widest px-12 py-8 text-lg hover:scale-105 transition-all shadow-[0_0_40px_hsl(var(--primary)/0.4)]">
+                  Initiate_Consultation
+                </Button>
+             </div>
+          </section>
+
+          <section class="w-[20vw] md:w-[17vw] h-full flex-shrink-0 bg-background"></section>
+
+        </div>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+  
+  gsap.registerPlugin(ScrollTrigger);
+
+  const initStickyScroll = () => {
+    const strip = document.querySelector("#horizontal-strip") as HTMLElement;
+    const track = document.querySelector("#scroll-track") as HTMLElement;
+    const indicators = gsap.utils.toArray(".indicator-line") as HTMLElement[];
+
+    if (!strip || !track) return;
+
+    // 1. HORIZONTAL SCRUB
+    gsap.to(strip, {
+      x: () => -(strip.scrollWidth - window.innerWidth),
+      ease: "none",
+      scrollTrigger: {
+        trigger: track,
+        start: "top top",
+        end: "bottom bottom",
+        scrub: 0.5, 
+      }
+    });
+
+    // 2. VERTICAL INDICATOR SYNC
+    // As the user scrolls down, each section's specific indicator line fills up.
+    indicators.forEach((ind, i) => {
+      gsap.to(ind, {
+        scaleY: 1,
+        ease: "none",
+        scrollTrigger: {
+          trigger: track,
+          // Calculate exact scroll window for each 100vh segment
+          start: () => `${i * window.innerHeight}px top`,
+          end: () => `${(i + 1) * window.innerHeight}px top`,
+          scrub: true,
+        }
+      });
+    });
+
+    // Presentation Controls
+    window.addEventListener('keydown', (e) => {
+      const slideHeight = window.innerHeight;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        window.scrollBy({ top: slideHeight, behavior: 'smooth' });
+      } 
+      else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        window.scrollBy({ top: -slideHeight, behavior: 'smooth' });
+      }
+    });
+  };
+
+  document.addEventListener('astro:page-load', initStickyScroll);
+  if (document.readyState === 'complete') initStickyScroll();
+  else window.addEventListener('load', initStickyScroll);
+</script>
