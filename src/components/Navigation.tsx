@@ -100,7 +100,7 @@ const Navigation = ({ currentPath }: { currentPath: string }) => {
                   <a href="/returns" className={cn(
                     "font-mono text-sm uppercase tracking-wider link-underline transition-colors",
                     isActive("/returns") ? "text-primary hover:text-accent" : "text-muted-foreground hover:text-accent"
-                  )}>Returns</a>
+                  )}>ROI</a>
                 </NavigationMenuItem>
                 
               </NavigationMenuList>

@@ -2,27 +2,34 @@
 import Layout from '../layouts/Layout.astro';
 import { Button } from "@/components/ui/button";
 
-// The 10 sections mapped strictly for the sidebars
+// The 11 sections mapped strictly for the sidebars
 const sections = [
   { id: "00", label: "Status" },
-  { id: "01", label: "Architecture" },
-  { id: "02", label: "Neurology.Processing" },
-  { id: "03", label: "Neurology.Memory" },
-  { id: "04", label: "ROI" },
-  { id: "05", label: "Metrics" },
-  { id: "06", label: "Distinctiveness" },
-  { id: "07", label: "Equity" },
-  { id: "08", label: "UX" },
-  { id: "09", label: "Execution" }
+  { id: "01", label: "Context" },
+  { id: "02", label: "Architecture" },
+  { id: "03", label: "Neurology.Processing" },
+  { id: "04", label: "Neurology.Memory" },
+  { id: "05", label: "ROI" },
+  { id: "06", label: "Metrics" },
+  { id: "07", label: "Distinctiveness" },
+  { id: "08", label: "Equity" },
+  { id: "09", label: "UX" },
+  { id: "10", label: "Execution" }
 ];
 ---
 
 <Layout title="The ROI of Audio | bitmap.audio">
   <main class="bg-background text-foreground selection:bg-accent selection:text-white">
     
-    <div class="fixed inset-0 bitmap-grid opacity-[0.05] z-0 pointer-events-none"></div>
+    <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+      <div id="parallax-grid" class="absolute top-0 left-0 w-full h-[200vh] bitmap-grid opacity-[0.05] will-change-transform"></div>
+      
+      <div id="parallax-rain" class="absolute top-0 left-0 w-full h-[200vh] opacity-20 will-change-transform">
+        <div class="binary-layer layer-near animate-matrix-rain w-full h-full"></div>
+      </div>
+    </div>
 
-    <div id="scroll-track" class="relative w-full h-[1000vh]">
+    <div id="scroll-track" class="relative w-full h-[1100vh]">
       
       <div class="absolute left-0 top-0 w-24 h-full z-50 pointer-events-none flex flex-col">
         {sections.map((sec, index) => (
@@ -40,8 +47,8 @@ const sections = [
         
         <div id="horizontal-strip" class="flex w-max h-full will-change-transform">
           
-          <section class="w-screen h-full flex-shrink-0 flex flex-col justify-center pl-32 pr-8 md:pl-48 md:pr-32 relative border-r border-border/20 overflow-hidden group bg-background">
-            <div class="absolute -right-20 bottom-0 text-[35vw] font-mono font-bold text-muted/5 select-none pointer-events-none transition-transform duration-1000 group-hover:scale-105">00</div>
+          <section class="relative w-[90vw] md:w-[75vw] h-full flex-shrink-0 flex flex-col justify-center pl-32 pr-8 md:pl-48 md:pr-16 group bg-background z-10">
+            <div class="absolute -right-20 bottom-0 text-[35vw] font-mono font-bold text-muted/5 select-none pointer-events-none transition-transform duration-1000 group-hover:scale-105 z-0">00</div>
             <div class="relative z-10 pl-8 py-2">
               <span class="text-eyebrow mb-8 block">[ Status // Critical ]</span>
               <h2 class="font-mono text-6xl md:text-[8vw] leading-[0.9] tracking-tighter mb-12 uppercase text-foreground">
@@ -55,31 +62,57 @@ const sections = [
             </div>
           </section>
 
-          <section class="w-screen h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-primary/80">
-            <div class="flex flex-col justify-center pl-32 pr-8 md:pl-48 md:pr-16 relative z-10">
-              <div class="pl-8 py-2 backdrop-blur-sm">
-                <span class="text-eyebrow mb-8 block text-background">[ Architecture // bitmap Logic ]</span>
-                <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 uppercase">Audio as a<br/><span class="text-accent drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">Data Map.</span></h2>
-                <p class="font-sans text-xl text-background/50 leading-relaxed">
-                  We don't just write music. We build "rendering engines" using middleware that allow sound to react to user behavior in real-time. Every "bit" has an architectural purpose.
-                </p>
-              </div>
+          <section class="w-[110vw] md:w-[100vw] h-full flex-shrink-0 flex items-center relative group bg-transparent z-20">
+            
+            <div class="absolute top-0 -left-[15vw] md:-left-[0vw] w-[60vw] md:w-[50vw] h-full hidden md:flex items-end justify-center pointer-events-none opacity-80 mix-blend-screen z-0">
+              <div class="relative w-full max-w-2xl -mb-10 transition-transform duration-1000 group-hover:scale-105">
+                <img src="/images/listening.woman2.empty.png" alt="Woman listening" class="w-full h-auto object-contain object-bottom" />
+                <img id="phone-fade-layer" src="/images/listening.woman2.png" alt="Phone disappearing" class="absolute inset-0 w-full h-auto object-contain object-bottom" />
+              </div> 
             </div>
-            <div class="hidden md:flex flex-col items-center justify-center relative overflow-hidden border-l border-border/20 p-24 bg-background/50">
-               <div class="w-full space-y-8">
-                 <div class="border border-border/40 p-8 bg-card/40 backdrop-blur-md hover:border-primary/40 transition-colors">
-                   <h4 class="font-mono text-accent mb-3 uppercase tracking-widest">Exploded Minutiae</h4>
-                   <p class="font-sans text-muted-foreground">Deconstructing sound into "microsounds" (particles under 0.1s) to create unique, high-signal emotional anchors.</p>
-                 </div>
-                 <div class="border border-border/40 p-8 bg-card/40 backdrop-blur-md hover:border-primary/40 transition-colors">
-                   <h4 class="font-mono text-accent mb-3 uppercase tracking-widest">Sonic UX Audit</h4>
-                   <p class="font-sans text-muted-foreground">Evaluating digital flows to identify exactly where sound can reduce friction and build trust in milliseconds.</p>
-                 </div>
-               </div>
+
+            <div class="absolute right-0 bottom-0 text-[35vw] font-mono font-bold text-muted/5 select-none pointer-events-none transition-transform duration-1000 group-hover:scale-105 z-0">01</div>
+
+            <div class="w-full flex justify-end pr-8 md:pr-80 md:pb-52 relative z-10">
+                <div class="max-w-2xl border-l-2 border-accent pl-8 py-2 bg-background/40 backdrop-blur-sm mr-0 md:mr-16">
+                    <span class="text-eyebrow mb-8 block text-primary">[ Context // Always_On ]</span>
+                    <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 uppercase text-foreground">When everyone<br/><span class="text-primary drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">is listening.</span></h2>
+                    <p class="font-sans text-xl text-muted-foreground leading-relaxed max-w-xl">
+                      <span class="text-accent">The screenless audience</span> – 80% of consumers form brand memory via audio cues. If you lack an audio-first identity, you have no presence in the moments when eyes are diverted..
+                    </p>
+                </div>
             </div>
           </section>
 
-          <section class="w-screen h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-card/30">
+          <section class="w-[110vw] h-full flex-shrink-0 relative border-r border-border/20 bg-primary/80 overflow-hidden group z-10 flex flex-col justify-center">
+            
+            <div class="absolute right-[10vw] bottom-0 w-[80vw] h-[95vh] flex items-end justify-end mix-blend-screen pointer-events-none z-0">
+               <img id="tiger-focus-layer" src="/images/stalking.sabretooth.png" alt="Sabretooth snapping a twig" 
+                    class="w-full h-full object-contain object-right-bottom opacity-0 blur-[30px] transition-transform duration-1000 group-hover:scale-[1.02]" />
+            </div>
+
+            <div class="pl-32 pr-8 md:pl-48 md:pr-16 relative z-10 w-full max-w-4xl">
+              <div class="pl-8 py-2">
+                <span class="text-eyebrow mb-8 block text-background">[ Architecture // Recall ]</span>
+                <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 uppercase text-foreground">Sound as a<br/><span class="text-accent drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">Data Map.</span></h2>
+                <p class="font-sans text-xl text-background/80 leading-relaxed max-w-xl">
+                  Faster Neurological Processing and Lasting Memory.
+                </p>
+              </div>
+            </div>
+
+          </section>
+
+          <section class="w-screen h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-card/30 overflow-hidden relative group z-10">
+            <div class="flex flex-col items-end justify-center pl-32 pr-8 md:pl-54 md:pr-32 relative z-10 border-l border-border/20 bg-background/40">
+              <div class="border-l-2 border-accent pl-8 py-2">
+                <span class="text-eyebrow mb-8 block text-accent">[ Neurology // Processing_Speed ]</span>
+                <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 uppercase">Faster than<br/><span class="text-accent">Sight.</span></h2>
+                <p class="font-sans text-xl text-muted-foreground leading-relaxed mb-8">
+                  Sound is a biological survival mechanism. It reaches the brain 2 to 4 times faster than visual stimuli.<br/><br/>It establishes brand recognition in just <strong>0.05 seconds</strong> — before the eye even finishes processing a logo...<br/><br/>...or the snapping twig before we clock the predator.
+                </p>
+              </div>
+            </div>
             <div class="hidden md:flex flex-col items-center justify-center relative overflow-hidden">
                <div class="absolute inset-0 bg-gradient-glow opacity-10"></div>
                <h3 class="font-mono text-[12vw] leading-none text-foreground font-light tracking-tighter">
@@ -87,18 +120,9 @@ const sections = [
                </h3>
                <span class="font-mono text-primary tracking-[0.5em] uppercase mt-4">Brain Processing Speed</span>
             </div>
-            <div class="flex flex-col justify-center pl-32 pr-8 md:pl-16 md:pr-32 relative z-10 border-l border-border/20 bg-background/40">
-              <div class="border-l-2 border-accent pl-8 py-2">
-                <span class="text-eyebrow mb-8 block text-accent">[ Neurology // Processing_Speed ]</span>
-                <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 uppercase">Faster than<br/><span class="text-accent">Sight.</span></h2>
-                <p class="font-sans text-xl text-muted-foreground leading-relaxed mb-8">
-                  Sound reaches the brain 2 to 4 times faster than visual stimuli. It establishes brand recognition in just <strong>0.05 seconds</strong>—before the eye even finishes processing a logo.
-                </p>
-              </div>
-            </div>
           </section>
 
-          <section class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center text-right pl-32 pr-8 md:px-48 relative border-r border-border/20 bg-accent/5 overflow-hidden">
+          <section class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center text-right pl-32 pr-8 md:px-48 relative border-r border-border/20 bg-accent/5 overflow-hidden group z-10">
             <div class="absolute inset-0 radial-gradient-center opacity-20 pointer-events-none"></div>
             <div class="pl-8 py-2 max-w-4xl relative z-10">
               <span class="text-eyebrow text-accent mb-8 block">[ Neurology // Echoic_Memory ]</span>
@@ -111,7 +135,7 @@ const sections = [
             </div>
           </section>
 
-          <section class="w-screen h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-background">
+          <section class="w-screen h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-background overflow-hidden relative group z-10">
             <div class="flex flex-col justify-center pl-32 pr-8 md:pl-48 md:pr-16 relative z-10">
               <div class="pl-8 py-2">
                 <span class="text-eyebrow mb-8 block">[ ROI // The_11%_Rule ]</span>
@@ -134,7 +158,7 @@ const sections = [
             </div>
           </section>
 
-          <section class="w-screen h-full flex-shrink-0 flex flex-col justify-center pl-32 pr-8 md:pl-48 relative border-r border-border/20 bg-card/20">
+          <section class="w-screen h-full flex-shrink-0 flex flex-col justify-center pl-32 pr-8 md:pl-48 relative border-r border-border/20 bg-card/20 overflow-hidden group z-10">
             <div class="w-full max-w-5xl border-l-2 border-accent pl-8 py-2">
               <span class="text-eyebrow mb-8 block">[ Metrics // Active_Engagement ]</span>
               <h2 class="font-mono text-5xl md:text-7xl leading-[0.9] tracking-tighter mb-16 uppercase text-foreground">
@@ -157,7 +181,7 @@ const sections = [
             </div>
           </section>
 
-          <section class="w-screen h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-background">
+          <section class="w-screen h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-background overflow-hidden relative group z-10">
             <div class="hidden md:flex flex-col items-center justify-center bg-card/30 relative overflow-hidden border-r border-border/20">
                <h3 class="font-mono text-[12vw] leading-none text-foreground font-light tracking-tighter">
                  191<span class="text-accent">%</span>
@@ -175,7 +199,7 @@ const sections = [
             </div>
           </section>
 
-          <section class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center text-left pl-32 pr-8 md:px-48 relative border-r border-border/20 bg-primary/5 overflow-hidden">
+          <section class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center text-left pl-32 pr-8 md:px-48 relative border-r border-border/20 bg-primary/5 overflow-hidden group z-10">
             <div class="pl-8 py-2 z-10">
               <span class="text-eyebrow mb-8 block">[ Equity // Ownership ]</span>
               <h2 class="font-mono text-5xl md:text-[6vw] leading-[1.1] tracking-tighter mb-8 uppercase text-foreground">
@@ -187,7 +211,7 @@ const sections = [
             </div>
           </section>
 
-          <section class="w-screen h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-accent">
+          <section class="w-screen h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-accent overflow-hidden relative group z-10">
             <div class="flex flex-col justify-center pl-32 pr-8 md:pl-48 md:pr-16 relative z-10">
               <div class="border-l-2 border-accent pl-8 py-2">
                 <span class="text-eyebrow text-background mb-8 block">[ UX // Error_Reduction ]</span>
@@ -208,7 +232,7 @@ const sections = [
             </div>
           </section>
 
-          <section class="w-screen h-full flex-shrink-0 flex flex-col items-center justify-center text-center pl-32 pr-8 md:pl-48 md:pr-32 relative overflow-hidden bg-background">
+          <section class="w-screen h-full flex-shrink-0 flex flex-col items-center justify-center text-center pl-32 pr-8 md:pl-48 md:pr-32 relative overflow-hidden group bg-background z-10">
              <div class="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
                <div class="w-[60vw] h-[60vw] border border-accent rounded-full animate-ping [animation-duration:4s]"></div>
                <div class="absolute w-[30vw] h-[30vw] border border-primary rounded-full animate-ping [animation-duration:2s] delay-1000"></div>
@@ -226,7 +250,7 @@ const sections = [
              </div>
           </section>
 
-          <section class="w-[20vw] md:w-[17vw] h-full flex-shrink-0 bg-background"></section>
+          <section class="w-[20vw] md:w-[25vw] h-full flex-shrink-0 bg-background z-10"></section>
 
         </div>
       </div>
@@ -245,9 +269,16 @@ const sections = [
     const track = document.querySelector("#scroll-track") as HTMLElement;
     const indicators = gsap.utils.toArray(".indicator-line") as HTMLElement[];
 
+    // Grab the new fading phone layer
+    const phoneFadeLayer = document.querySelector("#phone-fade-layer");
+    // Grab the tiger image
+    const tigerFocusLayer = document.querySelector("#tiger-focus-layer");
+
+    const parallaxGrid = document.querySelector("#parallax-grid");
+    const parallaxRain = document.querySelector("#parallax-rain");
+
     if (!strip || !track) return;
 
-    // 1. HORIZONTAL SCRUB
     gsap.to(strip, {
       x: () => -(strip.scrollWidth - window.innerWidth),
       ease: "none",
@@ -259,15 +290,38 @@ const sections = [
       }
     });
 
-    // 2. VERTICAL INDICATOR SYNC
-    // As the user scrolls down, each section's specific indicator line fills up.
+    if (parallaxGrid) {
+      gsap.to(parallaxGrid, {
+        y: "-50vh", 
+        ease: "none",
+        scrollTrigger: {
+          trigger: track,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 0.1, 
+        }
+      });
+    }
+
+    if (parallaxRain) {
+      gsap.to(parallaxRain, {
+        y: "-100vh", 
+        ease: "none",
+        scrollTrigger: {
+          trigger: track,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 0.1,
+        }
+      });
+    }
+
     indicators.forEach((ind, i) => {
       gsap.to(ind, {
         scaleY: 1,
         ease: "none",
         scrollTrigger: {
           trigger: track,
-          // Calculate exact scroll window for each 100vh segment
           start: () => `${i * window.innerHeight}px top`,
           end: () => `${(i + 1) * window.innerHeight}px top`,
           scrub: true,
@@ -275,7 +329,6 @@ const sections = [
       });
     });
 
-    // Presentation Controls
     window.addEventListener('keydown', (e) => {
       const slideHeight = window.innerHeight;
       if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
@@ -287,6 +340,49 @@ const sections = [
         window.scrollBy({ top: -slideHeight, behavior: 'smooth' });
       }
     });
+
+    // BULLETPROOF & EARLY FADE LOGIC
+    if (phoneFadeLayer) {
+      gsap.fromTo(phoneFadeLayer, 
+        { opacity: 1 }, 
+        {
+          opacity: 0,   
+          ease: "none",
+          scrollTrigger: {
+            trigger: track,
+            // Start fading the exact moment the user begins scrolling
+            start: "top top", 
+            // Finish fading after scrolling down just half a screen (50vh)
+            end: "top -60%", 
+            scrub: true,
+          }
+        }
+      );
+    }
+
+    // Biologically Faster Sound (Blur to Focus underlay)
+    if (tigerFocusLayer) {
+      gsap.fromTo(tigerFocusLayer,
+        { 
+          opacity: 0, 
+          filter: "blur(30px)", // Starts extremely blurry
+        },
+        {
+          opacity: 0.8,         // Fades in (leaving it slightly transparent so text is ultra-readable)
+          filter: "blur(0px)",  // Snaps into sharp focus
+          scale: 1,             // Settles back to normal size
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: track,
+            // Trigger 1.8 screens down (Right as Slide 02 starts appearing)
+            start: () => `${window.innerHeight * 1.5}px top`,
+            // Finish 2.3 screens down (Right as Slide 02 locks into the center)
+            end: () => `${window.innerHeight * 2.3}px top`,
+            scrub: true,
+          }
+        }
+      );
+    }
   };
 
   document.addEventListener('astro:page-load', initStickyScroll);
