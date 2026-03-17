@@ -9,17 +9,18 @@ const sections = [
   { id: "02", label: "Architecture" },
   { id: "03", label: "Neurology.Processing" },
   { id: "04", label: "Neurology.Memory" },
-  { id: "05", label: "ROI" },
-  { id: "06", label: "Metrics" },
-  { id: "07", label: "Distinctiveness" },
-  { id: "08", label: "Equity" },
-  { id: "09", label: "UX" },
-  { id: "10", label: "Execution" }
+  { id: "05", label: "Metrics" },
+  { id: "06", label: "Conversion" },
+  { id: "07", label: "Credibility" },
+  { id: "08", label: "Perception" },
+  { id: "09", label: "Culture" },
+  { id: "10", label: "Belief" },
+  { id: "11", label: "Execution" }
 ];
 ---
 
 <Layout title="The ROI of Audio | bitmap.audio">
-  <main class="bg-background text-foreground selection:bg-accent selection:text-white">
+  <main class="bg-background text-foreground selection:bg-accent selection:text-foreground">
     
     <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
       <div id="parallax-grid" class="absolute top-0 left-0 w-full h-[200vh] bitmap-grid opacity-[0.05] will-change-transform"></div>
@@ -63,38 +64,77 @@ const sections = [
           </section>
 
           <section class="w-[110vw] md:w-[100vw] h-full flex-shrink-0 flex items-center relative group bg-transparent z-20">
-            
+  
             <div class="absolute top-0 -left-[15vw] md:-left-[0vw] w-[60vw] md:w-[50vw] h-full hidden md:flex items-end justify-center pointer-events-none opacity-80 mix-blend-screen z-0">
               <div class="relative w-full max-w-2xl -mb-10 transition-transform duration-1000 group-hover:scale-105">
-                <img src="/images/listening.woman2.empty.png" alt="Woman listening" class="w-full h-auto object-contain object-bottom" />
-                <img id="phone-fade-layer" src="/images/listening.woman2.png" alt="Phone disappearing" class="absolute inset-0 w-full h-auto object-contain object-bottom" />
+                <img id="base-hands-layer" src="/images/listening.woman2.emptyHands.png" alt="Woman listening" class="w-full h-auto object-contain object-bottom" />
+                <img id="book-fade-layer" src="/images/listening.woman2.emptyBook.png" alt="Book appearing" class="absolute inset-0 w-full h-auto object-contain object-bottom opacity-0" />
+                <img id="phone-fade-layer" src="/images/listening.woman2.png" alt="Phone disappearing" class="absolute inset-0 w-full h-auto object-contain object-bottom opacity-0" />
               </div> 
             </div>
 
             <div class="absolute right-0 bottom-0 text-[35vw] font-mono font-bold text-muted/5 select-none pointer-events-none transition-transform duration-1000 group-hover:scale-105 z-0">01</div>
 
+            <div id="train-fade-layer" class="absolute bottom-0 right-0 w-[33vw] h-full z-0 opacity-0 pointer-events-none mix-blend-screen flex items-end justify-end md:pr-0">
+                <img src="/images/listening.woman2.train.png" alt="Woman and Train" class="w-full h-full object-contain object-right-bottom" />
+            </div>
+
             <div class="w-full flex justify-end pr-8 md:pr-80 md:pb-52 relative z-10">
-                <div class="max-w-2xl border-l-2 border-accent pl-8 py-2 bg-background/40 backdrop-blur-sm mr-0 md:mr-16">
+                <div class="max-w-2xl border-l-2 border-accent pl-8 py-2 bg-background/40 backdrop-blur-sm mr-0 md:mr-16 relative z-10">
                     <span class="text-eyebrow mb-8 block text-primary">[ Context // Always_On ]</span>
                     <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 uppercase text-foreground">When everyone<br/><span class="text-primary drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">is listening.</span></h2>
                     <p class="font-sans text-xl text-muted-foreground leading-relaxed max-w-xl">
-                      <span class="text-accent">The screenless audience</span> – 80% of consumers form brand memory via audio cues. If you lack an audio-first identity, you have no presence in the moments when eyes are diverted..
+                      <span class="text-accent">The screenless audience</span> – 80% of consumers form brand memory via audio cues. If you lack an audio-first identity, you have no presence in the moments when eyes are diverted.
                     </p>
                 </div>
             </div>
           </section>
 
-          <section class="w-[110vw] h-full flex-shrink-0 relative border-r border-border/20 bg-primary/80 overflow-hidden group z-10 flex flex-col justify-center">
-            
-            <div class="absolute right-[10vw] bottom-0 w-[80vw] h-[95vh] flex items-end justify-end mix-blend-screen pointer-events-none z-0">
-               <img id="tiger-focus-layer" src="/images/stalking.sabretooth.png" alt="Sabretooth snapping a twig" 
-                    class="w-full h-full object-contain object-right-bottom opacity-0 blur-[30px] transition-transform duration-1000 group-hover:scale-[1.02]" />
+          <section class="w-[100vw] h-full flex-shrink-0 relative border-r border-border/20 bg-primary/80 overflow-hidden group z-10 flex flex-col justify-center">
+
+            <div class="absolute right-[-2vw] top-1/2 -translate-y-1/2 w-[55vw] h-[95vh] pointer-events-none z-0 opacity-80">
+              <svg viewBox="50 200 650 800" class="w-full h-full overflow-visible">
+                
+                <g class="stroke-accent" fill="none" stroke-width="3" stroke-linecap="square" stroke-linejoin="miter">
+                  <path class="data-path" d="M100,300 H200 V400 H100 Z" />
+                  <path class="data-path" stroke-width="1.5" stroke="hsl(var(--background))" d="M150,300 V400 M100,350 H200" />
+                  <path class="data-path" d="M200,400 H300 V900 H200 Z" />
+                  <path class="data-path" d="M250,400 V900" />
+                  <path class="data-path" stroke-width="1.5" stroke="hsl(var(--background))" d="M200,500 H300 M200,600 H300 M200,700 H300 M200,800 H300" />
+                  <path class="data-path" d="M300,500 H600 V800 H500 V900 H300" />
+                  <path class="data-path" d="M300,600 H500 V800 H300" />
+                  <path class="data-path" stroke-width="1.5" stroke="hsl(var(--background))" d="M300,550 H600" /> 
+                  <path class="data-path" stroke-width="1.5" stroke="hsl(var(--background))" d="M300,850 H500" /> 
+                  <path class="data-path" d="M400,500 V600 M400,800 V900" /> 
+                  <path class="data-path" d="M500,500 V800" /> 
+                  <path class="data-path" d="M500,600 H600 M500,700 H600" /> 
+                </g>
+
+                <g class="fill-accent">
+                  <circle class="data-node" cx="100" cy="300" r="4" />
+                  <circle class="data-node" cx="200" cy="300" r="6" />
+                  <circle class="data-node" cx="150" cy="350" r="3" />
+                  <circle class="data-node fill-background stroke-accent" stroke-width="2" cx="200" cy="400" r="10" />
+                  <circle class="data-node" cx="200" cy="600" r="5" />
+                  <circle class="data-node" cx="200" cy="900" r="8" />
+                  <circle class="data-node" cx="300" cy="400" r="4" />
+                  <circle class="data-node" cx="300" cy="600" r="7" />
+                  
+                  <circle class="data-node" cx="400" cy="500" r="5" />
+                  <circle class="data-node" cx="500" cy="500" r="9" />
+                  <circle class="data-node" cx="600" cy="500" r="12" class="fill-background" stroke="hsl(var(--accent))" stroke-width="3" />
+                  <circle class="data-node" cx="400" cy="700" r="4" />
+                  <circle class="data-node" cx="500" cy="800" r="6" />
+                  <circle class="data-node fill-background stroke-accent" stroke-width="2" cx="600" cy="800" r="10" />
+                  <circle class="data-node" cx="300" cy="900" r="5" />
+                </g>
+              </svg>
             </div>
 
-            <div class="pl-32 pr-8 md:pl-48 md:pr-16 relative z-10 w-full max-w-4xl">
+            <div class="pl-32 pr-0 md:pl-72 md:pr-0 relative z-10 w-full max-w-4xl">
               <div class="pl-8 py-2">
                 <span class="text-eyebrow mb-8 block text-background">[ Architecture // Recall ]</span>
-                <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 uppercase text-foreground">Sound as a<br/><span class="text-accent drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">Data Map.</span></h2>
+                <h2 class="font-mono text-5xl md:text-8xl leading-tight mb-8 uppercase text-foreground">Sound as a<br/><span class="text-accent drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">Data Map.</span></h2>
                 <p class="font-sans text-xl text-background/80 leading-relaxed max-w-xl">
                   Faster Neurological Processing and Lasting Memory.
                 </p>
@@ -103,71 +143,76 @@ const sections = [
 
           </section>
 
-          <section class="w-screen h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-card/30 overflow-hidden relative group z-10">
+          <section class="w-[110vw] h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-card/30 overflow-hidden relative group z-10">
+
+            <div class="absolute right-30 -bottom-[20vh] w-[100vw] h-full flex items-end justify-end mix-blend-screen pointer-events-none z-0">
+               <img id="tiger-focus-layer" src="/images/stalking.sabretooth.png" alt="Sabretooth snapping a twig" 
+                    class="w-full h-auto object-contain object-right-bottom opacity-0 blur-[30px] transition-transform duration-1000 group-hover:scale-[1.02]" />
+            </div>
+
             <div class="flex flex-col items-end justify-center pl-32 pr-8 md:pl-54 md:pr-32 relative z-10 border-l border-border/20 bg-background/40">
-              <div class="border-l-2 border-accent pl-8 py-2">
+              <div class="border-l-2 border-accent ml-36 pl-8 py-2">
                 <span class="text-eyebrow mb-8 block text-accent">[ Neurology // Processing_Speed ]</span>
                 <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 uppercase">Faster than<br/><span class="text-accent">Sight.</span></h2>
                 <p class="font-sans text-xl text-muted-foreground leading-relaxed mb-8">
-                  Sound is a biological survival mechanism. It reaches the brain 2 to 4 times faster than visual stimuli.<br/><br/>It establishes brand recognition in just <strong>0.05 seconds</strong> — before the eye even finishes processing a logo...<br/><br/>...or the snapping twig before we clock the predator.
+                  Sound is a biological survival mechanism. It reaches the brain 2 to 4 times faster than visual stimuli.<br/><br/>It establishes brand recognition in just <strong>0.05 seconds</strong> — before the eye even finishes processing a logo...<br/><br/>...or the noise that alerts us to danger.
                 </p>
               </div>
             </div>
-            <div class="hidden md:flex flex-col items-center justify-center relative overflow-hidden">
+          </section>
+
+          <section class="w-[50vw] bg-primary/80 h-full flex-shrink-0 border-r border-border/20 overflow-hidden relative group z-10 flex flex-col justify-center">
+            
+            <div class="hidden md:flex flex-col items-center justify-center w-full relative overflow-hidden pointer-events-none z-10 text-center">
                <div class="absolute inset-0 bg-gradient-glow opacity-10"></div>
-               <h3 class="font-mono text-[12vw] leading-none text-foreground font-light tracking-tighter">
-                 8<span class="text-primary">-</span>10<span class="text-2xl tracking-tight text-muted-foreground">ms</span>
+               <h3 class="font-mono text-[12vw] leading-none text-foreground font-light tracking-tighter drop-shadow-md">
+                 8<span class="text-primary">-</span>10<span class="text-2xl tracking-tight text-foreground">ms</span>
                </h3>
-               <span class="font-mono text-primary tracking-[0.5em] uppercase mt-4">Brain Processing Speed</span>
+               <span class="font-mono text-foreground tracking-[0.5em] uppercase mt-4 drop-shadow-md">Brain Processing Speed</span>
             </div>
+
           </section>
 
           <section class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center text-right pl-32 pr-8 md:px-48 relative border-r border-border/20 bg-accent/5 overflow-hidden group z-10">
             <div class="absolute inset-0 radial-gradient-center opacity-20 pointer-events-none"></div>
             <div class="pl-8 py-2 max-w-4xl relative z-10">
               <span class="text-eyebrow text-accent mb-8 block">[ Neurology // Echoic_Memory ]</span>
+              
               <h2 class="font-mono text-5xl md:text-[6vw] leading-[1.1] tracking-tighter mb-8 uppercase text-foreground">
-                Visuals fade.<br/><span class="text-primary">Sound echoes.</span>
+                <span id="visuals-fade-text" class="inline-block">Visuals fade.</span><br/>
+                <span id="sound-grow-text" class="text-primary inline-block origin-right">Sound echoes.</span>
               </h2>
+              
               <p class="font-sans text-2xl text-muted-foreground leading-relaxed">
-                Auditory sensory memory persists for 2-5 seconds—<strong>10 to 20 times longer</strong> than visual memory. It shows significantly better resistance to decay and triggers emotional encoding via the limbic system.
+                Auditory sensory memory persists for 2-5 seconds - <strong>10 to 20 times longer</strong> than visual memory. It shows significantly better resistance to decay and triggers emotional encoding via the limbic system.
               </p>
             </div>
           </section>
 
-          <section class="w-screen h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-background overflow-hidden relative group z-10">
-            <div class="flex flex-col justify-center pl-32 pr-8 md:pl-48 md:pr-16 relative z-10">
-              <div class="pl-8 py-2">
-                <span class="text-eyebrow mb-8 block">[ ROI // The_11%_Rule ]</span>
-                <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 uppercase">Double the<br/><span class="text-accent">Double.</span></h2>
-                <p class="font-sans text-xl text-muted-foreground leading-relaxed mb-6">
-                  Allocating just 11% of a media budget to audio can double a campaign’s overall business effectiveness.
-                </p>
-                <div class="border-l-2 border-accent pl-6 mt-4">
-                  <p class="font-sans text-xl text-foreground leading-relaxed">
-                    Pairing that spend with high "Creative Fluency" (unmistakable bespoke sonic assets) can <strong>quadruple</strong> the total ROI.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div class="hidden md:flex flex-col items-center justify-center text-center bg-primary/10 border-l border-primary/20 relative">
-               <h3 class="font-mono text-[18vw] leading-none text-primary font-light tracking-tighter drop-shadow-[0_0_40px_hsl(var(--primary)/0.4)]">
-                 4<span class="text-foreground">x</span>
+          <section class="w-[50vw] bg-foreground/80 h-full flex-shrink-0 border-r border-border/20 overflow-hidden relative group z-10 flex flex-col justify-center">
+            <div class="hidden md:flex flex-col items-center justify-center w-full relative overflow-hidden pointer-events-none z-10 text-center">
+               <div class="absolute inset-0 bg-gradient-glow opacity-10"></div>
+               <h3 class="font-mono text-[12vw] leading-none text-foreground font-light tracking-tighter drop-shadow-md">
+                 20<span class="tracking-tight text-foreground">x</span>
                </h3>
-               <span class="font-mono text-foreground tracking-[0.5em] uppercase mt-4">Total ROI Multiplier</span>
+               <span class="font-mono text-background/50 tracking-[0.5em] uppercase mt-4 drop-shadow-md">Longer Memory Retention</span>
             </div>
           </section>
 
           <section class="w-screen h-full flex-shrink-0 flex flex-col justify-center pl-32 pr-8 md:pl-48 relative border-r border-border/20 bg-card/20 overflow-hidden group z-10">
-            <div class="w-full max-w-5xl border-l-2 border-accent pl-8 py-2">
-              <span class="text-eyebrow mb-8 block">[ Metrics // Active_Engagement ]</span>
+            <div class="w-full max-w-5xl border-l-2 border-accent ml-48 pl-8 py-2">
+              <span class="text-eyebrow mb-8 block">[ Metrics // Awareness ]</span>
               <h2 class="font-mono text-5xl md:text-7xl leading-[0.9] tracking-tighter mb-16 uppercase text-foreground">
                 Recall under<br/><span class="text-accent border-b-4 border-accent">Pressure.</span>
               </h2>
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="border border-border/50 p-8 bg-background/50 backdrop-blur hover:border-accent transition-colors">
+                  <span class="font-mono text-4xl text-accent block mb-4">191%</span>
+                  <p class="font-sans text-muted-foreground">Lift in brand awareness within the first two seconds of exposure.</p>
+                </div>
                 <div class="border border-border/50 p-8 bg-background/50 backdrop-blur hover:border-accent transition-colors">
                   <span class="font-mono text-4xl text-accent block mb-4">12x</span>
-                  <p class="font-sans text-muted-foreground">More efficient at driving business results than "dull" visual advertising.</p>
+                  <p class="font-sans text-muted-foreground">More efficient at driving business results than visual-only advertising.</p>
                 </div>
                 <div class="border border-border/50 p-8 bg-background/50 backdrop-blur hover:border-accent transition-colors">
                   <span class="font-mono text-4xl text-accent block mb-4">30%</span>
@@ -181,19 +226,91 @@ const sections = [
             </div>
           </section>
 
-          <section class="w-screen h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-background overflow-hidden relative group z-10">
-            <div class="hidden md:flex flex-col items-center justify-center bg-card/30 relative overflow-hidden border-r border-border/20">
-               <h3 class="font-mono text-[12vw] leading-none text-foreground font-light tracking-tighter">
-                 191<span class="text-accent">%</span>
-               </h3>
-               <span class="font-mono text-accent tracking-[0.5em] uppercase mt-4">Awareness Lift</span>
+          <section class="w-[120vw] h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-background overflow-hidden relative group z-10">
+            <div class="w-5/6 flex flex-col justify-center pl-32 pr-8 md:pl-48 md:pr-16 relative z-10">
+              <div class="ml-12 pl-8 py-2">
+                <span class="text-eyebrow mb-8 block">[ Capital // Conversion ]</span>
+                <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 uppercase">Amplified<br/><span class="text-accent md:text-8xl">ROI.</span></h2>
+                <p class="font-sans text-xl text-muted-foreground leading-relaxed mb-6">
+                  Bespoke sonic assets don't just increase views - they drive behaviour. We see a significant lift in both purchase intent and pricing power.
+                </p>
+                <div class="border-l-2 border-accent pl-6 mt-4">
+                  <p class="font-sans text-xl text-foreground leading-relaxed">
+                    Allocating 11% of a media budget to audio paired with high "Creative Fluency" can <strong>quadruple</strong> the total campaign ROI.
+                  </p>
+                </div>
+              </div>
             </div>
+            <div class="hidden md:flex flex-col items-center justify-center text-center bg-primary/10 border-l border-primary/20 relative">
+               <h3 class="font-mono text-[18vw] leading-none text-primary font-light tracking-tighter drop-shadow-[0_0_40px_hsl(var(--primary)/0.4)]">
+                 4<span class="text-foreground">x</span>
+               </h3>
+               <span class="font-mono text-foreground tracking-[0.5em] uppercase mt-4">Total ROI Multiplier</span>
+            </div>
+          </section>
+
+          <section id="success-section" class="w-[180vw] h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-foreground/90 overflow-hidden relative group z-10">
             <div class="flex flex-col justify-center pl-32 pr-8 md:pl-16 md:pr-32 relative z-10">
-              <div class="border-l-2 border-accent pl-8 py-2">
-                <span class="text-eyebrow mb-8 block">[ Distinctiveness // The_Hook ]</span>
-                <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 uppercase">The 2-Second<br/><span class="text-primary">Advantage.</span></h2>
+              <div class="w-1/2 border-l-2 border-accent ml-72 pl-8 py-2">
+                <span class="text-eyebrow text-background/80 mb-8 block">[ UX // Credibility ]</span>
+                <h2 class="font-mono text-foreground/70 text-5xl md:text-6xl leading-tight mb-8 uppercase">Subconscious<br/><span class="md:text-8xl leading-8 font-bold text-background/80">Trust.</span></h2>
                 <p class="font-sans text-xl text-muted-foreground leading-relaxed mb-8">
-                  Sonic assets lift brand awareness by 191% in the first two seconds of exposure—<strong>5 times the impact of a visual logo.</strong> Furthermore, sonic logos that include the brand name are 9x more effective at driving actual attribution.
+                  Sound implies physical reality, making digital interactions feel safer. In high-stakes systems, auditory UX cues increase task success rates by 25%.
+                </p>
+                <div class="pl-6 mt-4 bg-background/80 backdrop-blur-sm p-4">
+                  <p class="font-sans text-xl text-foreground leading-relaxed">
+                    In banking, users associate transaction success primarily with proprietary sound cues over visual confirmations.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="hidden md:flex flex-col items-center justify-center bg-background/5 relative border-l border-white/5">
+               <div class="relative flex items-center justify-center w-[30vw] h-[30vw]">
+                 
+                 <svg class="absolute inset-0 w-full h-full -rotate-90 pointer-events-none" viewBox="0 0 100 100">
+                   <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="2" fill="transparent" class="text-foreground/10" />
+                   <circle id="success-ring" cx="50" cy="50" r="45" stroke="currentColor" stroke-width="2" fill="transparent" 
+                           stroke-dasharray="282.7" stroke-dashoffset="282.7" 
+                           class="text-accent transition-all duration-75" stroke-linecap="square" />
+                 </svg>
+                 
+                 <div class="text-center relative z-10">
+                   <h3 class="font-mono text-[12vw] leading-none text-accent font-bold tracking-tighter drop-shadow-[0_0_30px_hsl(var(--accent)/0.5)]">
+                     <span id="task-success-counter">0</span><span class="text-[4vw] ml-1 text-muted-foreground">%</span>
+                   </h3>
+                   <span class="font-mono text-background/60 text-base tracking-[0.2em] uppercase block">Task Success Increase</span>
+                 </div>
+               </div>
+            </div>
+          </section>
+
+          <section class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center text-right pl-32 pr-8 md:px-48 relative border-r border-border/20 bg-primary/20 overflow-hidden group z-10">
+            <div class="absolute inset-0 radial-gradient-center opacity-20 pointer-events-none"></div>
+            <div class="pl-8 py-2 max-w-4xl relative z-10">
+              <span class="text-eyebrow text-accent mb-8 block">[ Perception // The Edge ]</span>
+              
+              <h2 class="font-mono text-5xl md:text-[6vw] leading-[1.1] tracking-tighter mb-8 uppercase text-foreground">
+                <span id="" class="inline-block">Perceived as</span><br/>
+                <span id="" class="text-accent inline-block origin-right">Innovators</span>
+              </h2>
+              
+              <p class="font-sans text-2xl text-muted-foreground leading-relaxed">
+                Brands that implement cohesive sonic strategies aren't just remembered—they are perceived differently. Audio integration drives higher perceptions of innovation, technical competence, and overall advertising strength.
+              </p>
+            </div>
+          </section>
+
+          <section class="relative w-[90vw] md:w-[75vw] h-full flex-shrink-0 flex flex-col justify-center pl-32 pr-8 md:pl-48 md:pr-16 group bg-background z-10">
+            <div class="absolute -right-20 bottom-0 text-[35vw] font-mono font-bold text-muted/5 select-none pointer-events-none transition-transform duration-1000 group-hover:scale-105 z-0">00</div>
+            <div class="relative z-10 pl-8 py-2">
+              <span class="text-eyebrow mb-8 block">[ Localisation // Borders ]</span>
+              <h2 class="font-mono text-6xl md:text-[6vw] leading-[0.9] tracking-tighter mb-12 uppercase text-foreground">
+                Seamless<br/>cultural <span class="text-accent md:text-[8vw] drop-shadow-[0_0_20px_hsl(var(--accent)/0.3)]">Resonance.</span>
+              </h2>
+              <div class="w-full max-w-2xl backdrop-blur-md bg-background/40 p-6 border-l-2 border-accent">
+                <p class="font-sans text-xl md:text-2xl text-muted-foreground leading-relaxed">
+                  Visual copy requires translation. A well-architected sonic identity scales across borders instantly, requiring zero localization overhead while maintaining absolute brand consistency globally.
                 </p>
               </div>
             </div>
@@ -201,34 +318,30 @@ const sections = [
 
           <section class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center text-left pl-32 pr-8 md:px-48 relative border-r border-border/20 bg-primary/5 overflow-hidden group z-10">
             <div class="pl-8 py-2 z-10">
-              <span class="text-eyebrow mb-8 block">[ Equity // Ownership ]</span>
+              <span class="text-eyebrow mb-8 block">[ Asset // Ownership ]</span>
               <h2 class="font-mono text-5xl md:text-[6vw] leading-[1.1] tracking-tighter mb-8 uppercase text-foreground">
                 Stop renting <br/>from the sea<br/>of <span class="text-accent">sameness.</span>
               </h2>
               <p class="font-sans text-2xl text-muted-foreground leading-relaxed max-w-4xl bg-background/60 backdrop-blur-md p-8 border border-border/20">
-                Only owned, coherent sonic identities "own" recall and trust. Short-term custom tracks may win the moment, but fail to build lasting equity. Leading sonic brands ensure at least <strong>30% of their audio assets are owned.</strong>
+                Short-term custom tracks may win the moment, but they fail to build lasting equity. Leading sonic brands ensure at least <strong>30% of their audio assets are wholly owned</strong>, protecting their mental availability.
               </p>
             </div>
           </section>
 
-          <section class="w-screen h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-accent overflow-hidden relative group z-10">
+          <section class="w-[120vw] h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-accent overflow-hidden relative group z-10">
             <div class="flex flex-col justify-center pl-32 pr-8 md:pl-48 md:pr-16 relative z-10">
               <div class="border-l-2 border-accent pl-8 py-2">
-                <span class="text-eyebrow text-background mb-8 block">[ UX // Error_Reduction ]</span>
-                <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 uppercase">In Sound<br/>we <span class="text-background drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">Trust.</span></h2>
+                <span class="text-eyebrow text-background mb-8 block">[ Belief // Power ]</span>
+                <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 uppercase">In Sound<br/>we <span class="text-background text-7xl drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">Trust.</span></h2>
                 <p class="font-sans text-xl text-foreground leading-relaxed mb-6">
-                  In high-stakes systems, auditory alerts reduce user error rates by up to <strong>34%</strong>. Audio cues increase task success rates by 25%.
-                </p>
-                <p class="font-sans text-xl text-foreground leading-relaxed">
-                  In banking, 10% of users associate transaction success primarily with sound cues rather than visual confirmations.
+                  Tap into the subconscious.
                 </p>
               </div>
             </div>
             <div class="hidden md:flex flex-col items-center justify-center bg-primary/10 border-l border-border/20 relative">
-               <h3 class="font-mono text-[14vw] leading-none text-primary font-light tracking-tighter drop-shadow-[0_0_30px_hsl(var(--primary)/0.3)]">
-                 -34<span class="text-foreground">%</span>
+               <h3 class="font-mono text-[10vw] leading-none text-primary font-light tracking-tighter drop-shadow-[0_0_30px_hsl(var(--primary)/0.3)]">
+                 <span class="text-foreground"> And see what you can find.</span>
                </h3>
-               <span class="font-mono text-foreground tracking-[0.5em] uppercase mt-4">Error Rate Reduction</span>
             </div>
           </section>
 
@@ -269,13 +382,32 @@ const sections = [
     const track = document.querySelector("#scroll-track") as HTMLElement;
     const indicators = gsap.utils.toArray(".indicator-line") as HTMLElement[];
 
+    const parallaxGrid = document.querySelector("#parallax-grid");
+    const parallaxRain = document.querySelector("#parallax-rain");
+
     // Grab the new fading phone layer
     const phoneFadeLayer = document.querySelector("#phone-fade-layer");
+    const bookFadeLayer = document.querySelector("#book-fade-layer"); // NEW
+    const baseHandsLayer = document.querySelector("#base-hands-layer"); // NEW
+    
+    // Grab the new Train layer
+    const trainFadeLayer = document.querySelector("#train-fade-layer"); // NEW
+
+    // Grab the new SVG Data Map elements
+    const dataPaths = gsap.utils.toArray(".data-path");
+    const dataNodes = gsap.utils.toArray(".data-node");
+
+    const visualsFadeText = document.querySelector("#visuals-fade-text"); // NEW
+    const soundGrowText = document.querySelector("#sound-grow-text"); // NEW
+
     // Grab the tiger image
     const tigerFocusLayer = document.querySelector("#tiger-focus-layer");
 
-    const parallaxGrid = document.querySelector("#parallax-grid");
-    const parallaxRain = document.querySelector("#parallax-rain");
+    //Success Counter Elements
+    const successSection = document.querySelector("#success-section") as HTMLElement; // Add 'as HTMLElement'
+    const successCounter = document.querySelector("#task-success-counter") as HTMLElement; // Add this too for good measure
+    const successRing = document.querySelector("#success-ring") as SVGElement;
+
 
     if (!strip || !track) return;
 
@@ -341,8 +473,10 @@ const sections = [
       }
     });
 
-    // BULLETPROOF & EARLY FADE LOGIC
-    if (phoneFadeLayer) {
+    // THE 3-STEP STAGGERED FADE LOGIC (Woman on Left)
+    if (phoneFadeLayer && bookFadeLayer && baseHandsLayer) {
+      
+      // PHASE 1: Fade the phone OUT quickly
       gsap.fromTo(phoneFadeLayer, 
         { opacity: 1 }, 
         {
@@ -350,17 +484,100 @@ const sections = [
           ease: "none",
           scrollTrigger: {
             trigger: track,
-            // Start fading the exact moment the user begins scrolling
-            start: "top top", 
-            // Finish fading after scrolling down just half a screen (50vh)
-            end: "top -60%", 
+            start: "top -35%",   
+            end: "top -48%",    
+            scrub: true,
+          }
+        }
+      );
+
+      // PHASE 2A: Fade the book IN
+      gsap.fromTo(bookFadeLayer, 
+        { opacity: 0 }, 
+        {
+          opacity: 1,   
+          ease: "none",
+          scrollTrigger: {
+            trigger: track,
+            start: "top -48%",  
+            end: "top -48%",    
+            scrub: true,
+          }
+        }
+      );
+
+      // PHASE 2B: Fade the empty hands OUT at the exact same time
+      gsap.fromTo(baseHandsLayer, 
+        { opacity: 1 }, 
+        {
+          opacity: 0,   
+          ease: "none",
+          scrollTrigger: {
+            trigger: track,
+            start: "top -48%",  // Exactly matches the book fade IN start
+            end: "top -51%",    // Exactly matches the book fade IN end
             scrub: true,
           }
         }
       );
     }
 
-    // Biologically Faster Sound (Blur to Focus underlay)
+    // NEW Train Image Fade (Context Section - Right Side)
+    if (trainFadeLayer) {
+      gsap.fromTo(trainFadeLayer,
+        { opacity: 0 },
+        {
+          opacity: 0.8, // Match established mix-blend opacity
+          ease: "none",
+          scrollTrigger: {
+            trigger: track,
+            // Start fading in after arriving securely in Section 01
+            start: () => `${window.innerHeight * 1}px top`,
+            end: () => `${window.innerHeight * 1.4}px top`,
+            scrub: true,
+          }
+        }
+      );
+    }
+
+    if (dataPaths.length > 0) {
+      
+      dataPaths.forEach((path: any) => {
+        const length = path.getTotalLength();
+        gsap.set(path, { strokeDasharray: length, strokeDashoffset: length });
+      });
+
+      // 1. FADE THE NODES (Clean reveal, no 'flying in')
+      gsap.fromTo(dataNodes, 
+        { opacity: 0 }, // Just start hidden
+        {
+          opacity: 1, 
+          stagger: 0.08, // Subtle sweep
+          ease: "none", // Linear fade feels more 'technical'
+          scrollTrigger: {
+            trigger: track,
+            start: () => `${window.innerHeight * 1.3}px top`, 
+            end: () => `${window.innerHeight * 2.1}px top`,
+            scrub: true,
+          }
+        }
+      );
+
+      // 2. DRAW THE PATHS (To match the nodes)
+      gsap.to(dataPaths, {
+        strokeDashoffset: 0, 
+        stagger: 0.1, 
+        ease: "power1.inOut",
+        scrollTrigger: {
+          trigger: track,
+          start: () => `${window.innerHeight * 1.4}px top`,
+          end: () => `${window.innerHeight * 2.2}px top`,
+          scrub: true,
+        }
+      });
+    }
+
+    // Biologically Faster Sound (Blur to Focus underlay - Tiger Section)
     if (tigerFocusLayer) {
       gsap.fromTo(tigerFocusLayer,
         { 
@@ -368,17 +585,109 @@ const sections = [
           filter: "blur(30px)", // Starts extremely blurry
         },
         {
-          opacity: 0.8,         // Fades in (leaving it slightly transparent so text is ultra-readable)
+          opacity: 0.8,         
           filter: "blur(0px)",  // Snaps into sharp focus
-          scale: 1,             // Settles back to normal size
+          scale: 1,             
           ease: "power2.out",
           scrollTrigger: {
             trigger: track,
-            // Trigger 1.8 screens down (Right as Slide 02 starts appearing)
-            start: () => `${window.innerHeight * 1.5}px top`,
-            // Finish 2.3 screens down (Right as Slide 02 locks into the center)
-            end: () => `${window.innerHeight * 2.3}px top`,
+            // Trigger 2.8 screens down (As the Processing Speed section slides in)
+            start: () => `${window.innerHeight * 2}px top`,
+            // Finish 3.4 screens down (When the section is centered)
+            end: () => `${window.innerHeight * 3.2}px top`,
             scrub: true,
+          }
+        }
+      );
+    }
+
+    // Thematic Fade for "Visuals Fade" text
+    if (visualsFadeText) {
+      gsap.fromTo(visualsFadeText,
+        { opacity: 1 },
+        {
+          opacity: 0.05, // Fades to barely visible (or set to 0 to completely vanish)
+          ease: "none",
+          scrollTrigger: {
+            trigger: track,
+            // Starts fading as the section reaches the center of the screen
+            start: () => `${window.innerHeight * 3.3}px top`,
+            // Finishes fading shortly after
+            end: () => `${window.innerHeight * 4}px top`,
+            scrub: true,
+          }
+        }
+      );
+    }
+
+    // 1. Your existing scale logic (leave this exactly as is)
+    if (soundGrowText) {
+      gsap.fromTo(soundGrowText,
+        { scale: 1 },
+        {
+          scale: 1.1, 
+          ease: "none",
+          scrollTrigger: {
+            trigger: track,
+            start: () => `${window.innerHeight * 3.3}px top`,
+            end: () => `${window.innerHeight * 4}px top`,
+            scrub: true,
+          }
+        }
+      );
+
+      // 2. NEW: The continuous vibration effect
+      gsap.to(soundGrowText, {
+        x: 2,                 // Move 3px to the right
+        duration: 0.05,       // Extremely fast (20 times per second)
+        repeat: -1,           // Loop infinitely
+        yoyo: true,           // Ping-pong back and forth (0 to 3 to 0 to -3...)
+        ease: "sine.inOut",   // Smooth direction changes
+        scrollTrigger: {
+          trigger: track,
+          // Use the exact same start/end window as your fade/scale
+          start: () => `${window.innerHeight * 3.9}px top`,
+          end: () => `${window.innerHeight * 6}px top`,
+          // Instead of scrubbing, just play/pause the vibration based on visibility
+          toggleActions: "play pause resume pause" 
+        }
+      });
+    }
+
+    // SUCCESS COUNTER LOGIC
+    if (successCounter && successSection && successRing) {
+      const countObj = { val: 0 };
+      const ringTotalLength = 282.7; // Circumference (2 * PI * 45)
+
+      const getScrollPos = (horizontalPos: number) => {
+        const totalHorizontal = strip.scrollWidth - window.innerWidth;
+        const totalVertical = track.offsetHeight - window.innerHeight;
+        return (horizontalPos / totalHorizontal) * totalVertical;
+      };
+
+      gsap.fromTo(countObj, 
+        { val: 0 }, 
+        {
+          val: 25,
+          ease: "power1.inOut", // Adding a slight ease makes it feel less robotic
+          scrollTrigger: {
+            trigger: track,
+            // START: When section is 20% on screen
+            start: () => `${getScrollPos(successSection.offsetLeft - window.innerWidth * 0.6)}px top`,
+            // END: Extended further past center so it definitely hits 100% (25%)
+            end: () => `${getScrollPos(successSection.offsetLeft + successSection.offsetWidth * 0.7)}px top`,
+            scrub: 0.5,
+            onUpdate: () => {
+              const currentVal = countObj.val;
+              
+              // 1. Update the Number
+              successCounter.innerText = Math.round(currentVal).toString();
+
+              // 2. Update the Ring (25% of 100 is the goal, so we map 0-25 to 0-100%)
+              const progress = currentVal / 25; 
+              const offset = ringTotalLength - (progress * ringTotalLength);
+              successRing.style.strokeDashoffset = offset.toString();
+            }
           }
         }
       );
