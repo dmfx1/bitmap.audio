@@ -155,7 +155,7 @@ const sections = [
                 <span class="text-eyebrow mb-8 block text-accent">[ Neurology // Processing_Speed ]</span>
                 <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 uppercase">Faster than<br/><span class="text-accent">Sight.</span></h2>
                 <p class="font-sans text-xl text-muted-foreground leading-relaxed mb-8">
-                  Sound is a biological survival mechanism. It reaches the brain 2 to 4 times faster than visual stimuli.<br/><br/>It establishes brand recognition in just <strong>0.05 seconds</strong> — before the eye even finishes processing a logo...<br/><br/>...or the noise that alerts us to danger.
+                  Sound is a biological survival mechanism. It reaches the brain 2 to 4 times faster than visual stimuli.<br/><br/>It establishes recognition in just <strong>0.05 seconds</strong> making us aware of our surroundings before we even consciously "see" them.
                 </p>
               </div>
             </div>
@@ -199,38 +199,51 @@ const sections = [
             </div>
           </section>
 
-          <section class="w-screen h-full flex-shrink-0 flex flex-col justify-center pl-32 pr-8 md:pl-48 relative border-r border-border/20 bg-card/20 overflow-hidden group z-10">
-            <div class="w-full max-w-5xl border-l-2 border-accent ml-48 pl-8 py-2">
+          <section id="metrics-section" class="w-[120vw] h-full flex-shrink-0 flex items-center justify-start pl-32 pr-8 md:pl-48 relative border-r border-border/20 bg-card/20 overflow-hidden group z-10">
+            <div class="w-full max-w-5xl border-l-2 border-accent pl-8 py-2">
               <span class="text-eyebrow mb-8 block">[ Metrics // Awareness ]</span>
-              <h2 class="font-mono text-5xl md:text-7xl leading-[0.9] tracking-tighter mb-16 uppercase text-foreground">
-                Recall under<br/><span class="text-accent border-b-4 border-accent">Pressure.</span>
+              
+              <h2 class="font-mono text-5xl md:text-7xl leading-[0.9] tracking-tighter mb-16 uppercase text-foreground relative inline-block">
+                Recall under<br/>
+                <span class="text-accent relative inline-block">
+                  Pressure.
+                  <div id="pressure-line" class="absolute bottom-0 left-0 h-[4px] bg-accent w-0 origin-left"></div>
+                </span>
               </h2>
-              <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div class="border border-border/50 p-8 bg-background/50 backdrop-blur hover:border-accent transition-colors">
+              
+              <div class="relative w-full h-[250px] mt-8">
+                
+                <div class="stat-card absolute left-0 top-0 w-[280px] h-full border border-border/50 p-8 bg-background/90 backdrop-blur hover:border-accent transition-colors z-[4]">
                   <span class="font-mono text-4xl text-accent block mb-4">191%</span>
-                  <p class="font-sans text-muted-foreground">Lift in brand awareness within the first two seconds of exposure.</p>
+                  <p class="font-sans text-muted-foreground text-sm leading-relaxed">Lift in brand awareness within the first two seconds of exposure.</p>
                 </div>
-                <div class="border border-border/50 p-8 bg-background/50 backdrop-blur hover:border-accent transition-colors">
+                
+                <div class="stat-card absolute left-0 top-0 w-[280px] h-full border border-border/50 p-8 bg-background/90 backdrop-blur hover:border-accent transition-colors z-[3]">
                   <span class="font-mono text-4xl text-accent block mb-4">12x</span>
-                  <p class="font-sans text-muted-foreground">More efficient at driving business results than visual-only advertising.</p>
+                  <p class="font-sans text-muted-foreground text-sm leading-relaxed">More efficient at driving business results than visual-only advertising.</p>
                 </div>
-                <div class="border border-border/50 p-8 bg-background/50 backdrop-blur hover:border-accent transition-colors">
+                
+                <div class="stat-card absolute left-0 top-0 w-[280px] h-full border border-border/50 p-8 bg-background/90 backdrop-blur hover:border-accent transition-colors z-[2]">
                   <span class="font-mono text-4xl text-accent block mb-4">30%</span>
-                  <p class="font-sans text-muted-foreground">Brand recall delivered even during "highly distracted" environments.</p>
+                  <p class="font-sans text-muted-foreground text-sm leading-relaxed">Brand recall delivered even during "highly distracted" environments.</p>
                 </div>
-                <div class="border border-border/50 p-8 bg-background/50 backdrop-blur hover:border-accent transition-colors">
+                
+                <div class="stat-card absolute left-0 top-0 w-[280px] h-full border border-border/50 p-8 bg-background/90 backdrop-blur hover:border-accent transition-colors z-[1]">
                   <span class="font-mono text-4xl text-accent block mb-4">78%</span>
-                  <p class="font-sans text-muted-foreground">Recall rate when listeners are actively tuned into audio advertising.</p>
+                  <p class="font-sans text-muted-foreground text-sm leading-relaxed">Recall rate when listeners are actively tuned into audio advertising.</p>
                 </div>
               </div>
             </div>
           </section>
 
-          <section class="w-[120vw] h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-background overflow-hidden relative group z-10">
+          <section id="roi-section" class="w-[120vw] h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-background overflow-hidden relative group z-10">
             <div class="w-5/6 flex flex-col justify-center pl-32 pr-8 md:pl-48 md:pr-16 relative z-10">
               <div class="ml-12 pl-8 py-2">
                 <span class="text-eyebrow mb-8 block">[ Capital // Conversion ]</span>
-                <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 uppercase">Amplified<br/><span class="text-accent md:text-8xl">ROI.</span></h2>
+                <h2 class="font-mono text-5xl md:text-6xl leading-[1.1] mb-8 uppercase flex flex-col items-start">
+                  <span>Amplified</span>
+                  <span id="roi-word" class="text-accent md:text-9xl inline-block origin-top-left leading-none mt-0">ROI.</span>
+                </h2>
                 <p class="font-sans text-xl text-muted-foreground leading-relaxed mb-6">
                   Bespoke sonic assets don't just increase views - they drive behaviour. We see a significant lift in both purchase intent and pricing power.
                 </p>
@@ -241,11 +254,26 @@ const sections = [
                 </div>
               </div>
             </div>
-            <div class="hidden md:flex flex-col items-center justify-center text-center bg-primary/10 border-l border-primary/20 relative">
-               <h3 class="font-mono text-[18vw] leading-none text-primary font-light tracking-tighter drop-shadow-[0_0_40px_hsl(var(--primary)/0.4)]">
-                 4<span class="text-foreground">x</span>
-               </h3>
-               <span class="font-mono text-foreground tracking-[0.5em] uppercase mt-4">Total ROI Multiplier</span>
+            
+            <div class="hidden md:flex flex-col items-center justify-center text-center bg-primary/10 border-l border-primary/20 relative overflow-hidden">
+               
+               <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                 <div class="roi-wave absolute w-[10vw] h-[10vw] rounded-full border border-primary/40"></div>
+                 <div class="roi-wave absolute w-[10vw] h-[10vw] rounded-full border border-primary/20"></div>
+                 <div class="roi-wave absolute w-[10vw] h-[10vw] rounded-full border border-primary/10"></div>
+               </div>
+
+               <div id="roi-text-wrapper" class="relative flex items-center justify-center h-[20vw] w-full mt-12">
+                   
+                   <h3 class="roi-ghost absolute font-mono text-[18vw] leading-none text-primary/30 blur-[12px] font-bold tracking-tighter mix-blend-screen">4.0x</h3>
+                   <h3 class="roi-ghost absolute font-mono text-[18vw] leading-none text-primary/60 blur-[6px] font-bold tracking-tighter mix-blend-screen">4.0x</h3>
+                   
+                   <h3 class="relative z-10 font-mono text-[18vw] leading-none text-primary font-bold tracking-tighter drop-shadow-[0_0_40px_hsl(var(--primary)/0.6)]">
+                     <span id="roi-counter">1.0</span><span class="text-[8vw] text-foreground ml-2">x</span>
+                   </h3>
+               </div>
+               
+               <span class="font-mono text-foreground tracking-[0.5em] uppercase mt-4 z-10 relative">Total ROI Multiplier</span>
             </div>
           </section>
 
@@ -253,7 +281,12 @@ const sections = [
             <div class="flex flex-col justify-center pl-32 pr-8 md:pl-16 md:pr-32 relative z-10">
               <div class="w-1/2 border-l-2 border-accent ml-72 pl-8 py-2">
                 <span class="text-eyebrow text-background/80 mb-8 block">[ UX // Credibility ]</span>
-                <h2 class="font-mono text-foreground/70 text-5xl md:text-6xl leading-tight mb-8 uppercase">Subconscious<br/><span class="md:text-8xl leading-8 font-bold text-background/80">Trust.</span></h2>
+                <h2 class="font-mono text-5xl md:text-6xl leading-[1.1] mb-8 uppercase flex flex-col items-start">
+                  <span id="subconscious-word" class="bg-gradient-to-r from-foreground/10 via-foreground to-foreground/10 bg-clip-text text-transparent bg-[length:200%_auto] bg-[position:200%_center] inline-block">
+                    Subconscious
+                  </span>
+                  <span class="md:text-8xl leading-none font-bold text-background/80 mt-2">Trust.</span>
+                </h2>               
                 <p class="font-sans text-xl text-muted-foreground leading-relaxed mb-8">
                   Sound implies physical reality, making digital interactions feel safer. In high-stakes systems, auditory UX cues increase task success rates by 25%.
                 </p>
@@ -271,8 +304,8 @@ const sections = [
                  <svg class="absolute inset-0 w-full h-full -rotate-90 pointer-events-none" viewBox="0 0 100 100">
                    <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="2" fill="transparent" class="text-foreground/10" />
                    <circle id="success-ring" cx="50" cy="50" r="45" stroke="currentColor" stroke-width="2" fill="transparent" 
-                           stroke-dasharray="282.7" stroke-dashoffset="282.7" 
-                           class="text-accent transition-all duration-75" stroke-linecap="square" />
+                            stroke-dasharray="282.7" stroke-dashoffset="282.7" 
+                            class="text-accent" stroke-linecap="square" />
                  </svg>
                  
                  <div class="text-center relative z-10">
@@ -403,6 +436,19 @@ const sections = [
     // Grab the tiger image
     const tigerFocusLayer = document.querySelector("#tiger-focus-layer");
 
+    // METRICS SECTION ANIMATIONS (Pressure Line & Sliding Cards)
+    const metricsSection = document.querySelector("#metrics-section") as HTMLElement;
+    const pressureLine = document.querySelector("#pressure-line");
+    const statCards = gsap.utils.toArray(".stat-card") as HTMLElement[];
+
+    // AMPLIFIED ROI SECTION ANIMATION
+    const roiSection = document.querySelector("#roi-section") as HTMLElement;
+    const roiCounter = document.querySelector("#roi-counter") as HTMLElement;
+    const roiWrapper = document.querySelector("#roi-text-wrapper");
+    const roiGhosts = gsap.utils.toArray(".roi-ghost") as HTMLElement[];
+    const roiWaves = gsap.utils.toArray(".roi-wave") as HTMLElement[];
+    const roiWord = document.querySelector("#roi-word"); // New ROI word element
+
     //Success Counter Elements
     const successSection = document.querySelector("#success-section") as HTMLElement; // Add 'as HTMLElement'
     const successCounter = document.querySelector("#task-success-counter") as HTMLElement; // Add this too for good measure
@@ -484,8 +530,8 @@ const sections = [
           ease: "none",
           scrollTrigger: {
             trigger: track,
-            start: "top -35%",   
-            end: "top -48%",    
+            start: "top -33%",   
+            end: "top -35%",    
             scrub: true,
           }
         }
@@ -499,8 +545,8 @@ const sections = [
           ease: "none",
           scrollTrigger: {
             trigger: track,
-            start: "top -48%",  
-            end: "top -48%",    
+            start: "top -35%",  
+            end: "top -40%",    
             scrub: true,
           }
         }
@@ -514,8 +560,8 @@ const sections = [
           ease: "none",
           scrollTrigger: {
             trigger: track,
-            start: "top -48%",  // Exactly matches the book fade IN start
-            end: "top -51%",    // Exactly matches the book fade IN end
+            start: "top -40%",  // Exactly matches the book fade IN start
+            end: "top -50%",    // Exactly matches the book fade IN end
             scrub: true,
           }
         }
@@ -532,8 +578,8 @@ const sections = [
           scrollTrigger: {
             trigger: track,
             // Start fading in after arriving securely in Section 01
-            start: () => `${window.innerHeight * 1}px top`,
-            end: () => `${window.innerHeight * 1.4}px top`,
+            start: () => `${window.innerHeight * 0.7}px top`,
+            end: () => `${window.innerHeight * 1.2}px top`,
             scrub: true,
           }
         }
@@ -556,8 +602,8 @@ const sections = [
           ease: "none", // Linear fade feels more 'technical'
           scrollTrigger: {
             trigger: track,
-            start: () => `${window.innerHeight * 1.3}px top`, 
-            end: () => `${window.innerHeight * 2.1}px top`,
+            start: () => `${window.innerHeight * 1.1}px top`, 
+            end: () => `${window.innerHeight * 1.3}px top`,
             scrub: true,
           }
         }
@@ -570,8 +616,8 @@ const sections = [
         ease: "power1.inOut",
         scrollTrigger: {
           trigger: track,
-          start: () => `${window.innerHeight * 1.4}px top`,
-          end: () => `${window.innerHeight * 2.2}px top`,
+          start: () => `${window.innerHeight * 1.2}px top`,
+          end: () => `${window.innerHeight * 1.7}px top`,
           scrub: true,
         }
       });
@@ -592,9 +638,9 @@ const sections = [
           scrollTrigger: {
             trigger: track,
             // Trigger 2.8 screens down (As the Processing Speed section slides in)
-            start: () => `${window.innerHeight * 2}px top`,
+            start: () => `${window.innerHeight * 1.8}px top`,
             // Finish 3.4 screens down (When the section is centered)
-            end: () => `${window.innerHeight * 3.2}px top`,
+            end: () => `${window.innerHeight * 2.7}px top`,
             scrub: true,
           }
         }
@@ -611,9 +657,9 @@ const sections = [
           scrollTrigger: {
             trigger: track,
             // Starts fading as the section reaches the center of the screen
-            start: () => `${window.innerHeight * 3.3}px top`,
+            start: () => `${window.innerHeight * 2.7}px top`,
             // Finishes fading shortly after
-            end: () => `${window.innerHeight * 4}px top`,
+            end: () => `${window.innerHeight * 3.2}px top`,
             scrub: true,
           }
         }
@@ -625,12 +671,12 @@ const sections = [
       gsap.fromTo(soundGrowText,
         { scale: 1 },
         {
-          scale: 1.1, 
+          scale: 1.2, 
           ease: "none",
           scrollTrigger: {
             trigger: track,
-            start: () => `${window.innerHeight * 3.3}px top`,
-            end: () => `${window.innerHeight * 4}px top`,
+            start: () => `${window.innerHeight * 2.75}px top`,
+            end: () => `${window.innerHeight * 3.5}px top`,
             scrub: true,
           }
         }
@@ -646,7 +692,7 @@ const sections = [
         scrollTrigger: {
           trigger: track,
           // Use the exact same start/end window as your fade/scale
-          start: () => `${window.innerHeight * 3.9}px top`,
+          start: () => `${window.innerHeight * 3}px top`,
           end: () => `${window.innerHeight * 6}px top`,
           // Instead of scrubbing, just play/pause the vibration based on visibility
           toggleActions: "play pause resume pause" 
@@ -654,40 +700,172 @@ const sections = [
       });
     }
 
-    // SUCCESS COUNTER LOGIC
-    if (successCounter && successSection && successRing) {
-      const countObj = { val: 0 };
-      const ringTotalLength = 282.7; // Circumference (2 * PI * 45)
-
+    if (metricsSection && pressureLine && statCards.length > 0) {
+      
+      // Helper function
       const getScrollPos = (horizontalPos: number) => {
         const totalHorizontal = strip.scrollWidth - window.innerWidth;
         const totalVertical = track.offsetHeight - window.innerHeight;
         return (horizontalPos / totalHorizontal) * totalVertical;
       };
 
-      gsap.fromTo(countObj, 
-        { val: 0 }, 
+      // 1. Draw the "Pressure" Line
+      gsap.fromTo(pressureLine,
+        { width: "0%" },
         {
-          val: 25,
-          ease: "power1.inOut", // Adding a slight ease makes it feel less robotic
+          width: "100%",
+          ease: "none",
           scrollTrigger: {
             trigger: track,
-            // START: When section is 20% on screen
-            start: () => `${getScrollPos(successSection.offsetLeft - window.innerWidth * 0.6)}px top`,
-            // END: Extended further past center so it definitely hits 100% (25%)
-            end: () => `${getScrollPos(successSection.offsetLeft + successSection.offsetWidth * 0.7)}px top`,
-            scrub: 0.5,
-            onUpdate: () => {
-              const currentVal = countObj.val;
-              
-              // 1. Update the Number
-              successCounter.innerText = Math.round(currentVal).toString();
+            // Start drawing when section is entering
+            start: () => `${getScrollPos(metricsSection.offsetLeft - window.innerWidth * 0.8)}px top`,
+            // Finish drawing exactly when centered
+            end: () => `${getScrollPos(metricsSection.offsetLeft - window.innerWidth * 0)}px top`,
+            scrub: true,
+          }
+        }
+      );
 
-              // 2. Update the Ring (25% of 100 is the goal, so we map 0-25 to 0-100%)
-              const progress = currentVal / 25; 
-              const offset = ringTotalLength - (progress * ringTotalLength);
-              successRing.style.strokeDashoffset = offset.toString();
-            }
+      // 2. Slide the Cards out horizontally (Locked to physical screen center)
+      if (statCards.length > 1) {
+        
+        // Calculate the total physical distance the cards will fan out (300px per card)
+        const cardOffset = 300;
+        const maxDealDistance = (statCards.length - 1) * cardOffset; 
+        
+        // Create a single timeline to sequence the animations
+        const cardTimeline = gsap.timeline({
+          scrollTrigger: {
+            trigger: track,
+            // START: When the base card hits exactly the center of the screen
+            start: () => `${getScrollPos(metricsSection.offsetLeft - window.innerWidth * 0.2)}px top`,
+            // END: Exactly when the physical location of the final card hits the center
+            end: () => `${getScrollPos(metricsSection.offsetLeft + maxDealDistance - window.innerWidth * 0.5)}px top`,
+            scrub: 1, 
+          }
+        });
+
+        // Loop through the cards, starting at index 1 (the second card)
+        for (let i = 1; i < statCards.length; i++) {
+          
+          // Select the current card AND all cards underneath it
+          const movingStack = statCards.slice(i); 
+          
+          // Add a step to the timeline
+          cardTimeline.to(movingStack, {
+            x: i * cardOffset, // Move the stack out 300px
+            ease: "none", // CRITICAL: Use "none" so the movement perfectly tracks your scroll wheel 1:1
+          });
+        }
+      }
+    } // Ensure this closing brace is here!
+
+    if (roiSection && roiCounter && roiWrapper) {
+      const roiObj = { val: 1.0 };
+      
+      const getScrollPos = (horizontalPos: number) => {
+        const totalHorizontal = strip.scrollWidth - window.innerWidth;
+        const totalVertical = track.offsetHeight - window.innerHeight;
+        return (horizontalPos / totalHorizontal) * totalVertical;
+      };
+
+      // Create a master timeline for the whole "Amplification" sequence
+      const roiTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: track,
+          // DELAYED START: Wait until the right column is actually visible
+          start: () => `${getScrollPos(roiSection.offsetLeft - window.innerWidth * 0.3)}px top`,
+          // DELAYED END: Finish deep into the section so you have time to watch it
+          end: () => `${getScrollPos(roiSection.offsetLeft + window.innerWidth * 0.6)}px top`,
+          scrub: 1, 
+        }
+      });
+
+      // 0. NEW: Scale the word "ROI." from small (50%) to full size (100%)
+      if (roiWord) {
+        roiTl.fromTo(roiWord, 
+          { scale: 0.5, opacity: 0.5 }, 
+          { scale: 1, opacity: 1, ease: "power2.out" }, 
+        0); 
+      }
+
+      // 1. The Counter: 1.0 to 4.0
+      roiTl.to(roiObj, {
+        val: 4.0,
+        ease: "none",
+        onUpdate: () => {
+          roiCounter.innerText = roiObj.val.toFixed(1); 
+        }
+      }, 0); 
+
+      // 2. The Scale: Start tiny, grow massive
+      roiTl.fromTo(roiWrapper, 
+        { scale: 0.3, opacity: 0 },
+        { scale: 1, opacity: 1, ease: "power2.out" }, 
+      0);
+
+      // 3. The Reverb Snap: Pull the ghosts from wide/distorted into center focus
+      roiGhosts.forEach((ghost, i) => {
+         const dir = i === 0 ? -1 : 1; 
+         roiTl.fromTo(ghost,
+           { x: 150 * dir, y: -80 * dir, scale: 1.5, rotation: 10 * dir },
+           { x: 0, y: 0, scale: 1, rotation: 0, ease: "power3.out" },
+         0);
+      });
+
+      // 4. The Shockwaves: Explode the background rings outward
+      roiWaves.forEach((wave, i) => {
+         roiTl.to(wave, {
+            width: `${60 + (i * 30)}vw`,
+            height: `${60 + (i * 30)}vw`,
+            opacity: 0, 
+            ease: "power2.out"
+         }, 0);
+      });
+    }
+
+    // SUCCESS COUNTER LOGIC
+    if (successCounter && successSection && successRing) {
+      
+      const getScrollPos = (horizontalPos: number) => {
+        const totalHorizontal = strip.scrollWidth - window.innerWidth;
+        const totalVertical = track.offsetHeight - window.innerHeight;
+        return (horizontalPos / totalHorizontal) * totalVertical;
+      };
+
+      // The exact physical scroll window:
+      // Starts when the counter enters the right edge (0.5)
+      // Ends exactly when it hits dead-center of the screen (0.85)
+      const startTrigger = () => `${getScrollPos(successSection.offsetLeft + window.innerWidth * 0.5)}px top`;
+      const endTrigger = () => `${getScrollPos(successSection.offsetLeft + window.innerWidth * 0.85)}px top`;
+
+      // 1. Natively animate the SVG Ring
+      gsap.fromTo(successRing, 
+        { strokeDashoffset: 282.7 },
+        {
+          strokeDashoffset: 0, // 0 means the stroke covers the entire circle!
+          ease: "none",
+          scrollTrigger: {
+            trigger: track,
+            start: startTrigger,
+            end: endTrigger,
+            scrub: true, 
+          }
+        }
+      );
+
+      // 2. Natively animate the Number using GSAP's text snapping
+      gsap.fromTo(successCounter, 
+        { innerText: 0 },
+        {
+          innerText: 25,
+          snap: { innerText: 1 }, // Forces GSAP to only render clean whole numbers
+          ease: "none",
+          scrollTrigger: {
+            trigger: track,
+            start: startTrigger,
+            end: endTrigger,
+            scrub: true, 
           }
         }
       );
