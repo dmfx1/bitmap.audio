@@ -30,9 +30,9 @@ const sections = [
       </div>
     </div>
 
-    <div id="scroll-track" class="relative w-full h-[1100vh]">
+    <div id="scroll-track" class="relative w-full h-[1600vh]">
       
-      <div class="absolute left-0 top-0 w-24 h-full z-50 pointer-events-none flex flex-col">
+      <div id="sidebar-track" class="absolute left-0 top-0 w-24 h-full z-50 pointer-events-none hidden md:flex flex-col">
         {sections.map((sec, index) => (
           <aside class="h-screen w-full border-r border-border/20 bg-background/80 backdrop-blur-md flex flex-col items-center justify-center gap-8 shadow-[20px_0_40px_-15px_rgba(0,0,0,0.5)]">
             <span class="font-mono text-muted-foreground text-[10px] tracking-widest rotate-180 [writing-mode:vertical-lr] uppercase">{sec.label}</span>
@@ -48,7 +48,7 @@ const sections = [
         
         <div id="horizontal-strip" class="flex w-max h-full will-change-transform">
           
-          <section class="relative w-[90vw] md:w-[75vw] h-full flex-shrink-0 flex flex-col justify-center pl-32 pr-8 md:pl-48 md:pr-16 group bg-background z-10">
+          <section data-sidebar="0" class="relative w-[90vw] md:w-[75vw] h-full flex-shrink-0 flex flex-col justify-center pl-4 pr-4 md:pl-48 md:pr-16 group bg-background z-10">
             <div class="absolute -right-20 bottom-0 text-[35vw] font-mono font-bold text-muted/5 select-none pointer-events-none transition-transform duration-1000 group-hover:scale-105 z-0">00</div>
             <div class="relative z-10 pl-8 py-2">
               <span class="text-eyebrow mb-8 block">[ Status // Critical ]</span>
@@ -63,7 +63,7 @@ const sections = [
             </div>
           </section>
 
-          <section class="w-[110vw] md:w-[100vw] h-full flex-shrink-0 flex items-center relative group bg-transparent z-20">
+          <section data-sidebar="1" class="w-[200vw] md:w-[100vw] h-full flex-shrink-0 flex items-center relative group bg-transparent z-20">
   
             <div class="absolute top-0 -left-[15vw] md:-left-[0vw] w-[60vw] md:w-[50vw] h-full hidden md:flex items-end justify-center pointer-events-none opacity-80 mix-blend-screen z-0">
               <div class="relative w-full max-w-2xl -mb-10 transition-transform duration-1000 group-hover:scale-105">
@@ -90,7 +90,7 @@ const sections = [
             </div>
           </section>
 
-          <section class="w-[100vw] h-full flex-shrink-0 relative border-r border-border/20 bg-primary/80 overflow-hidden group z-10 flex flex-col justify-center">
+          <section data-sidebar="2" class="w-[200vw] md:w-[100vw] h-full flex-shrink-0 relative border-r border-border/20 bg-primary/80 overflow-hidden group z-10 flex flex-col justify-center">
 
             <div class="absolute right-[-2vw] top-1/2 -translate-y-1/2 w-[55vw] h-[95vh] pointer-events-none z-0 opacity-80">
               <svg viewBox="50 200 650 800" class="w-full h-full overflow-visible">
@@ -131,7 +131,7 @@ const sections = [
               </svg>
             </div>
 
-            <div class="pl-32 pr-0 md:pl-72 md:pr-0 relative z-10 w-full max-w-4xl">
+            <div class="pl-4 pr-0 md:pl-72 md:pr-0 relative z-10 w-full max-w-4xl">
               <div class="pl-8 py-2">
                 <span class="text-eyebrow mb-8 block text-background">[ Architecture // Recall ]</span>
                 <h2 class="font-mono text-5xl md:text-8xl leading-tight mb-8 uppercase text-foreground">Sound as a<br/><span class="text-accent drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">Data Map.</span></h2>
@@ -143,15 +143,15 @@ const sections = [
 
           </section>
 
-          <section class="w-[110vw] h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-card/30 overflow-hidden relative group z-10">
+          <section data-sidebar="3" class="w-[200vw] md:w-[110vw] h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-card/30 overflow-hidden relative group z-10">
 
             <div class="absolute right-30 -bottom-[20vh] w-[100vw] h-full flex items-end justify-end mix-blend-screen pointer-events-none z-0">
                <img id="tiger-focus-layer" src="/images/stalking.sabretooth.png" alt="Sabretooth snapping a twig" 
                     class="w-full h-auto object-contain object-right-bottom opacity-0 blur-[30px] transition-transform duration-1000 group-hover:scale-[1.02]" />
             </div>
 
-            <div class="flex flex-col items-end justify-center pl-32 pr-8 md:pl-54 md:pr-32 relative z-10 border-l border-border/20 bg-background/40">
-              <div class="border-l-2 border-accent ml-36 pl-8 py-2">
+            <div class="flex flex-col items-end justify-center pl-4 pr-4 md:pl-54 md:pr-32 relative z-10 border-l border-border/20 bg-background/40">
+              <div class="border-l-2 border-accent ml-0 md:ml-36 pl-8 py-2">
                 <span class="text-eyebrow mb-8 block text-accent">[ Neurology // Processing_Speed ]</span>
                 <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 uppercase">Faster than<br/><span class="text-accent">Sight.</span></h2>
                 <p class="font-sans text-xl text-muted-foreground leading-relaxed mb-8">
@@ -173,7 +173,7 @@ const sections = [
 
           </section>
 
-          <section class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center text-right pl-32 pr-8 md:px-48 relative border-r border-border/20 bg-accent/5 overflow-hidden group z-10">
+          <section data-sidebar="4" class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center text-right pl-4 pr-4 md:px-48 relative border-r border-border/20 bg-accent/5 overflow-hidden group z-10">
             <div class="absolute inset-0 radial-gradient-center opacity-20 pointer-events-none"></div>
             <div class="pl-8 py-2 max-w-4xl relative z-10">
               <span class="text-eyebrow text-accent mb-8 block">[ Neurology // Echoic_Memory ]</span>
@@ -199,7 +199,7 @@ const sections = [
             </div>
           </section>
 
-          <section id="metrics-section" class="w-[120vw] h-full flex-shrink-0 flex items-center justify-start pl-32 pr-8 md:pl-48 relative border-r border-border/20 bg-card/20 overflow-hidden group z-10">
+          <section id="metrics-section" data-sidebar="5" class="w-[120vw] h-full flex-shrink-0 hidden md:flex items-center justify-start pl-4 pr-4 md:pl-48 relative border-r border-border/20 bg-card/20 overflow-hidden group z-10">
             <div class="w-full max-w-5xl border-l-2 border-accent pl-8 py-2">
               <span class="text-eyebrow mb-8 block">[ Metrics // Awareness ]</span>
               
@@ -236,13 +236,42 @@ const sections = [
             </div>
           </section>
 
-          <section id="roi-section" class="w-[120vw] h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-background overflow-hidden relative group z-10">
-            <div class="w-5/6 flex flex-col justify-center pl-32 pr-8 md:pl-48 md:pr-16 relative z-10">
-              <div class="ml-12 pl-8 py-2">
+          <!-- Mobile-only: Recall under Pressure stat slides (one per card) -->
+          <section class="w-screen h-full flex-shrink-0 md:hidden flex flex-col items-center justify-center text-center px-8 bg-card/20 border-r border-border/20 relative z-10">
+            <span class="font-mono text-accent text-[10px] tracking-widest uppercase mb-8 block opacity-60">[ Metrics // Awareness ]</span>
+            <span class="font-mono text-[24vw] leading-none text-accent font-bold tracking-tighter drop-shadow-[0_0_30px_hsl(var(--accent)/0.5)]">191%</span>
+            <div class="w-12 h-[2px] bg-accent/40 my-8"></div>
+            <p class="font-sans text-muted-foreground text-base leading-relaxed max-w-xs">Lift in brand awareness within the first two seconds of exposure.</p>
+          </section>
+
+          <section class="w-screen h-full flex-shrink-0 md:hidden flex flex-col items-center justify-center text-center px-8 bg-background border-r border-border/20 relative z-10">
+            <span class="font-mono text-accent text-[10px] tracking-widest uppercase mb-8 block opacity-60">[ Metrics // Efficiency ]</span>
+            <span class="font-mono text-[24vw] leading-none text-accent font-bold tracking-tighter drop-shadow-[0_0_30px_hsl(var(--accent)/0.5)]">12x</span>
+            <div class="w-12 h-[2px] bg-accent/40 my-8"></div>
+            <p class="font-sans text-muted-foreground text-base leading-relaxed max-w-xs">More efficient at driving business results than visual-only advertising.</p>
+          </section>
+
+          <section class="w-screen h-full flex-shrink-0 md:hidden flex flex-col items-center justify-center text-center px-8 bg-card/20 border-r border-border/20 relative z-10">
+            <span class="font-mono text-accent text-[10px] tracking-widest uppercase mb-8 block opacity-60">[ Metrics // Recall ]</span>
+            <span class="font-mono text-[24vw] leading-none text-accent font-bold tracking-tighter drop-shadow-[0_0_30px_hsl(var(--accent)/0.5)]">30%</span>
+            <div class="w-12 h-[2px] bg-accent/40 my-8"></div>
+            <p class="font-sans text-muted-foreground text-base leading-relaxed max-w-xs">Brand recall delivered even during highly distracted environments.</p>
+          </section>
+
+          <section class="w-screen h-full flex-shrink-0 md:hidden flex flex-col items-center justify-center text-center px-8 bg-background border-r border-border/20 relative z-10">
+            <span class="font-mono text-accent text-[10px] tracking-widest uppercase mb-8 block opacity-60">[ Metrics // Engagement ]</span>
+            <span class="font-mono text-[24vw] leading-none text-accent font-bold tracking-tighter drop-shadow-[0_0_30px_hsl(var(--accent)/0.5)]">78%</span>
+            <div class="w-12 h-[2px] bg-accent/40 my-8"></div>
+            <p class="font-sans text-muted-foreground text-base leading-relaxed max-w-xs">Recall rate when listeners are actively tuned into audio advertising.</p>
+          </section>
+
+          <section id="roi-section" data-sidebar="6" class="w-[120vw] h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-background overflow-hidden relative group z-10">
+            <div class="w-5/6 flex flex-col justify-center pl-4 pr-4 md:pl-48 md:pr-16 relative z-10">
+              <div class="ml-0 md:ml-12 pl-8 py-2">
                 <span class="text-eyebrow mb-8 block">[ Capital // Conversion ]</span>
                 <h2 class="font-mono text-5xl md:text-6xl leading-[1.1] mb-8 uppercase flex flex-col items-start">
                   <span>Amplified</span>
-                  <span id="roi-word" class="text-accent md:text-9xl inline-block origin-top-left leading-none mt-0">ROI.</span>
+                  <span id="roi-word" class="text-accent md:text-8xl inline-block origin-top-left leading-none mt-2">ROI.</span>
                 </h2>
                 <p class="font-sans text-xl text-muted-foreground leading-relaxed mb-6">
                   Bespoke sonic assets don't just increase views - they drive behaviour. We see a significant lift in both purchase intent and pricing power.
@@ -265,8 +294,8 @@ const sections = [
 
                <div id="roi-text-wrapper" class="relative flex items-center justify-center h-[20vw] w-full mt-12">
                    
-                   <h3 class="roi-ghost absolute font-mono text-[18vw] leading-none text-primary/30 blur-[12px] font-bold tracking-tighter mix-blend-screen">4.0x</h3>
-                   <h3 class="roi-ghost absolute font-mono text-[18vw] leading-none text-primary/60 blur-[6px] font-bold tracking-tighter mix-blend-screen">4.0x</h3>
+                   <h3 class="roi-ghost absolute font-mono text-[24vw] leading-none text-primary/20 blur-[24px] font-bold tracking-tighter mix-blend-screen">4.0x</h3>
+                   <h3 class="roi-ghost absolute font-mono text-[21vw] leading-none text-primary/50 blur-[12px] font-bold tracking-tighter mix-blend-screen">4.0x</h3>
                    
                    <h3 class="relative z-10 font-mono text-[18vw] leading-none text-primary font-bold tracking-tighter drop-shadow-[0_0_40px_hsl(var(--primary)/0.6)]">
                      <span id="roi-counter">1.0</span><span class="text-[8vw] text-foreground ml-2">x</span>
@@ -277,9 +306,9 @@ const sections = [
             </div>
           </section>
 
-          <section id="success-section" class="w-[180vw] h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-foreground/90 overflow-hidden relative group z-10">
-            <div class="flex flex-col justify-center pl-32 pr-8 md:pl-16 md:pr-32 relative z-10">
-              <div class="w-1/2 border-l-2 border-accent ml-72 pl-8 py-2">
+          <section id="success-section" data-sidebar="7" class="w-[180vw] h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-foreground/90 overflow-hidden relative group z-10">
+            <div class="flex flex-col justify-center pl-4 pr-4 md:pl-16 md:pr-32 relative z-10">
+              <div class="w-full md:w-1/2 border-l-2 border-accent ml-0 md:ml-72 pl-8 py-2">
                 <span class="text-eyebrow text-background/80 mb-8 block">[ UX // Credibility ]</span>
                 <h2 class="font-mono text-5xl md:text-6xl leading-[1.1] mb-8 uppercase flex flex-col items-start">
                   <span id="subconscious-word" class="bg-gradient-to-r from-foreground/10 via-foreground to-foreground/10 bg-clip-text text-transparent bg-[length:200%_auto] bg-[position:200%_center] inline-block">
@@ -318,7 +347,7 @@ const sections = [
             </div>
           </section>
 
-          <section class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center text-right pl-32 pr-8 md:px-48 relative border-r border-border/20 bg-primary/20 overflow-hidden group z-10">
+          <section data-sidebar="8" class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center text-right pl-4 pr-4 md:px-48 relative border-r border-border/20 bg-primary/20 overflow-hidden group z-10">
             <div class="absolute inset-0 radial-gradient-center opacity-20 pointer-events-none"></div>
             <div class="pl-8 py-2 max-w-4xl relative z-10">
               <span class="text-eyebrow text-accent mb-8 block">[ Perception // The Edge ]</span>
@@ -329,12 +358,23 @@ const sections = [
               </h2>
               
               <p class="font-sans text-2xl text-muted-foreground leading-relaxed">
-                Brands that implement cohesive sonic strategies aren't just remembered—they are perceived differently. Audio integration drives higher perceptions of innovation, technical competence, and overall advertising strength.
+                Consumers inherently view brands that utilise strategic sound as more forward-thinking. Data shows that 60% of consumers believe brands that use sound in their communications are more innovative.
               </p>
             </div>
           </section>
 
-          <section class="relative w-[90vw] md:w-[75vw] h-full flex-shrink-0 flex flex-col justify-center pl-32 pr-8 md:pl-48 md:pr-16 group bg-background z-10">
+          <section class="w-[50vw] bg-primary/10 h-full flex-shrink-0 border-l-[10px] border-border/20 overflow-hidden relative group z-10 flex flex-col justify-center">
+            <div class="hidden md:flex flex-col items-center justify-center w-full relative overflow-hidden pointer-events-none z-10 text-center">
+               <div class="absolute inset-0 bg-gradient-glow opacity-10"></div>
+               <h3 class="flex items-start font-mono w-3/4 text-[2vw] leading-none text-foreground font-light tracking-tighter drop-shadow-md">
+                 An untapped opportunity for SME's
+               </h3>
+               <br/>
+               <span class="font-mono w-3/4 text-foreground/50 tracking-[0.6em] uppercase mt-4 drop-shadow-md text-justify leading-[2em]">Sonic branding drives <span class="text-foreground text-lg">loyalty, equity, </span>and <span class="text-foreground text-lg">purchase decisions</span> — yet it remains the exclusive domain of global giants.<br/><br/><span class="text-foreground/80 text-xl">SME's make up 90% of businesses worldwide,</span> but most are leaving audio completely untapped.<br/><br/><span class="text-foreground text-base">That's not a gap.</span><br/><br/><span class="text-accent text-sm">That's an opportunity.</span></span>
+            </div>
+          </section>
+
+          <section data-sidebar="9" class="relative w-[90vw] md:w-[75vw] h-full flex-shrink-0 flex flex-col justify-center pl-4 pr-4 md:pl-48 md:pr-16 group bg-background z-10">
             <div class="absolute -right-20 bottom-0 text-[35vw] font-mono font-bold text-muted/5 select-none pointer-events-none transition-transform duration-1000 group-hover:scale-105 z-0">00</div>
             <div class="relative z-10 pl-8 py-2">
               <span class="text-eyebrow mb-8 block">[ Localisation // Borders ]</span>
@@ -349,7 +389,7 @@ const sections = [
             </div>
           </section>
 
-          <section class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center text-left pl-32 pr-8 md:px-48 relative border-r border-border/20 bg-primary/5 overflow-hidden group z-10">
+          <section class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center text-left pl-4 pr-4 md:px-48 relative border-r border-border/20 bg-primary/5 overflow-hidden group z-10">
             <div class="pl-8 py-2 z-10">
               <span class="text-eyebrow mb-8 block">[ Asset // Ownership ]</span>
               <h2 class="font-mono text-5xl md:text-[6vw] leading-[1.1] tracking-tighter mb-8 uppercase text-foreground">
@@ -361,8 +401,8 @@ const sections = [
             </div>
           </section>
 
-          <section class="w-[120vw] h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-accent overflow-hidden relative group z-10">
-            <div class="flex flex-col justify-center pl-32 pr-8 md:pl-48 md:pr-16 relative z-10">
+          <section data-sidebar="10" class="w-[120vw] h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-accent overflow-hidden relative group z-10">
+            <div class="flex flex-col justify-center pl-4 pr-4 md:pl-48 md:pr-16 relative z-10">
               <div class="border-l-2 border-accent pl-8 py-2">
                 <span class="text-eyebrow text-background mb-8 block">[ Belief // Power ]</span>
                 <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 uppercase">In Sound<br/>we <span class="text-background text-7xl drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">Trust.</span></h2>
@@ -378,7 +418,7 @@ const sections = [
             </div>
           </section>
 
-          <section class="w-screen h-full flex-shrink-0 flex flex-col items-center justify-center text-center pl-32 pr-8 md:pl-48 md:pr-32 relative overflow-hidden group bg-background z-10">
+          <section data-sidebar="11" class="w-screen h-full flex-shrink-0 flex flex-col items-center justify-center text-center pl-4 pr-4 md:pl-48 md:pr-32 relative overflow-hidden group bg-background z-10">
              <div class="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
                <div class="w-[60vw] h-[60vw] border border-accent rounded-full animate-ping [animation-duration:4s]"></div>
                <div class="absolute w-[30vw] h-[30vw] border border-primary rounded-full animate-ping [animation-duration:2s] delay-1000"></div>
@@ -447,7 +487,8 @@ const sections = [
     const roiWrapper = document.querySelector("#roi-text-wrapper");
     const roiGhosts = gsap.utils.toArray(".roi-ghost") as HTMLElement[];
     const roiWaves = gsap.utils.toArray(".roi-wave") as HTMLElement[];
-    const roiWord = document.querySelector("#roi-word"); // New ROI word element
+    const roiWord = document.querySelector("#roi-word");
+    const ghostCounters = document.querySelectorAll(".ghost-counter");
 
     //Success Counter Elements
     const successSection = document.querySelector("#success-section") as HTMLElement; // Add 'as HTMLElement'
@@ -456,6 +497,19 @@ const sections = [
 
 
     if (!strip || !track) return;
+
+    const isMobile = window.innerWidth < 768;
+
+    if (isMobile) {
+      // On mobile each 100vw of strip content = 1 screen-height of scroll,
+      // so the scroll feel matches a normal page (one swipe = one slide).
+      // Wide sections (200vw) naturally take two screen-heights — the Option A dwell effect.
+      track.style.height = `${Math.ceil((strip.scrollWidth / window.innerWidth) * window.innerHeight + window.innerHeight)}px`;
+    }
+
+    // Returns an absolute scroll position as a fraction of the total scrollable range,
+    // so all triggers scale correctly regardless of track height.
+    const scrollAt = (fraction: number) => (track.offsetHeight - window.innerHeight) * fraction;
 
     gsap.to(strip, {
       x: () => -(strip.scrollWidth - window.innerWidth),
@@ -494,14 +548,45 @@ const sections = [
       });
     }
 
+    // Measure where each sidebar section actually centers horizontally,
+    // then resize asides and set indicator triggers to match those real positions.
+    const sidebarEl = document.getElementById('sidebar-track') as HTMLElement;
+    const sidebarAsides = sidebarEl ? (Array.from(sidebarEl.querySelectorAll('aside')) as HTMLElement[]) : [];
+    const sidebarSections = (Array.from(strip.querySelectorAll('[data-sidebar]')) as HTMLElement[])
+      .sort((a, b) => parseInt(a.dataset.sidebar!) - parseInt(b.dataset.sidebar!));
+
+    const totalH = strip.scrollWidth - window.innerWidth;
+    const totalV = track.offsetHeight - window.innerHeight;
+
+    // Vertical scroll position at which each section is horizontally centered
+    const sectionScrollPos = sidebarSections.map(sec => {
+      const centerH = sec.offsetLeft + sec.offsetWidth / 2 - window.innerWidth / 2;
+      return Math.max(0, (centerH / totalH) * totalV);
+    });
+
+    // Resize each aside so its vertical center is at the viewport midpoint
+    // exactly when scrollY equals that section's horizontal center position.
+    let cumTop = 0;
+    sidebarAsides.forEach((aside, i) => {
+      if (i >= sectionScrollPos.length) return;
+      const targetDocCenter = sectionScrollPos[i] + window.innerHeight / 2;
+      const height = Math.max(window.innerHeight * 0.5, 2 * (targetDocCenter - cumTop));
+      aside.style.height = `${height}px`;
+      cumTop += height;
+    });
+
+    // Indicator lines animate across each section's scroll window
     indicators.forEach((ind, i) => {
+      if (i >= sectionScrollPos.length) return;
+      const start = sectionScrollPos[i];
+      const end = i + 1 < sectionScrollPos.length ? sectionScrollPos[i + 1] : totalV;
       gsap.to(ind, {
         scaleY: 1,
         ease: "none",
         scrollTrigger: {
           trigger: track,
-          start: () => `${i * window.innerHeight}px top`,
-          end: () => `${(i + 1) * window.innerHeight}px top`,
+          start: `${start}px top`,
+          end: `${end}px top`,
           scrub: true,
         }
       });
@@ -518,6 +603,14 @@ const sections = [
         window.scrollBy({ top: -slideHeight, behavior: 'smooth' });
       }
     });
+
+    // On mobile, set animated elements to their end states and skip all
+    // scroll-driven animations — the horizontal scroll handles navigation.
+    if (isMobile) {
+      if (visualsFadeText) gsap.set(visualsFadeText, { opacity: 0.05 });
+      if (soundGrowText) gsap.set(soundGrowText, { scale: 1.2 });
+      return;
+    }
 
     // THE 3-STEP STAGGERED FADE LOGIC (Woman on Left)
     if (phoneFadeLayer && bookFadeLayer && baseHandsLayer) {
@@ -578,8 +671,8 @@ const sections = [
           scrollTrigger: {
             trigger: track,
             // Start fading in after arriving securely in Section 01
-            start: () => `${window.innerHeight * 0.7}px top`,
-            end: () => `${window.innerHeight * 1.2}px top`,
+            start: () => `${scrollAt(0.07)}px top`,
+            end: () => `${scrollAt(0.12)}px top`,
             scrub: true,
           }
         }
@@ -602,8 +695,8 @@ const sections = [
           ease: "none", // Linear fade feels more 'technical'
           scrollTrigger: {
             trigger: track,
-            start: () => `${window.innerHeight * 1.1}px top`, 
-            end: () => `${window.innerHeight * 1.3}px top`,
+            start: () => `${scrollAt(0.11)}px top`,
+            end: () => `${scrollAt(0.13)}px top`,
             scrub: true,
           }
         }
@@ -616,8 +709,8 @@ const sections = [
         ease: "power1.inOut",
         scrollTrigger: {
           trigger: track,
-          start: () => `${window.innerHeight * 1.2}px top`,
-          end: () => `${window.innerHeight * 1.7}px top`,
+          start: () => `${scrollAt(0.12)}px top`,
+          end: () => `${scrollAt(0.17)}px top`,
           scrub: true,
         }
       });
@@ -638,9 +731,8 @@ const sections = [
           scrollTrigger: {
             trigger: track,
             // Trigger 2.8 screens down (As the Processing Speed section slides in)
-            start: () => `${window.innerHeight * 1.8}px top`,
-            // Finish 3.4 screens down (When the section is centered)
-            end: () => `${window.innerHeight * 2.7}px top`,
+            start: () => `${scrollAt(0.18)}px top`,
+            end: () => `${scrollAt(0.27)}px top`,
             scrub: true,
           }
         }
@@ -657,9 +749,8 @@ const sections = [
           scrollTrigger: {
             trigger: track,
             // Starts fading as the section reaches the center of the screen
-            start: () => `${window.innerHeight * 2.7}px top`,
-            // Finishes fading shortly after
-            end: () => `${window.innerHeight * 3.2}px top`,
+            start: () => `${scrollAt(0.27)}px top`,
+            end: () => `${scrollAt(0.32)}px top`,
             scrub: true,
           }
         }
@@ -675,8 +766,8 @@ const sections = [
           ease: "none",
           scrollTrigger: {
             trigger: track,
-            start: () => `${window.innerHeight * 2.75}px top`,
-            end: () => `${window.innerHeight * 3.5}px top`,
+            start: () => `${scrollAt(0.275)}px top`,
+            end: () => `${scrollAt(0.35)}px top`,
             scrub: true,
           }
         }
@@ -691,9 +782,8 @@ const sections = [
         ease: "sine.inOut",   // Smooth direction changes
         scrollTrigger: {
           trigger: track,
-          // Use the exact same start/end window as your fade/scale
-          start: () => `${window.innerHeight * 3}px top`,
-          end: () => `${window.innerHeight * 6}px top`,
+          start: () => `${scrollAt(0.3)}px top`,
+          end: () => `${scrollAt(0.6)}px top`,
           // Instead of scrubbing, just play/pause the vibration based on visibility
           toggleActions: "play pause resume pause" 
         }
@@ -718,9 +808,9 @@ const sections = [
           scrollTrigger: {
             trigger: track,
             // Start drawing when section is entering
-            start: () => `${getScrollPos(metricsSection.offsetLeft - window.innerWidth * 0.8)}px top`,
+            start: () => `${getScrollPos(metricsSection.offsetLeft - window.innerWidth * 0.4)}px top`,
             // Finish drawing exactly when centered
-            end: () => `${getScrollPos(metricsSection.offsetLeft - window.innerWidth * 0)}px top`,
+            end: () => `${getScrollPos(metricsSection.offsetLeft - window.innerWidth * 0.1)}px top`,
             scrub: true,
           }
         }
@@ -794,26 +884,46 @@ const sections = [
         val: 4.0,
         ease: "none",
         onUpdate: () => {
-          roiCounter.innerText = roiObj.val.toFixed(1); 
+          const currentText = roiObj.val.toFixed(1); 
+          
+          // Update the main center number
+          roiCounter.innerText = currentText; 
+          
+          // Update the blurred ghost outlines so they count up in perfect sync!
+          roiGhosts.forEach(ghost => {
+            ghost.innerText = currentText + "x";
+          });
         }
-      }, 0); 
+      }, 0);
 
-      // 2. The Scale: Start tiny, grow massive
+      // 2. (Main Wrapper scale remains unchanged)
       roiTl.fromTo(roiWrapper, 
         { scale: 0.3, opacity: 0 },
         { scale: 1, opacity: 1, ease: "power2.out" }, 
       0);
 
-      // 3. The Reverb Snap: Pull the ghosts from wide/distorted into center focus
+      // 3. NEW: The Halo Bloom. Ghosts scale centrally behind the main number.
       roiGhosts.forEach((ghost, i) => {
-         const dir = i === 0 ? -1 : 1; 
+         // Deep blur (index 0) starts HUGE and completely faint.
+         // Mid blur (index 1) starts slightly smaller.
+         const startScale = i === 0 ? 3 : 2; 
+         
          roiTl.fromTo(ghost,
-           { x: 150 * dir, y: -80 * dir, scale: 1.5, rotation: 10 * dir },
-           { x: 0, y: 0, scale: 1, rotation: 0, ease: "power3.out" },
+           { 
+            // Pinned centrally (x: 0, y: 0)
+            x: 0, y: 0, rotation: 0,
+            scale: startScale, // Start huge
+            opacity: 0,       // Start invisible
+           },
+           { 
+            scale: 1,         // Settle to their HTML defined large size
+            opacity: 1,       // Become visible blurred outlines
+            ease: "power3.out" 
+           },
          0);
       });
 
-      // 4. The Shockwaves: Explode the background rings outward
+      // 4. (Shockwaves remain unchanged)
       roiWaves.forEach((wave, i) => {
          roiTl.to(wave, {
             width: `${60 + (i * 30)}vw`,
@@ -836,8 +946,8 @@ const sections = [
       // The exact physical scroll window:
       // Starts when the counter enters the right edge (0.5)
       // Ends exactly when it hits dead-center of the screen (0.85)
-      const startTrigger = () => `${getScrollPos(successSection.offsetLeft + window.innerWidth * 0.5)}px top`;
-      const endTrigger = () => `${getScrollPos(successSection.offsetLeft + window.innerWidth * 0.85)}px top`;
+      const startTrigger = () => `${getScrollPos(successSection.offsetLeft + window.innerWidth * 0.25)}px top`;
+      const endTrigger = () => `${getScrollPos(successSection.offsetLeft + window.innerWidth * 0.95)}px top`;
 
       // 1. Natively animate the SVG Ring
       gsap.fromTo(successRing, 
