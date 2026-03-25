@@ -33,7 +33,7 @@ export default function Hero() {
 
   return (
       <div className="w-full"> {/* Changed from section to div */}
-        <div className="mx-auto px-10 flex flex-col md:flex-row items-center justify-between gap-16 min-h-[80vh]">
+        <div className="mx-auto px-4 md:px-10 flex flex-col md:flex-row items-center justify-between gap-16 min-h-[80vh]">
           
           {/* TEXT CONTENT */}
           <div className="flex-1 space-y-8 animate-fade-in-up">
@@ -42,7 +42,7 @@ export default function Hero() {
               <h1 className="heading-hero">
                 Where data <br /> meets 
                 <span className={`text-accent font-medium block md:inline ${phase === 'active' ? 'pulse-sync-active' : ''}`}>
-                  <br className="" /> emotion
+                  <br className="hidden md:block" /> emotion
                 </span>
               </h1>
             </div>
@@ -52,11 +52,11 @@ export default function Hero() {
             
             <div className="flex items-center gap-6">
               <a href="/about">
-                <Button variant="default" size="xl" className="rounded-none">
+                <Button variant="default" size="xl" className="rounded-none px-4 py-2 text-xs md:px-8 md:text-base">
                   OUR STORY
                 </Button>
               </a>
-              <Button variant="outline" size="xl" className="morph-accent rounded-none">
+              <Button variant="outline" size="xl" className="morph-accent rounded-none px-4 py-2 text-xs md:px-8 md:text-base">
                 <a href="/contact">Start A Project</a>
               </Button>
             </div>

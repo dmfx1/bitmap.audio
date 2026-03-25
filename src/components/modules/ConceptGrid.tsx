@@ -182,7 +182,7 @@ function ProjectCard({
           // ADDED: 'cursor-pointer' to trigger the button's cursor logic
           // ADDED: 'transition-transform' to match button feel
           "absolute inset-0 group p-8 md:p-10 border transition-all duration-500 ease-out overflow-hidden flex flex-col justify-between cursor-pointer",
-          "bg-card/90 backdrop-blur-md shadow-lg",
+          "bg-card/60 md:bg-card/90 backdrop-blur-md shadow-lg",
           shouldBePlaying ? "border-accent scale-[1.05] z-50 shadow-2xl" : "border-muted-foreground z-10 scale-100",
         )}
       >

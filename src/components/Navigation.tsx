@@ -26,6 +26,7 @@ const why = [
 
 const Navigation = ({ currentPath }: { currentPath: string }) => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isSolutionsOpen, setIsSolutionsOpen] = useState(false);
   const isActive = (path: string) => currentPath === path;
 
   return (
@@ -112,24 +113,37 @@ const Navigation = ({ currentPath }: { currentPath: string }) => {
           </div>
 
           {/* MOBILE TOGGLE */}
-          <button className="md:hidden text-foreground" onClick={() => setIsMobileOpen(!isMobileOpen)}>
+          <button className="md:hidden text-foreground" onClick={() => {
+            const next = !isMobileOpen;
+            setIsMobileOpen(next);
+            if (!next) setIsSolutionsOpen(false);
+          }}>
             {isMobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
 
-        {/* MOBILE MENU (Static Click-based) */}
+        {/* MOBILE MENU */}
         {isMobileOpen && (
-          <div className="md:hidden py-6 border-t border-border animate-fade-in">
-            <div className="flex flex-col gap-4">
+          <div className="md:hidden border-t border-border animate-fade-in min-h-[calc(100dvh-4rem)] pb-8">
+            <div className="flex flex-col gap-4 pt-6">
               <a href="/home" className="font-mono text-sm uppercase tracking-wider text-muted-foreground hover:text-primary">Home</a>
               <a href="/about" className="font-mono text-sm uppercase tracking-wider text-muted-foreground hover:text-primary">About</a>
+              <a href="/returns" className="font-mono text-sm uppercase tracking-wider text-muted-foreground hover:text-primary">ROI</a>
               <div className="pt-2 border-t border-border">
-                <span className="font-mono text-xs uppercase tracking-wider text-accent">Solutions</span>
-                <div className="mt-3 flex flex-col gap-3 pl-4">
-                  {solutions.map((s) => (
-                    <a key={s.href} href={s.href} className="font-mono text-sm text-foreground hover:text-primary">{s.name}</a>
-                  ))}
-                </div>
+                <button
+                  className="w-full flex items-center justify-between font-mono text-xs uppercase tracking-wider text-accent"
+                  onClick={() => setIsSolutionsOpen(!isSolutionsOpen)}
+                >
+                  Solutions
+                  <ChevronDown className={cn("w-4 h-4 transition-transform duration-200", isSolutionsOpen && "rotate-180")} />
+                </button>
+                {isSolutionsOpen && (
+                  <div className="mt-3 flex flex-col gap-3 pl-4">
+                    {solutions.map((s) => (
+                      <a key={s.href} href={s.href} className="font-mono text-sm text-foreground hover:text-primary">{s.name}</a>
+                    ))}
+                  </div>
+                )}
               </div>
               <Button variant="outline" size="sm" className="mt-4 w-fit" asChild>
                 <a href="/contact">Contact</a>

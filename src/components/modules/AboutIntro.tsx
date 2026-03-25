@@ -27,7 +27,7 @@ export default function AboutIntro() {
   }, []);
 
   return (
-    <div className="relative w-full py-24 md:py-36 min-h-screen flex flex-col overflow-visible">
+    <div className="relative w-full py-10 md:py-36 min-h-screen flex flex-col overflow-visible">
       
       {/* 1. BACKGROUND SKETCH (Bleeding Layer) */}
       <div 

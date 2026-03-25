@@ -31,8 +31,8 @@ export default function CTA({
       {/* THE ELECTRIC BUTTON: Sharp edges, filled morph */}
       <a href={href}>
         <Button 
-          size="xl" 
-          className="rounded-none bg-primary text-primary-foreground font-mono tracking-widest transition-all duration-300 morph-accent-fill px-10 py-8 text-sm"
+          size="xl"
+          className="rounded-none bg-primary text-primary-foreground font-mono tracking-widest transition-all duration-300 morph-accent-fill px-6 py-4 text-xs md:px-10 md:py-8 md:text-sm"
         >
           {buttonText}
         </Button>

@@ -25,7 +25,7 @@ const services = [
 
 export default function ServicePillars() {
   return (
-    <div className="max-w-[1440px] mx-auto py-24 px-10">
+    <div className="max-w-[1440px] mx-auto py-12 md:py-24 px-4 md:px-10">
       
       {/* HEADER AREA */}
       <div className="text-center mb-20 animate-fade-in-up">
@@ -40,7 +40,7 @@ export default function ServicePillars() {
         {services.map((s, i) => (
           <div 
             key={i} 
-            className="group relative flex flex-col p-10 md:p-12 transition-all duration-500 hover:bg-foreground/[0.02] card-glow overflow-hidden border border-border/20"
+            className="group relative flex flex-col p-6 md:p-12 transition-all duration-500 hover:bg-foreground/[0.02] card-glow overflow-hidden border border-border/20"
           >
             {/* ICON CHANGED TO SOLARIS (text-accent) */}
             <s.icon className="w-8 h-8 text-accent mb-8 transition-all duration-500 group-hover:scale-110 group-hover:drop-shadow-[0_0_8px_rgba(255,165,0,0.5)]" />
