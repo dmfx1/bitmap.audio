@@ -25,9 +25,6 @@ const sections = [
     <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
       <div id="parallax-grid" class="absolute top-0 left-0 w-full h-[200vh] bitmap-grid opacity-[0.05] will-change-transform"></div>
       
-      <div id="parallax-rain" class="absolute top-0 left-0 w-full h-[200vh] opacity-20 will-change-transform">
-        <div class="binary-layer layer-near animate-matrix-rain w-full h-full"></div>
-      </div>
     </div>
 
     <div id="scroll-track" class="relative w-full h-[1600vh]">
@@ -456,8 +453,6 @@ const sections = [
     const indicators = gsap.utils.toArray(".indicator-line") as HTMLElement[];
 
     const parallaxGrid = document.querySelector("#parallax-grid");
-    const parallaxRain = document.querySelector("#parallax-rain");
-
     // Grab the new fading phone layer
     const phoneFadeLayer = document.querySelector("#phone-fade-layer");
     const bookFadeLayer = document.querySelector("#book-fade-layer"); // NEW
@@ -531,19 +526,6 @@ const sections = [
           start: "top top",
           end: "bottom bottom",
           scrub: 0.1, 
-        }
-      });
-    }
-
-    if (parallaxRain) {
-      gsap.to(parallaxRain, {
-        y: "-100vh", 
-        ease: "none",
-        scrollTrigger: {
-          trigger: track,
-          start: "top top",
-          end: "bottom bottom",
-          scrub: 0.1,
         }
       });
     }

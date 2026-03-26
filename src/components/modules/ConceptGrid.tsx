@@ -29,17 +29,19 @@ interface ConceptGridProps {
   sectionTitle?: string;
   items: Concept[];
   className?: string;
-  isScanning?: boolean; 
+  isScanning?: boolean;
   onProjectClick?: (item: Concept) => void;
+  mobileGlow?: boolean;
 }
 
-export default function ConceptGrid({ 
-  eyebrow, 
-  sectionTitle, 
-  items = [], 
-  className, 
-  isScanning: propIsScanning, 
-  onProjectClick 
+export default function ConceptGrid({
+  eyebrow,
+  sectionTitle,
+  items = [],
+  className,
+  isScanning: propIsScanning,
+  onProjectClick,
+  mobileGlow = false,
 }: ConceptGridProps) {
   const [internalScan, setInternalScan] = useState(false);
   const [activeAutoIndex, setActiveAutoIndex] = useState<number | null>(null);
@@ -50,6 +52,7 @@ export default function ConceptGrid({
   // --- SEQUENTIAL AUTOPLAY LOGIC ---
   useEffect(() => {
     if (!activeScan || items.length === 0) return;
+    if (window.innerWidth < 768) return;
 
     let interval: NodeJS.Timeout;
 
@@ -120,18 +123,19 @@ export default function ConceptGrid({
       )}
 
       <div className={cn(
-        "grid grid-cols-1 gap-6 md:gap-8 mx-auto w-full text-left p-4",
+        "grid grid-cols-1 gap-6 md:gap-8 mx-auto w-full text-left px-0 py-4 md:p-4",
         getGridConfig()
       )}>
         {items.map((item, index) => (
-          <ProjectCard 
-            key={item.id || index} 
-            item={item} 
-            isScanning={activeScan} 
+          <ProjectCard
+            key={item.id || index}
+            item={item}
+            isScanning={activeScan}
             forcePlay={activeAutoIndex === index}
             // If user interacts with a card, kill the auto-sequence
             onUserInteraction={() => setActiveAutoIndex(null)}
-            onClick={item.vimeoId && onProjectClick ? () => onProjectClick(item) : undefined} 
+            onClick={item.vimeoId && onProjectClick ? () => onProjectClick(item) : undefined}
+            mobileGlow={mobileGlow}
           />
         ))}
       </div>
@@ -139,18 +143,20 @@ export default function ConceptGrid({
   );
 }
 
-function ProjectCard({ 
-    item, 
-    onClick, 
-    isScanning, 
-    forcePlay, 
-    onUserInteraction 
-  }: { 
-    item: Concept; 
-    onClick?: () => void; 
-    isScanning: boolean; 
-    forcePlay: boolean; 
+function ProjectCard({
+    item,
+    onClick,
+    isScanning,
+    forcePlay,
+    onUserInteraction,
+    mobileGlow = false,
+  }: {
+    item: Concept;
+    onClick?: () => void;
+    isScanning: boolean;
+    forcePlay: boolean;
     onUserInteraction: () => void;
+    mobileGlow?: boolean;
   }) {
   const [isHovered, setIsHovered] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -172,8 +178,10 @@ function ProjectCard({
 
   const hasVideo = item.previewVideo || item.previewVideoMp4;
 
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
   return (
-    <div className="relative w-full h-full min-h-[200px]">
+    <div className={cn("relative w-full h-full min-h-[200px]", mobileGlow && isMobile && "mobile-viewport-active")}>
       <div 
         onMouseEnter={() => { onUserInteraction(); setIsHovered(true); }} 
         onMouseLeave={() => setIsHovered(false)} 
@@ -183,7 +191,7 @@ function ProjectCard({
           // ADDED: 'transition-transform' to match button feel
           "absolute inset-0 group p-8 md:p-10 border transition-all duration-500 ease-out overflow-hidden flex flex-col justify-between cursor-pointer",
           "bg-card/60 md:bg-card/90 backdrop-blur-md shadow-lg",
-          shouldBePlaying ? "border-accent scale-[1.05] z-50 shadow-2xl" : "border-muted-foreground z-10 scale-100",
+          shouldBePlaying ? "border-accent md:scale-[1.05] z-50 shadow-2xl" : "border-muted-foreground z-10 scale-100",
         )}
       >
         {/* --- THE CORNER ACCENT: ICON SWAP --- */}

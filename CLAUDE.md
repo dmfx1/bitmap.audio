@@ -163,7 +163,9 @@ deepLayer.style.transform = `translateY(${(scrollY * 0.1) % rainHeight}px)`;
 nearLayer.style.transform = `translateY(${(scrollY * 0.3) % rainHeight}px)`;
 ```
 
-This fix should only be applied to the `returns.astro` context (or gated on page-specific logic) to avoid changing behaviour on shorter pages.
+The modulo fix has been applied globally (no page gate needed) using tile-aligned values: `% 400` for deep layer, `% 800` for near layer — these match the CSS `background-size` heights exactly, making the loop seamless on any screen size.
+
+**Known remaining issue — `returns.astro` rain at page edges**: The binary rain is only relevant at the left/right edges of the viewport where the GridBackground shows around the inset section panels. The sections themselves cover the GridBackground intentionally — we do not need rain visible through section backgrounds. The remaining issue is whether the rain stays visible at those exposed edges as the user scrolls deep into the 1600vh track. This is to be revisited during the dedicated `returns.astro` pass (Batch 4).
 
 ---
 

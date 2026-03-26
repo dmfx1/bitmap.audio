@@ -100,5 +100,28 @@ const isLandingPage = currentPath === "/" || currentPath === "/index.html";
         });
       });
     </script>
+
+    <script is:inline>
+      if (window.innerWidth < 768) {
+        const updateGlow = () => {
+          const els = document.querySelectorAll('.mobile-viewport-active');
+          const viewportCenter = window.innerHeight / 2;
+          els.forEach(el => {
+            const rect = el.getBoundingClientRect();
+            const elCenter = rect.top + rect.height / 2;
+            const distance = Math.abs(elCenter - viewportCenter);
+            const maxDistance = window.innerHeight * 0.5;
+            const intensity = Math.max(0, 1 - distance / maxDistance);
+            el.style.setProperty('--glow-intensity', intensity.toFixed(3));
+          });
+        };
+
+        window.addEventListener('scroll', () => {
+          window.requestAnimationFrame(updateGlow);
+        }, { passive: true });
+
+        updateGlow();
+      }
+    </script>
   </body>
 </html>

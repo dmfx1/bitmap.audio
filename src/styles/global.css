@@ -9,7 +9,7 @@
     /* ========================================================================
       LAYER 1: THE CANVAS (Surfaces)
     ======================================================================== */
-    --background: 200 10% 10%;       /* PAGE BACKGROUND (The Void) */
+    --background: 180 66% 5%;       /* PAGE BACKGROUND (The Void) previous was 200 10% 10% */
     --foreground: 0 0% 95%;         /* MAIN TEXT */
 
     --card: 220 20% 7%;             /* CARDS */
@@ -42,7 +42,7 @@
     /* DEFAULT GRID CONFIG */
     --grid-pattern: var(--pattern-solid);
     --grid-opacity: 1;            /* WAS 1 (TOO STRONG) OR 0.4 */
-    --rain-opacity: 0.5;            /* SUBTLE RAIN */
+    --rain-opacity: 1;            /* SUBTLE RAIN */
     
     /* ANIMATION: RESTORED! This was missing, causing static grid */
     --active-grid-flow: none;
@@ -218,6 +218,11 @@
 }
 
 @layer components {
+  .mobile-viewport-active {
+  transition: box-shadow 0.15s ease;
+  box-shadow: inset 0 0 0 1px hsl(var(--accent) / var(--glow-intensity, 0));
+  }
+
   .theme-solaris-architect header {
     /* 1. Make the paint slightly more transparent so the filter is visible */
     background-color: hsl(var(--background) / 0.65) !important;

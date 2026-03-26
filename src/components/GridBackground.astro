@@ -39,19 +39,19 @@ const { showRain = true } = Astro.props;
 </div>
 
 <script>
-  // TRUE PARALLAX SCRIPT
   const deepLayer = document.getElementById('layer-deep');
   const nearLayer = document.getElementById('layer-near');
 
   const handleScroll = () => {
     const scrolled = window.scrollY;
-    
-    // Check if elements exist before trying to move them (prevents errors on landing page)
+
     if (deepLayer) {
-      deepLayer.style.transform = `translateY(${scrolled * 0.1}px)`;
+      // 400 matches the background-size height of .layer-deep (300px 400px)
+      deepLayer.style.transform = `translateY(${(scrolled * 0.1) % 400}px)`;
     }
     if (nearLayer) {
-      nearLayer.style.transform = `translateY(${scrolled * 0.3}px)`;
+      // 800 matches the background-size height of .layer-near (600px 800px)
+      nearLayer.style.transform = `translateY(${(scrolled * 0.3) % 800}px)`;
     }
   };
 

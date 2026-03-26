@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom'; // 1. Added createPortal
 import VideoModal from './VideoModal';
 import TypewriterHero from './TypewriterHero';
 import ConceptGrid, { type Concept } from './ConceptGrid'; 
@@ -36,12 +37,15 @@ export default function HomeHero() {
   const [activeProject, setActiveProject] = useState<Concept | null>(null);
   const [step, setStep] = useState(0); 
   const [isScanning, setIsScanning] = useState(false);
+  const [mounted, setMounted] = useState(false); // 2. Added mounted state
 
   const scrambledSubtitle = useBinaryScramble("SONIC INFRASTRUCTURE", isScanning);
   const scrambledAccess = useBinaryScramble("ACCESS", isScanning);
   const scrambledHandshake = useBinaryScramble("[INIT_HANDSHAKE]", isScanning);
 
   useEffect(() => {
+    setMounted(true); // Flag that we are safely on the client
+    
     const timer = setTimeout(() => {
       setStep(1);
       setTimeout(() => setIsScanning(true), 800);
@@ -49,23 +53,30 @@ export default function HomeHero() {
     return () => clearTimeout(timer);
   }, []);
 
+  // 3. Extracted Intro Sequence with h-[100dvh] and w-screen
+  const introPortal = step === 0 && (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 backdrop-blur-md h-[100dvh] w-screen overflow-hidden animate-fade-in">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,hsl(var(--primary)/0.15)_0%,transparent_70%)] pointer-events-none" />
+      
+      <div className="relative w-32 h-32 md:w-40 md:h-40 flex items-center justify-center animate-power-up">
+        <img 
+          src="/images/logo-b.png" 
+          alt="logo" 
+          className="w-full h-full object-contain drop-shadow-[0_0_30px_hsl(var(--primary)/0.6)]" 
+        />
+      </div>
+    </div>
+  );
+
   return (
     <div className="relative w-full max-w-6xl mx-auto flex flex-col items-center text-center">
       
-      {/* --- INTRO SEQUENCE --- */}
-      {step === 0 && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none bg-background">
-           <div className="relative w-24 h-24 flex items-center justify-center animate-power-up">
-              <img 
-                src="/images/logo-b.png" 
-                alt="logo" 
-                className="w-full h-full object-contain shadow-[0_0_66px_hsl(var(--primary)/0.5)]" 
-              />
-           </div>
-        </div>
-      )}
+      {/* --- TELEPORTED INTRO SEQUENCE --- */}
+      {mounted && typeof document !== 'undefined' 
+        ? createPortal(introPortal, document.body) 
+        : null}
 
-      <div className="flex flex-col w-full min-h-[60svh] justify-center md:min-h-0 md:justify-start">
+      <div className="flex flex-col w-full my-[5vh] min-h-[50svh] md:min-h-[0svh] justify-center md:justify-start">
         
         {/* --- HEADER --- */}
         <div className="flex flex-col items-center mb-8 md:mb-12">
@@ -95,17 +106,17 @@ export default function HomeHero() {
         </div>
 
         {/* --- BUTTONS & SUBTITLE --- */}
-        <div className="w-[33vw] mx-auto transition-opacity duration-1000" style={{ opacity: isScanning ? 1 : 0 }}>
+        <div className="w-full md:w-[33vw] mx-auto transition-opacity duration-1000" style={{ opacity: isScanning ? 1 : 0 }}>
           <div className="space-y-8 md:space-y-6">
             <p className="text-xs md:text-xl text-foreground max-w-2xl mx-auto font-mono uppercase tracking-[0.2em] min-h-[1.5em]">
               {scrambledSubtitle}
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mx-auto w-full p-4 max-w-3xl">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mx-auto w-full p-0md:p-4  max-w-3xl">
               <a href="/home" className="w-full">
                 <Button 
                   size="xl" 
-                  className="w-full rounded-none font-mono text-lg tracking-widest h-14"
+                  className="w-full rounded-none font-mono text-lg tracking-widest h-14 hover:text-accent hover:border-primary transition-colors"
                 >
                   {scrambledAccess}
                 </Button>
@@ -115,7 +126,7 @@ export default function HomeHero() {
                 <Button 
                   variant="outline" 
                   size="xl" 
-                  className="w-full animate-morph bg-background/50 rounded-none font-mono text-lg tracking-widest h-14"
+                  className="w-full animate-morph bg-background/50 rounded-none font-mono text-lg tracking-widest h-14 hover:text-accent hover:border-primary transition-colors"
                 >
                   {scrambledHandshake}
                 </Button>
@@ -126,7 +137,7 @@ export default function HomeHero() {
 
       </div>
 
-      <div className="w-5/6 transition-opacity duration-1000" style={{ opacity: isScanning ? 1 : 0 }}>
+      <div className="w-full md:w-5/6 transition-opacity duration-1000" style={{ opacity: isScanning ? 1 : 0 }}>
         <ConceptGrid 
           items={projects} 
           isScanning={isScanning}
