@@ -10,26 +10,30 @@ import CTA from '../components/modules/CTA.tsx';
 ---
 
 <Layout title="bitmap.audio | about">
-  {/* 2. Wrap the intro in your Section component */}
-  <Section id="intro" invert delay="0.1s">
-    {/* 3. Use client:load so the typewriter starts immediately */}
-    <AboutIntro client:load />
-  </Section>
+  {/* Hero: sticks at top of container, content scrolls over it */}
+  <div class="sticky top-0 z-[1] h-[80vh] md:h-screen">
+    <div class="h-full pt-16">
+      <AboutIntro client:load />
+    </div>
+  </div>
 
-  <Section id="philosophy" delay="0.3s">
-    <AboutPhilosophy client:visible />
-  </Section>
+  {/* Content: scrolls over the sticky hero */}
+  <div class="relative z-10 bg-background">
+    <Section id="philosophy" delay="0.3s">
+      <AboutPhilosophy client:visible />
+    </Section>
 
-  <Section id="Values" invert delay="0.4s">
-    <Values client:visible />
-  </Section>
+    <Section id="Values" invert delay="0.4s">
+      <Values client:visible />
+    </Section>
 
-  <Section id="cta" delay="0.4s">
-    <CTA 
-      client:visible
-      title="Define your brand's audio identity"
-      description="Let's explore how a sonic brand can strengthen your identity and deepen audience connection."
-      buttonText="START YOUR SONIC BRAND"
-    />
-  </Section>
+    <Section id="cta" delay="0.4s">
+      <CTA
+        client:visible
+        title="Define your brand's audio identity"
+        description="Let's explore how a sonic brand can strengthen your identity and deepen audience connection."
+        buttonText="START YOUR SONIC BRAND"
+      />
+    </Section>
+  </div>
 </Layout>

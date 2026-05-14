@@ -45,14 +45,19 @@ export default function ConceptGrid({
 }: ConceptGridProps) {
   const [internalScan, setInternalScan] = useState(false);
   const [activeAutoIndex, setActiveAutoIndex] = useState<number | null>(null);
+  
+  // NEW: Autoplay state and resume timer ref
+  const [autoplayActive, setAutoplayActive] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
+  const resumeTimerRef = useRef<NodeJS.Timeout | null>(null);
   
   const activeScan = propIsScanning ?? internalScan;
 
   // --- SEQUENTIAL AUTOPLAY LOGIC ---
   useEffect(() => {
-    if (!activeScan || items.length === 0) return;
-    if (window.innerWidth < 768) return;
+    // Break early if autoplay is paused or disabled
+    if (!activeScan || items.length === 0 || !autoplayActive) return;
+    if (typeof window !== 'undefined' && window.innerWidth < 768) return;
 
     let interval: NodeJS.Timeout;
 
@@ -73,7 +78,21 @@ export default function ConceptGrid({
       clearTimeout(startDelay);
       if (interval) clearInterval(interval);
     };
-  }, [activeScan, items.length]);
+  }, [activeScan, items.length, autoplayActive]); // Added autoplayActive to deps
+
+  // --- HAND-OFF LOGIC ---
+  const handleUserInteraction = () => {
+    if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
+    setAutoplayActive(false); 
+    setActiveAutoIndex(null); 
+  };
+
+  const handleUserLeave = () => {
+    if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
+    resumeTimerRef.current = setTimeout(() => {
+      setAutoplayActive(true);
+    }, 2500); 
+  };
 
   const getGridConfig = () => {
     const count = items.length;
@@ -90,6 +109,8 @@ export default function ConceptGrid({
           setTimeout(() => setInternalScan(true), 800);
         } else {
           setInternalScan(false);
+          setActiveAutoIndex(null);
+          setAutoplayActive(true); // Reset when scrolled out of view
         }
       },
       { threshold: 0.1 }
@@ -132,8 +153,8 @@ export default function ConceptGrid({
             item={item}
             isScanning={activeScan}
             forcePlay={activeAutoIndex === index}
-            // If user interacts with a card, kill the auto-sequence
-            onUserInteraction={() => setActiveAutoIndex(null)}
+            onUserInteraction={handleUserInteraction}
+            onUserLeave={handleUserLeave} // Passed down to the card
             onClick={item.vimeoId && onProjectClick ? () => onProjectClick(item) : undefined}
             mobileGlow={mobileGlow}
           />
@@ -149,6 +170,7 @@ function ProjectCard({
     isScanning,
     forcePlay,
     onUserInteraction,
+    onUserLeave, 
     mobileGlow = false,
   }: {
     item: Concept;
@@ -156,6 +178,7 @@ function ProjectCard({
     isScanning: boolean;
     forcePlay: boolean;
     onUserInteraction: () => void;
+    onUserLeave: () => void; 
     mobileGlow?: boolean;
   }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -177,21 +200,18 @@ function ProjectCard({
   }, [shouldBePlaying]);
 
   const hasVideo = item.previewVideo || item.previewVideoMp4;
-
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   return (
     <div className={cn("relative w-full h-full min-h-[200px]", mobileGlow && isMobile && "mobile-viewport-active")}>
       <div 
         onMouseEnter={() => { onUserInteraction(); setIsHovered(true); }} 
-        onMouseLeave={() => setIsHovered(false)} 
+        onMouseLeave={() => { onUserLeave(); setIsHovered(false); }} 
         onClick={onClick} 
         className={cn(
-          // ADDED: 'cursor-pointer' to trigger the button's cursor logic
-          // ADDED: 'transition-transform' to match button feel
-          "absolute inset-0 group p-8 md:p-10 border transition-all duration-500 ease-out overflow-hidden flex flex-col justify-between cursor-pointer",
+          "relative w-full h-full group p-8 md:p-10 border transition-all duration-500 ease-out overflow-hidden flex flex-col justify-between cursor-pointer",
           "bg-card/60 md:bg-card/90 backdrop-blur-md shadow-lg",
-          shouldBePlaying ? "border-accent md:scale-[1.05] z-50 shadow-2xl" : "border-muted-foreground z-10 scale-100",
+          shouldBePlaying ? "border-accent md:scale-[1.05] z-50 shadow-2xl" : "border-muted-foreground z-10 scale-100"
         )}
       >
         {/* --- THE CORNER ACCENT: ICON SWAP --- */}
@@ -202,15 +222,9 @@ function ProjectCard({
         )}>
           <div className="flex items-center justify-center w-full h-full ">
             {shouldBePlaying ? (
-              /* Active State: Chevron */
-              <BitmapNode 
-                className="w-6 h-6 text-accent" 
-              />
+              <BitmapNode className="w-6 h-6 text-accent" />
             ) : (
-              /* Idle State: Node */
-              <BitmapNode 
-                className="w-2 h-2 text-muted-foreground opacity-30" 
-              />
+              <BitmapNode className="w-2 h-2 text-muted-foreground opacity-30" />
             )}
           </div>
         </div>
@@ -237,20 +251,32 @@ function ProjectCard({
                 <Icon className="w-8 h-8" />
               </div>
             )}
+            
             <h3 className={cn(
-              "font-mono text-base uppercase tracking-[0.2em] mb-3 transition-colors duration-300 px-1 -mx-1", 
+              "font-mono text-base uppercase tracking-[0.2em] transition-colors duration-300", 
+              item.subtitle ? "mb-1" : "mb-3", 
               shouldBePlaying ? "text-accent bg-primary/10" : "text-primary"
             )}>
               {scrambledTitle}
             </h3>
+
+            {item.subtitle && (
+              <h4 className={cn(
+                "font-mono text-sm tracking-widest mb-3 transition-colors duration-300",
+                shouldBePlaying ? "text-foreground" : "text-accent" 
+              )}>
+                {item.subtitle}
+              </h4>
+            )}
           </div>
           
-          <div className="mt-4">
+          {/* THE FIX: Added min-h-[80px] to absorb any padding the label-tape effect adds */}
+          <div className="mt-4 pb-4 min-h-[80px] flex flex-col justify-start">
             <p className={cn(
-              "font-mono transition-all duration-500 px-2 -mx-2",
+              "font-mono transition-all duration-500 text-sm leading-relaxed font-light", 
               shouldBePlaying 
                 ? "label-tape [--tape-opacity:0.75] text-background" 
-                : "text-foreground text-sm leading-relaxed font-light"
+                : "text-foreground"
             )}>
               {scrambledDesc}
             </p>

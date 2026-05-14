@@ -18,29 +18,35 @@ const sonicDeliverables = [
 ---
 
 <Layout title="bitmap.audio | sonicBranding">
-  <Section id="hero" delay="0.1s">
-    <SonicHero client:load />
-  </Section>
+  {/* Hero: sticks at top of container, content scrolls over it */}
+  <div class="sticky top-0 z-[1] h-[80vh] md:h-screen">
+    <div class="h-full pt-16">
+      <SonicHero client:load />
+    </div>
+  </div>
 
-  <Section id="analysis" delay="0.5s">
-    <SonicAnalysis client:visible />
-  </Section>
+  {/* Content: scrolls over the sticky hero */}
+  <div class="relative z-10 bg-background">
+    <Section id="analysis" delay="0.5s">
+      <SonicAnalysis client:visible />
+    </Section>
 
-  <Section id="deliverables" delay="1.2s">
-    <DeliverablesGrid 
-      client:visible 
-      items={sonicDeliverables} 
-      sectionTitle="What you'll receive" 
-    />
-  </Section>
+    <Section id="deliverables" delay="1.2s">
+      <DeliverablesGrid
+        client:visible
+        items={sonicDeliverables}
+        sectionTitle="What you'll receive"
+      />
+    </Section>
 
-  {/* REUSABLE CTA: Passing specific props for this page */}
-  <Section id="cta" delay="1.5s">
-    <CTA 
-      client:visible
-      title="Ready to sound like yourself?"
-      description="Let's explore how a sonic brand can strengthen your identity and deepen audience connection."
-      buttonText="START YOUR SONIC BRAND"
-    />
-  </Section>
+    {/* REUSABLE CTA: Passing specific props for this page */}
+    <Section id="cta" delay="1.5s">
+      <CTA
+        client:visible
+        title="Ready to sound like yourself?"
+        description="Let's explore how a sonic brand can strengthen your identity and deepen audience connection."
+        buttonText="START YOUR SONIC BRAND"
+      />
+    </Section>
+  </div>
 </Layout>

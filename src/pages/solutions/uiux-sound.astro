@@ -10,17 +10,20 @@ import CTA from '../../components/modules/CTA.tsx';
 
 // DEFINING THE DATA SET FOR THIS PAGE
 const uiuxApplications = [
-  { 
-    title: "Mobile Apps", 
-    desc: "Haptic-synced audio, gesture feedback, navigation sounds, and notification hierarchies." 
+  {
+    id: 1,
+    title: "Mobile Apps",
+    desc: "Haptic-synced audio, gesture feedback, navigation sounds, and notification hierarchies."
   },
-  { 
-    title: "Web Applications", 
-    desc: "Form interactions, loading states, real-time updates, and collaboration cues." 
+  {
+    id: 2,
+    title: "Web Applications",
+    desc: "Form interactions, loading states, real-time updates, and collaboration cues."
   },
-  { 
-    title: "Hardware Products", 
-    desc: "Power states, connectivity, errors, and physical button feedback sounds." 
+  {
+    id: 3,
+    title: "Hardware Products",
+    desc: "Power states, connectivity, errors, and physical button feedback sounds."
   }
 ];
 
@@ -35,39 +38,45 @@ const uiuxDeliverables = [
 ---
 
 <Layout title="bitmap.audio | ui/uxSound">
-  <Section id="hero" delay="0.1s">
-    <UIUXHero client:load />
-  </Section>
+  {/* Hero: sticks at top of container, content scrolls over it */}
+  <div class="sticky top-0 z-[1] h-[80vh] md:h-screen">
+    <div class="h-full pt-16">
+      <UIUXHero client:load />
+    </div>
+  </div>
 
-  <Section id="analysis" delay="0.5s">
-    <UIUXAnalysis client:visible />
-  </Section>
+  {/* Content: scrolls over the sticky hero */}
+  <div class="relative z-10 bg-background">
+    <Section id="analysis" delay="0.5s">
+      <UIUXAnalysis client:visible />
+    </Section>
 
-  {/* FIXED: Passing the defined items to ConceptGrid */}
-  <Section id="applications" delay="0.8s">
-    <ConceptGrid
-      client:visible
-      eyebrow="Applications"
-      sectionTitle="Where UI/UX sound makes a difference"
-      items={uiuxApplications}
-      mobileGlow={true}
-    />
-  </Section>
+    {/* FIXED: Passing the defined items to ConceptGrid */}
+    <Section id="applications" delay="0.8s">
+      <ConceptGrid
+        client:visible
+        eyebrow="Applications"
+        sectionTitle="Where UI/UX sound makes a difference"
+        items={uiuxApplications}
+        mobileGlow={true}
+      />
+    </Section>
 
-  <Section id="deliverables" delay="1.2s">
-    <DeliverablesGrid 
-      client:visible 
-      items={uiuxDeliverables} 
-      sectionTitle="What you'll receive" 
-    />
-  </Section>
+    <Section id="deliverables" delay="1.2s">
+      <DeliverablesGrid
+        client:visible
+        items={uiuxDeliverables}
+        sectionTitle="What you'll receive"
+      />
+    </Section>
 
-  <Section id="cta" delay="1.5s">
-    <CTA 
-      client:visible
-      title="Make your product speak"
-      description="Let's design sound that makes your digital product feel alive, responsive, and human."
-      buttonText="Discuss your product"
-    />
-  </Section>
+    <Section id="cta" delay="1.5s">
+      <CTA
+        client:visible
+        title="Make your product speak"
+        description="Let's design sound that makes your digital product feel alive, responsive, and human."
+        buttonText="Discuss your product"
+      />
+    </Section>
+  </div>
 </Layout>

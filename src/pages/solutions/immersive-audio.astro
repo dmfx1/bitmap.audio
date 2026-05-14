@@ -10,25 +10,29 @@ import CTA from '../../components/modules/CTA.tsx';
 
 // DEFINING THE DATA SET FOR THIS PAGE
 const immersiveAudioApplications = [
-  { 
+  {
+    id: 1,
     title: "Virtual Reality",
-    subtitle: "VR Experiences & Games", 
-    desc: "Full 3D audio design for VR environments, including ambisonic soundscapes, interactive object audio, and spatial music." 
+    subtitle: "VR Experiences & Games",
+    desc: "Full 3D audio design for VR environments, including ambisonic soundscapes, interactive object audio, and spatial music."
   },
-  { 
+  {
+    id: 2,
     title: "Augmented Reality",
-    subtitle: "AR Applications", 
-    desc: "Audio that bridges digital and physical, anchoring virtual objects in real space through precise spatial audio cues." 
+    subtitle: "AR Applications",
+    desc: "Audio that bridges digital and physical, anchoring virtual objects in real space through precise spatial audio cues."
   },
-  { 
+  {
+    id: 3,
     title: "Physical Space",
-    subtitle: "Installations & Exhibitions", 
-    desc: "Multi-channel audio installations for museums, galleries, and experiential marketing that respond to visitor presence and movement." 
+    subtitle: "Installations & Exhibitions",
+    desc: "Multi-channel audio installations for museums, galleries, and experiential marketing that respond to visitor presence and movement."
   },
-  { 
+  {
+    id: 4,
     title: "Generative",
-    subtitle: "Interactive Soundscapes", 
-    desc: "Algorithmic and generative audio systems that create unique, never-repeating sonic environments based on data or user interaction." 
+    subtitle: "Interactive Soundscapes",
+    desc: "Algorithmic and generative audio systems that create unique, never-repeating sonic environments based on data or user interaction."
   }
 ];
 
@@ -43,39 +47,45 @@ const immersiveDeliverables = [
 ---
 
 <Layout title="bitmap.audio | immersiveAudio">
-  <Section id="hero" delay="0.1s">
-    <ImmersiveHero client:load />
-  </Section>
+  {/* Hero: sticks at top of container, content scrolls over it */}
+  <div class="sticky top-0 z-[1] h-[80vh] md:h-screen">
+    <div class="h-full pt-16">
+      <ImmersiveHero client:load />
+    </div>
+  </div>
 
-  <Section id="analysis" delay="0.5s">
-    <ImmersiveAnalysis client:visible />
-  </Section>
+  {/* Content: scrolls over the sticky hero */}
+  <div class="relative z-10 bg-background">
+    <Section id="analysis" delay="0.5s">
+      <ImmersiveAnalysis client:visible />
+    </Section>
 
-  {/* FIXED: Passing the defined items to ConceptGrid */}
-  <Section id="applications" delay="0.8s">
-    <ConceptGrid
-      client:visible
-      eyebrow="Applications"
-      sectionTitle="Where we create"
-      items={immersiveAudioApplications}
-      mobileGlow={true}
-    />
-  </Section>
+    {/* FIXED: Passing the defined items to ConceptGrid */}
+    <Section id="applications" delay="0.8s">
+      <ConceptGrid
+        client:visible
+        eyebrow="Applications"
+        sectionTitle="Where we create"
+        items={immersiveAudioApplications}
+        mobileGlow={true}
+      />
+    </Section>
 
-  <Section id="deliverables" delay="1.2s">
-    <DeliverablesGrid 
-      client:visible 
-      items={immersiveDeliverables} 
-      sectionTitle="What you'll receive" 
-    />
-  </Section>
+    <Section id="deliverables" delay="1.2s">
+      <DeliverablesGrid
+        client:visible
+        items={immersiveDeliverables}
+        sectionTitle="What you'll receive"
+      />
+    </Section>
 
-  <Section id="cta" delay="1.5s">
-    <CTA 
-      client:visible
-      title="Enter new dimensions"
-      description="Let's create immersive audio experiences that transport your audience to new realities."
-      buttonText="Explore possibilities"
-    />
-  </Section>
+    <Section id="cta" delay="1.5s">
+      <CTA
+        client:visible
+        title="Enter new dimensions"
+        description="Let's create immersive audio experiences that transport your audience to new realities."
+        buttonText="Explore possibilities"
+      />
+    </Section>
+  </div>
 </Layout>

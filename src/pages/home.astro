@@ -9,25 +9,31 @@ import CTA from '../components/modules/CTA.tsx';
 ---
 
 <Layout title="bitmap.audio | home">
-  <Section id="hero" invert delay="0.1s">
-    <Hero client:load /> 
-  </Section>
+  {/* Hero: sticks at top of container, content scrolls over it */}
+  <div class="sticky top-0 z-[1] h-[80vh] md:h-screen">
+    <div class="h-full pt-16">
+      <Hero client:load />
+    </div>
+  </div>
 
-  <Section id="services" delay="0.2s">
-    <ServicePillars client:visible />
-  </Section>
+  {/* Content: scrolls over the sticky hero */}
+  <div class="relative z-10 bg-background">
+    <Section id="services" delay="0.2s">
+      <ServicePillars client:visible />
+    </Section>
 
-  <Section id="philosophy" invert delay="0.3s">
-    <Philosophy client:visible />
-  </Section>
+    <Section id="philosophy" invert delay="0.3s">
+      <Philosophy client:visible />
+    </Section>
 
-  {/* FIXED: Changed ID from philosophy to cta */}
-  <Section id="cta" delay="0.4s">
-    <CTA 
-      client:visible
-      title="Ready to define your sound?"
-      description="Let's explore how a sonic brand can strengthen your identity and deepen audience connection."
-      buttonText="Start the conversation"
-    />
-  </Section>
+    {/* FIXED: Changed ID from philosophy to cta */}
+    <Section id="cta" delay="0.4s">
+      <CTA
+        client:visible
+        title="Ready to define your sound?"
+        description="Let's explore how a sonic brand can strengthen your identity and deepen audience connection."
+        buttonText="Start the conversation"
+      />
+    </Section>
+  </div>
 </Layout>
