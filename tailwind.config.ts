@@ -67,5 +67,10 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+    ({ addVariant }: { addVariant: Function }) => {
+      addVariant('mobile', '@media (max-width: 767px)')
+    },
+  ],
 } satisfies Config;

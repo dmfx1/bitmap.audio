@@ -46,14 +46,14 @@ const sections = [
         <div id="horizontal-strip" class="flex w-max h-full will-change-transform">
           
           <section data-sidebar="0" class="relative w-[90vw] md:w-[75vw] h-full flex-shrink-0 flex flex-col justify-center pl-4 pr-4 md:pl-48 md:pr-16 group bg-background z-10">
-            <div class="absolute -right-20 bottom-0 text-[35vw] font-mono font-bold text-muted/5 select-none pointer-events-none transition-transform duration-1000 group-hover:scale-105 z-0">00</div>
+            <div class="mobile:hidden absolute -right-20 bottom-0 text-[35vw] font-mono font-bold text-muted/5 select-none pointer-events-none transition-transform duration-1000 group-hover:scale-105 z-0">00</div>
             <div class="relative z-10 pl-8 py-2">
-              <span class="text-eyebrow mb-8 block">[ Status // Critical ]</span>
-              <h2 class="font-mono text-6xl md:text-[8vw] leading-[0.9] tracking-tighter mb-12 uppercase text-foreground">
+              <span class="text-eyebrow mb-8 mobile:mb-3 block">[ Status // Critical ]</span>
+              <h2 class="font-mono text-6xl mobile:text-4xl md:text-[8vw] leading-[0.9] tracking-tighter mb-12 mobile:mb-6 uppercase text-foreground">
                 Your brand<br/>is <span class="text-accent drop-shadow-[0_0_20px_hsl(var(--accent)/0.3)]">Muted.</span>
               </h2>
               <div class="w-full max-w-2xl backdrop-blur-md bg-background/40 p-6 border-l-2 border-accent">
-                <p class="font-sans text-xl md:text-2xl text-muted-foreground leading-relaxed">
+                <p class="font-sans text-xl mobile:text-sm md:text-2xl text-muted-foreground leading-relaxed">
                   Visuals reach the eyes, but sound hits the nervous system. Competing on screens alone is a losing battle. It's time to weaponize your audio.
                 </p>
               </div>
@@ -70,16 +70,16 @@ const sections = [
               </div> 
             </div>
 
-            <div class="absolute right-0 bottom-0 text-[35vw] font-mono font-bold text-muted/5 select-none pointer-events-none transition-transform duration-1000 group-hover:scale-105 z-0">01</div>
+            <div class="mobile:hidden absolute right-0 bottom-0 text-[35vw] font-mono font-bold text-muted/5 select-none pointer-events-none transition-transform duration-1000 group-hover:scale-105 z-0">01</div>
 
             <div id="train-fade-layer" class="absolute bottom-0 right-0 w-[33vw] h-full z-0 opacity-0 pointer-events-none mix-blend-screen flex items-end justify-end md:pr-0">
                 <img src="/images/listening.woman2.train.png" alt="Woman and Train" class="w-full h-full object-contain object-right-bottom" />
             </div>
 
-            <div class="w-full flex justify-end pr-8 md:pr-80 md:pb-52 relative z-10">
+            <div class="w-full flex justify-end mobile:justify-start pr-8 mobile:px-4 md:pr-80 md:pb-52 relative z-10">
                 <div class="max-w-2xl border-l-2 border-accent pl-8 py-2 bg-background/40 backdrop-blur-sm mr-0 md:mr-16 relative z-10">
-                    <span class="text-eyebrow mb-8 block text-primary">[ Context // Always_On ]</span>
-                    <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 uppercase text-foreground">When everyone<br/><span class="text-primary drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">is listening.</span></h2>
+                    <span class="text-eyebrow mb-8 mobile:mb-3 block text-primary">[ Context // Always_On ]</span>
+                    <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 mobile:mb-4 uppercase text-foreground">When everyone<br/><span class="text-primary drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">is listening.</span></h2>
                     <p class="font-sans text-xl text-muted-foreground leading-relaxed max-w-xl">
                       <span class="text-accent">The screenless audience</span> – 80% of consumers form brand memory via audio cues. If you lack an audio-first identity, you have no presence in the moments when eyes are diverted.
                     </p>
@@ -89,7 +89,7 @@ const sections = [
 
           <section data-sidebar="2" class="w-[200vw] md:w-[100vw] h-full flex-shrink-0 relative border-r border-border/20 bg-primary/80 overflow-hidden group z-10 flex flex-col justify-center">
 
-            <div class="absolute right-[-2vw] top-1/2 -translate-y-1/2 w-[55vw] h-[95vh] pointer-events-none z-0 opacity-80">
+            <div class="mobile:hidden absolute right-[-2vw] top-1/2 -translate-y-1/2 w-[55vw] h-[95vh] pointer-events-none z-0 opacity-80">
               <svg viewBox="50 200 650 800" class="w-full h-full overflow-visible">
                 
                 <g class="stroke-accent" fill="none" stroke-width="3" stroke-linecap="square" stroke-linejoin="miter">
@@ -128,10 +128,10 @@ const sections = [
               </svg>
             </div>
 
-            <div class="pl-4 pr-0 md:pl-72 md:pr-0 relative z-10 w-full max-w-4xl">
+            <div class="pl-4 pr-4 md:pl-72 md:pr-0 relative z-10 w-full max-w-4xl">
               <div class="pl-8 py-2">
-                <span class="text-eyebrow mb-8 block text-background">[ Architecture // Recall ]</span>
-                <h2 class="font-mono text-5xl md:text-8xl leading-tight mb-8 uppercase text-foreground">Sound as a<br/><span class="text-accent drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">Data Map.</span></h2>
+                <span class="text-eyebrow mb-8 mobile:mb-3 block text-background">[ Architecture // Recall ]</span>
+                <h2 class="font-mono text-5xl md:text-8xl leading-tight mb-8 mobile:mb-4 uppercase text-foreground">Sound as a<br/><span class="text-accent drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">Data Map.</span></h2>
                 <p class="font-sans text-xl text-background/80 leading-relaxed max-w-xl">
                   Faster Neurological Processing and Lasting Memory.
                 </p>
@@ -147,10 +147,10 @@ const sections = [
                     class="w-full h-auto object-contain object-right-bottom opacity-0 blur-[30px] transition-transform duration-1000 group-hover:scale-[1.02]" />
             </div>
 
-            <div class="flex flex-col items-end justify-center pl-4 pr-4 md:pl-54 md:pr-32 relative z-10 border-l border-border/20 bg-background/40">
+            <div class="flex flex-col items-end mobile:items-start justify-center pl-4 pr-4 md:pl-54 md:pr-32 relative z-10 border-l border-border/20 bg-background/40">
               <div class="border-l-2 border-accent ml-0 md:ml-36 pl-8 py-2">
-                <span class="text-eyebrow mb-8 block text-accent">[ Neurology // Processing_Speed ]</span>
-                <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 uppercase">Faster than<br/><span class="text-accent">Sight.</span></h2>
+                <span class="text-eyebrow mb-8 mobile:mb-3 block text-accent">[ Neurology // Processing_Speed ]</span>
+                <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 mobile:mb-4 uppercase">Faster than<br/><span class="text-accent">Sight.</span></h2>
                 <p class="font-sans text-xl text-muted-foreground leading-relaxed mb-8">
                   Sound is a biological survival mechanism. It reaches the brain 2 to 4 times faster than visual stimuli.<br/><br/>It establishes recognition in just <strong>0.05 seconds</strong> making us aware of our surroundings before we even consciously "see" them.
                 </p>
@@ -173,14 +173,14 @@ const sections = [
           <section data-sidebar="4" class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center text-right pl-4 pr-4 md:px-48 relative border-r border-border/20 bg-accent/5 overflow-hidden group z-10">
             <div class="absolute inset-0 radial-gradient-center opacity-20 pointer-events-none"></div>
             <div class="pl-8 py-2 max-w-4xl relative z-10">
-              <span class="text-eyebrow text-accent mb-8 block">[ Neurology // Echoic_Memory ]</span>
-              
-              <h2 class="font-mono text-5xl md:text-[6vw] leading-[1.1] tracking-tighter mb-8 uppercase text-foreground">
+              <span class="text-eyebrow text-accent mb-8 mobile:mb-3 block">[ Neurology // Echoic_Memory ]</span>
+
+              <h2 class="font-mono text-5xl mobile:text-4xl md:text-[6vw] leading-[1.1] tracking-tighter mb-8 mobile:mb-4 uppercase text-foreground">
                 <span id="visuals-fade-text" class="inline-block">Visuals fade.</span><br/>
                 <span id="sound-grow-text" class="text-primary inline-block origin-right">Sound echoes.</span>
               </h2>
-              
-              <p class="font-sans text-2xl text-muted-foreground leading-relaxed">
+
+              <p class="font-sans text-2xl mobile:text-sm text-muted-foreground leading-relaxed">
                 Auditory sensory memory persists for 2-5 seconds - <strong>10 to 20 times longer</strong> than visual memory. It shows significantly better resistance to decay and triggers emotional encoding via the limbic system.
               </p>
             </div>
@@ -263,20 +263,26 @@ const sections = [
           </section>
 
           <section id="roi-section" data-sidebar="6" class="w-[120vw] h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-background overflow-hidden relative group z-10">
-            <div class="w-5/6 flex flex-col justify-center pl-4 pr-4 md:pl-48 md:pr-16 relative z-10">
-              <div class="ml-0 md:ml-12 pl-8 py-2">
-                <span class="text-eyebrow mb-8 block">[ Capital // Conversion ]</span>
-                <h2 class="font-mono text-5xl md:text-6xl leading-[1.1] mb-8 uppercase flex flex-col items-start">
+            <div class="w-5/6 mobile:w-full flex flex-col justify-center pl-4 pr-4 md:pl-48 md:pr-16 relative z-10">
+              <div class="ml-0 md:ml-12 pl-6 mobile:pl-4 py-2">
+                <span class="text-eyebrow mb-8 mobile:mb-3 block">[ Capital // Conversion ]</span>
+                <h2 class="font-mono text-5xl mobile:text-4xl md:text-6xl leading-[1.1] mb-8 mobile:mb-4 uppercase flex flex-col items-start">
                   <span>Amplified</span>
-                  <span id="roi-word" class="text-accent md:text-8xl inline-block origin-top-left leading-none mt-2">ROI.</span>
+                  <span id="roi-word" class="text-accent md:text-8xl mobile:text-5xl inline-block origin-top-left leading-none mt-2">ROI.</span>
                 </h2>
-                <p class="font-sans text-xl text-muted-foreground leading-relaxed mb-6">
+                <p class="font-sans text-xl mobile:text-sm text-muted-foreground leading-relaxed mb-6 mobile:mb-3">
                   Bespoke sonic assets don't just increase views - they drive behaviour. We see a significant lift in both purchase intent and pricing power.
                 </p>
-                <div class="border-l-2 border-accent pl-6 mt-4">
+                <div class="border-l-2 border-accent pl-6 mt-4 mobile:hidden">
                   <p class="font-sans text-xl text-foreground leading-relaxed">
                     Allocating 11% of a media budget to audio paired with high "Creative Fluency" can <strong>quadruple</strong> the total campaign ROI.
                   </p>
+                </div>
+                <div class="mobile:flex hidden flex-col items-start mt-6">
+                  <span class="font-mono text-[20vw] leading-none text-primary font-bold tracking-tighter drop-shadow-[0_0_20px_hsl(var(--primary)/0.5)]">
+                    4.0<span class="text-[10vw] text-foreground ml-1">x</span>
+                  </span>
+                  <span class="font-mono text-foreground/60 tracking-[0.3em] uppercase text-xs mt-2">Total ROI Multiplier</span>
                 </div>
               </div>
             </div>
@@ -302,28 +308,22 @@ const sections = [
                <span class="font-mono text-foreground tracking-[0.5em] uppercase mt-4 z-10 relative">Total ROI Multiplier</span>
             </div>
 
-            <div class="flex md:hidden flex-col items-center justify-center text-center py-12 bg-primary/10 border-t border-primary/20">
-              <h3 class="font-mono text-[28vw] leading-none text-primary font-bold tracking-tighter drop-shadow-[0_0_30px_hsl(var(--primary)/0.6)]">
-                4.0<span class="text-[14vw] text-foreground ml-1">x</span>
-              </h3>
-              <span class="font-mono text-foreground tracking-[0.3em] uppercase mt-4">Total ROI Multiplier</span>
-            </div>
           </section>
 
           <section id="success-section" data-sidebar="7" class="w-[180vw] h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-foreground/90 overflow-hidden relative group z-10">
             <div class="flex flex-col justify-center pl-4 pr-4 md:pl-16 md:pr-32 relative z-10">
               <div class="w-full md:w-1/2 border-l-2 border-accent ml-0 md:ml-72 pl-8 py-2">
-                <span class="text-eyebrow text-background/80 mb-8 block">[ UX // Credibility ]</span>
-                <h2 class="font-mono text-5xl md:text-6xl leading-[1.1] mb-8 uppercase flex flex-col items-start">
+                <span class="text-eyebrow text-background/80 mb-8 mobile:mb-3 block">[ UX // Credibility ]</span>
+                <h2 class="font-mono text-5xl mobile:text-4xl md:text-6xl leading-[1.1] mb-8 mobile:mb-4 uppercase flex flex-col items-start">
                   <span id="subconscious-word" class="bg-gradient-to-r from-foreground/10 via-foreground to-foreground/10 bg-clip-text text-transparent bg-[length:200%_auto] bg-[position:200%_center] inline-block">
                     Subconscious
                   </span>
                   <span class="md:text-8xl leading-none font-bold text-background/80 mt-2">Trust.</span>
-                </h2>               
-                <p class="font-sans text-xl text-muted-foreground leading-relaxed mb-8">
+                </h2>
+                <p class="font-sans text-xl mobile:text-sm text-muted-foreground leading-relaxed mb-8 mobile:mb-4">
                   Sound implies physical reality, making digital interactions feel safer. In high-stakes systems, auditory UX cues increase task success rates by 25%.
                 </p>
-                <div class="pl-6 mt-4 bg-background/80 backdrop-blur-sm p-4">
+                <div class="pl-6 mt-4 bg-background/80 backdrop-blur-sm p-4 mobile:hidden">
                   <p class="font-sans text-xl text-foreground leading-relaxed">
                     In banking, users associate transaction success primarily with proprietary sound cues over visual confirmations.
                   </p>
@@ -386,14 +386,14 @@ const sections = [
           </section>
 
           <section data-sidebar="9" class="relative w-[90vw] md:w-[75vw] h-full flex-shrink-0 flex flex-col justify-center pl-4 pr-4 md:pl-48 md:pr-16 group bg-background z-10">
-            <div class="absolute -right-20 bottom-0 text-[35vw] font-mono font-bold text-muted/5 select-none pointer-events-none transition-transform duration-1000 group-hover:scale-105 z-0">00</div>
+            <div class="mobile:hidden absolute -right-20 bottom-0 text-[35vw] font-mono font-bold text-muted/5 select-none pointer-events-none transition-transform duration-1000 group-hover:scale-105 z-0">00</div>
             <div class="relative z-10 pl-8 py-2">
-              <span class="text-eyebrow mb-8 block">[ Localisation // Borders ]</span>
-              <h2 class="font-mono text-6xl md:text-[6vw] leading-[0.9] tracking-tighter mb-12 uppercase text-foreground">
+              <span class="text-eyebrow mb-8 mobile:mb-3 block">[ Localisation // Borders ]</span>
+              <h2 class="font-mono text-6xl mobile:text-4xl md:text-[6vw] leading-[0.9] tracking-tighter mb-12 mobile:mb-6 uppercase text-foreground">
                 Seamless<br/>cultural <span class="text-accent md:text-[8vw] drop-shadow-[0_0_20px_hsl(var(--accent)/0.3)]">Resonance.</span>
               </h2>
               <div class="w-full max-w-2xl backdrop-blur-md bg-background/40 p-6 border-l-2 border-accent">
-                <p class="font-sans text-xl md:text-2xl text-muted-foreground leading-relaxed">
+                <p class="font-sans text-xl mobile:text-sm md:text-2xl text-muted-foreground leading-relaxed">
                   Visual copy requires translation. A well-architected sonic identity scales across borders instantly, requiring zero localization overhead while maintaining absolute brand consistency globally.
                 </p>
               </div>
