@@ -46,6 +46,11 @@ const sections = [
         <div id="horizontal-strip" class="flex w-max h-full will-change-transform">
           
           <section data-sidebar="0" class="relative w-[90vw] md:w-[75vw] h-full flex-shrink-0 flex flex-col justify-center pl-4 pr-4 md:pl-48 md:pr-16 group bg-background z-10">
+            <!-- Mobile background image — woman reading, bottom-right -->
+            <div class="md:hidden absolute bottom-0 right-0 w-[75vw] h-[70vh] pointer-events-none z-0">
+              <img src="/images/listening.woman2.emptyBook.png" alt=""
+                   class="w-full h-full object-contain object-right-bottom opacity-25 mix-blend-screen" />
+            </div>
             <div class="mobile:hidden absolute -right-20 bottom-0 text-[35vw] font-mono font-bold text-muted/5 select-none pointer-events-none transition-transform duration-1000 group-hover:scale-105 z-0">00</div>
             <div class="relative z-10 pl-8 py-2">
               <span class="text-eyebrow mb-8 mobile:mb-3 block">[ Status // Critical ]</span>
@@ -89,6 +94,11 @@ const sections = [
 
           <section data-sidebar="2" class="w-[200vw] md:w-[100vw] h-full flex-shrink-0 relative border-r border-border/20 bg-primary/80 overflow-hidden group z-10 flex flex-col justify-center">
 
+            <!-- Mobile bitmap B background -->
+            <div class="md:hidden absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+              <img src="/images/bitmap.b.data.map.png" alt=""
+                   class="w-[90vw] h-auto object-contain opacity-10 mix-blend-screen" />
+            </div>
             <div class="mobile:hidden absolute right-[-2vw] top-1/2 -translate-y-1/2 w-[55vw] h-[95vh] pointer-events-none z-0 opacity-80">
               <svg viewBox="50 200 650 800" class="w-full h-full overflow-visible">
                 
@@ -1008,8 +1018,7 @@ const sections = [
     min-height: 100svh;
     scroll-snap-align: start;
     scroll-snap-stop: always;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
+    padding-right: 1vw;
+    /* REMOVED: display, flex-direction, justify-content — was breaking hidden sections */
   }
 </style>
