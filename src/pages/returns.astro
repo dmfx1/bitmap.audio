@@ -94,12 +94,9 @@ const sections = [
 
           <section data-sidebar="2" class="w-[200vw] md:w-[100vw] h-full flex-shrink-0 relative border-r border-border/20 bg-primary/80 overflow-hidden group z-10 flex flex-col justify-center">
 
-            <!-- Mobile bitmap B background -->
-            <div class="md:hidden absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-              <img src="/images/bitmap.b.data.map.png" alt=""
-                   class="w-[90vw] h-auto object-contain opacity-10 mix-blend-screen" />
-            </div>
-            <div class="mobile:hidden absolute right-[-2vw] top-1/2 -translate-y-1/2 w-[55vw] h-[95vh] pointer-events-none z-0 opacity-80">
+
+            <div class="absolute right-[-2vw] top-1/2 -translate-y-1/2 w-[55vw] h-[95vh] pointer-events-none z-0 opacity-80
+            mobile:right-auto mobile:left-1/2 mobile:-translate-x-1/2 mobile:w-[90vw] mobile:h-[90vh] mobile:opacity-40">
               <svg viewBox="50 200 650 800" class="w-full h-full overflow-visible">
                 
                 <g class="stroke-accent" fill="none" stroke-width="3" stroke-linecap="square" stroke-linejoin="miter">
@@ -241,6 +238,14 @@ const sections = [
                 </div>
               </div>
             </div>
+          </section>
+
+          <!-- Mobile: Recall Under Pressure heading slide -->
+          <section class="w-screen h-full flex-shrink-0 md:hidden flex flex-col items-center justify-center text-center px-8 bg-card/20 border-r border-border/20 relative z-10">
+            <span class="text-eyebrow mb-6 block">[ Metrics // Awareness ]</span>
+            <h2 class="font-mono text-[13vw] leading-[0.9] tracking-tighter uppercase text-foreground">
+              Recall Under<br/><span class="text-accent">Pressure.</span>
+            </h2>
           </section>
 
           <!-- Mobile-only: Recall under Pressure stat slides (one per card) -->
@@ -422,20 +427,18 @@ const sections = [
             </div>
           </section>
 
-          <section data-sidebar="10" class="w-[120vw] h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-accent overflow-hidden relative group z-10">
+          <section data-sidebar="10" class="w-[100vw] h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-accent overflow-hidden relative group z-10">
             <div class="flex flex-col justify-center pl-4 pr-4 md:pl-48 md:pr-16 relative z-10">
               <div class="border-l-2 border-accent pl-8 py-2">
                 <span class="text-eyebrow text-background mb-8 block">[ Belief // Power ]</span>
-                <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 uppercase">In Sound<br/>we <span class="text-background text-7xl drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">Trust.</span></h2>
+                <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 uppercase">Trust<br/>in the <br/><span class="text-background text-8xl font-bold drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">power</span> <br/>of sound.</h2>
                 <p class="font-sans text-xl text-foreground leading-relaxed mb-6">
-                  Tap into the subconscious.
+                  and tap into the subconscious.
                 </p>
               </div>
-            </div>
-            <div class="hidden md:flex flex-col items-center justify-center bg-primary/10 border-l border-border/20 relative">
-               <h3 class="font-mono text-[10vw] leading-none text-primary font-light tracking-tighter drop-shadow-[0_0_30px_hsl(var(--primary)/0.3)]">
-                 <span class="text-foreground"> And see what you can find.</span>
-               </h3>
+              <div>
+                
+              </div>
             </div>
           </section>
 
