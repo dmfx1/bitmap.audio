@@ -433,8 +433,8 @@ const sections = [
             </div>
           </section>
 
-          <section class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center text-left pl-4 pr-4 md:px-48 relative border-r border-border/20 bg-primary/5 overflow-hidden group z-10">
-            <div class="pl-8 py-2 z-10 mobile:text-center mobile:flex mobile:flex-col mobile:items-center">
+          <section class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center mobile:items-start text-left pl-4 pr-4 md:px-48 relative border-r border-border/20 bg-primary/5 overflow-hidden group z-10">
+            <div class="pl-8 py-2 z-10 mobile:border-l-2 mobile:border-accent">
               <span class="text-eyebrow text-sm mb-8 block">[ Asset // Ownership ]</span>
               <h2 class="font-mono text-5xl mobile:text-[11vw] md:text-[6vw] leading-[1.1] tracking-tighter mb-8 uppercase text-foreground">
                 Stop renting <br/>from the sea<br/>of <span class="text-accent">sameness.</span>
@@ -446,10 +446,21 @@ const sections = [
           </section>
 
           <!-- Mobile-only body text slide for "Stop Renting" -->
-          <section class="md:hidden w-screen h-full flex-shrink-0 flex flex-col justify-center px-8 bg-primary/5 border-r border-border/20 relative z-10">
-            <p class="font-sans text-xl text-muted-foreground leading-relaxed bg-background/60 backdrop-blur-md p-6 border border-border/20">
-              Short-term custom tracks may win the moment, but they fail to build lasting equity. Leading sonic brands ensure at least <strong>30% of their audio assets are wholly owned</strong>, protecting their mental availability.
-            </p>
+          <section class="md:hidden w-screen h-full flex-shrink-0 flex flex-col justify-center px-4 bg-background border-r border-border/20 relative z-10 overflow-hidden">
+            <!-- Ghost number background -->
+            <div class="absolute right-[-2vw] bottom-[-4vw] font-mono font-bold text-[55vw] leading-none text-muted/5 select-none pointer-events-none">30</div>
+            <div class="border-l-2 border-accent pl-8 py-2 relative z-10">
+              <span class="font-mono text-accent text-[10px] tracking-widest uppercase mb-6 block opacity-60">[ Asset // Ownership ]</span>
+              <div class="font-mono text-[20vw] leading-none text-accent font-bold tracking-tighter drop-shadow-[0_0_30px_hsl(var(--accent)/0.4)] mb-6">
+                30<span class="text-[10vw] text-foreground/60">%</span>
+              </div>
+              <p class="font-sans text-xl text-foreground leading-snug mb-4 font-medium">
+                Leading sonic brands ensure at least <span class="text-accent font-bold">30% of their audio assets are wholly owned</span> — protecting long-term mental availability.
+              </p>
+              <p class="font-sans text-base text-muted-foreground leading-relaxed">
+                Short-term tracks win the moment. Owned assets build the brand.
+              </p>
+            </div>
           </section>
 
           <section data-sidebar="10" class="w-[100vw] h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-accent overflow-hidden relative group z-10 mobile:pl-0">
