@@ -96,7 +96,7 @@ const sections = [
 
 
             <div class="absolute right-[-2vw] top-1/2 -translate-y-1/2 w-[55vw] h-[95vh] pointer-events-none z-0 opacity-80
-            mobile:right-auto mobile:left-1/2 mobile:-translate-x-1/2 mobile:w-[90vw] mobile:h-[90vh] mobile:opacity-40">
+            mobile:right-auto mobile:left-1/2 mobile:-translate-x-1/2 mobile:w-[95vw] mobile:h-[95vh] mobile:opacity-40">
               <svg viewBox="50 200 650 800" class="w-full h-full overflow-visible">
                 
                 <g class="stroke-accent" fill="none" stroke-width="3" stroke-linecap="square" stroke-linejoin="miter">
@@ -135,7 +135,7 @@ const sections = [
               </svg>
             </div>
 
-            <div class="pl-4 pr-4 md:pl-72 md:pr-0 relative z-10 w-full max-w-4xl">
+            <div class="pl-4 pr-4 md:pl-72 md:pr-0 relative z-10 w-full max-w-4xl mobile:border-l-2 mobile:border-accent">
               <div class="pl-8 py-2">
                 <span class="text-eyebrow mb-8 mobile:mb-3 block text-background">[ Architecture // Recall ]</span>
                 <h2 class="font-mono text-5xl md:text-8xl leading-tight mb-8 mobile:mb-4 uppercase text-foreground">Sound as a<br/><span class="text-accent drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">Data Map.</span></h2>
@@ -179,7 +179,7 @@ const sections = [
 
           <section data-sidebar="4" class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center text-right pl-4 pr-4 md:px-48 relative border-r border-border/20 bg-accent/5 overflow-hidden group z-10">
             <div class="absolute inset-0 radial-gradient-center opacity-20 pointer-events-none"></div>
-            <div class="pl-8 py-2 max-w-4xl relative z-10">
+            <div class="pl-8 py-2 max-w-4xl relative z-10 mobile:border-l-2 mobile:border-accent">
               <span class="text-eyebrow text-accent mb-8 mobile:mb-3 block">[ Neurology // Echoic_Memory ]</span>
 
               <h2 class="font-mono text-5xl mobile:text-4xl md:text-[6vw] leading-[1.1] tracking-tighter mb-8 mobile:mb-4 uppercase text-foreground">
@@ -293,12 +293,6 @@ const sections = [
                     Allocating 11% of a media budget to audio paired with high "Creative Fluency" can <strong>quadruple</strong> the total campaign ROI.
                   </p>
                 </div>
-                <div class="mobile:flex hidden flex-col items-start mt-6">
-                  <span class="font-mono text-[20vw] leading-none text-primary font-bold tracking-tighter drop-shadow-[0_0_20px_hsl(var(--primary)/0.5)]">
-                    4.0<span class="text-[10vw] text-foreground ml-1">x</span>
-                  </span>
-                  <span class="font-mono text-foreground/60 tracking-[0.3em] uppercase text-xs mt-2">Total ROI Multiplier</span>
-                </div>
               </div>
             </div>
             
@@ -323,6 +317,18 @@ const sections = [
                <span class="font-mono text-foreground tracking-[0.5em] uppercase mt-4 z-10 relative">Total ROI Multiplier</span>
             </div>
 
+          </section>
+
+          <!-- Mobile ROI multiplier slide -->
+          <section class="md:hidden w-screen h-full flex-shrink-0 flex flex-col items-center justify-center bg-primary/10 border-r border-border/20 relative z-10">
+            <div class="relative flex items-center justify-center">
+              <h3 class="absolute font-mono text-[32vw] leading-none text-primary/20 blur-[20px] font-bold tracking-tighter mix-blend-screen">4.0x</h3>
+              <h3 class="absolute font-mono text-[28vw] leading-none text-primary/40 blur-[10px] font-bold tracking-tighter mix-blend-screen">4.0x</h3>
+              <h3 class="relative z-10 font-mono text-[24vw] leading-none text-primary font-bold tracking-tighter drop-shadow-[0_0_40px_hsl(var(--primary)/0.6)]">
+                4.0<span class="text-[12vw] text-foreground ml-2">x</span>
+              </h3>
+            </div>
+            <span class="font-mono text-foreground/60 tracking-[0.5em] uppercase text-xs mt-8">Total ROI Multiplier</span>
           </section>
 
           <section id="success-section" data-sidebar="7" class="w-[180vw] h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-foreground/90 overflow-hidden relative group z-10">
@@ -365,17 +371,23 @@ const sections = [
                </div>
             </div>
 
-            <div class="flex md:hidden flex-col items-center justify-center text-center py-12">
-              <h3 class="font-mono text-[28vw] leading-none text-accent font-bold tracking-tighter drop-shadow-[0_0_30px_hsl(var(--accent)/0.5)]">
-                25<span class="text-[14vw] text-muted-foreground ml-1">%</span>
+          </section>
+
+          <!-- Mobile: 25% task success slide -->
+          <section class="md:hidden w-screen h-full flex-shrink-0 flex flex-col items-center justify-center bg-foreground/90 border-r border-border/20 relative z-10">
+            <div class="relative flex items-center justify-center">
+              <h3 class="absolute font-mono text-[32vw] leading-none text-accent/20 blur-[20px] font-bold tracking-tighter mix-blend-screen">25%</h3>
+              <h3 class="absolute font-mono text-[28vw] leading-none text-accent/40 blur-[10px] font-bold tracking-tighter mix-blend-screen">25%</h3>
+              <h3 class="relative z-10 font-mono text-[24vw] leading-none text-accent font-bold tracking-tighter drop-shadow-[0_0_30px_hsl(var(--accent)/0.5)]">
+                25<span class="text-[12vw] text-background/60 ml-1">%</span>
               </h3>
-              <span class="font-mono text-background/60 tracking-[0.2em] uppercase mt-4 block">Task Success Increase</span>
             </div>
+            <span class="font-mono text-background/60 tracking-[0.5em] uppercase text-xs mt-8">Task Success Increase</span>
           </section>
 
           <section data-sidebar="8" class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center text-right pl-4 pr-4 md:px-48 relative border-r border-border/20 bg-primary/20 overflow-hidden group z-10">
             <div class="absolute inset-0 radial-gradient-center opacity-20 pointer-events-none"></div>
-            <div class="pl-8 py-2 max-w-4xl relative z-10">
+            <div class="pl-8 py-2 max-w-4xl relative z-10 mobile:border-l-2 mobile:border-accent">
               <span class="text-eyebrow text-accent mb-8 block">[ Perception // The Edge ]</span>
               
               <h2 class="font-mono text-5xl md:text-[6vw] leading-[1.1] tracking-tighter mb-8 uppercase text-foreground">
@@ -416,15 +428,22 @@ const sections = [
           </section>
 
           <section class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center text-left pl-4 pr-4 md:px-48 relative border-r border-border/20 bg-primary/5 overflow-hidden group z-10">
-            <div class="pl-8 py-2 z-10">
+            <div class="pl-8 py-2 z-10 mobile:text-center mobile:flex mobile:flex-col mobile:items-center">
               <span class="text-eyebrow mb-8 block">[ Asset // Ownership ]</span>
-              <h2 class="font-mono text-5xl md:text-[6vw] leading-[1.1] tracking-tighter mb-8 uppercase text-foreground">
+              <h2 class="font-mono text-5xl mobile:text-[11vw] md:text-[6vw] leading-[1.1] tracking-tighter mb-8 uppercase text-foreground">
                 Stop renting <br/>from the sea<br/>of <span class="text-accent">sameness.</span>
               </h2>
-              <p class="font-sans text-2xl text-muted-foreground leading-relaxed max-w-4xl bg-background/60 backdrop-blur-md p-8 border border-border/20">
+              <p class="font-sans text-2xl text-muted-foreground leading-relaxed max-w-4xl bg-background/60 backdrop-blur-md p-8 border border-border/20 mobile:hidden">
                 Short-term custom tracks may win the moment, but they fail to build lasting equity. Leading sonic brands ensure at least <strong>30% of their audio assets are wholly owned</strong>, protecting their mental availability.
               </p>
             </div>
+          </section>
+
+          <!-- Mobile-only body text slide for "Stop Renting" -->
+          <section class="md:hidden w-screen h-full flex-shrink-0 flex flex-col justify-center px-8 bg-primary/5 border-r border-border/20 relative z-10">
+            <p class="font-sans text-base text-muted-foreground leading-relaxed bg-background/60 backdrop-blur-md p-6 border border-border/20">
+              Short-term custom tracks may win the moment, but they fail to build lasting equity. Leading sonic brands ensure at least <strong>30% of their audio assets are wholly owned</strong>, protecting their mental availability.
+            </p>
           </section>
 
           <section data-sidebar="10" class="w-[100vw] h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-accent overflow-hidden relative group z-10">
@@ -442,22 +461,22 @@ const sections = [
             </div>
           </section>
 
-          <section data-sidebar="11" class="w-screen h-full flex-shrink-0 flex flex-col items-center justify-center text-center pl-4 pr-4 md:pl-48 md:pr-32 relative overflow-hidden group bg-background z-10">
+          <section data-sidebar="11" class="w-screen h-full flex-shrink-0 flex flex-col items-center justify-center text-center pl-4 pr-4 mobile:px-8 md:pl-48 md:pr-32 relative overflow-hidden group bg-background z-10 mobile:justify-between mobile:py-16">
              <div class="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
                <div class="w-[60vw] h-[60vw] border border-accent rounded-full animate-ping [animation-duration:4s]"></div>
                <div class="absolute w-[30vw] h-[30vw] border border-primary rounded-full animate-ping [animation-duration:2s] delay-1000"></div>
              </div>
-             
-             <div class="relative z-10 flex flex-col items-end pl-8 py-2 text-right">
+
+             <div class="relative z-10 flex flex-col items-end pl-8 py-2 text-right mobile:border-l-2 mobile:border-accent mobile:items-start mobile:text-left">
                 <span class="text-eyebrow mb-8 block text-accent">[ Execution // Final_Phase ]</span>
-                <h2 class="font-mono text-6xl md:text-[8vw] leading-none tracking-tighter mb-8 uppercase text-primary drop-shadow-[0_0_30px_hsl(var(--accent)/0.3)]">Master the<span class="text-accent"><br/>Signal.</span></h2>
-                <p class="font-sans text-2xl text-muted-foreground mb-16 max-w-2xl">
+                <h2 class="font-mono text-6xl mobile:text-5xl md:text-[8vw] leading-none tracking-tighter mb-8 mobile:mb-4 uppercase text-primary drop-shadow-[0_0_30px_hsl(var(--accent)/0.3)]">Master the<span class="text-accent"><br/>Signal.</span></h2>
+                <p class="font-sans text-2xl mobile:text-xl text-muted-foreground mb-16 mobile:mb-0 max-w-2xl">
                   You know the data. You know the ROI. Let's architect a bespoke audio identity that converts.
                 </p>
-                <Button variant="default" className="is-electric-primary font-mono uppercase tracking-widest px-12 py-8 text-lg hover:scale-105 transition-all shadow-[0_0_40px_hsl(var(--primary)/0.4)]">
-                  Initiate_Consultation
-                </Button>
              </div>
+             <Button variant="default" className="is-electric-primary font-mono uppercase tracking-widest px-12 py-8 text-lg hover:scale-105 transition-all shadow-[0_0_40px_hsl(var(--primary)/0.4)] mobile:w-[calc(100%-3rem)] mobile:mx-6">
+               Initiate_Consultation
+             </Button>
           </section>
 
           <section class="w-[20vw] md:w-[25vw] h-full flex-shrink-0 bg-background z-10"></section>
@@ -526,6 +545,11 @@ const sections = [
       document.documentElement.classList.add('is-mobile-snap');
       if (visualsFadeText) gsap.set(visualsFadeText, { opacity: 0.05 });
       if (soundGrowText) gsap.set(soundGrowText, { scale: 1.2 });
+      // Adjust data map SVG viewBox to better fill 9:16 portrait
+      const archSvg = document.querySelector('section[data-sidebar="2"] svg');
+      if (archSvg) {
+        archSvg.setAttribute('viewBox', '80 250 480 860');
+      }
       return;
     }
 
@@ -1017,11 +1041,23 @@ const sections = [
   html.is-mobile-snap #horizontal-strip > section {
     width: 100vw !important;
     max-width: 100vw !important;
-    height: 100svh !important;
-    min-height: 100svh;
+    height: 100dvh !important;
+    min-height: 100dvh;
     scroll-snap-align: start;
     scroll-snap-stop: always;
     padding-right: 1vw;
     /* REMOVED: display, flex-direction, justify-content — was breaking hidden sections */
+  }
+
+  /* Consistent mobile typography baseline */
+  html.is-mobile-snap #horizontal-strip > section p {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+
+  html.is-mobile-snap #horizontal-strip > section h2 {
+    font-size: 3rem;
+    line-height: 1;
+    letter-spacing: -0.04em;
   }
 </style>
