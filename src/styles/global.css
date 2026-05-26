@@ -9,7 +9,7 @@
     /* ========================================================================
       LAYER 1: THE CANVAS (Surfaces)
     ======================================================================== */
-    --background: 180 20% 4%;       /* PAGE BACKGROUND (The Void) previous was 200 10% 10% */
+    --background: 180 20% 10%;       /* PAGE BACKGROUND (The Void) previous was 200 10% 10% */
     --foreground: 0 0% 95%;         /* MAIN TEXT */
 
     --card: 220 20% 7%;             /* CARDS */
@@ -92,55 +92,6 @@
 
     --gradient-glow: linear-gradient(135deg, hsl(185 100% 50% / 0.2), hsl(200 100% 60% / 0.1));
   }
-
-  /* =========================================================
-    THEME: SOLARIS ARCHITECT
-    ========================================================= */
-  .theme-solaris-architect {
-    /* 1. CANVAS */
-    --background: 51 29% 92%;      /* Cream */
-    --foreground: 40 19% 14%;      /* Sepia */
-
-    /* 2. STRUCTURE */
-    --grid-color: 40 10% 80%;      /* Warm Grey */
-    --grid-size: 20px;
-    --grid-thickness: 2px;         
-    
-    /* PATTERN OVERRIDE (For darker grid lines on light bg) */
-    --grid-pattern: 
-      linear-gradient(hsl(var(--grid-color) / 0.8) var(--grid-thickness), transparent var(--grid-thickness)),
-      linear-gradient(90deg, hsl(var(--grid-color) / 0.8) var(--grid-thickness), transparent var(--grid-thickness));
-
-    --active-grid-flow: none;      /* Static Grid */
-    --grid-opacity: 0.6;  
-    --rain-opacity: 0.8; 
-
-    /* 3. ENERGY */
-    --card: 0 0% 100%;            
-    --card-foreground: 40 19% 14%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 40 19% 14%;
-    --primary: 35 100% 55%;        /* Amber */
-    --primary-foreground: 40 19% 14%; 
-    --accent: 43 100% 60%;        
-    --accent-foreground: 40 19% 14%;
-    --border: 40 19% 14%;         
-    --input: 51 29% 92%;
-    --ring: 35 100% 55%;
-
-    /* 4. CURSORS */
-    --cursor-dot: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 16 16'%3E%3Crect fill='%232B261C' x='6' y='6' width='4' height='4'/%3E%3C/svg%3E") 8 8, auto;
-    --cursor-link: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 16 16'%3E%3Cpath fill='%23FF9F1C' d='M2 7h6v2H2V7zm6-2h2v6H8V5zm2 2h2v2h-2V7zm-2-4h2v2H8V3zm0 8h2v2H8v-2z'/%3E%3C/svg%3E") 0 0, pointer;
-
-    /* 5. PHYSICS */
-    --glow-strength: 0;         
-    --fog-strength: 0.1;           /* Very Clear */
-    --vignette-strength: 0.1;       
-  }
-
-  /* =========================================================
-    END OF THEME PACKAGES
-    ========================================================= */
   
 
   

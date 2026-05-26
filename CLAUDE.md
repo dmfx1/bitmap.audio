@@ -385,3 +385,149 @@ src/lib/utils.ts    — cn() utility
 src/styles/global.css — CSS variables, keyframes, base styles (1000+ lines)
 public/             — Static assets
 ```
+
+---
+
+## Mobile Optimisation Brief
+
+> Work through each section in order. Touch layout files before page-level files. Verify at 375px, 390px, and 430px after each change.
+
+### 1. Global layout padding — consistent in one place
+
+**Goal:** Every mobile page should have `px-4 py-8` as its base container padding, defined once in the layout.
+
+1. Open `src/layouts/Layout.astro` (the root layout wrapper).
+2. Locate the `<main>` or outer `<div>` that wraps the page slot.
+3. Add responsive padding so mobile gets `px-4 py-8` and larger screens scale up:
+   ```
+   class="px-4 py-8 md:px-8 lg:px-16"
+   ```
+4. Remove any hard-coded `px-*` / `py-*` / `p-*` padding from individual page components that duplicates or conflicts with the layout-level padding — pages should rely on the layout for outer spacing.
+5. Double-check every page after — none should feel too tight or too wide on a 375px viewport.
+
+---
+
+### 2. Sticky / fixed header on scroll
+
+**Goal:** The site header remains visible as the user scrolls on mobile.
+
+1. Open `src/components/Navigation.tsx`.
+2. Add `sticky top-0 z-50` to the header's outermost element, or the CSS equivalent:
+   ```css
+   position: sticky;
+   top: 0;
+   z-index: 50;
+   ```
+3. Ensure the header has a solid background so content doesn't bleed through on scroll. If it uses a transparent/glass style, add the brand background colour as a solid fallback for mobile.
+4. Cap header height at ~56–64px on mobile — it must not eat too much vertical space.
+5. **Brave quirk:** `position: sticky` can fail inside overflow containers in Brave. If sticky doesn't hold in Brave testing, switch to `position: fixed` and add a matching `padding-top` on `<main>` equal to the header height.
+
+---
+
+### 3. Body / paragraph font size increase on mobile
+
+**Goal:** All body-level text (paragraphs, descriptions, list items, captions) needs to be one step larger on mobile. The canonical example is the `<p>` under **Solutions → Sonic Branding** beginning "Your audience encounters thousands…" — every similar block site-wide needs the same treatment.
+
+1. Open `src/styles/global.css` and find the `@layer base` block (or `body`, `p` selectors).
+2. Bump paragraph text to **minimum 16px (1rem)** on mobile. If already 16px, bump to 17–18px:
+   ```css
+   @layer base {
+     p, li, td, label {
+       @apply text-base;   /* 16px minimum on mobile */
+     }
+   }
+   ```
+3. For **section description text** (copy beneath hero headlines, beneath solution headings) — replace any `text-sm` or `text-xs` instances with `text-base` at mobile breakpoints.
+4. Audit these pages specifically:
+   - `src/pages/solutions/sonic-branding.astro` — opening paragraph
+   - All other `src/pages/solutions/*.astro` pages
+   - `src/pages/home.astro` — descriptive paragraphs below hero/feature blocks
+   - `src/pages/about.astro` and `src/pages/contact.astro` body copy
+5. Do **not** change headline sizes (`h1`–`h3`) — only body/description copy.
+
+---
+
+### 4. Navigation dropdown — larger tap targets + Solutions always open on mobile
+
+**Goal:** The nav must be finger-friendly. The Solutions submenu should be expanded by default on mobile.
+
+#### 4a — Tap target sizes
+
+1. Open `src/components/Navigation.tsx`.
+2. All nav links and dropdown items must be at least **44×44px** (Apple HIG / WCAG standard):
+   ```
+   className="min-h-[44px] px-4 flex items-center"
+   ```
+   Apply to every `<a>` and `<button>` inside the mobile nav.
+3. Nav item font size on mobile must be at least `text-base` (16px).
+4. Add sufficient padding between items — `gap-1` or `space-y-1` minimum so nothing feels cramped.
+
+#### 4b — Solutions dropdown: always open on mobile
+
+1. Find the `isSolutionsOpen` state and its toggle in `Navigation.tsx`.
+2. Initialise it to `true` when the viewport is mobile:
+   ```tsx
+   const [isSolutionsOpen, setIsSolutionsOpen] = useState(
+     typeof window !== 'undefined' && window.innerWidth < 768
+   );
+   ```
+3. On desktop, preserve the existing click/hover toggle behaviour unchanged.
+4. Style the always-open submenu on mobile: indent slightly with `pl-4` so it reads as a submenu visually.
+
+> **Note:** The existing behaviour (collapsed by default, resets on menu close) is documented in this file under "Navigation". The change above overrides initial state on mobile only — the close-reset logic can remain for desktop.
+
+---
+
+### 5. Hero section bottom padding — cross-browser consistency
+
+**Goal:** Hero sections on every page must not clip content or allow the section below to overlap, on any browser (Brave, Safari, Chrome, Firefox).
+
+The problem is usually one of:
+- `min-h-screen` / `100vh` cutting off content when Brave/Safari show/hide their address bar (dynamic toolbar)
+- Missing explicit `padding-bottom`
+- A negative `mt-*` on the following section pulling it over the hero
+
+**Fix 1 — Dynamic viewport height.** Replace `h-screen` / `min-h-screen` with:
+```
+className="min-h-svh"   /* Tailwind v3.4+ — uses 100svh */
+```
+If Tailwind doesn't support `svh`, add to `global.css`:
+```css
+.hero {
+  min-height: 100svh; /* small viewport height — excludes browser chrome */
+}
+```
+Or use the JS `--vh` workaround if `svh` isn't available:
+```css
+.hero { min-height: calc(var(--vh, 1vh) * 100); }
+```
+```js
+const setVh = () =>
+  document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+window.addEventListener('resize', setVh);
+setVh();
+```
+
+**Fix 2 — Explicit bottom padding.** Every hero section needs:
+```
+className="... pb-16 md:pb-24"
+```
+
+**Fix 3 — Remove negative margins on next section.** Check the element immediately after each hero for `-mt-*` or absolute `top-*` positioning that causes overlap. Convert to a positive margin or remove.
+
+Apply to every page with a hero: `home.astro`, `index.astro`, `about.astro`, `contact.astro`, `solutions/*.astro`.
+
+---
+
+### 6. Audit checklist (run after all changes)
+
+Verify at **375px** (iPhone SE) and **390px** (iPhone 14) in Chrome DevTools, Brave, and Safari:
+
+- [ ] All pages have consistent `px-4 py-8` outer padding
+- [ ] Header sticks to top while scrolling in all three browsers
+- [ ] Paragraph text is at least 16px everywhere
+- [ ] Nav items are easily tappable (≥44px height)
+- [ ] Solutions submenu is pre-expanded in mobile nav
+- [ ] Hero text is never clipped; the section below never overlaps
+- [ ] No horizontal scroll at any breakpoint
+- [ ] Portrait and landscape both tested

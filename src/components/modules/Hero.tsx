@@ -33,7 +33,7 @@ export default function Hero() {
 
   return (
       <div className="w-full"> {/* Changed from section to div */}
-        <div className="mx-auto px-4 md:px-10 flex flex-col md:flex-row items-center justify-between gap-16 min-h-[80vh]">
+        <div className="mx-auto py-8 px-4 md:px-10 flex flex-col md:flex-row items-center justify-between gap-16 min-h-[80vh]">
           
           {/* TEXT CONTENT */}
           <div className="flex-1 space-y-8 animate-fade-in-up">

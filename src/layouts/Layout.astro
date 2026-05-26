@@ -6,7 +6,6 @@ import { SoundProvider } from '../context/SoundContext.tsx';
 import Navigation from '../components/Navigation.tsx';
 import Footer from '../components/Footer.astro';
 import GridBackground from '../components/GridBackground.astro';
-import ThemeSwitcher from '../components/ThemeSwitcher.tsx';
 
 const { title } = Astro.props;
 const currentPath = Astro.url.pathname;
@@ -31,7 +30,6 @@ const isFullBleed = isLandingPage || currentPath === "/returns" || currentPath =
         <GridBackground showRain={!isLandingPage} />
         
         { !isLandingPage && <Navigation currentPath={currentPath} client:load /> }
-        <ThemeSwitcher client:load />
         
         <div class="relative flex flex-col min-h-screen">
           <main class="flex-1 flex flex-col items-center"> 
