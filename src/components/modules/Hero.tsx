@@ -50,15 +50,17 @@ export default function Hero() {
               We architect sonic experiences that bridge the gap between digital interfaces and human perception.
             </p>
             
-            <div className="flex items-center gap-6">
-              <a href="/about">
-                <Button variant="default" size="xl" className="rounded-none px-4 py-2 text-xs md:px-8 md:text-base">
+            <div className="flex items-stretch gap-4 w-full max-w-sm">
+              <a href="/about" className="flex-1">
+                <Button variant="default" size="xl" className="rounded-none w-full text-xs md:text-base">
                   OUR STORY
                 </Button>
               </a>
-              <Button variant="outline" size="xl" className="morph-accent rounded-none px-4 py-2 text-xs md:px-8 md:text-base">
-                <a href="/contact">Start A Project</a>
-              </Button>
+              <a href="/contact" className="flex-1">
+                <Button variant="outline" size="xl" className="morph-accent rounded-none w-full text-xs md:text-base">
+                  START A PROJECT
+                </Button>
+              </a>
             </div>
           </div>
 

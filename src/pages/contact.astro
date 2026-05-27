@@ -25,20 +25,23 @@ const contactCards = [
 ---
 
 <Layout title="bitmap.audio | contact">
-  <Section id="hero" delay="0.1s">
-    <ContactHero client:load />
-  </Section>
+  <div class="sticky top-12 md:top-0  z-[1] h-[85vh] md:h-[66vh]">
+    <div class="h-full pt-16 pb-8">
+      <ContactHero client:load />
+    </div>
+  </div>
 
-  <Section id="details" delay="0.5s">
-    <ConceptGrid
-      client:visible
-      items={contactCards}
-      className="py-0"
-      mobileGlow={true}
-    />
-  </Section>
+  <div class="relative z-10 bg-background">
+    <Section id="details" delay="0.5s">
+      <ConceptGrid
+        client:visible
+        items={contactCards}
+        mobileGlow={true}
+      />
+    </Section>
 
-  <Section id="socials" delay="1.2s">
-    <SocialsGrid client:visible />
-  </Section>
+    <Section id="socials" delay="1.2s">
+      <SocialsGrid client:visible />
+    </Section>
+  </div>
 </Layout>

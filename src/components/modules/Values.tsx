@@ -21,7 +21,7 @@ const values = [
 
 export default function Values() {
   return (
-    <div className="w-full py-12 md:py-20">
+    <div className="w-full">
       <div className="text-center mb-16 md:mb-10">
         <p className="text-xs font-mono tracking-[0.5em] uppercase text-accent">
           Our Values

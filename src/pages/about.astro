@@ -2,8 +2,8 @@
 /* src/pages/about.astro */
 import Layout from '../layouts/Layout.astro';
 import Section from '../components/Section.astro';
-/* 1. Import the new Intro wrapper */
 import AboutIntro from '../components/modules/AboutIntro.tsx';
+import Founders from '../components/modules/Founders.tsx';
 import AboutPhilosophy from '../components/modules/AboutPhilosophy.tsx';
 import Values from '../components/modules/Values.tsx';
 import CTA from '../components/modules/CTA.tsx';
@@ -11,14 +11,18 @@ import CTA from '../components/modules/CTA.tsx';
 
 <Layout title="bitmap.audio | about">
   {/* Hero: sticks at top of container, content scrolls over it */}
-  <div class="sticky top-0 z-[1] h-[80vh] md:h-screen">
-    <div class="h-full pt-16">
+  <div class="sticky top-12 md:top-0 z-[1] h-[85vh] md:h-[85vh]">
+    <div class="h-full pt-20 pb-8">
       <AboutIntro client:load />
     </div>
   </div>
 
   {/* Content: scrolls over the sticky hero */}
   <div class="relative z-10 bg-background">
+    <Section id="founders" delay="0.2s">
+      <Founders client:visible />
+    </Section>
+
     <Section id="philosophy" delay="0.3s">
       <AboutPhilosophy client:visible />
     </Section>

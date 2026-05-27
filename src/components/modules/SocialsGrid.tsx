@@ -11,7 +11,7 @@ const socials = [
 
 export default function SocialsGrid() {
   return (
-    <div className="w-full py-12 flex flex-col items-center justify-center space-y-8 animate-fade-in-up">
+    <div className="w-full flex flex-col items-center justify-center space-y-8 animate-fade-in-up">
       <p className="text-eyebrow text-accent uppercase tracking-[0.5em] text-xs font-medium">
         Follow Our Work
       </p>

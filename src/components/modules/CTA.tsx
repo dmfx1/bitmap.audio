@@ -17,7 +17,7 @@ export default function CTA({
   href = "/contact"
 }: CTAProps) {
   return (
-    <div className="w-full flex flex-col items-center text-center py-24">
+    <div className="w-full flex flex-col items-center text-center">
       {/* HEADER: Solaris Amber Pulse */}
       <h2 className="text-3xl md:text-4xl font-mono text-accent animate-pulse mb-8 tracking-tight">
         {title}

@@ -57,7 +57,6 @@ export default function ConceptGrid({
   useEffect(() => {
     // Break early if autoplay is paused or disabled
     if (!activeScan || items.length === 0 || !autoplayActive) return;
-    if (typeof window !== 'undefined' && window.innerWidth < 768) return;
 
     let interval: NodeJS.Timeout;
 
@@ -203,7 +202,7 @@ function ProjectCard({
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   return (
-    <div className={cn("relative w-full h-full min-h-[200px]", mobileGlow && isMobile && "mobile-viewport-active")}>
+    <div className={cn("relative w-full min-h-[200px]", mobileGlow && isMobile && "mobile-viewport-active")}>
       <div 
         onMouseEnter={() => { onUserInteraction(); setIsHovered(true); }} 
         onMouseLeave={() => { onUserLeave(); setIsHovered(false); }} 
@@ -211,7 +210,7 @@ function ProjectCard({
         className={cn(
           "relative w-full h-full group p-8 md:p-10 border transition-all duration-500 ease-out overflow-hidden flex flex-col justify-between cursor-pointer",
           "bg-card/60 md:bg-card/90 backdrop-blur-md shadow-lg",
-          shouldBePlaying ? "border-accent md:scale-[1.05] z-50 shadow-2xl" : "border-muted-foreground z-10 scale-100"
+          shouldBePlaying ? "border-accent md:scale-[1.02] z-50 shadow-2xl" : "border-muted-foreground z-10 scale-100"
         )}
       >
         {/* --- THE CORNER ACCENT: ICON SWAP --- */}
@@ -232,8 +231,8 @@ function ProjectCard({
         {/* Video Preview */}
         {hasVideo && (
           <div className={cn(
-            "absolute inset-0 z-0 transition-opacity duration-700 pointer-events-none mix-blend-overlay", 
-            shouldBePlaying ? "opacity-40" : "opacity-0"
+            "absolute inset-0 z-0 transition-opacity duration-700 pointer-events-none mix-blend-screen",
+            shouldBePlaying ? "opacity-30" : "opacity-0"
           )}>
             <video 
               ref={videoRef} 
@@ -271,7 +270,7 @@ function ProjectCard({
           </div>
           
           {/* THE FIX: Added min-h-[80px] to absorb any padding the label-tape effect adds */}
-          <div className="mt-4 pb-4 min-h-[80px] flex flex-col justify-start">
+          <div className="mt-4 pb-4 h-[80px] overflow-hidden flex flex-col justify-start">
             <p className={cn(
               "font-mono transition-all duration-500 text-sm leading-relaxed font-light", 
               shouldBePlaying 

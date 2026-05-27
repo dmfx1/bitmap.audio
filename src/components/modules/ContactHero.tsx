@@ -44,7 +44,7 @@ export default function ContactHero() {
   }, []);
 
   return (
-    <div className="relative w-full py-24 md:py-36 min-h-[50vh] flex flex-col overflow-visible">
+    <div className="relative w-full md:py-36 min-h-[50vh] flex flex-col overflow-visible">
       
       {/* 1. BACKGROUND CONSTELLATION */}
       <div 
@@ -83,7 +83,7 @@ export default function ContactHero() {
       </div>
 
       {/* 2. HERO CONTENT */}
-      <div className="w-full md:max-w-4xl pl-0 md:pl-12 relative z-10">
+      <div className="w-full md:max-w-4xl pl-4 md:pl-12 relative z-10">
 
         <p className="text-eyebrow text-accent font-bold animate-fade-in mb-4">
           CONTACT <span className="opacity-50">/</span>

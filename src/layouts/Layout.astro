@@ -31,20 +31,22 @@ const isFullBleed = isLandingPage || currentPath === "/returns" || currentPath =
         
         { !isLandingPage && <Navigation currentPath={currentPath} client:load /> }
         
-        <div class="relative flex flex-col min-h-screen">
+        <div class="relative flex flex-col min-h-svh">
           <main class="flex-1 flex flex-col items-center"> 
             {isFullBleed ? (
-              <div class="w-full flex-1 flex flex-col">
-                <slot />
-              </div>
+              <>
+                <div class="w-full flex-1 flex flex-col">
+                  <slot />
+                </div>
+                {!isLandingPage && <Footer />}
+              </>
             ) : (
-              <div class="w-full max-w-[1400px] bg-background/95 min-h-screen shadow-2xl relative z-10">
+              <div class="w-full max-w-[1400px] bg-background/95 min-h-svh shadow-2xl relative z-10">
                 <slot />
+                <Footer />
               </div>
             )}
           </main>
-          
-          {!isLandingPage && <Footer />}
         </div>
       </TooltipProvider>
     </SoundProvider>

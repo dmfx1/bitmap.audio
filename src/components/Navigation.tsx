@@ -26,11 +26,13 @@ const why = [
 
 const Navigation = ({ currentPath }: { currentPath: string }) => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const [isSolutionsOpen, setIsSolutionsOpen] = useState(false);
+  const [isSolutionsOpen, setIsSolutionsOpen] = useState(
+    typeof window !== 'undefined' && window.innerWidth < 768
+  );
   const isActive = (path: string) => currentPath === path;
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/10">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background md:bg-background/80 backdrop-blur-md border-b border-border/10">
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between h-16">
           
@@ -125,29 +127,46 @@ const Navigation = ({ currentPath }: { currentPath: string }) => {
         {/* MOBILE MENU */}
         {isMobileOpen && (
           <div className="md:hidden border-t border-border animate-fade-in min-h-[calc(100dvh-4rem)] pb-8">
-            <div className="flex flex-col gap-4 pt-6">
-              <a href="/home" className="font-mono text-sm uppercase tracking-wider text-muted-foreground hover:text-primary">Home</a>
-              <a href="/about" className="font-mono text-sm uppercase tracking-wider text-muted-foreground hover:text-primary">About</a>
-              <a href="/returns" className="font-mono text-sm uppercase tracking-wider text-muted-foreground hover:text-primary">ROI</a>
+            <div className="flex flex-col gap-1 pt-6 pb-24">
+              <a href="/home" className="font-mono text-base uppercase tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">Home</a>
+              <a href="/about" className="font-mono text-base uppercase tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">About</a>
+              <a href="/returns" className="font-mono text-base uppercase tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">ROI</a>
+              <a href="/faq" className="font-mono text-base uppercase tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">FAQ</a>
               <div className="pt-2 border-t border-border">
                 <button
-                  className="w-full flex items-center justify-between font-mono text-xs uppercase tracking-wider text-accent"
+                  className="w-full flex items-center justify-between font-mono text-base uppercase tracking-wider text-accent min-h-[44px]"
                   onClick={() => setIsSolutionsOpen(!isSolutionsOpen)}
                 >
                   Solutions
                   <ChevronDown className={cn("w-4 h-4 transition-transform duration-200", isSolutionsOpen && "rotate-180")} />
                 </button>
                 {isSolutionsOpen && (
-                  <div className="mt-3 flex flex-col gap-3 pl-4">
+                  <div className="mt-1 flex flex-col gap-1 pl-4">
                     {solutions.map((s) => (
-                      <a key={s.href} href={s.href} className="font-mono text-sm text-foreground hover:text-primary">{s.name}</a>
+                      <a key={s.href} href={s.href} className="font-mono text-base text-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">{s.name}</a>
                     ))}
                   </div>
                 )}
               </div>
-              <Button variant="outline" size="sm" className="mt-4 w-fit" asChild>
-                <a href="/contact">Contact</a>
-              </Button>
+            </div>
+
+            {/* CONTACT — pinned to bottom of viewport, full width, thumb-reachable */}
+            <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-md border-t border-border/20 z-50">
+              <a
+                href="/contact"
+                onClick={() => setIsMobileOpen(false)}
+                className={cn(
+                  "flex items-center justify-center w-full min-h-[52px]",
+                  "font-mono text-sm uppercase tracking-widest font-bold",
+                  "bg-accent text-background",
+                  "shadow-[0_0_24px_hsl(var(--accent)/0.6)]",
+                  "transition-all duration-300",
+                  "hover:shadow-[0_0_40px_hsl(var(--accent)/0.9)] hover:brightness-110",
+                  "active:brightness-90"
+                )}
+              >
+                Start A Project
+              </a>
             </div>
           </div>
         )}

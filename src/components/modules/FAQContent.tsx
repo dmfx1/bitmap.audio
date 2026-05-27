@@ -26,16 +26,16 @@ export default function FAQContent() {
   const [openIndex, setOpenIndex] = useState<string | null>("process-0");
 
   return (
-    <div className="flex flex-col md:flex-row gap-16 py-10 max-w-6xl mx-auto px-6">
-      <aside className="md:w-1/5 sticky top-32 h-fit space-y-4">
-        <p className="text-eyebrow text-accent uppercase tracking-[0.5em] text-[10px] font-medium mb-8">
+    <div className="flex flex-col md:flex-row gap-16 max-w-6xl mx-auto px-2 md:px-6">
+      <aside className="md:w-1/5 sticky top-16 md:top-32 h-fit space-y-2 md:space-y-4 bg-background md:bg-transparent py-3 md:py-0 -mx-4 px-4 md:mx-0 md:px-0 z-10">
+        <p className="text-eyebrow text-accent uppercase tracking-[0.5em] text-2xl font-medium mb-3 md:mb-8">
           Index
         </p>
         {faqs.map((section) => (
           <a 
             key={section.id} 
             href={`#${section.id}`}
-            className="block font-mono text-[10px] uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors focus:outline-none"
+            className="block font-mono text-lg uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors focus:outline-none"
           >
             {`// ${section.category}`}
           </a>
@@ -54,7 +54,7 @@ export default function FAQContent() {
               index !== 0 && "mt-12"
             )}
           >
-            <h3 className="font-mono text-[10px] text-foreground/40 mb-4 flex items-center gap-3 uppercase tracking-[0.2em]">
+            <h3 className="font-mono text-lg text-foreground/40 mb-4 flex items-center gap-3 uppercase tracking-[0.2em]">
               <span className="text-accent">/</span> {section.category}
             </h3>
             
@@ -70,7 +70,7 @@ export default function FAQContent() {
                         type="button"
                         onClick={() => setOpenIndex(isOpen ? null : id)}
                         className={cn(
-                          "flex items-center justify-between w-full text-left font-mono text-xs md:text-sm tracking-wider transition-all duration-200 group focus:outline-none",
+                          "flex items-center justify-between w-full text-left font-mono text-lg tracking-wider transition-all duration-200 group focus:outline-none",
                           isOpen ? "pt-8 pb-4 text-accent" : "py-2 text-foreground hover:text-primary"
                         )}
                       >
@@ -86,7 +86,7 @@ export default function FAQContent() {
                     
                     <div className={isOpen ? "block" : "hidden"}>
                       <div className="pb-10 pt-2 px-4">
-                        <p className="text-sm text-muted-foreground font-mono leading-relaxed max-w-2xl border-l border-accent/30 pl-6 py-2">
+                        <p className="text-lg text-muted-foreground font-mono leading-relaxed max-w-2xl border-l border-accent/30 pl-6 py-2">
                           {item.a}
                         </p>
                       </div>

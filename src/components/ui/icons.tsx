@@ -358,3 +358,26 @@ export const BitmapMoon = ({ className, style }: IconProps) => (
     <rect x="16" y="9" width="2" height="6" fill="currentColor" />
   </svg>
 );
+
+/** BITMAP_QUESTION: A pixelated question mark */
+export const BitmapQuestion = ({ className, style }: IconProps) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    style={style}
+  >
+    {/* Top arc of ? */}
+    <rect x="4" y="2" width="6" height="2" fill="currentColor" />
+    <rect x="10" y="4" width="2" height="2" fill="currentColor" />
+    <rect x="10" y="6" width="2" height="2" fill="currentColor" />
+    <rect x="8"  y="8" width="2" height="2" fill="currentColor" />
+    <rect x="6"  y="8" width="2" height="2" fill="currentColor" />
+    <rect x="2"  y="4" width="2" height="2" fill="currentColor" />
+    {/* Dot */}
+    <rect x="6" y="12" width="2" height="2" fill="currentColor" />
+  </svg>
+);

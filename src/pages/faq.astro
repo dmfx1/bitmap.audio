@@ -4,24 +4,31 @@ import Layout from '../layouts/Layout.astro';
 import Section from '../components/Section.astro';
 import FAQContent from '../components/modules/FAQContent.tsx';
 import CTA from '../components/modules/CTA.tsx';
+import { BitmapQuestion } from '../components/ui/icons';
 ---
 
 <Layout title="bitmap.audio | faq">
-  <Section id="faq-hero" delay="0.1s" className="py-52 min-h-[40vh] flex items-end"> 
-    <div class="max-w-3xl">
+  <Section id="faq-hero" delay="0.1s" className="pt-8 pb-12 md:py-52 min-h-[40vh] flex items-start md:items-end">
+    <div class="absolute right-4 top-4 pointer-events-none select-none" aria-hidden="true">
+      <BitmapQuestion class="w-32 h-32 text-primary/10 rotate-12" />
+    </div>
+    <div class="absolute right-20 top-20 pointer-events-none select-none" aria-hidden="true">
+      <BitmapQuestion class="w-16 h-16 text-accent/20 -rotate-6" />
+    </div>
+    <div class="max-w-3xl relative z-10">
       <p class="text-eyebrow text-accent uppercase tracking-[0.5em] text-xs font-medium mb-4">
         Knowledge Base
       </p>
       <h1 class="text-4xl font-mono text-foreground mb-8 tracking-tighter"> 
         System <span class="mr-2">[</span>Inquiries<span class=" ml-2">]</span>
       </h1>
-      <p class="text-muted-foreground font-mono text-sm max-w-xl leading-relaxed opacity-60 uppercase tracking-wide">
+      <p class="text-muted-foreground font-mono text-base max-w-xl leading-relaxed opacity-60 uppercase tracking-wide">
         Documentation for our process, technical standards, and engagement models.
       </p>
     </div>
   </Section>
 
-  <Section id="faq-list" delay="0.3s" className="pt-0">
+  <Section id="faq-list" delay="0.3s">
     <FAQContent client:load />
   </Section>
 

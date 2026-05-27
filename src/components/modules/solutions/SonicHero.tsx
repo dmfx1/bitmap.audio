@@ -43,7 +43,7 @@ export default function SonicHero() {
   }, []);
 
   return (
-    <div className="relative w-full py-24 md:py-36 min-h-[50vh] flex flex-col overflow-visible">
+    <div className="relative w-full md:py-36 min-h-[50vh] flex flex-col overflow-visible">
       
       {/* 1. ICON CONSTELLATION */}
       <div 
@@ -80,8 +80,8 @@ export default function SonicHero() {
         )}
       </div>
 
-      <div className="w-full md:max-w-4xl pl-0 md:pl-12 relative z-10">
-        <a href="/home" className="group inline-flex items-center text-xs font-mono tracking-widest text-primary/60 hover:text-primary transition-colors mb-12">
+      <div className="w-full md:max-w-4xl pl-4 md:pl-12 relative z-10">
+        <a href="/home" className="group inline-flex items-center text-sm pb-4 md:pb-0 font-mono tracking-widest text-primary/60 hover:text-primary transition-colors mb-4 md:mb-12">
           <ChevronLeft className="w-3 h-3 mr-1 group-hover:-translate-x-1 transition-transform" />
           BACK TO HOME
         </a>

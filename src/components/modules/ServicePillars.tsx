@@ -93,7 +93,7 @@ export default function ServicePillars() {
     <div 
       ref={containerRef} 
       className={cn(
-        "max-w-[1440px] mx-auto py-12 md:py-24 px-4 md:px-10 transition-all duration-1000 ease-out",
+        "max-w-[1440px] mx-auto px-4 md:px-10 transition-all duration-1000 ease-out",
         internalScan ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
       )}
     >

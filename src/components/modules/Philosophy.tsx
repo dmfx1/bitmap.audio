@@ -41,7 +41,7 @@ export default function Philosophy() {
     }, []);
 
   return (
-    <div ref={sectionRef} className="flex flex-col items-center text-center py-12">
+    <div ref={sectionRef} className="flex flex-col items-center text-center">
       <p className="text-eyebrow text-accent text-xs mb-8">Our Philosophy</p>
       
       <div className="max-w-4xl min-h-[160px] md:min-h-[200px]">
