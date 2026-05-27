@@ -1110,7 +1110,55 @@ After these changes, hover/autoplay should animate border, shadow, and text colo
 
 ---
 
-### 18. ConceptGrid autoplay — enable on mobile
+### 18. ServicePillars "LEARN MORE" — fixed bottom position + larger text
+
+**The problem:** The "LEARN MORE" button uses `mt-auto` to push to the bottom of the flex container. On desktop this works because grid rows equalise card heights. On mobile (single column) each card is its own height — cards with longer descriptions push LEARN MORE further down, creating inconsistent spacing.
+
+**The goal:** LEARN MORE should always sit at the exact same distance from the bottom edge as the icon sits from the top edge. The card uses `p-6 md:p-12` padding, so the icon is always 24px (mobile) / 48px (desktop) from the top. LEARN MORE should be the same distance from the bottom.
+
+**The fix in `src/components/modules/ServicePillars.tsx`:**
+
+**Change 1 — Card `<a>` — add extra bottom padding to reserve space for the absolute button:**
+```tsx
+// Find:
+"relative flex flex-col p-6 md:p-12 transition-all duration-500 ..."
+// Change to:
+"relative flex flex-col p-6 md:p-12 pb-14 md:pb-20 transition-all duration-500 ..."
+```
+
+**Change 2 — Description `<p>` — remove `mb-10 min-h-[60px]`:**
+```tsx
+// Find:
+<p className="font-sans text-muted-foreground mb-10 min-h-[60px] font-light leading-relaxed">
+// Change to:
+<p className="font-sans text-muted-foreground font-light leading-relaxed">
+```
+
+**Change 3 — LEARN MORE container — switch from `mt-auto` to `absolute` pinned to bottom:**
+```tsx
+// Find:
+<div className="mt-auto pt-4">
+  <span className={cn("inline-flex items-center gap-3 text-[10px] font-mono ...")}>
+    LEARN MORE
+    <ArrowRight className="w-3 h-3 ..." />
+  </span>
+</div>
+// Replace with:
+<div className="absolute bottom-6 md:bottom-12 left-6 md:left-12">
+  <span className={cn("inline-flex items-center gap-3 text-sm font-mono ...")}>
+    LEARN MORE
+    <ArrowRight className="w-4 h-4 ..." />
+  </span>
+</div>
+```
+
+Key changes: `mt-auto` → `absolute bottom-6 md:bottom-12 left-6 md:left-12` (mirrors card padding exactly), `text-[10px]` → `text-sm`, `w-3 h-3` → `w-4 h-4` on the arrow.
+
+**This fix has already been applied directly to the file** — do not re-apply. Document only.
+
+---
+
+### 19. ConceptGrid autoplay — enable on mobile
 
 **The problem:** Both the auto-highlighting cycle and the background video playback are disabled on mobile. The root cause is a single early-return guard at the top of the autoplay `useEffect` in `src/components/modules/ConceptGrid.tsx`:
 
@@ -1182,3 +1230,165 @@ Verify at **375px** (iPhone SE) and **390px** (iPhone 14) in Chrome DevTools, Br
 - [ ] Paragraph text is at least 16px everywhere across all pages including FAQ
 - [ ] No horizontal scroll at any breakpoint
 - [ ] Portrait and landscape both tested
+
+---
+
+## Next Session — Priority Work Items
+
+Work through these in order. Each is a separate task — complete and verify one before starting the next.
+
+---
+
+### A. Finalise `returns.astro` (ROI page) — mobile and desktop
+
+This page has its own scroll architecture (1600vh sticky horizontal strip — see the `returns.astro` section in the main CLAUDE.md context above). It is the most complex page on the site and needs a dedicated pass.
+
+**Mobile (< 768px):**
+- Each slide must behave like an Instagram reel: snap to full viewport height (`100svh`), text content first (top), imagery second (below), no horizontal overflow
+- All text must fit within the device viewport width — check every slide at 375px
+- Each slide should be self-contained — a user should read a complete thought before scrolling to the next
+- CSS scroll-snap is the correct mechanism (`scroll-snap-type: y mandatory` on the container, `scroll-snap-align: start` on each slide) — do not use GSAP on mobile
+- Verify: no content clipped behind the fixed nav; no horizontal scroll
+
+**Desktop:**
+- Run through all 12 chapters and verify the GSAP scroll-driven animations play correctly at standard laptop widths (1280px, 1440px)
+- Check sidebar indicators are vertically centred against their corresponding section
+- Verify the ROI counter (1.0x → 4.0x), SVG progress ring, path drawing, tiger blur, and ghost halo animations all trigger at the correct scroll positions
+- Check binary rain visibility at page edges (left/right of the inset section panels) as the user scrolls deep into the 1600vh track
+
+**Both:**
+- Confirm the page title is `bitmap.audio | returns` in the browser tab
+- Performance: the 1600vh scroll track is heavy — check for jank on mid-range devices (use Chrome DevTools Performance panel, target 60fps on scroll)
+
+---
+
+### B. Remove footer from `returns.astro` — end with a "go home" option
+
+**The problem:** The standard `<Footer>` component renders at the bottom of `returns.astro`. After completing the 12-chapter slideshow the user lands on a footer that breaks the immersive experience.
+
+**The fix:**
+
+1. Open `src/pages/returns.astro` and find the `<Footer>` component import and usage. Remove both.
+
+2. In its place, add a minimal end-of-journey screen as the final element after the scroll track — or as the 13th slide within the horizontal strip if the architecture supports it cleanly. The end screen should:
+   - Fill the viewport (`h-screen` or `h-svh`)
+   - Be visually minimal — dark background, no busy content
+   - Show the bitmap.audio logo mark (use `BitmapIcon` from `BitmapText`)
+   - Provide a single CTA link back to `/home`:
+     ```tsx
+     <a href="/home" className="font-mono text-sm uppercase tracking-widest text-accent hover:brightness-125 transition-all">
+       ← Return to Site
+     </a>
+     ```
+   - Optionally show a secondary link to `/contact` ("Start a Project") using the same accent button style as the mobile nav's pinned Contact button
+
+3. On mobile (snap-scroll mode), this end screen becomes the final snap slide.
+
+4. Do not add the footer back to `returns.astro` under any circumstances — this page is intentionally footer-free.
+
+---
+
+### C. Performance review — full site
+
+**Goal:** Identify and fix the sources of sluggishness across the site. The site currently feels slow to respond on scroll and interaction. Work through these in order of likely impact.
+
+#### C1 — Audit bundle size and unused JS
+
+1. Run `npm run build` and check the output for large chunks. Any JS chunk over 100kb (gzipped) should be investigated.
+2. Check for any libraries imported globally that could be lazy-loaded (e.g. GSAP should only load on pages that use it — `returns.astro`).
+3. Verify Astro's `client:load` vs `client:visible` vs `client:idle` directives are used correctly across all pages:
+   - `client:load` — only for components needed immediately on page paint (Navigation, HomeHero)
+   - `client:visible` — for components below the fold (CTA, most Section content)
+   - `client:idle` — for non-critical components that can wait (SocialsGrid, FAQ index)
+   - Audit `src/pages/*.astro` and `src/pages/solutions/*.astro` — replace any unnecessary `client:load` with `client:visible`
+
+#### C2 — GSAP and ScrollTrigger loading
+
+1. GSAP is currently likely imported on every page via a shared bundle. Confirm it is only initialised on `returns.astro`. On all other pages, GSAP should not be in the critical path.
+2. In `returns.astro`, ensure `ScrollTrigger.refresh()` is called after the page fully loads (not just DOM ready) — premature refresh causes incorrect trigger positions.
+
+#### C3 — Image optimisation
+
+1. Audit `public/images/` — check for any uncompressed PNG or JPEG files over 200kb.
+2. All images used in `<img>` tags should have explicit `width` and `height` attributes to prevent layout shift (CLS).
+3. Add `loading="lazy"` to all images below the fold. Add `fetchpriority="high"` to the hero image (logo/brand mark) on the landing page.
+
+#### C4 — CSS animation performance
+
+1. In `src/styles/global.css`, find all `@keyframes` that animate `box-shadow`, `text-shadow`, `background-color`, or `filter`. These trigger repaints on every frame.
+2. Replace with `opacity` or `transform`-only equivalents where possible — these are GPU-composited and don't repaint.
+3. Specifically audit: `pulseGlow`, `emotion-heartbeat`, `animate-morph`. If they animate non-transform/opacity properties, refactor.
+4. Add `will-change: transform` only to elements that are actively animating (not globally) — overuse of `will-change` causes excess GPU memory use.
+
+#### C5 — Section reveal jank
+
+1. Verify `Section.astro`'s IntersectionObserver has `rootMargin: "0px 0px 150px 0px"` (section 6 of the mobile brief). If not yet applied, apply it now.
+2. The `opacity-0 translate-y-6` initial state on reveal sections should use `transition: opacity 0.4s ease, transform 0.4s ease` — not a CSS class that applies a transition to all properties. Confirm this is scoped correctly.
+
+#### C6 — Measure and report
+
+After making changes, run Lighthouse on the following pages and record scores:
+- `/` (index/splash)
+- `/home`
+- `/returns`
+- `/solutions/sonic-branding`
+
+Target: Performance score ≥ 85 on desktop, ≥ 70 on mobile. Report any remaining bottlenecks as comments in this file.
+
+---
+
+### D. SEO / AEO / GEO review — optimise for AI citation
+
+**Context:** The SEO landscape in 2026 has shifted from ranking optimisation to Generative Engine Optimization (GEO) and Answer Engine Optimization (AEO). AI models (ChatGPT, Perplexity, Google AI Overviews) now prioritize citing authoritative sources over surfacing blue links. The goal is for bitmap.audio to be the source AI models cite when answering questions about sonic branding, UI/UX sound design, and immersive audio.
+
+Work through each of the following areas:
+
+#### D1 — Schema markup (structured data)
+
+1. Open `src/layouts/Layout.astro`. Add JSON-LD schema to the `<head>` for the following types:
+   - `Organization` — name, url, logo, description, sameAs (link to all social profiles)
+   - `WebSite` — with `SearchAction` if a site search exists
+2. On solution pages (`sonic-branding.astro`, `uiux-sound.astro`, `immersive-audio.astro`), add `Service` schema with:
+   - `name`, `description`, `provider` (the Organization), `areaServed`, `serviceType`
+3. On `faq.astro`, add `FAQPage` schema — this directly feeds AI answer engines. Each Q&A pair in `FAQContent.tsx` should map to a `Question`/`Answer` pair in the schema.
+4. On `returns.astro` (ROI page), add `Article` or `WebPage` schema with `about` pointing to sonic branding topics.
+5. Validate all schema at https://validator.schema.org before committing.
+
+#### D2 — Meta tags audit
+
+1. Every page must have a unique, descriptive `<title>` (50–60 chars) and `<meta name="description">` (120–155 chars).
+2. Add Open Graph tags (`og:title`, `og:description`, `og:image`, `og:url`, `og:type`) to every page — these feed social sharing and are read by AI crawlers.
+3. Add `<meta name="robots" content="index, follow">` globally in `Layout.astro`.
+4. Add canonical URLs (`<link rel="canonical" href="...">`) to every page to prevent duplicate content signals.
+5. Check `public/robots.txt` and `public/sitemap.xml` — if either doesn't exist, create them. The sitemap should list every public route.
+
+#### D3 — Content structure for AI citability
+
+AI models cite content that is structured in clear, self-contained, factual blocks. Review the following pages and restructure copy where needed:
+
+- **`/home`** — ensure the page has a clear `<h1>` that states what bitmap.audio is ("Sonic Branding & Immersive Audio for Digital Products"). Currently the typewriter animation may be rendering text without a real `<h1>` in the DOM — confirm the heading exists as actual text for crawlers.
+- **`/about`** — add a clear "About" statement in the first 100 words that an AI can extract as a factual description of the company.
+- **`/solutions/sonic-branding`** — the opening paragraph ("Your audience encounters thousands…") should be followed by a concise definition block: what sonic branding is, what bitmap.audio does, and who it's for. This is the most citable page on the site.
+- **`/returns`** — the ROI data (4x brand recall, 25% credibility increase etc.) should exist as real DOM text, not just as GSAP-animated numbers. Add a visually hidden (but crawlable) summary of the key statistics using `<dl>` (definition list) with `<dt>` / `<dd>` pairs, or a table.
+- **`/faq`** — FAQs are the highest-value AEO asset on the site. Ensure every question and answer is in the DOM as real text (not generated by JS at runtime in a way that prevents crawling). Verify by viewing page source — the FAQ content should be visible in the raw HTML.
+
+#### D4 — E-E-A-T signals
+
+1. **Author/team attribution:** Add the founders' names and roles to the About page in a way that's clearly structured and crawlable (e.g. a `<section>` with `itemprop="author"` or `Person` schema markup for each founder).
+2. **External citations:** Identify 2–3 statistics cited on the returns/ROI page (brand recall lift, emotional response figures) and link them to their original sources. AI models prioritize pages that cite primary research.
+3. **`llms.txt` file:** Create `public/llms.txt` — a plain-text file (similar to `robots.txt`) that tells AI crawlers what bitmap.audio is, what it does, and what it wants to be cited for. Format:
+   ```
+   # bitmap.audio
+   bitmap.audio is a sonic branding and immersive audio agency.
+   We design sound identities, UI/UX audio, and spatial audio experiences for digital products and brands.
+   
+   ## Services
+   - Sonic Branding: audio logos, brand sound systems, sonic identity
+   - UI/UX Sound: interface sounds, app audio, digital product sound design
+   - Immersive Audio: AR/VR spatial audio, installation sound, 360° experiences
+   
+   ## Founded by
+   - Dom Storrs-Fox: Sound Designer & Technologist
+   - Nick Granville-Fall: Composer & Spatial Audio Designer
+   ```
+4. **Page speed as trust signal:** Fast pages are ranked higher and cited more by AI models — ensure the performance work in section C is completed before this step.

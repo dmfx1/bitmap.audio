@@ -24,7 +24,10 @@ const contactCards = [
 ];
 ---
 
-<Layout title="bitmap.audio | contact">
+<Layout
+  title="Contact bitmap.audio | Start Your Sonic Brand"
+  description="Get in touch with bitmap.audio to discuss sonic branding, UI/UX sound design, or immersive audio projects. Email us at root@bitmap.audio."
+>
   <div class="sticky top-12 md:top-0  z-[1] h-[85vh] md:h-[66vh]">
     <div class="h-full pt-16 pb-8">
       <ContactHero client:load />
@@ -41,7 +44,7 @@ const contactCards = [
     </Section>
 
     <Section id="socials" delay="1.2s">
-      <SocialsGrid client:visible />
+      <SocialsGrid client:idle />
     </Section>
   </div>
 </Layout>

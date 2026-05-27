@@ -46,7 +46,26 @@ const immersiveDeliverables = [
 ];
 ---
 
-<Layout title="bitmap.audio | immersiveAudio">
+<Layout
+  title="Immersive Audio & Spatial Sound Design | bitmap.audio"
+  description="bitmap.audio creates 3D spatial audio, ambisonics, generative soundscapes, and interactive audio systems for VR, AR, installations, and experiential environments."
+>
+  <Fragment slot="head">
+    <script is:inline type="application/ld+json">{JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "name": "Immersive Audio",
+      "description": "3D and spatial audio design, ambisonics and binaural mixes, interactive audio systems, generative soundscapes, installation audio, and technical integration for VR, AR, and experiential environments.",
+      "provider": {
+        "@type": "Organization",
+        "@id": "https://bitmap.audio/#organization",
+        "name": "bitmap.audio"
+      },
+      "serviceType": "Immersive Audio Design",
+      "areaServed": "Worldwide",
+      "url": "https://bitmap.audio/solutions/immersive-audio"
+    })}</script>
+  </Fragment>
   {/* Hero: sticks at top of container, content scrolls over it */}
   <div class="sticky top-12 md:top-0 z-[1] h-[85vh] md:h-[66vh]">
     <div class="h-full pt-16 pb-8">

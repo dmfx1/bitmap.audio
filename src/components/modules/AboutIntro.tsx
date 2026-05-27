@@ -19,7 +19,7 @@ export default function AboutIntro() {
 
       {/* 1. BACKGROUND SKETCH (Bleeding Layer) */}
       <div
-        className="absolute right-0 md:right-[-5%] top-[5%] w-[300px] md:w-[700px] pointer-events-none z-0"
+        className="absolute right-0 md:right-[0%] top-[5%] w-[300px] md:w-[700px] pointer-events-none z-0"
         style={{
           clipPath: `inset(0 ${100 - revealProgress}% 0 0)`,
           transition: 'clip-path 0.1s linear'

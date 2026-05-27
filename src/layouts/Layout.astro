@@ -7,10 +7,13 @@ import Navigation from '../components/Navigation.tsx';
 import Footer from '../components/Footer.astro';
 import GridBackground from '../components/GridBackground.astro';
 
-const { title } = Astro.props;
+const { title, description = "", canonical = "" } = Astro.props;
 const currentPath = Astro.url.pathname;
 const isLandingPage = currentPath === "/" || currentPath === "/index.html";
-const isFullBleed = isLandingPage || currentPath === "/returns" || currentPath === "/returns/";
+const isReturnsPage = currentPath === "/returns" || currentPath === "/returns/";
+const isFullBleed = isLandingPage || isReturnsPage;
+const siteUrl = "https://bitmap.audio";
+const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
 
 ---
 
@@ -19,8 +22,45 @@ const isFullBleed = isLandingPage || currentPath === "/returns" || currentPath =
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="index, follow" />
+    {description && <meta name="description" content={description} />}
+    <link rel="canonical" href={resolvedCanonical} />
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-1 0.5 7 8' shape-rendering='crispEdges' fill='black' stroke='black' stroke-width='0.25'><rect x='0' y='1' width='1' height='1' /><rect x='1' y='2' width='1' height='5' /><rect x='0' y='4' width='4' height='1' /><rect x='4' y='4' width='1' height='3' /><rect x='1' y='7' width='3' height='1' /></svg>" />
     <title>{title}</title>
+    <!-- Open Graph -->
+    <meta property="og:title" content={title} />
+    {description && <meta property="og:description" content={description} />}
+    <meta property="og:url" content={resolvedCanonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content={`${siteUrl}/images/logo-b.white-bg.png`} />
+    <meta property="og:site_name" content="bitmap.audio" />
+    <!-- JSON-LD: Organization + WebSite -->
+    <script is:inline type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": `${siteUrl}/#organization`,
+          "name": "bitmap.audio",
+          "url": siteUrl,
+          "logo": `${siteUrl}/images/logo-b.png`,
+          "description": "Sonic branding and immersive audio agency designing sound identities, UI/UX audio, and spatial audio experiences for digital products and brands.",
+          "sameAs": [
+            "https://instagram.com/bitmap.audio",
+            "https://threads.net/@bitmap.audio",
+            "https://linkedin.com/company/bitmapaudio"
+          ]
+        },
+        {
+          "@type": "WebSite",
+          "@id": `${siteUrl}/#website`,
+          "url": siteUrl,
+          "name": "bitmap.audio",
+          "publisher": { "@id": `${siteUrl}/#organization` }
+        }
+      ]
+    })} />
+    <slot name="head" />
   </head>
   
   <body class="bg-background text-foreground antialiased selection:bg-primary/30 opacity-0 animate-page-in">
@@ -38,7 +78,7 @@ const isFullBleed = isLandingPage || currentPath === "/returns" || currentPath =
                 <div class="w-full flex-1 flex flex-col">
                   <slot />
                 </div>
-                {!isLandingPage && <Footer />}
+                {!isLandingPage && !isReturnsPage && <Footer />}
               </>
             ) : (
               <div class="w-full max-w-[1400px] bg-background/95 min-h-svh shadow-2xl relative z-10">

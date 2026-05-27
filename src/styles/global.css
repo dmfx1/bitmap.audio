@@ -9,7 +9,7 @@
     /* ========================================================================
       LAYER 1: THE CANVAS (Surfaces)
     ======================================================================== */
-    --background: 180 20% 10%;       /* PAGE BACKGROUND (The Void) previous was 200 10% 10% */
+    --background: 180 20% 9%;       /* PAGE BACKGROUND (The Void) previous was 200 10% 10% */
     --foreground: 0 0% 95%;         /* MAIN TEXT */
 
     --card: 220 20% 7%;             /* CARDS */

@@ -37,7 +37,26 @@ const uiuxDeliverables = [
 ];
 ---
 
-<Layout title="bitmap.audio | ui/uxSound">
+<Layout
+  title="UI/UX Sound Design | Interface Audio for Apps | bitmap.audio"
+  description="bitmap.audio designs interaction sound libraries, notification hierarchies, and feedback audio for mobile apps, web applications, and hardware products."
+>
+  <Fragment slot="head">
+    <script is:inline type="application/ld+json">{JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "name": "UI/UX Sound Design",
+      "description": "Interaction sound libraries, state and feedback sounds, notification hierarchies, error and success indicators, and loading audio for mobile apps, web applications, and hardware products.",
+      "provider": {
+        "@type": "Organization",
+        "@id": "https://bitmap.audio/#organization",
+        "name": "bitmap.audio"
+      },
+      "serviceType": "UI/UX Sound Design",
+      "areaServed": "Worldwide",
+      "url": "https://bitmap.audio/solutions/uiux-sound"
+    })}</script>
+  </Fragment>
   {/* Hero: sticks at top of container, content scrolls over it */}
   <div class="sticky top-12 md:top-0 z-[1] h-[85vh] md:h-[66vh]">
     <div class="h-full pt-16 pb-8">

@@ -17,7 +17,26 @@ const sonicDeliverables = [
 ];
 ---
 
-<Layout title="bitmap.audio | sonicBranding">
+<Layout
+  title="Sonic Branding Services | Audio Identity Design | bitmap.audio"
+  description="bitmap.audio creates comprehensive sonic brand systems — audio logos, brand sound guidelines, adaptive audio assets, and hold music for digital-first companies."
+>
+  <Fragment slot="head">
+    <script is:inline type="application/ld+json">{JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "name": "Sonic Branding",
+      "description": "Comprehensive sonic brand systems including audio logos, brand sound guidelines, adaptive audio assets, notification sounds, and podcast/video intros for digital-first companies.",
+      "provider": {
+        "@type": "Organization",
+        "@id": "https://bitmap.audio/#organization",
+        "name": "bitmap.audio"
+      },
+      "serviceType": "Sonic Branding",
+      "areaServed": "Worldwide",
+      "url": "https://bitmap.audio/solutions/sonic-branding"
+    })}</script>
+  </Fragment>
   {/* Hero: sticks at top of container, content scrolls over it */}
   <div class="sticky top-12 md:top-0 z-[1] h-[85vh] md:h-[66vh]">
     <div class="h-full pt-16 pb-8">

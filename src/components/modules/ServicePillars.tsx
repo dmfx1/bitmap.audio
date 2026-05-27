@@ -7,17 +7,17 @@ const services = [
     icon: Radio, 
     title: "Sonic Branding", 
     href: "/solutions/sonic-branding",
-    desc: "Define your brand's audio identity with custom sound logos, audio guidelines, and comprehensive sonic systems."
+    desc: "Define your brand's audio identity with comprehensive sonic infrastructure that resonates across your entire network."
   },
   { 
     icon: Layers, 
     title: "UI/UX Sound", 
     href: "/solutions/uiux-sound",
-    desc: "Enhance digital products with intuitive audio feedback, notification systems, and interface sounds."
+    desc: "Enhance digital products and systems with audio feedback and interface sounds, enhancing trust and confidence in user experience."
   },
   { 
     icon: Headphones, 
-    title: "Immersive Audio", 
+    title: "Experiential Audio", 
     href: "/solutions/immersive-audio",
     desc: "Create spatial audio experiences for AR/VR, installations, and experiential environments."
   },
@@ -144,10 +144,10 @@ function ServiceCard({
       onMouseEnter={() => { onUserInteraction(); setIsHovered(true); }}
       onMouseLeave={() => { onUserLeave(); setIsHovered(false); }} // Fire the resume timer
       className={cn(
-        "relative flex flex-col p-6 md:p-12 transition-all duration-500 overflow-hidden border cursor-pointer block focus:outline-none focus:ring-1 focus:ring-accent",
-        "bg-background/40 backdrop-blur-sm", 
-        isActive 
-          ? "border-accent bg-background/80 shadow-[0_0_30px_hsl(var(--primary)/0.1)] scale-[1.02] z-20" 
+        "relative flex flex-col p-6 md:p-12 pb-14 md:pb-20 transition-all duration-500 overflow-hidden border cursor-pointer block focus:outline-none focus:ring-1 focus:ring-accent",
+        "bg-background/40 backdrop-blur-sm",
+        isActive
+          ? "border-accent bg-background/80 shadow-[0_0_30px_hsl(var(--primary)/0.1)] scale-[1.02] z-20"
           : "border-border/20 z-10 scale-100"
       )}
     >
@@ -169,21 +169,21 @@ function ServiceCard({
         {service.title}
       </h3>
       
-      <p className="font-sans text-muted-foreground mb-10 min-h-[60px] font-light leading-relaxed">
+      <p className="font-sans text-muted-foreground font-light leading-relaxed">
         {service.desc}
       </p>
-      
-      {/* LINK (Now a span so we don't nest an <a> inside an <a>) */}
-      <div className="mt-auto pt-4">
-        <span 
+
+      {/* LEARN MORE — pinned at fixed distance from bottom, matching icon distance from top */}
+      <div className="absolute bottom-6 md:bottom-12 left-6 md:left-12">
+        <span
           className={cn(
-            "inline-flex items-center gap-3 text-[10px] font-mono tracking-[0.2em] uppercase transition-colors",
+            "inline-flex items-center gap-3 text-sm font-mono tracking-[0.2em] uppercase transition-colors",
             isActive ? "text-accent" : "text-primary"
           )}
         >
-          LEARN MORE 
+          LEARN MORE
           <ArrowRight className={cn(
-            "w-3 h-3 transition-transform duration-300",
+            "w-4 h-4 transition-transform duration-300",
             isActive ? "translate-x-2" : "translate-x-0"
           )} />
         </span>

@@ -7,7 +7,50 @@ import CTA from '../components/modules/CTA.tsx';
 import { BitmapQuestion } from '../components/ui/icons';
 ---
 
-<Layout title="bitmap.audio | faq">
+<Layout
+  title="FAQ | Sonic Branding & Audio Design | bitmap.audio"
+  description="Answers to common questions about sonic branding, UI/UX sound design, immersive audio, our process, and how to start a project with bitmap.audio."
+>
+  <Fragment slot="head">
+    <script is:inline type="application/ld+json">{JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How do we start a project?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Every project begins with a 'Sonic Audit'. We map your existing touchpoints and identify opportunities for sonic infrastructure improvements. Once the blueprint is approved, we move to synthesis."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the typical timeline?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A standard sonic branding package typically requires a 4-6 week sprint from audit to delivery."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is 'Sonic UI'?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Sonic UI refers to the functional audio cues within a digital interface. It is the sound of a successful transaction, a notification, or a data-upload completion—designed to reduce cognitive load."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do you provide spatial audio?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. We engineer immersive assets specifically for Atmos, Binaural, and VR/AR environments using object-based audio mapping."
+          }
+        }
+      ]
+    })}</script>
+  </Fragment>
   <Section id="faq-hero" delay="0.1s" className="pt-8 pb-12 md:py-52 min-h-[40vh] flex items-start md:items-end">
     <div class="absolute right-4 top-4 pointer-events-none select-none" aria-hidden="true">
       <BitmapQuestion class="w-32 h-32 text-primary/10 rotate-12" />
@@ -29,7 +72,7 @@ import { BitmapQuestion } from '../components/ui/icons';
   </Section>
 
   <Section id="faq-list" delay="0.3s">
-    <FAQContent client:load />
+    <FAQContent client:visible />
   </Section>
 
   <Section id="cta" delay="0.5s">
