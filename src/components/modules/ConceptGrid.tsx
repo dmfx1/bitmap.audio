@@ -130,7 +130,7 @@ export default function ConceptGrid({
       {(eyebrow || sectionTitle) && (
         <div className="text-center mb-16 space-y-4">
           {eyebrow && (
-            <p className="text-accent uppercase tracking-[0.5em] text-[10px] font-mono">
+            <p className="text-accent uppercase tracking-[0.5em] text-base font-mono">
               {eyebrow}
             </p>
           )}
@@ -252,7 +252,7 @@ function ProjectCard({
             )}
             
             <h3 className={cn(
-              "font-mono text-base uppercase tracking-[0.2em] transition-colors duration-300", 
+              "font-mono text-base uppercase tracking-[0.2em] px-1 transition-colors duration-300", 
               item.subtitle ? "mb-1" : "mb-3", 
               shouldBePlaying ? "text-accent bg-primary/10" : "text-primary"
             )}>
@@ -261,7 +261,7 @@ function ProjectCard({
 
             {item.subtitle && (
               <h4 className={cn(
-                "font-mono text-sm tracking-widest mb-3 transition-colors duration-300",
+                "font-mono text-sm tracking-widest mb-3 px-1 transition-colors duration-300",
                 shouldBePlaying ? "text-foreground" : "text-accent" 
               )}>
                 {item.subtitle}
@@ -272,9 +272,9 @@ function ProjectCard({
           {/* THE FIX: Added min-h-[80px] to absorb any padding the label-tape effect adds */}
           <div className="mt-4 pb-4 h-[80px] overflow-hidden flex flex-col justify-start">
             <p className={cn(
-              "font-mono transition-all duration-500 text-sm leading-relaxed font-light", 
+              "font-mono transition-all duration-500 text-base px-1 leading-relaxed font-light", 
               shouldBePlaying 
-                ? "label-tape [--tape-opacity:0.75] text-background" 
+                ? "text-foreground bg-primary/10" 
                 : "text-foreground"
             )}>
               {scrambledDesc}

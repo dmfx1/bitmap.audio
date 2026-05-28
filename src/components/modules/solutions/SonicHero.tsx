@@ -43,7 +43,7 @@ export default function SonicHero() {
   }, []);
 
   return (
-    <div className="relative w-full md:py-36 min-h-[50vh] flex flex-col overflow-visible">
+    <div className="relative w-full md:py-32 min-h-[50vh] flex flex-col overflow-visible">
       
       {/* 1. ICON CONSTELLATION */}
       <div 
