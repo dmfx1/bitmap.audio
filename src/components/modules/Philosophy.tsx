@@ -51,7 +51,7 @@ export default function Philosophy() {
         </h2>
       </div>
 
-      <p className="font-mono text-body-muted text-xl max-w-2xl mt-16 opacity-60">
+      <p className="font-mono text-body-muted text-xl max-w-2xl mt-16">
         At <span className="text-accent/75 font-bold">bitmap.audio</span>, we apply this exact strutural logic to sound.
       </p>
     </div>

@@ -4,12 +4,12 @@ import React from 'react';
 const founders = [
   {
     name: "[dom.storrs-fox]",
-    role: "Nerdy & Techy",
+    role: "Design & Implementation",
     bio: "Deep expertise in digital audio systems, software integration, and the technical architecture of sound."
   },
   {
     name: "[nick.granville-fall]",
-    role: "Composer & Spatial Audio Designer",
+    role: "Design & Analytics",
     bio: "Specializes in emotional storytelling through sound and the architecture of immersive audio experiences."
   }
 ];

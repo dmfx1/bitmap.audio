@@ -86,13 +86,13 @@ export default function ImmersiveHero() {
       <div className="w-full md:max-w-4xl pl-4 md:pl-12 relative z-10">
         <a 
           href="/home" 
-          className="group inline-flex items-center text-sm pb-4 md:pb-0 font-mono tracking-widest text-primary/60 hover:text-primary transition-colors mb-4 md:mb-12"
+          className="group inline-flex items-center text-lg pb-4 md:pb-0 font-mono tracking-widest text-primary/60 hover:text-primary transition-colors mb-4 md:mb-12"
         >
           <ChevronLeft className="w-3 h-3 mr-1 group-hover:-translate-x-1 transition-transform" />
-          BACK TO HOME
+          RTN:HOME
         </a>
 
-        <p className="text-eyebrow text-accent font-bold animate-fade-in mb-4">
+        <p className="text-eyebrow text-accent text-sm font-bold animate-fade-in mb-4">
           Solutions <span className="opacity-50">/</span> Immersive Sound
         </p>
         

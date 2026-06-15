@@ -58,13 +58,13 @@ export default function AboutIntro() {
 
         <p className={`text-body-muted text-lg font-mono bg-background/50 md:max-w-[60%] transition-all duration-1000
           ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-          bitmap.audio is the collaboration of two audio specialists looking to bridge the gap between machine states and human perception.
+          bitmap.audio are two audio specialists bridging the gap between machine states and human perception.
         </p>
         <p className={`text-body-muted text-lg font-mono bg-background/50 md:max-w-[85%] transition-all duration-1000
           ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
           <br/>
           We deconstruct brand identity into its smallest possible components <i>[the "bit"]</i> and re-engineer them across a 
-          functional sonic framework <i>[the "map"]</i> to help build trust and alleviate friction in digital experiences.
+          functional sonic framework <i>[the "map"]</i> to build trust and alleviate friction in digital experiences.
         </p>
       </div>
 
