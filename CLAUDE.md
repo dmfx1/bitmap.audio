@@ -2009,3 +2009,22 @@ if (sidebarAsides.length) {
 This only ever *extends* the last aside (never shrinks it below its computed minimum), so the "12 / Execution" label and indicator line keep their existing vertical centering — there's just more empty space below them, closing the gap to the true bottom of the page.
 
 **Risk: low, independent of H1–H5** — this can be applied at any point in the work order (before or after the others) since it only touches the trailing whitespace of the last aside. Verify after applying: scroll to the very bottom of `/returns2` and confirm `#sidebar-track`'s background extends flush to the bottom of `#end-screen`, with no gap or seam.
+
+---
+
+## I. NEXT SESSION — Centralised, responsive animation-timing variables (returns2.astro)
+
+**Status: BOOKMARKED — not yet planned in detail. Pick up next session.**
+
+**Context:** H1–H5 are done; H6 is queued/in progress (VS Code hit its limit mid-session). This is a separate, follow-on task for next session.
+
+**The ask (from dom):** Create a set of variables/config that controls the timing of `returns2.astro`'s scroll-driven GSAP animations (start/end trigger points, durations, etc.) so dom can tune how each animation behaves from one place, rather than hunting through the `<script>` block.
+
+Requirements to plan for:
+- A single source of truth for per-animation timing (e.g. a `TIMING` config object near the top of the `<script>` block, or CSS custom properties consumed by the GSAP setup) — covers things like train fade, data-map draw, tiger focus, visuals-fade/sound-grow, pressure line, ROI counter, success ring, etc.
+- Must remain **responsive across screen sizes** — not just a static fraction. As the viewport width changes (and therefore `strip.scrollWidth`, `totalH`, `totalV`, and each section's `offsetLeft`/`offsetWidth` change), the timing values need to recompute via the existing `getScrollPos()` / `scrollAt()` style math rather than being hardcoded pixels.
+- Needs to account for breakpoints — i.e. the "do the maths" should re-run (or be recalculated) on resize, consistent with how `ScrollTrigger.refresh()` / the existing resize-driven sidebar recalculation already works.
+- Should integrate with Tailwind where sensible (dom specifically asked about a "variable... inside Tailwind") — likely as CSS custom properties (`--anim-*` in `:root` or per-breakpoint via Tailwind's `theme.extend`) that the GSAP script reads, OR a typed JS/TS config object that's the single source of truth and Tailwind/CSS just reflects. Evaluate both approaches next session and recommend one.
+- Scope: `returns2.astro` only (not `returns.astro`), consistent with all prior work in this file.
+
+**Do not start implementing yet** — next session should begin by reviewing H6's completion status, then scope out this config system with dom before writing it into this file for VS Code.

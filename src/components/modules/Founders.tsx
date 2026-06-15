@@ -4,7 +4,7 @@ import React from 'react';
 const founders = [
   {
     name: "[dom.storrs-fox]",
-    role: "Sound Designer & Technologist",
+    role: "Nerdy & Techy",
     bio: "Deep expertise in digital audio systems, software integration, and the technical architecture of sound."
   },
   {
