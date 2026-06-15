@@ -33,24 +33,24 @@ export default function Hero() {
 
   return (
       <div className="w-full"> {/* Changed from section to div */}
-        <div className="mx-auto py-8 px-4 md:px-10 flex flex-col md:flex-row items-center justify-between gap-16 min-h-[80vh]">
+        <div className="mx-auto py-8 px-4 md:pl-24 flex flex-col md:flex-row items-center justify-between gap-16 min-h-[80vh]">
           
           {/* TEXT CONTENT */}
           <div className="flex-1 space-y-8 animate-fade-in-up">
             <div className="space-y-4">
-              <p className="text-eyebrow tracking-[0.4em]">Sonic Architecture</p>
-              <h1 className="heading-hero">
+              <p className="text-eyebrow text-sm tracking-[0.4em]">Sonic Architecture</p>
+              <h1 className="heading-hero md:text-7xl">
                 Where data <br /> meets 
                 <span className={`text-accent font-medium block md:inline ${phase === 'active' ? 'pulse-sync-active' : ''}`}>
                   <br className="hidden md:block" /> emotion
                 </span>
               </h1>
             </div>
-            <p className="text-body-muted max-w-sm">
+            <p className="text-body-muted max-w-base text-xl">
               We architect sonic experiences that bridge the gap between digital interfaces and human perception.
             </p>
             
-            <div className="flex items-stretch gap-4 w-full max-w-sm">
+            <div className="flex items-stretch gap-4 w-full max-w-xl">
               <a href="/about" className="flex-1">
                 <Button variant="default" size="xl" className="rounded-none w-full text-xs md:text-base">
                   OUR STORY

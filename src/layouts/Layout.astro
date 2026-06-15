@@ -10,7 +10,7 @@ import GridBackground from '../components/GridBackground.astro';
 const { title, description = "", canonical = "" } = Astro.props;
 const currentPath = Astro.url.pathname;
 const isLandingPage = currentPath === "/" || currentPath === "/index.html";
-const isReturnsPage = currentPath === "/returns" || currentPath === "/returns/";
+const isReturnsPage = currentPath === "/returns" || currentPath === "/returns/" || currentPath === "/returns2" || currentPath === "/returns2/";
 const isFullBleed = isLandingPage || isReturnsPage;
 const siteUrl = "https://bitmap.audio";
 const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
@@ -67,7 +67,7 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
     <SoundProvider client:load>
       <TooltipProvider client:load>
         
-        <GridBackground showRain={!isLandingPage} />
+        <GridBackground showRain={!isLandingPage && !isReturnsPage} />
         
         { !isLandingPage && <Navigation currentPath={currentPath} client:load /> }
         

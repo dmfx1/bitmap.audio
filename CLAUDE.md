@@ -165,7 +165,7 @@ nearLayer.style.transform = `translateY(${(scrollY * 0.3) % rainHeight}px)`;
 
 The modulo fix has been applied globally (no page gate needed) using tile-aligned values: `% 400` for deep layer, `% 800` for near layer — these match the CSS `background-size` heights exactly, making the loop seamless on any screen size.
 
-**Known remaining issue — `returns.astro` rain at page edges**: The binary rain is only relevant at the left/right edges of the viewport where the GridBackground shows around the inset section panels. The sections themselves cover the GridBackground intentionally — we do not need rain visible through section backgrounds. The remaining issue is whether the rain stays visible at those exposed edges as the user scrolls deep into the 1600vh track. This is to be revisited during the dedicated `returns.astro` pass (Batch 4).
+**Binary rain on returns/returns2**: The rain is now **disabled on both `/returns` and `/returns2`** via `Layout.astro`: `showRain={!isLandingPage && !isReturnsPage}`. Both pages are full-width layouts — there are no exposed GridBackground edges where rain would be visible. The `isReturnsPage` check in `Layout.astro` covers both paths. Do not re-enable rain on these pages.
 
 ---
 
@@ -363,9 +363,10 @@ Mobile hamburger menu current behaviour (do not revert):
 
 ## Current Active Work
 
+- `returns2.astro` — CSS Grid layout rebuild complete (Section E done). Awaiting visual review from dom before merging to `returns.astro`. See Section E below for full spec.
+- `returns2.astro` — GSAP animations are identical to `returns.astro` and calibrated to the 1600vh horizontal scroll track — do not recalibrate unless specifically asked
 - `returns.astro` — Mobile snap logic (each slide should behave like an Instagram reel: snap-to-full-viewport, text-first layout, no horizontal overflow)
 - `returns.astro` — Performance pass: replacing remaining CSS transitions with GSAP scrubbing; lag on scroll is a known live issue
-- `GridBackground.astro` — Binary rain loop fix for returns.astro (rain disappears mid-page due to translateY overflow on 1600vh track)
 - `DeliverablesGrid.tsx` — Staggered card swipe-in animation + mobile viewport-triggered pulse-glow
 - Global — Padding and spacing consistency pass across all pages for mobile
 
@@ -1239,52 +1240,144 @@ Work through these in order. Each is a separate task — complete and verify one
 
 ---
 
-### A. Finalise `returns.astro` (ROI page) — mobile and desktop
+### A. `returns.astro` — slide layout system rebuild (PRIORITY NEXT SESSION)
 
-This page has its own scroll architecture (1600vh sticky horizontal strip — see the `returns.astro` section in the main CLAUDE.md context above). It is the most complex page on the site and needs a dedicated pass.
+Every slide on `returns.astro` needs its internal layout converted from the current ad-hoc `md:pl-48 / md:pl-72 / absolute` positioning to a **CSS Grid fractional column system**. This is the agreed approach. Do not start implementing until you have read and understood the full brief below.
 
-**Mobile (< 768px):**
-- Each slide must behave like an Instagram reel: snap to full viewport height (`100svh`), text content first (top), imagery second (below), no horizontal overflow
-- All text must fit within the device viewport width — check every slide at 375px
-- Each slide should be self-contained — a user should read a complete thought before scrolling to the next
-- CSS scroll-snap is the correct mechanism (`scroll-snap-type: y mandatory` on the container, `scroll-snap-align: start` on each slide) — do not use GSAP on mobile
-- Verify: no content clipped behind the fixed nav; no horizontal scroll
+---
 
-**Desktop:**
-- Run through all 12 chapters and verify the GSAP scroll-driven animations play correctly at standard laptop widths (1280px, 1440px)
-- Check sidebar indicators are vertically centred against their corresponding section
-- Verify the ROI counter (1.0x → 4.0x), SVG progress ring, path drawing, tiger blur, and ghost halo animations all trigger at the correct scroll positions
-- Check binary rain visibility at page edges (left/right of the inset section panels) as the user scrolls deep into the 1600vh track
+#### A1 — Why: the current approach is broken
 
-**Both:**
-- Confirm the page title is `bitmap.audio | returns` in the browser tab
-- Performance: the 1600vh scroll track is heavy — check for jank on mid-range devices (use Chrome DevTools Performance panel, target 60fps on scroll)
+Every desktop slide currently positions its content using combinations of:
+- `md:pl-48`, `md:pl-72`, `md:px-48` — large arbitrary padding values
+- Nested padding: outer `md:pl-72` + inner `pl-8` stacking invisibly
+- `absolute` positioning on imagery — the image is outside layout flow entirely
+
+These break when:
+- Slide width changes (padding is pixel-based, not proportional)
+- Window is resized between mobile (~768px) and desktop (>1280px) — there is a gap where neither layout is clean
+- Any slide gets refactored — the stacking context is implicit and fragile
+
+#### A2 — The replacement system: CSS Grid with fractional columns
+
+Every desktop slide layout must use CSS Grid with equal fractional columns (`1fr`). This maps directly to design language: thirds (`grid-cols-3`), fifths (`grid-cols-5`), sixths (`grid-cols-6`).
+
+Key properties:
+- `1fr` columns always divide equally regardless of total slide width — changing `w-[100vw]` to `w-[150vw]` doesn't change where "1/3" is
+- Overlapping content (image behind text) uses `row-start-1` on both elements — no `absolute` positioning needed
+- No padding values for positioning — content placement is declared entirely in `grid-column` / `grid-row`
+
+**Standard template for a text + image slide:**
+```html
+<section class="w-[Xvw] grid grid-cols-3 items-center h-full ...">
+  <!-- col 1: left breathing room (empty) -->
+  <div class="col-start-1 row-start-1"></div>
+
+  <!-- col 2: text block — starts at 1/3 mark -->
+  <div class="col-start-2 row-start-1 z-10">
+    ...text content...
+  </div>
+
+  <!-- col 2–3: image — overlaps with text column, sits behind -->
+  <div class="col-start-2 col-span-2 row-start-1 z-0">
+    ...image...
+  </div>
+</section>
+```
+
+For fifths instead of thirds, use `grid-cols-5` — more control, same principle.
+
+**For centred content (stat interstitials like 8-10ms, 20x):**
+```html
+<section class="w-[66vw] grid grid-cols-3 items-center justify-items-center h-full ...">
+  <div class="col-start-2 row-start-1">...stat...</div>
+</section>
+```
+
+#### A3 — Slide-by-slide plan
+
+Work through each numbered slide below in order. Each entry states the intended width and grid layout. After each slide, verify visually at 1440px before moving to the next.
+
+| Slide | Width | Grid | Layout intent |
+|-------|-------|------|---------------|
+| 00 Status | `w-screen` | `grid-cols-3` | Text left-of-centre, col 1 empty |
+| 0.5 Woman Image | `w-[50vw]` | No grid needed | Image fills full panel |
+| 01 Context | `w-[50vw]` | `grid-cols-2` | Text right half, train behind |
+| 02 Architecture | `w-[150vw]` | `grid-cols-3` | Col 1 empty, col 2 text, col 2–3 SVG (overlapping) |
+| 03 Neurology Processing | `w-[150vw]` | `grid-cols-3` | Col 1 empty, col 2 text, col 2–3 tiger (overlapping, behind) |
+| 3.5 Brain Speed Stat | `w-[66vw]` | `grid-cols-3` | Stat centred, col 2 |
+| 04 Neurology Memory | `w-screen` | `grid-cols-3` | Text col 2, centred |
+| 4.5 Memory Stat | `w-[66vw]` | `grid-cols-3` | Stat centred, col 2 |
+| 05 Metrics | `w-screen` | `grid-cols-3` | Text + cards col 1–2, space right |
+| 06 Conversion text | `w-[50vw]` | `grid-cols-2` | Text fills col 1–2 |
+| 6.5 ROI Counter | `w-[66vw]` | `grid-cols-3` | Counter centred, col 2 |
+| 07 Credibility | `w-screen` | `grid-cols-3` | Text col 1–2 |
+| 7.5 Task Success Ring | `w-screen` | `grid-cols-3` | Ring centred, col 2 |
+| 09 Perception | `w-screen` | `grid-cols-3` | Text col 2 |
+| 8.5 SME | `w-[66vw]` | `grid-cols-3` | Text centred, col 2 |
+| 10 Culture | `w-[66vw]` | `grid-cols-3` | Text col 1–2 |
+| 11 Asset Ownership | `w-screen` | `grid-cols-3` | Text col 1–2 |
+| 12 Belief | `w-[66vw]` | `grid-cols-1` | Text fills full panel |
+| 13 Execution | `w-screen` | `grid-cols-3` | Text col 2–3, CTA anchored right |
+
+These widths and layouts are starting points — dom will adjust widths manually using the `#region` labels added in the previous session.
+
+#### A4 — Mobile cleanup at the same time
+
+Currently every slide duplicates its content in two versions: `hidden md:flex` (desktop) and `md:hidden` (mobile). This works but the mobile versions have accumulated their own padding mess.
+
+Mobile rule: every mobile section uses a single clean template:
+```html
+<div class="md:hidden flex flex-col justify-center gap-6 px-6 pt-16 pb-8 h-full relative z-10">
+  <span class="text-eyebrow ...">[ Label ]</span>
+  <h2 class="font-mono ...">Headline</h2>
+  <p class="font-sans text-base ...">Body copy.</p>
+</div>
+```
+
+- `px-6` for horizontal breathing room
+- `pt-16` to clear the fixed nav
+- `gap-6` between elements — no `mb-*` on individual children
+- Background imagery: always `absolute inset-0 z-0 opacity-30 pointer-events-none`, never affecting layout
+
+#### A5 — The intermediate-viewport problem
+
+Between ~768px and ~1100px (iPad landscape, small laptops), the 150vw slides are extremely wide but the mobile layout hasn't triggered. The site currently looks broken in this range.
+
+The fix: raise the desktop layout breakpoint from `md:` (768px) to `lg:` (1024px) across all returns.astro slides. This means:
+- `md:hidden` → `lg:hidden` on mobile content blocks
+- `hidden md:flex/block` → `hidden lg:flex/block` on desktop content blocks
+- The mobile snap-scroll CSS in `<style is:global>` currently targets `html.is-mobile-snap` (set when `window.innerWidth < 768`) — change the JS check to `< 1024`
+
+Do NOT change this breakpoint on other pages — it is specific to returns.astro.
+
+---
+
+#### A6 — What was already done (do not redo)
+
+- Slide 02 (Architecture) has been partially rebuilt with the flex-row zone system (not yet grid). It needs converting to the grid system above but the mobile dual-content structure is already correct.
+- All slides have `<!-- #region SLIDE-XX -->` / `<!-- #endregion -->` folding markers for VS Code — do not remove these.
+- `id="roi-section"` and `id="success-section"` are GSAP animation anchors — never remove or rename them.
+- The end screen (`#end-screen`) and its logo pulse animation are complete — do not touch.
 
 ---
 
 ### B. Remove footer from `returns.astro` — end with a "go home" option
 
-**The problem:** The standard `<Footer>` component renders at the bottom of `returns.astro`. After completing the 12-chapter slideshow the user lands on a footer that breaks the immersive experience.
+**Status: DONE — do not re-implement.**
 
-**The fix:**
+The footer has been removed from `returns.astro`. An end-of-journey screen now sits in normal document flow immediately after the 1600vh scroll track. It is not a horizontal strip section — it is a plain `<div id="end-screen">` that appears when the user has scrolled through all slides.
 
-1. Open `src/pages/returns.astro` and find the `<Footer>` component import and usage. Remove both.
+**What was built:**
+- `h-svh` container, `bg-background`, vertically centred
+- Inline SVG `#end-logo` — the bitmap `b` mark in `hsl(var(--primary))`
+- `bitmap.audio` label in `text-xs font-mono uppercase tracking-[0.4em] text-muted-foreground`
+- Two links: `← Return to Site` (→ `/home`, accent colour) and `Start a Project` (→ `/contact`, muted primary)
+- GSAP ScrollTrigger animation on `#end-logo`: shifts `fill` and `stroke` from `--primary` (cyan) → `--accent` (amber) → back to `--primary` as the screen scrolls into view (`scrub: 0.5`). The background is untouched — only the `b` glyph changes colour.
 
-2. In its place, add a minimal end-of-journey screen as the final element after the scroll track — or as the 13th slide within the horizontal strip if the architecture supports it cleanly. The end screen should:
-   - Fill the viewport (`h-screen` or `h-svh`)
-   - Be visually minimal — dark background, no busy content
-   - Show the bitmap.audio logo mark (use `BitmapIcon` from `BitmapText`)
-   - Provide a single CTA link back to `/home`:
-     ```tsx
-     <a href="/home" className="font-mono text-sm uppercase tracking-widest text-accent hover:brightness-125 transition-all">
-       ← Return to Site
-     </a>
-     ```
-   - Optionally show a secondary link to `/contact` ("Start a Project") using the same accent button style as the mobile nav's pinned Contact button
+**Do not add the footer back. Do not add a background flare or radial gradient — the logo colour shift is the only effect.**
 
-3. On mobile (snap-scroll mode), this end screen becomes the final snap slide.
-
-4. Do not add the footer back to `returns.astro` under any circumstances — this page is intentionally footer-free.
+On mobile (snap-scroll mode), the end screen is the final snap slide — it renders as-is with no GSAP (mobile branch returns early before the ScrollTrigger is set up).
 
 ---
 
@@ -1392,3 +1485,527 @@ AI models cite content that is structured in clear, self-contained, factual bloc
    - Nick Granville-Fall: Composer & Spatial Audio Designer
    ```
 4. **Page speed as trust signal:** Fast pages are ranked higher and cited more by AI models — ensure the performance work in section C is completed before this step.
+
+---
+
+## F. `returns2.astro` — Align desktop grid to the nav container, switch to 12-column grid
+
+**Context:** Section E's grid rebuild is functionally complete, but each slide's `grid-cols-3` divides the slide's own `w-[Xvw]` width — which has no relationship to where the nav logo sits. The nav (`src/components/Navigation.tsx`) uses `container mx-auto px-6`, and `tailwind.config` defines `container: { center: true, padding: "2rem", screens: { "2xl": "1440px" } }` (note `px-6` = 1.5rem overrides the container's own padding). Practically this means:
+
+- Below 1440px viewport width: the nav container is 100% width with 24px padding each side → logo sits 24px from the left edge.
+- At/above 1440px: the nav container caps at 1440px and centres, so the logo sits at `(viewport - 1440)/2 + 24px` from the left edge.
+
+This is a single, fluid, well-defined rule with one breakpoint (1440px). The slide grids currently follow a completely different rule (fractions of `w-[Xvw]`), so as the window is resized the slide content and the nav drift relative to each other — this is the "everything gets way off kilter on resize" problem dom observed.
+
+**The fix, applied per slide:**
+
+1. Inside the slide `<section>`, wrap the existing grid content in a new div with classes: `md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full`
+   - `md:pl-24` = 96px left padding, matching the sidebar width — prevents content from appearing behind `#sidebar-track`
+   - `md:pr-6` = 24px right padding, matching the nav container's right inset
+   - Note: this means text does NOT align with the nav logo (which sits at 24px); it aligns with the sidebar's right edge. This is intentional — sidebar clearance takes priority over nav alignment on the returns page.
+2. On the `<section>` itself, remove `md:grid md:grid-cols-3` (or `-cols-2` / `-cols-1`) — the section becomes a plain flex/block wrapper on desktop (`md:flex md:items-center` is enough, or nothing extra if it's already centring).
+3. Change every `md:col-start-N` / `md:col-span-N` from the old 3-column system to the new 12-column system. Use this conversion as a starting point, then adjust visually:
+   - old `col-start-2` of 3 (centre third) → roughly `col-start-3 col-span-7` in 12 (leaves a ~2-column gutter on the left that roughly matches the nav's left margin at common widths — but see step 4)
+   - old `col-start-1 col-span-2` of 3 → `col-start-1 col-span-9` in 12
+   - old `col-start-2 col-span-2` of 3 → `col-start-3 col-span-9` in 12 (used for overlap/image spans — pair with `row-start-1`)
+   - old single `grid-cols-1` (full width) → keep as `col-start-1 col-span-12`
+4. **Primary alignment goal:** the text block's left edge should land flush with the container's left edge — i.e. `col-start-1` for the text column in most slides, with `col-span-6` to `col-span-8` depending on how much of the row the text should occupy. Do not default to `col-start-2`/`col-start-3` out of habit — start from `col-start-1` and only shift right if an image needs to occupy the columns before it (per the overlap pattern in section E5).
+5. Remove any now-redundant `pl-8` / `pl-4` desktop padding on the text wrapper — `pl-24` from the container already provides the left inset (96px, clearing the sidebar). Keep these paddings for mobile (`pl-8` with no `md:` prefix becomes `pl-8 md:pl-0`, or similar).
+6. For slides with full-bleed background imagery (SLIDE-02 Architecture SVG, SLIDE-03 tiger, SLIDE-0.5 woman/train image, SLIDE-01 Context) — the image element stays OUTSIDE the `container` wrapper (sibling to it, still inside the `<section>`), positioned with `absolute inset-0` or its own full-width grid as it is now. Only the TEXT content goes inside the `container` wrapper. This keeps images full-bleed while text aligns to the nav.
+
+---
+
+### F1 — Sidebar overlap check
+
+**RESOLVED.** `#sidebar-track` is `w-24` (96px). With the container using `md:px-6` (24px), text would start behind the sidebar on all desktop widths. Dom's decision: use `md:pl-24 md:pr-6` on the container wrapper (sidebar-width clearance on the left, nav-matched padding on the right). Applied consistently across all slides.
+
+**Note — sidebar at smaller screens:** The sidebar currently shows at all desktop breakpoints (`md:` / 768px+). At iPad/small laptop sizes (~768–1100px) the sidebar is 96px wide on a potentially cramped viewport. This was flagged as worth revisiting — consider hiding `#sidebar-track` below `lg:` (1024px) in a future pass. Do not implement this now; it is a separate task.
+
+---
+
+### F2 — Work order
+
+**SLIDE-00 confirmed.** Container/12-col conversion applied. Sidebar clearance resolved (F1). Proceed slide by slide in the order from section E5's table, applying the same `md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full` pattern to each slide. One slide at a time — do not batch.
+
+---
+
+---
+
+## G. Nav clearance for the `#sidebar-track` on `/returns2` (and later `/returns`) only
+
+**Context:** On every other page, `Navigation.tsx`'s `container mx-auto px-6` behaves perfectly — it tracks viewport width fluidly and stops growing past the 1440px container breakpoint, same as dom described. The ROI pages are different: they have a `#sidebar-track` (`w-24` = 96px, `hidden md:flex`, fixed to the left viewport edge) that nothing else on the site has. Below the 1440px breakpoint, the nav container's left edge sits at 24px from the viewport edge — directly underneath that 96px sidebar.
+
+**Goal:** On `/returns` and `/returns2` only, shift the nav's container 96px to the right at `md:` and above, so the logo clears the sidebar. All other pages must be completely unaffected.
+
+### G1/G2 — Derive the flag inside `Navigation.tsx` from `currentPath` (no new prop needed)
+
+`Navigation.tsx` already receives `currentPath` as a prop (`const Navigation = ({ currentPath }: { currentPath: string }) => {`). No change to `Layout.astro` or the render call is needed — just derive the flag locally inside `Navigation.tsx`:
+
+```tsx
+const isReturnsPage = currentPath === "/returns" || currentPath === "/returns/" || currentPath === "/returns2" || currentPath === "/returns2/";
+```
+
+(This mirrors the existing `isReturnsPage` check already present in `Layout.astro` — keep the same set of path variants for consistency.)
+
+On the `<div className="container mx-auto px-6">` wrapper (inside `<nav>`, around line 36), conditionally add `md:pl-24` when `isReturnsPage` is true. Use `cn()`:
+
+```tsx
+<div className={cn("container mx-auto px-6", isReturnsPage && "md:pl-24")}>
+```
+
+- Do not change `px-6` itself, and do not add `md:pl-24` unconditionally — it must only apply on `/returns` and `/returns2`.
+- The `md:` prefix matters: `#sidebar-track` is `hidden md:flex`, so the nav offset should only kick in at the same breakpoint where the sidebar appears.
+
+### G3 — Match the offset in the slide-content container (section F)
+
+The container wrapper introduced in section F for each slide's text content must use the **same** extra offset, so slide text continues to align with the now-shifted logo. SLIDE-00 has already been converted using this pattern:
+
+```
+md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full
+```
+
+(`pl-24` clears the 96px sidebar, `pr-6` matches the nav's right padding.) Apply this same pattern to each remaining slide as part of the section F conversion. This makes F1's sidebar-overlap concern moot: the 96px clearance is now baked into both the nav and the slide content consistently, so no separate investigation is needed there.
+
+### G4 — Verify
+
+1. Confirm `/home`, `/about`, `/solutions/*`, `/contact`, `/faq` are pixel-identical to before — the nav must not shift on any page except `/returns2` (and eventually `/returns`).
+2. On `/returns2`, confirm the logo now sits 96px further right than before at viewport widths below 1440px, clear of `#sidebar-track`.
+3. Confirm SLIDE-00's heading (once F is applied with `md:pl-24`) aligns with the logo's new position at 1024px, 1280px, 1440px, and 1920px.
+4. Resize continuously between these widths — both nav and slide content should move together with no relative jank.
+
+### G5 — What NOT to touch
+
+- Do not modify `#sidebar-track` itself (width, position, z-index)
+- Do not add `offsetForSidebar` logic to any other component
+- Do not change nav behaviour on any page other than `/returns2` (and `/returns` once merged)
+- `returns.astro` itself stays untouched for now — this groundwork (G1/G2) is shared infrastructure, but G3's container change only applies to `returns2.astro`
+
+---
+
+### F4 — Normalization pass: SLIDE-03 leftover grid class
+
+**SLIDE-03** — the `<section>` element still carries a bare `grid grid-cols-1` class (no `md:` prefix), left over from the old per-section E5 grid system. No other slide's `<section>` has this. Remove `grid grid-cols-1` from SLIDE-03's section class list entirely — the inner `md:container ... md:grid md:grid-cols-12` wrapper already handles desktop layout, and the section itself doesn't need to be a grid container on mobile either.
+
+Verify the slide still renders correctly on mobile and desktop after this edit.
+
+---
+
+### F5 — Fix `container mx-auto` centering on `w-[150vw]` slides (SLIDE-02, SLIDE-03, SLIDE-05)
+
+**STATUS: RESOLVED — already applied manually by dom, do not re-execute.** Current state of `returns2.astro` (post manual edits):
+- SLIDE-02 is now `w-[100vw]` and keeps `md:container md:mx-auto ...` — per this section's own rule, `container mx-auto` behaves correctly at ≤100vw, so no change needed.
+- SLIDE-03 (`w-[200vw]`) and SLIDE-05/metrics (`w-[150vw]`) both already use `md:pl-24 md:pr-6 md:grid md:grid-cols-12 ...` with no `container`/`mx-auto` — matches this section's target end-state.
+- SLIDE-10 and SLIDE-11 (`w-[125vw]` each) also already use the no-`container` pattern.
+
+The problem description below is kept for reference only.
+
+**The problem:** Tailwind's `container` class is `width: 100%` with `max-width: 1440px` applied via a *viewport*-width media query, and `mx-auto` centers that box within its parent. For sections that are `w-screen` or narrower, `container` simply fills the section edge-to-edge (mx-auto does nothing), so `col-start-1` lands flush at the section's left edge — which is the desired behaviour.
+
+For `w-[150vw]` sections, the section itself is always 1.5× the viewport width — e.g. at a 1440px viewport the section is 2160px wide. `container` hits its 1440px cap and stops growing, but `mx-auto` still centers that 1440px box inside the 2160px+ section, leaving roughly equal empty margins on both sides. `col-start-1` then starts ~360px+ in from the section's true left edge instead of flush with it — which is why content on SLIDE-05 (and the same applies to SLIDE-02 and SLIDE-03) appears shifted toward the centre of the 150vw slide rather than aligned with the nav logo / sidebar clearance.
+
+**The fix:** On these three slides only — **SLIDE-02**, **SLIDE-03**, **SLIDE-05** — remove `container` and `mx-auto` from the slide-content wrapper, keeping everything else identical:
+
+```
+md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full
+```
+becomes:
+```
+md:w-full md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center
+```
+
+(For SLIDE-02, if its wrapper also has `md:h-full`, keep that.)
+
+This makes the grid fill the section's full width with `pl-24`/`pr-6` providing the same sidebar/nav-matched insets as before, so `col-start-1` starts exactly at the section's left edge (offset by the 96px sidebar clearance) instead of being centred inside the oversized 150vw box.
+
+**Do not apply this change to any other slide** — all other sections are `w-screen` or `w-[Xvw]` ≤ 100vw, where `container mx-auto` already behaves correctly (fills the section, no centering offset). Verify SLIDE-02, SLIDE-03, and SLIDE-05 visually at 1024px, 1280px, 1440px, and 1920px after this change — content should now sit flush at the left edge (plus the 96px sidebar clearance) at every width, with no centred gap.
+
+---
+
+### F3 — What NOT to touch (same as E8)
+
+- The `<script>` block — GSAP, ScrollTrigger, `scrollAt()`, sidebar logic, mobile detection
+- `#end-screen`, `#scroll-track`, `#sidebar-track`, `#horizontal-strip` IDs and structural roles
+- Mobile content blocks (everything without `md:`)
+- Section `w-[Xvw]` widths
+- `data-section` / `data-sidebar` attributes
+- Any colour, typography, blend-mode, or animation classes
+- `returns.astro` itself — this work stays on `returns2.astro`
+
+---
+
+## E. `returns.astro` — CSS Grid Layout Overhaul (returns2.astro testbed)
+
+**Context:** The current `returns.astro` slide layout uses ad-hoc `md:pl-48`, `md:pl-72`, `md:px-48` padding values and `absolute` positioned imagery to place content. This breaks at non-standard viewport widths and is fragile to edit. The replacement is a CSS Grid fractional column system where `1fr` columns divide the slide proportionally regardless of total slide width.
+
+**This task works on a duplicate page `returns2.astro` only — do not touch `returns.astro`.**
+
+---
+
+### E1 — Step 1: Duplicate the file
+
+Copy `src/pages/returns.astro` to `src/pages/returns2.astro` exactly. No other changes at this step. Verify the new page renders at `/returns2` before proceeding.
+
+---
+
+### E2 — Step 2: Scope of work — desktop only
+
+All changes in this task apply to desktop layout only (the `hidden lg:flex` / `hidden lg:block` / `lg:` prefixed content blocks). The mobile content blocks (`lg:hidden`) are left completely untouched. Do not modify any mobile layout, mobile classes, or mobile snap-scroll behaviour.
+
+---
+
+### E3 — Step 3: Audit for recurring patterns before touching anything
+
+Before making any edits, read through every slide in `returns2.astro` and identify:
+
+1. **Recurring wrapper divs** — any `<div>` that exists purely to push another element horizontally (e.g. a spacer div with only `w-[X]` or `ml-[X]`). List them.
+2. **Duplicate class patterns** — any set of classes that appears on 3+ slide wrappers and could be extracted to a shared parent via a CSS `> *` selector or a Tailwind component class. List them.
+3. **Padding used for positioning** — any `pl-*`, `pr-*`, `px-*`, `ml-*`, `mr-*` applied to a slide's content div for the sole purpose of moving it away from the slide edge (rather than creating visual breathing room between sub-elements). List these by slide.
+
+Write the audit findings as a comment block at the top of `returns2.astro` (below the frontmatter), like:
+
+```astro
+{/*
+  LAYOUT AUDIT — returns2.astro
+  Spacer divs found: [list]
+  Duplicate wrapper patterns: [list]
+  Positioning-padding found: [list by slide]
+*/}
+```
+
+Do not make any edits yet — audit only.
+
+---
+
+### E4 — Step 4: Strip positioning padding and spacer divs
+
+Working one slide at a time (use the `#region SLIDE-XX` markers), remove:
+
+1. All `<div>` elements whose sole purpose is horizontal spacing (no content, no meaningful class other than `w-[X]`, `flex-shrink-0`, or similar spacer patterns).
+2. All `pl-*`, `ml-*`, `pr-*`, `mr-*` classes on slide content wrappers that were positioning the block rather than providing internal breathing room.
+
+**Do not remove:**
+- Padding between sub-elements inside a content block (e.g. `mb-4` between a heading and a paragraph, `gap-4` between stat items)
+- Any styling classes (colours, typography, opacity, animation classes, blend modes, filters)
+- Any GSAP animation IDs (`id="roi-section"`, `id="success-section"`, etc.)
+- The `#region` / `#endregion` folding markers
+
+After stripping each slide, the content will likely be positioned at the left edge of the slide. That is correct — the grid will position it in the next step.
+
+---
+
+### E5 — Step 5: Build the CSS Grid system
+
+#### The rule
+
+Every desktop slide layout must use `display: grid` with fractional columns. No `absolute` positioning for layout (only for decorative/background elements). No padding for positioning.
+
+#### Column conventions
+
+- **Thirds** (`grid-cols-3`): standard for most content slides — left empty col, centre text col, right image col
+- **Fifths** (`grid-cols-5`): for slides needing finer control (e.g. text at 2/5 with image spanning 3/5)
+- **Sixths** (`grid-cols-6`): for very precise layout (e.g. text at 2/6, breathing room at 1/6 each side)
+- **Single column** (`grid-cols-1`): for full-width text slides (e.g. Belief, Execution CTA)
+
+#### Overlap pattern (text in front of image)
+
+To place an image behind text without `absolute` positioning:
+
+```html
+<div class="grid grid-cols-3 h-full items-center">
+  <!-- text block: col 2, row 1, sits on top -->
+  <div class="col-start-2 row-start-1 z-10 relative">
+    ...text...
+  </div>
+  <!-- image: col 2–3, row 1, sits behind -->
+  <div class="col-start-2 col-span-2 row-start-1 z-0">
+    ...image...
+  </div>
+</div>
+```
+
+Both elements share `row-start-1`. The `z-10` / `z-0` controls stacking.
+
+#### Slide-by-slide grid plan
+
+Implement each slide using this plan. The section widths (`w-[Xvw]`) are **kept exactly as they currently are** — do not change them.
+
+| Slide region | Grid | Text placement | Image/graphic placement |
+|---|---|---|---|
+| SLIDE-00 Status | `grid-cols-3` | `col-start-2` | — |
+| SLIDE-01 Context (woman image) | `grid-cols-2` | `col-start-2` | `col-start-1 col-span-2 row-start-1 z-0` (behind) |
+| SLIDE-02 Architecture | `grid-cols-3` | `col-start-2 row-start-1 z-10` | `col-start-2 col-span-2 row-start-1 z-0` |
+| SLIDE-03 Neurology / tiger | `grid-cols-3` | `col-start-2 row-start-1 z-10` | `col-start-2 col-span-2 row-start-1 z-0` |
+| SLIDE-03.5 Brain speed stat | `grid-cols-3` | `col-start-2` | — |
+| SLIDE-04 Neurology Memory | `grid-cols-3` | `col-start-2` | — |
+| SLIDE-04.5 Memory stat | `grid-cols-3` | `col-start-2` | — |
+| SLIDE-05 Metrics | `grid-cols-3` | `col-start-1 col-span-2` | — |
+| SLIDE-06 Conversion text | `grid-cols-2` | `col-start-1 col-span-2` | — |
+| SLIDE-06.5 ROI Counter | `grid-cols-3` | `col-start-2` | — |
+| SLIDE-07 Credibility | `grid-cols-3` | `col-start-1 col-span-2` | — |
+| SLIDE-07.5 Task success ring | `grid-cols-3` | `col-start-2` | — |
+| SLIDE-09 Perception | `grid-cols-3` | `col-start-2` | — |
+| SLIDE-08.5 SME | `grid-cols-3` | `col-start-2` | — |
+| SLIDE-10 Culture | `grid-cols-3` | `col-start-1 col-span-2` | — |
+| SLIDE-11 Asset Ownership | `grid-cols-3` | `col-start-1 col-span-2` | — |
+| SLIDE-12 Belief | `grid-cols-1` | full width | — |
+| SLIDE-13 Execution | `grid-cols-3` | `col-start-2 col-span-2` | — |
+
+These are starting positions — dom will adjust column assignments after reviewing visually.
+
+#### Grid wrapper pattern per slide
+
+Replace each slide's outer desktop content wrapper (the `hidden lg:flex ...` div) with this pattern:
+
+```html
+<div class="hidden lg:grid grid-cols-3 h-full w-full items-center px-0">
+  <!-- col 1: breathing room (empty) — or used for imagery -->
+  <!-- col 2: primary text content -->
+  <!-- col 3: secondary content or imagery -->
+</div>
+```
+
+The `items-center` vertically centres all grid children. Do not add horizontal padding to the grid wrapper itself — padding goes inside individual cell divs only.
+
+---
+
+### E6 — Step 6: Internal cell padding
+
+Once content is grid-positioned, add internal breathing room inside each cell:
+
+- Text cells: `px-8 lg:px-12` for comfortable reading margins within the column
+- Stat/counter cells (centred): `flex flex-col items-center text-center`
+- Image cells: no padding — let images fill their column
+
+This `px-8` is content breathing room, not positioning. It is always acceptable inside a cell.
+
+---
+
+### E7 — Step 7: Work slide by slide — do not batch
+
+Implement one slide at a time. After each slide:
+1. Confirm all GSAP IDs on that slide are preserved
+2. Confirm `#region` / `#endregion` markers are preserved
+3. Confirm no styling classes were removed
+4. Move to the next slide
+
+Do not implement all slides in one pass. If a slide's layout is ambiguous from the plan above, leave a `<!-- TODO: verify layout with dom -->` comment and move on.
+
+---
+
+### E8 — What NOT to touch
+
+- The `<script>` block — all GSAP animations, ScrollTrigger setup, `scrollAt()` helper, sidebar logic, mobile detection. Touch nothing after the closing `</Layout>` tag's content div.
+- The `#end-screen` div and its logo animation
+- The `#scroll-track`, `#sidebar-track`, `#horizontal-strip` IDs and their structural roles
+- Mobile content blocks (`lg:hidden` sections)
+- Section `w-[Xvw]` widths
+- Any `data-section` attributes
+- All animation classes, colour classes, typography classes, blend mode classes
+
+---
+
+### E9 — After all slides are done
+
+Add a comment at the bottom of the layout section (above `</Layout>`):
+
+```astro
+{/* returns2.astro — Grid layout rebuild complete. All slides use CSS Grid fractional columns. Review with dom before merging back to returns.astro. */}
+```
+
+Then stop. Do not merge back to `returns.astro` — dom will review `returns2.astro` first.
+
+---
+
+### E — Current State (as of 2026-05-28) — COMPLETED
+
+**`returns2.astro` is live at `/returns2`.** All E1–E9 steps are done. Key facts for future edits:
+
+**Layout.astro changes made:**
+- `/returns2` is added to `isReturnsPage` — it gets the full-bleed wrapper (no `max-w-[1400px]`), no footer
+- `showRain={!isLandingPage && !isReturnsPage}` — binary rain is disabled on both `/returns` and `/returns2`
+- Do not revert either of these changes
+
+**GSAP animations:**
+- The `<script>` block in `returns2.astro` is an exact copy of `returns.astro`'s script
+- All animations are calibrated to the 1600vh horizontal scroll track — `scrollAt()` fractions are correct
+- `metricsSection.offsetLeft`, `roiSection.offsetLeft`, `successSection.offsetLeft` depend on section widths remaining unchanged — do not change any section `w-[Xvw]` values without recalibrating these
+
+**Critical rule for grid edits:**
+- The CSS Grid controls element **position and spacing only** — it must not change the **size** of individual elements
+- Always preserve explicit size classes (`w-[Xvw]`, `h-[Xvh]`, `w-[Xpx]`) on elements within grid cells
+- Example: SLIDE-02 Zone 3 SVG container retains `w-[80vw]` even though it sits in a `col-span-2` (100vw) grid cell — the element is 80vw, the cell is 100vw, and that is intentional
+- Removing a `w-[Xvw]` from an element inside a grid cell causes it to stretch to fill the cell — that is a size change, not a spacing change
+
+**Audit comment** is at the top of `returns2.astro` listing all positioning padding and spacer divs that were removed. Read it before making further changes.
+
+---
+
+## H. returns2.astro — Sidebar fixes + GSAP timing recalibration
+
+**Status: PLANNED — review with dom before VS Code executes. Do one sub-section at a time, verify visually, then move on.**
+
+---
+
+### H1 — Remove sidebar entry 08 entirely (Success Ring slide gets no sidebar indicator)
+
+**Decision changed from earlier draft:** dom wants the "08" sidebar entry removed completely (not relabelled) — it sits too close to "09 Perception" and looks bad. The Success Ring slide (SLIDE-7.5, `id="success-section"`, currently `data-sidebar="8"`) will simply have no `<aside>` indicator in `#sidebar-track`. The slide itself, its GSAP animations, and `id="success-section"` are untouched — only its sidebar entry disappears.
+
+**Step 1 — Remove the array entry.** In the `sections` array at the top of `returns2.astro`, delete the `{ id: "08", label: "Credibility.Trust" }` entry entirely (do not replace it with anything).
+
+**Step 2 — Renumber subsequent entries' display `id`s** so the sidebar numbering stays sequential (00–12, no gap):
+```ts
+{ id: "09", label: "Perception" },        →  { id: "08", label: "Perception" },
+{ id: "10", label: "Culture" },           →  { id: "09", label: "Culture" },
+{ id: "11", label: "Asset.Ownership" },   →  { id: "10", label: "Asset.Ownership" },
+{ id: "12", label: "Belief" },            →  { id: "11", label: "Belief" },
+{ id: "13", label: "Execution" },         →  { id: "12", label: "Execution" },
+```
+(`label` strings stay the same — only the `id` digits shift down by one.)
+
+**Step 3 — Remove `data-sidebar="8"` from the success-section element.** Find:
+```html
+<section id="success-section" data-sidebar="8" class="hidden md:flex md:items-center w-[75vw] ...">
+```
+Change to:
+```html
+<section id="success-section" class="hidden md:flex md:items-center w-[75vw] ...">
+```
+Keep `id="success-section"` — it's a GSAP anchor, do not remove it.
+
+**Why this is safe — no other `data-sidebar` values need to change:** The sidebar script builds `sidebarAsides` from the `sections` array (now 13 entries, in order) and `sidebarSections` from `document.querySelectorAll('[data-sidebar]')` sorted numerically by their `data-sidebar` value. After step 3, the sorted `data-sidebar` values are `0,1,2,3,4,5,6,7,9,10,11,12,13` — 13 elements — which now lines up positionally (index-for-index) with the 13-entry `sections` array. The mapping between asides and sections is purely positional (`sidebarAsides[i]` ↔ `sidebarSections[i]`), so the numeric gap at `8` in the DOM's `data-sidebar` attributes is harmless and **no other section's `data-sidebar="N"` attribute needs to be changed**.
+
+**Step 4 — Update H3 below**: the "SLIDE-success/08" row in H3's anchor list (originally low-priority) is now moot — skip it, there is no sidebar entry/aside for this slide anymore.
+
+Do this step first — trivial, low risk, but do it before H2/H3 since H3's slide list assumes the post-removal numbering doesn't affect anchor attributes (it doesn't — anchors are independent of `data-sidebar` values).
+
+---
+
+### H2 — Sidebar centering should track the content anchor, not the slide's geometric center
+
+**The problem:** The indicator/aside-height calculation in the `<script>` block does:
+```js
+const centerH = sec.offsetLeft + sec.offsetWidth / 2 - window.innerWidth / 2;
+```
+This assumes the slide's *visual content* is centered within the slide's own box (`offsetWidth`). That was roughly true under the old layout, but with the new grid system several slides place their text well off the section's geometric center — e.g. SLIDE-11 is `w-[125vw]` with its text at `md:col-start-4 md:col-span-8` of 12, which centers the text around ~58% of the section's width, not 50%. The result: the sidebar indicator for "11" reaches its vertical mid-point at a scroll position where the section is geometrically centered, but the actual text content is already past centre — sidebar and content drift apart.
+
+**The fix:** Add a `data-sidebar-anchor` attribute to the actual text/content wrapper div inside each `[data-sidebar]` section — the element that should be horizontally centered in the viewport when that sidebar item is "active". Then update the centering calculation to prefer the anchor:
+
+```js
+const sectionScrollPos = sidebarSections.map(sec => {
+  const anchor = sec.querySelector('[data-sidebar-anchor]') as HTMLElement | null;
+  const centerH = anchor
+    ? sec.offsetLeft + anchor.offsetLeft + anchor.offsetWidth / 2 - window.innerWidth / 2
+    : sec.offsetLeft + sec.offsetWidth / 2 - window.innerWidth / 2;
+  return Math.max(0, (centerH / totalH) * totalV);
+});
+```
+
+This relies on `anchor.offsetLeft` being relative to the section itself — true as long as the section element has `position: relative` (or `absolute`/`fixed`), which all `[data-sidebar]` sections already do (`relative` or `group relative` is present on every one). No structural change needed beyond adding the attribute.
+
+`data-sidebar-anchor` has no effect on mobile (the sidebar/indicator code returns early when `isMobile` is true), so it's safe to add unconditionally to the desktop content wrapper in each slide.
+
+---
+
+### H3 — Add `data-sidebar-anchor` slide by slide
+
+Add `data-sidebar-anchor` to the **outer text/content wrapper div** (the one with the `md:col-start-*` classes) in each of these slides. One slide at a time, verify the sidebar `aside` heights and indicator-line timing still look correct after each addition before moving to the next. **Start with SLIDE-11** (the one dom flagged), then SLIDE-03 (largest width change, 150vw→200vw), then the rest in numeric order:
+
+- **SLIDE-11** (`data-sidebar="11"`, `w-[125vw]`) — the div `pl-8 md:pl-0 py-2 z-10 ... md:col-start-4 md:col-span-8 md:row-start-1`. **Priority — this is the one dom called out.**
+- **SLIDE-03** (`data-sidebar="3"`, `w-[200vw]`) — the div `flex flex-col items-end ... md:col-start-3 md:col-span-4`.
+- **SLIDE-00** (`data-sidebar="0"`, `w-[75vw]`) — the div `relative z-10 pl-8 md:pl-0 py-2 md:col-start-3 md:col-span-9`.
+- **SLIDE-01** (`data-sidebar="1"`, `w-screen md:w-[66vw]`) — the div `w-full flex justify-center ... md:col-start-1 md:col-span-7`.
+- **SLIDE-02** (`data-sidebar="2"`, `w-[100vw]`) — the div `hidden md:flex flex-col justify-center md:col-start-2 md:col-span-6 md:row-start-1 md:z-10`.
+- **SLIDE-04** (`data-sidebar="4"`, `w-screen`) — the div `pl-8 md:pl-0 py-2 max-w-4xl ... md:col-start-3 md:col-span-8`.
+- **SLIDE-05** (`data-sidebar="5"`, `w-[150vw]`) — the div `w-full max-w-5xl border-l-2 border-accent pl-8 py-2 md:col-start-3 md:col-span-9 md:row-start-1`.
+- **SLIDE-06** (`data-sidebar="6"`, `w-screen md:w-[75vw]`) — the div `flex flex-col justify-center ... md:col-start-3 md:col-span-7 md:row-start-1`.
+- **SLIDE-07** (`data-sidebar="7"`, `w-[75vw]`) — the div `flex flex-col justify-center ... md:col-start-4 md:col-span-8 md:row-start-1`.
+- **SLIDE-success** (`id="success-section"`, no `data-sidebar` after H1, `w-[75vw]`) — no sidebar entry/aside anymore (removed in H1) — skip, anchor not needed.
+- **SLIDE-09** (`data-sidebar="9"`, `w-screen`) — the div `pl-8 md:pl-0 py-2 max-w-4xl ... md:col-start-5 md:col-span-7 md:row-start-1`.
+- **SLIDE-10** (`data-sidebar="10"`, `w-screen md:w-[125vw]`) — the div `relative z-10 pl-8 md:pl-0 py-2 md:col-start-4 md:col-span-6 md:row-start-1`.
+- **SLIDE-12** (`data-sidebar="12"`, `w-screen md:w-[75vw]`) — the div `flex flex-col justify-center ... md:col-start-3 md:col-span-8 md:row-start-1`.
+- **SLIDE-13** (`data-sidebar="13"`, `w-screen`) — the div `md:col-start-1 md:col-span-12 md:row-start-1 flex flex-col items-end justify-center`. Note: content inside is right-aligned (`items-end`), so the visual "centre of mass" of the text isn't necessarily the centre of this div — flag with `<!-- TODO: verify anchor against actual text position with dom -->` and check visually.
+
+Do not change any `md:col-start-*` / `md:col-span-*` values as part of this — H3 only adds the `data-sidebar-anchor` attribute to existing elements.
+
+---
+
+### H4 — GSAP timing recalibration: snap animations to "enters right → resolved by mid-screen"
+
+**The problem:** Several slide widths changed significantly from the original calibration (SLIDE-02: 150vw → 100vw, SLIDE-03: 150vw → 200vw, SLIDE-05: w-screen → 150vw, SLIDE-10: 66vw → 125vw, SLIDE-11: w-screen → 125vw). The animations below still use hardcoded `scrollAt(fraction)` values calibrated to the *old* total-track-width — they're now mistimed, generally firing too late relative to when their slide is on screen. This matches dom's observation that "most animations happen too long after the mid of screen."
+
+**General rule going forward:** express each animation's trigger relative to its *own section's* position via `getScrollPos()`, not as a fraction of total track height — this makes timings self-correcting if widths change again later.
+
+```js
+const getScrollPos = (horizontalPos: number) => {
+  const totalHorizontal = strip.scrollWidth - window.innerWidth;
+  const totalVertical = track.offsetHeight - window.innerHeight;
+  return (horizontalPos / totalHorizontal) * totalVertical;
+};
+```
+This helper is currently redefined three separate times (inside the metrics, ROI, and success blocks). Hoist a single copy to just below where `scrollAt` is defined, near the top of `initStickyScroll`, and delete the three duplicates, reusing the shared one everywhere.
+
+**Timing rule of thumb** (some variation per animation is fine):
+- **Start**: roughly `section.offsetLeft - window.innerWidth * 0.9` — i.e. the section's left edge is just entering from the right edge of the viewport.
+- **End**: roughly when the section's content anchor (the same `[data-sidebar-anchor]` element from H2/H3, where present) reaches the centre of the viewport: `section.offsetLeft + anchor.offsetLeft + anchor.offsetWidth / 2 - window.innerWidth / 2`. For slides with no meaningful anchor, `section.offsetLeft + window.innerWidth * 0.1` to `* 0.3` is a reasonable approximation.
+
+**Animations to retime, in this order:**
+
+1. **Train fade layer** (SLIDE-01, `#train-fade-layer`) — currently `scrollAt(0.07)` → `scrollAt(0.12)`. Add `const slide01 = document.querySelector('[data-sidebar="1"]') as HTMLElement;` and retime relative to `slide01.offsetLeft`.
+2. **Data map nodes + paths** (SLIDE-02, `.data-node` / `.data-path`) — currently `scrollAt(0.11/0.13)` (nodes) and `scrollAt(0.12/0.17)` (paths). SLIDE-02 shrank from 150vw to 100vw — add `const slide02 = document.querySelector('[data-sidebar="2"]') as HTMLElement;` and retime relative to `slide02.offsetLeft`.
+3. **Tiger focus layer** (SLIDE-03, `#tiger-focus-layer`) — currently `scrollAt(0.18/0.27)`. SLIDE-03 grew from 150vw to 200vw — add `const slide03 = document.querySelector('[data-sidebar="3"]') as HTMLElement;` and retime relative to `slide03.offsetLeft`, ending near its anchor centre.
+4. **Visuals-fade / sound-grow text + vibration** (SLIDE-04, `#visuals-fade-text` / `#sound-grow-text`) — currently `scrollAt(0.27/0.32)`, `scrollAt(0.275/0.35)`, and the vibration `toggleActions` window `scrollAt(0.3/0.6)`. Add `const slide04 = document.querySelector('[data-sidebar="4"]') as HTMLElement;` and retime all three relative to `slide04.offsetLeft`.
+
+Leave the metrics/ROI/success animations (`pressureLine`, stat-card fan, `roiTl`, success ring/counter) as-is for now — they already use the `getScrollPos(section.offsetLeft ± ...)` pattern and are self-correcting; only consolidate their duplicated `getScrollPos` definitions per the hoist above.
+
+---
+
+### H5 — Work order & guardrails
+
+1. **H1** first (sidebar label) — trivial, zero risk.
+2. **H2** (anchor-based centering mechanism in the script) + **H3** (add `data-sidebar-anchor` attributes), slide by slide, **SLIDE-11 first** as called out by dom, then SLIDE-03, then the rest in the order listed in H3. Verify sidebar `aside` heights and indicator-line timing after each slide.
+3. **H4** last, one animation at a time in the order listed (train fade → data map → tiger focus → visuals/sound text). Verify each against the "enters right → resolved by mid-screen" rule before moving to the next.
+
+**Do not, as part of this work:**
+- Change any `w-[Xvw]` / `w-screen` section widths — H4 adapts to current widths, not the other way round.
+- Remove or rename `id="roi-section"`, `id="success-section"`, `id="metrics-section"`, `#pressure-line`, `#tiger-focus-layer`, `#train-fade-layer`, `.data-node`, `.data-path`, `#visuals-fade-text`, `#sound-grow-text`.
+- Touch the `isMobile` early-return branch or any `lg:hidden`/mobile content.
+- Touch `#end-screen` logic.
+- Change `md:col-start-*` / `md:col-span-*` grid placements — H3 only adds attributes.
+
+---
+
+### H6 — Sidebar track ends short of the page bottom (gap below "Execution")
+
+**The problem:** `#sidebar-track` is `absolute left-0 top-0 w-24 h-full` — its height equals `#scroll-track`'s full height (`track.offsetHeight`). But the asides' heights are computed in the resize loop (around line ~921) purely from `sectionScrollPos`, which represents where each section's content is *centered* — not where the strip finishes scrolling. The last aside's height is sized so its center aligns with the last section's centered scroll position, which is always less than the track's full scrollable height (`totalV`). The sum of all aside heights (`cumTop`) therefore ends up shorter than `sidebarEl.offsetHeight`, leaving a visible gap of plain background below the final "12 / Execution" aside (visible in dom's screenshot).
+
+**The fix:** After the existing resize loop that computes `cumTop`, stretch the last aside to fill any remaining space so the asides collectively reach exactly to the bottom of `#sidebar-track`. This is purely a height/visual fix — it does not change `sectionScrollPos`, indicator timing, or any centering math.
+
+Find the resize loop (around line 921):
+```js
+let cumTop = 0;
+sidebarAsides.forEach((aside, i) => {
+  if (i >= sectionScrollPos.length) return;
+  const targetDocCenter = sectionScrollPos[i] + window.innerHeight / 2;
+  const height = Math.max(window.innerHeight * 0.5, 2 * (targetDocCenter - cumTop));
+  aside.style.height = `${height}px`;
+  cumTop += height;
+});
+```
+
+Immediately after this loop, add:
+```js
+// Stretch the last aside so #sidebar-track's bottom aligns with #scroll-track's
+// bottom — otherwise a gap of bare background appears below the final aside.
+if (sidebarAsides.length) {
+  const last = sidebarAsides[sidebarAsides.length - 1];
+  const lastHeight = parseFloat(last.style.height);
+  const remaining = sidebarEl.offsetHeight - (cumTop - lastHeight);
+  if (remaining > lastHeight) {
+    last.style.height = `${remaining}px`;
+  }
+}
+```
+
+This only ever *extends* the last aside (never shrinks it below its computed minimum), so the "12 / Execution" label and indicator line keep their existing vertical centering — there's just more empty space below them, closing the gap to the true bottom of the page.
+
+**Risk: low, independent of H1–H5** — this can be applied at any point in the work order (before or after the others) since it only touches the trailing whitespace of the last aside. Verify after applying: scroll to the very bottom of `/returns2` and confirm `#sidebar-track`'s background extends flush to the bottom of `#end-screen`, with no gap or seam.

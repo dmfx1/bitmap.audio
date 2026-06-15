@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 export default function Philosophy() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const [visibleText, setVisibleText] = useState("");
-  const fullQuote = '"In computer science, a bitmap is a data structure that represents a spatially mapped array of bits."';
+  const fullQuote = 'In computer science, a bitmap maps individual, micro-level data points across an array to construct a complete visual image.';
 
   useEffect(() => {
   let ticking = false;
@@ -15,7 +15,7 @@ export default function Philosophy() {
 
     // --- INSERT CODE HERE (Number 3.) ---
     // startTrigger: When the section is 85% down the screen, start typing.
-    const startTrigger = viewportHeight * 0.85; 
+    const startTrigger = viewportHeight * 0.75; 
     
     // endTrigger: When the section hits 45% (near the middle), be 100% finished.
     // This provides the 'smooth' finish you're looking for.
@@ -42,17 +42,17 @@ export default function Philosophy() {
 
   return (
     <div ref={sectionRef} className="flex flex-col items-center text-center">
-      <p className="text-eyebrow text-accent text-xs mb-8">Our Philosophy</p>
+      <p className="text-eyebrow text-accent text-base mb-12 font-bold">Our Philosophy:<br/><br/><span className="text-accent text-sm">The Micro/Macro Architecture</span></p>
       
       <div className="max-w-4xl min-h-[160px] md:min-h-[200px]">
-        <h2 className="text-2xl md:text-4xl lg:text-5xl font-mono text-foreground leading-tight">
+        <h2 className="text-2xl md:text-4xl lg:text-5xl font-mono text-foreground/60 leading-tight">
           {visibleText}
           <span className="inline-block w-[0.5ch] h-[0.9em] bg-accent brightness-125 ml-2 animate-pulse align-middle" />
         </h2>
       </div>
 
-      <p className="font-mono text-body-muted text-lg max-w-2xl mt-8 opacity-60">
-        We translate this concept to sound - mapping digital information to human emotion.
+      <p className="font-mono text-body-muted text-xl max-w-2xl mt-16 opacity-60">
+        At <span className="text-accent/75 font-bold">bitmap.audio</span>, we apply this exact strutural logic to sound.
       </p>
     </div>
   );

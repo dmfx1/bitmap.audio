@@ -19,7 +19,7 @@ const services = [
     icon: Headphones, 
     title: "Experiential Audio", 
     href: "/solutions/immersive-audio",
-    desc: "Create spatial audio experiences for AR/VR, installations, and experiential environments."
+    desc: "Bring experiences to life. We create spatial audio experiences for AR/VR, installations, and experiential environments."
   },
 ];
 
@@ -99,7 +99,7 @@ export default function ServicePillars() {
     >
       {/* HEADER AREA */}
       <div className="text-center mb-20">
-        <p className="font-mono text-accent text-sm tracking-[0.2em] uppercase mb-4">
+        <p className="font-mono text-accent text-base tracking-[0.2em] uppercase mb-4">
           What We Do
         </p>
         <h2 className="text-4xl font-mono text-foreground tracking-tight font-light">
@@ -174,7 +174,7 @@ function ServiceCard({
       </p>
 
       {/* LEARN MORE — pinned at fixed distance from bottom, matching icon distance from top */}
-      <div className="absolute bottom-6 md:bottom-12 left-6 md:left-12">
+      <div className="absolute bottom-6 md:bottom-10 left-6 md:left-12">
         <span
           className={cn(
             "inline-flex items-center gap-3 text-sm font-mono tracking-[0.2em] uppercase transition-colors",

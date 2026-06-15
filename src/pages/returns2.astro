@@ -12,14 +12,40 @@ const sections = [
   { id: "05", label: "Metrics" },
   { id: "06", label: "Conversion" },
   { id: "07", label: "Credibility" },
-  { id: "08", label: "Credibility.Trust" },
-  { id: "09", label: "Perception" },
-  { id: "10", label: "Culture" },
-  { id: "11", label: "Asset.Ownership" },
-  { id: "12", label: "Belief" },
-  { id: "13", label: "Execution" }
+  { id: "08", label: "Perception" },
+  { id: "09", label: "Culture" },
+  { id: "10", label: "Asset.Ownership" },
+  { id: "11", label: "Belief" },
+  { id: "12", label: "Execution" }
 ];
 ---
+
+{/*
+  LAYOUT AUDIT — returns2.astro
+  Spacer divs found:
+    - SLIDE-02 Zone 1: <div class="hidden md:block flex-shrink-0 w-[33vw]"> (gap before text col) → REMOVED
+    - SLIDE-02 Zone 4: <div class="hidden md:block flex-shrink-0 w-[30vw]"> (gap after SVG) → REMOVED
+
+  Duplicate wrapper patterns:
+    - Desktop interstitial sections (SLIDE-3.5, 4.5, 8.5) share: hidden md:flex w-[66vw] ... flex-col justify-center
+    - 6+ slides use: flex flex-col justify-center pl-4 pr-4 md:pl-XX ... relative z-10 wrapping border-l-2 border-accent pl-8 py-2
+    - Inner content divs on SLIDE-3.5, 4.5, 8.5: flex flex-col items-center justify-center w-full relative overflow-hidden pointer-events-none z-10 text-center
+
+  Positioning-padding removed in this rebuild (md: desktop-only classes):
+    - SLIDE-00: md:pl-0 on section
+    - SLIDE-01: pr-8 md:pr-12 on outer content wrapper
+    - SLIDE-02: spacer divs replaced by grid (Zone 1 w-[33vw], Zone 4 w-[30vw])
+    - SLIDE-03: md:pl-54 md:pr-32 on content wrapper; md:ml-36 on inner div
+    - SLIDE-04: md:px-48 on section
+    - SLIDE-05: md:pl-48 on section
+    - SLIDE-06: md:pl-24 md:pr-8 on outer content wrapper
+    - SLIDE-07: md:pl-48 md:pr-32 on outer content wrapper
+    - SLIDE-09: md:px-48 on section
+    - SLIDE-10: md:pl-24 md:pr-16 on section
+    - SLIDE-11: md:px-48 on section
+    - SLIDE-12: md:pl-48 md:pr-16 on outer content wrapper
+    - SLIDE-13: md:pl-48 md:pr-32 on section
+*/}
 
 <Layout
   title="The ROI of Audio Branding | bitmap.audio"
@@ -55,22 +81,25 @@ const sections = [
                "Your brand is Muted." | data-sidebar="0"
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-00 | Status | w-screen -->
-          <section data-sidebar="0" class="relative w-[75vw] h-full flex-shrink-0 flex flex-col justify-center items-center pl-4 md:pl-0 pr-4 group bg-background z-10 mobile:pl-0">
+          <section data-sidebar="0" class="relative w-[75vw] h-full flex-shrink-0 flex flex-col justify-center items-center pl-4 pr-4 group bg-background z-10 mobile:pl-0">
             <!-- Mobile background image — woman reading, bottom-right -->
             <div class="md:hidden absolute bottom-0 right-0 w-[75vw] h-[70vh] pointer-events-none z-0">
               <img src="/images/listening.woman2.emptyBook.png" alt=""
                    class="w-full h-full object-contain object-right-bottom opacity-40" />
             </div>
             <div class="mobile:hidden absolute -right-20 bottom-0 text-[35vw] font-mono font-bold text-muted/5 select-none pointer-events-none transition-transform duration-1000 group-hover:scale-105 z-0">00</div>
-            <div class="relative z-10 pl-8 py-2">
-              <span class="text-eyebrow text-sm mb-8 mobile:mb-3 block">[ Status // Critical ]</span>
-              <h2 class="font-mono text-6xl mobile:text-5xl md:text-[8vw] leading-[0.9] tracking-tighter mb-12 mobile:mb-6 uppercase text-foreground">
-                Your brand<br/>is <span class="text-accent drop-shadow-[0_0_20px_hsl(var(--accent)/0.3)]">Muted.</span>
-              </h2>
-              <div class="w-full max-w-2xl bg-background/60 p-6 border-l-2 border-accent">
-                <p class="font-sans text-xl mobile:text-xl md:text-2xl text-muted-foreground leading-relaxed">
-                  Visuals reach the eyes, but sound hits the nervous system. Competing on screens alone is a losing battle. It's time to weaponise your audio.
-                </p>
+            <!-- 12-col container: pl-24 clears the 96px sidebar; pr-6 matches nav right padding -->
+            <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
+              <div data-sidebar-anchor class="relative z-10 pl-8 md:pl-0 py-2 md:col-start-3 md:col-span-9">
+                <span class="text-eyebrow text-sm mb-8 mobile:mb-3 block">[ Status // Critical ]</span>
+                <h2 class="font-mono text-6xl mobile:text-5xl md:text-[8vw] leading-[0.9] tracking-tighter mb-12 mobile:mb-6 uppercase text-foreground">
+                  Your brand<br/>is <span class="text-accent drop-shadow-[0_0_20px_hsl(var(--accent)/0.3)]">Muted.</span>
+                </h2>
+                <div class="w-full max-w-2xl bg-background/60 p-6 border-l-2 border-accent">
+                  <p class="font-sans text-xl mobile:text-xl md:text-2xl text-muted-foreground leading-relaxed">
+                    Visuals reach the eyes, but sound hits the nervous system. Competing on screens alone is a losing battle. It's time to weaponise your audio.
+                  </p>
+                </div>
               </div>
             </div>
           </section>
@@ -108,27 +137,29 @@ const sections = [
                 <img src="/images/listening.woman2.train.png" alt="Woman and Train" class="w-full h-full object-contain object-right-bottom" />
             </div>
 
-            <div class="w-full flex justify-center mobile:justify-start pr-8 mobile:px-4 md:pr-12 relative z-10">
-                <div class="max-w-2xl border-l-2 border-accent pl-8 py-2 bg-background/20 backdrop-blur-sm relative z-10">
-                    <span class="text-eyebrow text-sm mb-8 mobile:mb-3 block text-primary">[ Context // Always_On ]</span>
-                    <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 mobile:mb-4 uppercase text-foreground">When everyone<br/><span class="text-primary drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">is listening.</span></h2>
-                    <p class="font-sans text-xl text-muted-foreground leading-relaxed max-w-xl">
-                      <span class="text-accent">The screenless audience</span> – 80% of consumers form brand memory via audio cues. If you lack an audio-first identity, you have no presence in the moments when eyes are diverted.
-                    </p>
-                </div>
+            <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
+              <div data-sidebar-anchor class="w-full flex justify-center mobile:justify-start mobile:px-4 relative z-10 md:col-start-1 md:col-span-7">
+                  <div class="max-w-2xl border-l-2 border-accent pl-8 py-2 bg-background/20 backdrop-blur-sm relative z-10">
+                      <span class="text-eyebrow text-sm mb-8 mobile:mb-3 block text-primary">[ Context // Always_On ]</span>
+                      <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 mobile:mb-4 uppercase text-foreground">When everyone<br/><span class="text-primary drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">is listening.</span></h2>
+                      <p class="font-sans text-xl text-muted-foreground leading-relaxed max-w-xl">
+                        <span class="text-accent">The screenless audience</span> – 80% of consumers form brand memory via audio cues. If you lack an audio-first identity, you have no presence in the moments when eyes are diverted.
+                      </p>
+                  </div>
+              </div>
             </div>
           </section>
 
           <!-- #endregion SLIDE-01 -->
 
           <!-- ═══════════════════════════════════════════════════════════
-               SLIDE 02 | Architecture | DESKTOP WIDTH: w-[150vw]
+               SLIDE 02 | Architecture | DESKTOP WIDTH: w-[125vw]
                SVG data map path-draw animation | data-sidebar="2"
                Layout: flex row — 3 zones (gap · text · diagram · gap)
                Tweak widths here: gap-left=12vw, text=28vw, svg=80vw, gap-right=30vw
                ═══════════════════════════════════════════════════════════ -->
-          <!-- #region SLIDE-02 | Architecture SVG | w-[150vw] -->
-          <section data-sidebar="2" class="w-[150vw] h-full flex-shrink-0 flex flex-row items-center border-r border-border/20 bg-primary/80 overflow-hidden group z-10">
+          <!-- #region SLIDE-02 | Architecture SVG | w-[100vw] -->
+          <section data-sidebar="2" class="w-[100vw] h-full flex-shrink-0 flex flex-row items-center border-r border-border/20 bg-primary/80 overflow-hidden group z-10 relative">
 
             <!-- MOBILE: stacked layout — SVG behind, text in front -->
             <div class="md:hidden absolute inset-0 pointer-events-none z-0 opacity-30">
@@ -172,22 +203,10 @@ const sections = [
               <p class="font-sans text-xl text-background/80 leading-relaxed">Faster Neurological Processing and Lasting Memory.</p>
             </div>
 
-            <!-- DESKTOP: three-zone flex row — change the w-[Xvw] values to adjust spacing -->
+            <!-- DESKTOP: container/12-col — text at col-start-1 (clears sidebar); SVG absolute (full-bleed behind text) -->
 
-            <!-- Zone 1: Blue gap before text — increase to push text further right -->
-            <div class="hidden md:block flex-shrink-0 w-[33vw]"></div>
-
-            <!-- Zone 2: Text column -->
-            <div class="hidden md:flex flex-shrink-0 w-[33vw] flex-col justify-center">
-              <span class="text-eyebrow text-sm mb-8 block text-background">[ Architecture // Recall ]</span>
-              <h2 class="font-mono text-8xl leading-tight mb-8 uppercase text-foreground">Sound as a<br/><span class="text-accent drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">Data Map.</span></h2>
-              <p class="font-sans text-xl text-background/80 leading-relaxed">
-                Faster Neurological Processing and Lasting Memory.
-              </p>
-            </div>
-
-            <!-- Zone 3: SVG diagram — increase w to make it larger, decrease to shrink -->
-            <div class="hidden md:block flex-shrink-0 w-[80vw] h-[85vh] opacity-80">
+            <!-- SVG diagram — absolute positioned, extends right from ~20vw within section, sits behind text (z-0) -->
+            <div class="hidden md:block absolute left-[25vw] top-[7.5vh] w-[80vw] h-[85vh] opacity-80 z-0">
               <svg viewBox="50 200 650 800" class="w-full h-full overflow-visible">
                 <g class="stroke-accent" fill="none" stroke-width="3" stroke-linecap="square" stroke-linejoin="miter">
                   <path class="data-path" d="M100,300 H200 V400 H100 Z" />
@@ -223,8 +242,16 @@ const sections = [
               </svg>
             </div>
 
-            <!-- Zone 4: Blue gap after diagram — increase for more blue breathing room on the right -->
-            <div class="hidden md:block flex-shrink-0 w-[30vw]"></div>
+            <!-- Text — container/12-col, sits in front of SVG (z-10) -->
+            <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full md:h-full">
+              <div data-sidebar-anchor class="hidden md:flex flex-col justify-center md:col-start-2 md:col-span-6 md:row-start-1 md:z-10">
+                <span class="text-eyebrow text-sm mb-8 block text-background">[ Architecture // Recall ]</span>
+                <h2 class="font-mono text-8xl leading-tight mb-8 uppercase text-foreground">Sound as a<br/><span class="text-accent drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">Data Map.</span></h2>
+                <p class="font-sans text-xl text-background/80 leading-relaxed">
+                  Faster Neurological Processing and Lasting Memory.
+                </p>
+              </div>
+            </div>
 
           </section>
 
@@ -235,7 +262,7 @@ const sections = [
                Tiger blur-to-focus animation | data-sidebar="3"
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-03 | Neurology Processing | w-screen -->
-          <section data-sidebar="3" class="w-[150vw] h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 border-r border-border/20 bg-card/30 overflow-hidden relative group z-10 mobile:pl-0">
+          <section data-sidebar="3" class="w-[200vw] h-full flex-shrink-0 grid grid-cols-1 border-r border-border/20 bg-card/30 overflow-hidden relative group z-10 mobile:pl-0">
 
             <!-- Mobile background image — tiger, bottom-right -->
               <div class="md:hidden absolute bottom-0 right-0 w-[100vw] h-[100vh] pointer-events-none z-0">
@@ -243,18 +270,23 @@ const sections = [
                     class="w-full h-full object-contain object-right-bottom opacity-40" />
               </div>
 
-            <div class="absolute right-30 -bottom-[20vh] w-[100vw] h-full flex items-end justify-end mix-blend-screen pointer-events-none z-0">
-               <img id="tiger-focus-layer" src="/images/stalking.sabretooth.png" alt="Sabretooth snapping a twig" 
-                    class="w-full h-auto object-contain object-right-bottom opacity-0 blur-[30px] transition-transform duration-1000 group-hover:scale-[1.02]" />
+            <div class="absolute right-[40vw] -bottom-[20vh] w-[100vw] h-full flex items-start justify-end mix-blend-screen pointer-events-none z-0">
+               <img 
+               id="tiger-focus-layer" 
+               src="/images/stalking.sabretooth.png" 
+               alt="Sabretooth snapping a twig"
+               class="w-full h-auto object-contain object-right-bottom opacity-0 blur-[30px] transition-transform duration-1000 group-hover:scale-[1.02]" />
             </div>
 
-            <div class="flex flex-col items-end mobile:items-start justify-center pl-4 pr-4 md:pl-54 md:pr-32 relative z-10 border-l border-border/20 bg-background/20">
-              <div class="border-l-2 border-accent bg-background/20 ml-0 md:ml-36 pl-8 py-2">
-                <span class="text-eyebrow text-sm mb-8 mobile:mb-3 block text-accent">[ Neurology // Processing_Speed ]</span>
-                <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 mobile:mb-4 uppercase">Faster than<br/><span class="text-accent">Sight.</span></h2>
-                <p class="font-sans text-xl text-muted-foreground leading-relaxed mb-8">
-                  Sound is a biological survival mechanism. It reaches the brain 2 to 4 times faster than visual stimuli.<br/><br/>It establishes recognition in just <strong>0.05 seconds</strong> making us aware of our surroundings before we even consciously "see" them.
-                </p>
+            <div class="md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
+              <div data-sidebar-anchor class="flex flex-col items-end mobile:items-start justify-center mobile:pl-4 mobile:pr-4 relative z-10 border-l border-border/20 bg-background/20 md:col-start-3 md:col-span-4">
+                <div class="border-l-2 border-accent bg-background/20 ml-0 pl-8 py-2">
+                  <span class="text-eyebrow text-sm mb-8 mobile:mb-3 block text-accent">[ Neurology // Processing_Speed ]</span>
+                  <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 mobile:mb-4 uppercase">Faster than<br/><span class="text-accent">Sight.</span></h2>
+                  <p class="font-sans text-xl text-muted-foreground leading-relaxed mb-8">
+                    Sound is a biological survival mechanism. It reaches the brain 2 to 4 times faster than visual stimuli.<br/><br/>It establishes recognition in just <strong>0.05 seconds</strong> making us aware of our surroundings before we even consciously "see" them.
+                  </p>
+                </div>
               </div>
             </div>
           </section>
@@ -266,13 +298,15 @@ const sections = [
                "8-10ms" stat interstitial | DESKTOP ONLY | no sidebar
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-3.5 | Brain Speed Stat | w-[66vw] | DESKTOP ONLY -->
-          <section class="hidden md:flex w-[66vw] bg-primary/80 h-full flex-shrink-0 border-r border-border/20 overflow-hidden relative group z-10 flex-col justify-center">
-            <div class="flex flex-col items-center justify-center w-full relative overflow-hidden pointer-events-none z-10 text-center">
-               <div class="absolute inset-0 bg-gradient-glow opacity-10"></div>
-               <h3 class="font-mono text-[12vw] leading-none text-foreground font-light tracking-tighter drop-shadow-md">
-                 8<span class="text-primary">-</span>10<span class="text-2xl tracking-tight text-foreground">ms</span>
-               </h3>
-               <span class="font-mono text-foreground tracking-[0.5em] uppercase mt-4 drop-shadow-md">Brain Processing Speed</span>
+          <section class="hidden md:flex md:items-center w-[66vw] bg-primary/80 h-full flex-shrink-0 border-r border-border/20 overflow-hidden relative group z-10">
+            <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
+              <div class="flex flex-col items-center justify-center relative overflow-hidden pointer-events-none z-10 text-center md:col-start-1 md:col-span-12">
+                 <div class="absolute inset-0 bg-gradient-glow opacity-10"></div>
+                 <h3 class="font-mono text-[12vw] leading-none text-foreground font-light tracking-tighter drop-shadow-md">
+                   8<span class="text-primary">-</span>10<span class="text-2xl tracking-tight text-foreground">ms</span>
+                 </h3>
+                 <span class="font-mono text-foreground tracking-[0.5em] uppercase mt-4 drop-shadow-md">Brain Processing Speed</span>
+              </div>
             </div>
           </section>
 
@@ -283,19 +317,21 @@ const sections = [
                "Visuals fade. Sound echoes." + vibration animation | data-sidebar="4"
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-04 | Neurology Memory | w-screen -->
-          <section data-sidebar="4" class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center text-right pl-4 pr-4 md:px-48 relative border-r border-border/20 bg-accent/5 overflow-hidden group z-10 mobile:items-start mobile:text-right">
+          <section data-sidebar="4" class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center text-right mobile:pl-4 mobile:pr-4 relative border-r border-border/20 bg-accent/5 overflow-hidden group z-10 mobile:items-start mobile:text-right">
             <div class="absolute inset-0 radial-gradient-center opacity-20 pointer-events-none"></div>
-            <div class="pl-8 py-2 max-w-4xl relative z-10 mobile:border-l-2 mobile:border-accent">
-              <span class="text-eyebrow text-accent text-sm mb-8 mobile:mb-3 block">[ Neurology // Echoic_Memory ]</span>
+            <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
+              <div data-sidebar-anchor class="pl-8 md:pl-0 py-2 max-w-4xl relative z-10 mobile:border-l-2 mobile:border-accent md:col-start-3 md:col-span-8">
+                <span class="text-eyebrow text-accent text-sm mb-8 mobile:mb-3 block">[ Neurology // Echoic_Memory ]</span>
 
-              <h2 class="font-mono text-5xl mobile:text-5xl md:text-[6vw] leading-[1.1] tracking-tighter mb-8 mobile:mb-4 uppercase text-foreground">
-                <span id="visuals-fade-text" class="inline-block mobile:opacity-40 mobile:text-[80%]">Visuals fade.</span><br/>
-                <span id="sound-grow-text" class="text-primary inline-block origin-right">Sound echoes.</span>
-              </h2>
+                <h2 class="font-mono text-5xl mobile:text-5xl md:text-[6vw] leading-[1.1] tracking-tighter mb-8 mobile:mb-4 uppercase text-foreground">
+                  <span id="visuals-fade-text" class="inline-block mobile:opacity-40 mobile:text-[80%]">Visuals fade.</span><br/>
+                  <span id="sound-grow-text" class="text-primary inline-block origin-right">Sound echoes.</span>
+                </h2>
 
-              <p class="font-sans text-2xl mobile:text-xl text-muted-foreground leading-relaxed">
-                Auditory sensory memory persists for 2-5 seconds - <strong>10 to 20 times longer</strong> than visual memory. It shows significantly better resistance to decay and triggers emotional encoding via the limbic system.
-              </p>
+                <p class="font-sans text-2xl mobile:text-xl text-muted-foreground leading-relaxed">
+                  Auditory sensory memory persists for 2-5 seconds - <strong>10 to 20 times longer</strong> than visual memory. It shows significantly better resistance to decay and triggers emotional encoding via the limbic system.
+                </p>
+              </div>
             </div>
           </section>
 
@@ -306,13 +342,15 @@ const sections = [
                "20x" stat interstitial | DESKTOP ONLY | no sidebar
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-4.5 | Memory Retention Stat | w-[66vw] | DESKTOP ONLY -->
-          <section class="hidden md:flex w-[66vw] bg-foreground/80 h-full flex-shrink-0 border-r border-border/20 overflow-hidden relative group z-10 flex-col justify-center">
-            <div class="flex flex-col items-center justify-center w-full relative overflow-hidden pointer-events-none z-10 text-center">
-               <div class="absolute inset-0 bg-gradient-glow opacity-10"></div>
-               <h3 class="font-mono text-[12vw] leading-none text-foreground font-light tracking-tighter drop-shadow-md">
-                 20<span class="tracking-tight text-foreground">x</span>
-               </h3>
-               <span class="font-mono text-background/50 tracking-[0.5em] uppercase mt-4 drop-shadow-md">Longer Memory Retention</span>
+          <section class="hidden md:flex md:items-center w-[66vw] bg-foreground/80 h-full flex-shrink-0 border-r border-border/20 overflow-hidden relative group z-10">
+            <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
+              <div class="flex flex-col items-center justify-center relative overflow-hidden pointer-events-none z-10 text-center md:col-start-1 md:col-span-12">
+                 <div class="absolute inset-0 bg-gradient-glow opacity-10"></div>
+                 <h3 class="font-mono text-[12vw] leading-none text-foreground font-light tracking-tighter drop-shadow-md">
+                   20<span class="tracking-tight text-foreground">x</span>
+                 </h3>
+                 <span class="font-mono text-background/50 tracking-[0.5em] uppercase mt-4 drop-shadow-md">Longer Memory Retention</span>
+              </div>
             </div>
           </section>
 
@@ -324,8 +362,9 @@ const sections = [
                Desktop uses hidden md:flex — mobile has separate slides below
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-05 | Metrics | w-screen | DESKTOP + MOBILE VARIANTS -->
-          <section id="metrics-section" data-sidebar="5" class="w-screen h-full flex-shrink-0 hidden md:flex items-center justify-center pl-4 pr-4 md:pl-48 relative border-r border-border/20 bg-card/20 overflow-hidden group z-10">
-            <div class="w-full max-w-5xl border-l-2 border-accent pl-8 py-2">
+          <section id="metrics-section" data-sidebar="5" class="w-[150vw] h-full flex-shrink-0 hidden md:flex md:items-center relative border-r border-border/20 bg-card/20 overflow-hidden group z-10">
+            <div class="md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
+            <div data-sidebar-anchor class="w-full max-w-5xl border-l-2 border-accent pl-8 py-2 md:col-start-3 md:col-span-9 md:row-start-1">
               <span class="text-eyebrow text-sm mb-8 block">[ Metrics // Awareness ]</span>
               
               <h2 class="font-mono text-5xl md:text-7xl leading-[0.9] tracking-tighter mb-16 uppercase text-foreground relative inline-block">
@@ -359,6 +398,7 @@ const sections = [
                 </div>
               </div>
             </div>
+            </div><!-- /container -->
           </section>
 
           <!-- Mobile: Recall Under Pressure heading slide -->
@@ -405,8 +445,9 @@ const sections = [
                "Amplified ROI." text panel | data-sidebar="6"
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-06 | Conversion Text | w-screen md:w-[50vw] -->
-          <section data-sidebar="6" class="w-screen md:w-[50vw] h-full flex-shrink-0 flex flex-col justify-center border-r border-border/20 bg-background overflow-hidden relative z-10 mobile:pl-0">
-            <div class="flex flex-col justify-center pl-4 pr-4 md:pl-24 md:pr-8 relative z-10">
+          <section data-sidebar="6" class="w-screen md:w-[75vw] h-full flex-shrink-0 flex flex-col justify-center border-r border-border/20 bg-background overflow-hidden relative z-10 mobile:pl-0">
+            <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
+            <div data-sidebar-anchor class="flex flex-col justify-center mobile:pl-4 mobile:pr-4 relative z-10 md:col-start-3 md:col-span-7 md:row-start-1">
               <div class="pl-6 mobile:pl-4 py-2">
                 <span class="text-eyebrow text-sm mb-8 mobile:mb-3 block">[ Capital // Conversion ]</span>
                 <h2 class="font-mono text-5xl mobile:text-5xl md:text-6xl leading-[1.1] mb-8 mobile:mb-4 uppercase flex flex-col items-start">
@@ -423,6 +464,7 @@ const sections = [
                 </div>
               </div>
             </div>
+            </div><!-- /container -->
           </section>
 
           <!-- #endregion SLIDE-06 -->
@@ -433,20 +475,24 @@ const sections = [
                ⚠ GSAP anchors to id="roi-section" — do not remove that id
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-6.5 | ROI Counter | w-[66vw] | DESKTOP ONLY + MOBILE VARIANT -->
-          <section id="roi-section" class="hidden md:flex w-[66vw] h-full flex-shrink-0 flex-col items-center justify-center border-r border-border/20 bg-primary/10 overflow-hidden relative group z-10">
+          <section id="roi-section" class="hidden md:flex md:items-center w-[75vw] h-full flex-shrink-0 border-r border-border/20 bg-primary/10 overflow-hidden relative group z-10">
             <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div class="roi-wave absolute w-[10vw] h-[10vw] rounded-full border border-primary/40"></div>
               <div class="roi-wave absolute w-[10vw] h-[10vw] rounded-full border border-primary/20"></div>
               <div class="roi-wave absolute w-[10vw] h-[10vw] rounded-full border border-primary/10"></div>
             </div>
-            <div id="roi-text-wrapper" class="relative flex items-center justify-center h-[20vw] w-full mt-12">
-              <h3 class="roi-ghost absolute font-mono text-[24vw] leading-none text-primary/20 blur-[24px] font-bold tracking-tighter mix-blend-screen">4.0x</h3>
-              <h3 class="roi-ghost absolute font-mono text-[21vw] leading-none text-primary/50 blur-[12px] font-bold tracking-tighter mix-blend-screen">4.0x</h3>
-              <h3 class="relative z-10 font-mono text-[18vw] leading-none text-primary font-bold tracking-tighter drop-shadow-[0_0_40px_hsl(var(--primary)/0.6)]">
-                <span id="roi-counter">1.0</span><span class="text-[8vw] text-foreground ml-2">x</span>
-              </h3>
+            <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
+              <div class="md:col-start-1 md:col-span-12 flex flex-col items-center justify-center">
+                <div id="roi-text-wrapper" class="relative flex items-center justify-center h-[20vw] w-full mt-12">
+                  <h3 class="roi-ghost absolute font-mono text-[24vw] leading-none text-primary/20 blur-[24px] font-bold tracking-tighter mix-blend-screen">4.0x</h3>
+                  <h3 class="roi-ghost absolute font-mono text-[21vw] leading-none text-primary/50 blur-[12px] font-bold tracking-tighter mix-blend-screen">4.0x</h3>
+                  <h3 class="relative z-10 font-mono text-[18vw] leading-none text-primary font-bold tracking-tighter drop-shadow-[0_0_40px_hsl(var(--primary)/0.6)]">
+                    <span id="roi-counter">1.0</span><span class="text-[8vw] text-foreground ml-2">x</span>
+                  </h3>
+                </div>
+                <span class="font-mono text-foreground tracking-[0.5em] uppercase mt-4 z-10 relative">Total ROI Multiplier</span>
+              </div>
             </div>
-            <span class="font-mono text-foreground tracking-[0.5em] uppercase mt-4 z-10 relative">Total ROI Multiplier</span>
           </section>
 
           <!-- Mobile ROI multiplier slide -->
@@ -468,8 +514,9 @@ const sections = [
                "Subconscious Trust." text panel | data-sidebar="7"
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-07 | Credibility Text | w-screen -->
-          <section data-sidebar="7" class="w-screen h-full flex-shrink-0 flex flex-col justify-center border-r border-border/20 bg-foreground/90 overflow-hidden relative group z-10">
-            <div class="flex flex-col justify-center pl-4 pr-4 md:pl-48 md:pr-32 relative z-10">
+          <section data-sidebar="7" class="w-[75vw] h-full flex-shrink-0 flex flex-col justify-center bg-foreground/90 overflow-hidden relative group z-10">
+            <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
+            <div data-sidebar-anchor class="flex flex-col justify-center mobile:pl-4 mobile:pr-4 relative z-10 md:col-start-4 md:col-span-8 md:row-start-1">
               <div class="w-full md:max-w-2xl border-l-2 border-accent pl-8 py-2">
                 <span class="text-eyebrow text-sm text-background/80 mb-8 mobile:mb-3 block">[ UX // Credibility ]</span>
                 <h2 class="font-mono text-5xl mobile:text-5xl md:text-6xl leading-[1.1] mb-8 mobile:mb-4 uppercase flex flex-col items-start">
@@ -488,6 +535,7 @@ const sections = [
                 </div>
               </div>
             </div>
+            </div><!-- /container -->
           </section>
 
           <!-- #endregion SLIDE-07 -->
@@ -499,7 +547,9 @@ const sections = [
                ⚠ GSAP anchors to id="success-section" — do not remove that id
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-7.5 | Task Success Ring | w-screen | DESKTOP ONLY + MOBILE VARIANT -->
-          <section id="success-section" data-sidebar="8" class="hidden md:flex w-screen h-full flex-shrink-0 flex-col items-center justify-center border-r border-border/20 bg-foreground/90 overflow-hidden relative group z-10">
+          <section id="success-section" class="hidden md:flex md:items-center w-[75vw] h-full flex-shrink-0 bg-foreground/90 overflow-hidden relative group z-10">
+            <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
+            <div class="md:col-start-1 md:col-span-12 flex items-center justify-center">
             <div class="relative flex items-center justify-center w-[30vw] h-[30vw]">
               <svg class="absolute inset-0 w-full h-full -rotate-90 pointer-events-none" viewBox="0 0 100 100">
                 <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="2" fill="transparent" class="text-foreground/10" />
@@ -513,7 +563,9 @@ const sections = [
                 </h3>
                 <span class="font-mono text-background/60 text-base tracking-[0.2em] uppercase block">Task Success Increase</span>
               </div>
-            </div>
+            </div><!-- /w-[30vw] ring wrapper -->
+            </div><!-- /col-span-12 centering div -->
+            </div><!-- /container -->
           </section>
 
           <!-- Mobile: 25% task success slide -->
@@ -535,9 +587,10 @@ const sections = [
                "Perceived as Innovators" | data-sidebar="9"
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-09 | Perception | w-screen -->
-          <section data-sidebar="9" class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center text-right pl-4 pr-4 md:px-48 relative border-r border-border/20 bg-primary/20 overflow-hidden group z-10 mobile:items-start mobile:text-right">
+          <section data-sidebar="9" class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center text-right mobile:pl-4 mobile:pr-4 relative border-r border-border/20 bg-primary/20 overflow-hidden group z-10 mobile:items-start mobile:text-right">
             <div class="absolute inset-0 radial-gradient-center opacity-20 pointer-events-none"></div>
-            <div class="pl-8 py-2 max-w-4xl relative z-10 mobile:border-l-2 mobile:border-accent">
+            <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
+            <div data-sidebar-anchor class="pl-8 md:pl-0 py-2 max-w-4xl relative z-10 mobile:border-l-2 mobile:border-accent md:col-start-5 md:col-span-7 md:row-start-1">
               <span class="text-eyebrow text-sm text-accent mb-8 block">[ Perception // The Edge ]</span>
               
               <h2 class="font-mono text-5xl md:text-[6vw] leading-[1.1] tracking-tighter mb-8 uppercase text-foreground">
@@ -549,6 +602,7 @@ const sections = [
                 Consumers inherently view brands that utilise strategic sound as more forward-thinking. Data shows that 60% of consumers believe brands that use sound in their communications are more innovative.
               </p>
             </div>
+            </div><!-- /container -->
           </section>
 
           <!-- #endregion SLIDE-09 -->
@@ -559,14 +613,16 @@ const sections = [
                NOTE: numbered 8.5 but appears after slide 09 in DOM order
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-8.5 | SME Opportunity | w-[66vw] | DESKTOP ONLY -->
-          <section class="hidden md:flex w-[66vw] bg-primary/10 h-full flex-shrink-0 border-l border-border/20 overflow-hidden relative group z-10 flex-col justify-center">
-            <div class="hidden md:flex flex-col items-center justify-center w-full relative overflow-hidden pointer-events-none z-10 text-center">
-               <div class="absolute inset-0 bg-gradient-glow opacity-10"></div>
-               <h3 class="flex items-start font-mono w-3/4 text-[2vw] leading-none text-foreground font-light tracking-tighter drop-shadow-md">
-                 An untapped opportunity for SME's
-               </h3>
-               <br/>
-               <span class="font-mono w-3/4 text-foreground/50 tracking-[0.6em] uppercase mt-4 drop-shadow-md text-justify leading-[2em]">Sonic branding drives <span class="text-foreground text-lg">loyalty, equity, </span>and <span class="text-foreground text-lg">purchase decisions</span> — yet it remains the exclusive domain of global giants.<br/><br/><span class="text-foreground/80 text-xl">SME's make up 90% of businesses worldwide,</span> but most are leaving audio completely untapped.<br/><br/><span class="text-foreground text-base">That's not a gap.</span><br/><br/><span class="text-accent text-sm">That's an opportunity.</span></span>
+          <section class="hidden md:flex md:items-center w-screen bg-primary/10 h-full flex-shrink-0 border-l border-border/20 overflow-hidden relative group z-10">
+            <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
+              <div class="flex flex-col items-center justify-center relative overflow-hidden pointer-events-none z-10 text-center md:col-start-3 md:col-span-8">
+                 <div class="absolute inset-0 bg-gradient-glow opacity-10"></div>
+                 <h3 class="flex items-start font-mono w-full text-[2vw] leading-none text-foreground font-light tracking-tighter drop-shadow-md">
+                   An untapped opportunity for SME's
+                 </h3>
+                 <br/>
+                 <span class="font-mono w-full text-foreground/50 tracking-[0.6em] uppercase mt-4 drop-shadow-md text-justify leading-[2em]">Sonic branding drives <span class="text-foreground text-lg">loyalty, equity, </span>and <span class="text-foreground text-lg">purchase decisions</span> — yet it remains the exclusive domain of global giants.<br/><br/><span class="text-foreground/80 text-xl">SME's make up 90% of businesses worldwide,</span> but most are leaving audio completely untapped.<br/><br/><span class="text-foreground text-base">That's not a gap.</span><br/><br/><span class="text-accent text-sm">That's an opportunity.</span></span>
+              </div>
             </div>
           </section>
 
@@ -577,9 +633,10 @@ const sections = [
                "Seamless cultural Resonance." | data-sidebar="10"
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-10 | Culture | w-screen md:w-[66vw] -->
-          <section data-sidebar="10" class="relative w-screen md:w-[66vw] h-full flex-shrink-0 flex flex-col justify-center pl-4 pr-4 md:pl-24 md:pr-16 group bg-background z-10 mobile:pl-0">
+          <section data-sidebar="10" class="relative w-screen md:w-[125vw] h-full flex-shrink-0 flex flex-col justify-center group bg-background z-10 mobile:pl-0">
             <div class="mobile:hidden absolute -right-20 bottom-0 text-[35vw] font-mono font-bold text-muted/5 select-none pointer-events-none transition-transform duration-1000 group-hover:scale-105 z-0">00</div>
-            <div class="relative z-10 pl-8 py-2">
+            <div class="md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
+            <div data-sidebar-anchor class="relative z-10 pl-8 md:pl-0 py-2 md:col-start-4 md:col-span-6 md:row-start-1">
               <span class="text-eyebrow text-sm mb-8 mobile:mb-3 block">[ Localisation // Borders ]</span>
               <h2 class="font-mono text-6xl mobile:text-5xl md:text-[6vw] leading-[0.9] tracking-tighter mb-12 mobile:mb-6 uppercase text-foreground">
                 Seamless<br/>cultural <span class="text-accent md:text-[8vw] drop-shadow-[0_0_20px_hsl(var(--accent)/0.3)]">Resonance.</span>
@@ -590,6 +647,7 @@ const sections = [
                 </p>
               </div>
             </div>
+            </div><!-- /container -->
           </section>
 
           <!-- #endregion SLIDE-10 -->
@@ -600,8 +658,9 @@ const sections = [
                Includes mobile-only 30% stat slide below
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-11 | Asset Ownership | w-screen | DESKTOP + MOBILE VARIANT -->
-          <section data-sidebar="11" class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center mobile:items-start text-left pl-4 pr-4 md:px-48 relative border-r border-border/20 bg-primary/5 overflow-hidden group z-10">
-            <div class="pl-8 py-2 z-10 mobile:border-l-2 mobile:border-accent">
+          <section data-sidebar="11" class="w-[125vw] h-full flex-shrink-0 flex flex-col justify-center items-center mobile:items-start text-left mobile:pl-4 mobile:pr-4 relative border-r border-border/20 bg-primary/5 overflow-hidden group z-10">
+            <div class="md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
+            <div data-sidebar-anchor class="pl-8 md:pl-0 py-2 z-10 mobile:border-l-2 mobile:border-accent md:col-start-4 md:col-span-8 md:row-start-1">
               <span class="text-eyebrow text-sm mb-8 block">[ Asset // Ownership ]</span>
               <h2 class="font-mono text-5xl mobile:text-[11vw] md:text-[6vw] leading-[1.1] tracking-tighter mb-8 uppercase text-foreground">
                 Stop renting <br/>from the sea<br/>of <span class="text-accent">sameness.</span>
@@ -610,6 +669,7 @@ const sections = [
                 Short-term custom tracks may win the moment, but they fail to build lasting equity. Leading sonic brands ensure at least <strong>30% of their audio assets are wholly owned</strong>, protecting their mental availability.
               </p>
             </div>
+            </div><!-- /container -->
           </section>
 
           <!-- Mobile-only body text slide for "Stop Renting" -->
@@ -637,19 +697,21 @@ const sections = [
                "Trust in the power of sound." | data-sidebar="12"
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-12 | Belief | w-screen md:w-[66vw] -->
-          <section data-sidebar="12" class="w-screen md:w-[66vw] h-full flex-shrink-0 border-r border-border/20 bg-accent overflow-hidden relative group z-10 mobile:pl-0">
-            <div class="flex flex-col justify-center pl-4 pr-4 md:pl-48 md:pr-16 relative z-10">
+          <section data-sidebar="12" class="w-screen md:w-[75vw] h-full flex-shrink-0 md:flex md:items-center border-r border-border/20 bg-accent overflow-hidden relative group z-10 mobile:pl-0">
+            <div class="md:container md:mx-auto md:pl-36 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
+            <div data-sidebar-anchor class="flex flex-col justify-center mobile:pl-4 mobile:pr-4 relative z-10 md:col-start-3 md:col-span-8 md:row-start-1">
               <div class="border-l-2 border-accent pl-8 py-2">
                 <span class="text-eyebrow text-sm text-background mb-8 block">[ Belief // Power ]</span>
-                <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 uppercase">Trust<br/>in the <br/><span class="text-background text-8xl font-bold drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">power</span> <br/>of sound.</h2>
-                <p class="font-sans text-xl text-foreground leading-relaxed mb-6">
-                  and tap into the subconscious.
-                </p>
+                <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 uppercase">Tap into the <br/><span class="text-background text-8xl font-bold drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">subconscious</span></h2>
+                <div class="mr-32">
+                  <p class="text-right text-2xl text-foreground/50 uppercase"><span class="text-background/50">Believe</span> in the <span class="text-background/50">power</span> of sound.</p>
+                </div>
               </div>
               <div>
                 
               </div>
             </div>
+            </div><!-- /container -->
           </section>
 
           <!-- #endregion SLIDE-12 -->
@@ -659,24 +721,29 @@ const sections = [
                "Master the Signal." + CTA button | data-sidebar="13"
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-13 | Execution | w-screen -->
-          <section data-sidebar="13" class="w-screen h-full flex-shrink-0 flex flex-col items-end justify-center text-center pl-4 pr-4 mobile:pl-0 md:pl-48 md:pr-32 relative overflow-hidden group bg-background z-10 mobile:justify-start">
+          <section data-sidebar="13" class="w-screen h-full flex-shrink-0 flex flex-col items-end justify-center text-center mobile:pl-0 relative overflow-hidden group bg-background z-10 mobile:justify-start">
              <div class="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
                <div class="w-[60vw] h-[60vw] border border-accent rounded-full animate-ping [animation-duration:4s]"></div>
                <div class="absolute w-[30vw] h-[30vw] border border-primary rounded-full animate-ping [animation-duration:2s] delay-1000"></div>
              </div>
 
-            <div class="mobile:flex-1 mobile:flex mobile:flex-col mobile:justify-center mobile:w-full mobile:px-4">
-               <div class="relative z-10 flex flex-col items-end pl-8 py-2 text-right mobile:border-l-2 mobile:border-accent mobile:items-start mobile:text-left">
-                  <span class="text-eyebrow text-sm mb-8 block text-accent">[ Execution // Final_Phase ]</span>
-                  <h2 class="font-mono text-6xl mobile:text-5xl md:text-[8vw] leading-none tracking-tighter mb-8 mobile:mb-4 uppercase text-primary drop-shadow-[0_0_30px_hsl(var(--accent)/0.3)]">Master the<span class="text-accent"><br/>Signal.</span></h2>
-                  <p class="font-sans text-2xl mobile:text-xl text-muted-foreground mb-16 mobile:mb-0 max-w-2xl">
-                    You know the data. You know the ROI. Let's architect a bespoke audio identity that converts.
-                  </p>
-               </div>
-             </div>
-             <Button variant="default" className="is-electric-primary font-mono uppercase tracking-widest px-12 py-8 text-lg hover:scale-105 transition-all shadow-[0_0_40px_hsl(var(--primary)/0.4)] mobile:w-[calc(100%-3rem)] mobile:mx-6 mobile:mb-12">
-               Initiate_Consultation
-             </Button>
+            <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
+              <!-- TODO: verify anchor against actual text position with dom — content is right-aligned (items-end) so sidebar may not track to the visual centre of the text -->
+              <div data-sidebar-anchor class="md:col-start-1 md:col-span-12 md:row-start-1 flex flex-col items-end justify-center">
+                <div class="mobile:flex-1 mobile:flex mobile:flex-col mobile:justify-center mobile:w-full mobile:px-4">
+                   <div class="relative z-10 flex flex-col items-end pl-8 md:pl-0 py-2 text-right mobile:border-l-2 mobile:border-accent mobile:items-start mobile:text-left">
+                      <span class="text-eyebrow text-sm mb-8 block text-accent">[ Execution // Final_Phase ]</span>
+                      <h2 class="font-mono text-6xl mobile:text-5xl md:text-[8vw] leading-none tracking-tighter mb-8 mobile:mb-4 uppercase text-primary drop-shadow-[0_0_30px_hsl(var(--accent)/0.3)]">Master the<span class="text-accent"><br/>Signal</span></h2>
+                      <p class="font-sans text-2xl mobile:text-xl text-muted-foreground mb-16 mobile:mb-0 max-w-2xl">
+                        You know the data. You know the ROI. Let's architect a bespoke audio identity that converts.
+                      </p>
+                   </div>
+                </div>
+                <Button variant="default" className="is-electric-primary font-mono uppercase tracking-widest px-12 py-8 text-lg hover:scale-105 transition-all shadow-[0_0_40px_hsl(var(--primary)/0.4)] mobile:w-[calc(100%-3rem)] mobile:mx-6 mobile:mb-12">
+                  Initiate_Consultation
+                </Button>
+              </div>
+            </div>
           </section>
 
           <!-- #endregion SLIDE-13 -->
@@ -713,6 +780,8 @@ const sections = [
       </div>
     </div>
   </main>
+
+  {/* returns2.astro — Grid layout rebuild complete. All slides use CSS Grid fractional columns. Review with dom before merging back to returns.astro. */}
 </Layout>
 
 <script>
@@ -779,9 +848,27 @@ const sections = [
       return;
     }
 
-    // Returns an absolute scroll position as a fraction of the total scrollable range,
-    // so all triggers scale correctly regardless of track height.
-    const scrollAt = (fraction: number) => (track.offsetHeight - window.innerHeight) * fraction;
+    // Converts a horizontal strip position to an absolute vertical scroll position.
+    // Hoisted here so all animation blocks share it — replaces three duplicate definitions below.
+    const getScrollPos = (horizontalPos: number) => {
+      const totalHorizontal = strip.scrollWidth - window.innerWidth;
+      const totalVertical = track.offsetHeight - window.innerHeight;
+      return (horizontalPos / totalHorizontal) * totalVertical;
+    };
+
+    // Returns the horizontal position at which a section's [data-sidebar-anchor] is centred in the viewport.
+    // Falls back to the section's geometric centre when no anchor is present.
+    const anchorCenter = (sec: HTMLElement): number => {
+      const anchor = sec.querySelector('[data-sidebar-anchor]') as HTMLElement | null;
+      return anchor
+        ? sec.offsetLeft + anchor.offsetLeft + anchor.offsetWidth / 2 - window.innerWidth / 2
+        : sec.offsetLeft + sec.offsetWidth / 2 - window.innerWidth / 2;
+    };
+
+    const slide01 = document.querySelector('[data-sidebar="1"]') as HTMLElement | null;
+    const slide02 = document.querySelector('[data-sidebar="2"]') as HTMLElement | null;
+    const slide03 = document.querySelector('[data-sidebar="3"]') as HTMLElement | null;
+    const slide04 = document.querySelector('[data-sidebar="4"]') as HTMLElement | null;
 
     gsap.to(strip, {
       x: () => -(strip.scrollWidth - window.innerWidth),
@@ -817,9 +904,13 @@ const sections = [
     const totalH = strip.scrollWidth - window.innerWidth;
     const totalV = track.offsetHeight - window.innerHeight;
 
-    // Vertical scroll position at which each section is horizontally centered
+    // Vertical scroll position at which each section's content anchor is horizontally centered.
+    // Uses [data-sidebar-anchor] on the text wrapper when present; falls back to section geometric center.
     const sectionScrollPos = sidebarSections.map(sec => {
-      const centerH = sec.offsetLeft + sec.offsetWidth / 2 - window.innerWidth / 2;
+      const anchor = sec.querySelector('[data-sidebar-anchor]') as HTMLElement | null;
+      const centerH = anchor
+        ? sec.offsetLeft + anchor.offsetLeft + anchor.offsetWidth / 2 - window.innerWidth / 2
+        : sec.offsetLeft + sec.offsetWidth / 2 - window.innerWidth / 2;
       return Math.max(0, (centerH / totalH) * totalV);
     });
 
@@ -833,6 +924,17 @@ const sections = [
       aside.style.height = `${height}px`;
       cumTop += height;
     });
+
+    // Stretch the last aside to fill any remaining sidebar height — otherwise a gap of bare
+    // background appears below "12 / Execution" because cumTop stops short of sidebarEl.offsetHeight.
+    if (sidebarAsides.length) {
+      const last = sidebarAsides[sidebarAsides.length - 1];
+      const lastHeight = parseFloat(last.style.height);
+      const remaining = sidebarEl.offsetHeight - (cumTop - lastHeight);
+      if (remaining > lastHeight) {
+        last.style.height = `${remaining}px`;
+      }
+    }
 
     // Indicator lines animate across each section's scroll window
     indicators.forEach((ind, i) => {
@@ -912,18 +1014,17 @@ const sections = [
       );
     }
 
-    // NEW Train Image Fade (Context Section - Right Side)
-    if (trainFadeLayer) {
+    // Train fade: starts as SLIDE-01 enters from the right; resolves when text anchor reaches centre
+    if (trainFadeLayer && slide01) {
       gsap.fromTo(trainFadeLayer,
         { opacity: 0 },
         {
-          opacity: 0.8, // Match established mix-blend opacity
+          opacity: 0.8,
           ease: "none",
           scrollTrigger: {
             trigger: track,
-            // Start fading in after arriving securely in Section 01
-            start: () => `${scrollAt(0.07)}px top`,
-            end: () => `${scrollAt(0.12)}px top`,
+            start: () => `${getScrollPos(slide01.offsetLeft - window.innerWidth * 0.9)}px top`,
+            end: () => `${getScrollPos(anchorCenter(slide01))}px top`,
             scrub: true,
           }
         }
@@ -937,118 +1038,104 @@ const sections = [
         gsap.set(path, { strokeDasharray: length, strokeDashoffset: length });
       });
 
-      // 1. FADE THE NODES (Clean reveal, no 'flying in')
-      gsap.fromTo(dataNodes, 
-        { opacity: 0 }, // Just start hidden
+      // 1. FADE THE NODES — reveal as SLIDE-02 enters; done before anchor reaches centre
+      gsap.fromTo(dataNodes,
+        { opacity: 0 },
         {
-          opacity: 1, 
-          stagger: 0.08, // Subtle sweep
-          ease: "none", // Linear fade feels more 'technical'
+          opacity: 1,
+          stagger: 0.08,
+          ease: "none",
           scrollTrigger: {
             trigger: track,
-            start: () => `${scrollAt(0.11)}px top`,
-            end: () => `${scrollAt(0.13)}px top`,
+            start: () => slide02 ? `${getScrollPos(slide02.offsetLeft - window.innerWidth * 0.9)}px top` : "top top",
+            end: () => slide02 ? `${getScrollPos(anchorCenter(slide02) - window.innerWidth * 0.1)}px top` : "top top",
             scrub: true,
           }
         }
       );
 
-      // 2. DRAW THE PATHS (To match the nodes)
+      // 2. DRAW THE PATHS — start at entry, finish past anchor centre
       gsap.to(dataPaths, {
-        strokeDashoffset: 0, 
-        stagger: 0.1, 
+        strokeDashoffset: 0,
+        stagger: 0.1,
         ease: "power1.inOut",
         scrollTrigger: {
           trigger: track,
-          start: () => `${scrollAt(0.12)}px top`,
-          end: () => `${scrollAt(0.17)}px top`,
+          start: () => slide02 ? `${getScrollPos(slide02.offsetLeft - window.innerWidth * 0.8)}px top` : "top top",
+          end: () => slide02 ? `${getScrollPos(anchorCenter(slide02) + window.innerWidth * 0.3)}px top` : "top top",
           scrub: true,
         }
       });
     }
 
-    // Biologically Faster Sound (Blur to Focus underlay - Tiger Section)
-    if (tigerFocusLayer) {
+    // Tiger blur-to-focus: starts entering from right, resolves sharp at anchor centre + half a screen
+    if (tigerFocusLayer && slide03) {
       gsap.fromTo(tigerFocusLayer,
-        { 
-          opacity: 0, 
-          filter: "blur(30px)", // Starts extremely blurry
-        },
+        { opacity: 0, filter: "blur(30px)" },
         {
-          opacity: 0.8,         
-          filter: "blur(0px)",  // Snaps into sharp focus
-          scale: 1,             
+          opacity: 0.8,
+          filter: "blur(0px)",
+          scale: 1,
           ease: "power2.out",
           scrollTrigger: {
             trigger: track,
-            // Trigger 2.8 screens down (As the Processing Speed section slides in)
-            start: () => `${scrollAt(0.18)}px top`,
-            end: () => `${scrollAt(0.27)}px top`,
+            start: () => `${getScrollPos(slide03.offsetLeft - window.innerWidth * 0.9)}px top`,
+            end: () => `${getScrollPos(anchorCenter(slide03) + window.innerWidth * 0.5)}px top`,
             scrub: true,
           }
         }
       );
     }
 
-    // Thematic Fade for "Visuals Fade" text
-    if (visualsFadeText) {
+    // "Visuals Fade" text: dims out as SLIDE-04 settles into view
+    if (visualsFadeText && slide04) {
       gsap.fromTo(visualsFadeText,
         { opacity: 1 },
         {
-          opacity: 0.05, // Fades to barely visible (or set to 0 to completely vanish)
+          opacity: 0.05,
           ease: "none",
           scrollTrigger: {
             trigger: track,
-            // Starts fading as the section reaches the center of the screen
-            start: () => `${scrollAt(0.27)}px top`,
-            end: () => `${scrollAt(0.32)}px top`,
+            start: () => `${getScrollPos(slide04.offsetLeft - window.innerWidth * 0.1)}px top`,
+            end: () => `${getScrollPos(slide04.offsetLeft + window.innerWidth * 0.3)}px top`,
             scrub: true,
           }
         }
       );
     }
 
-    // 1. Your existing scale logic (leave this exactly as is)
-    if (soundGrowText) {
+    // "Sound Echoes" text: grows and vibrates while SLIDE-04 is on screen
+    if (soundGrowText && slide04) {
       gsap.fromTo(soundGrowText,
         { scale: 1 },
         {
-          scale: 1.2, 
+          scale: 1.2,
           ease: "none",
           scrollTrigger: {
             trigger: track,
-            start: () => `${scrollAt(0.275)}px top`,
-            end: () => `${scrollAt(0.35)}px top`,
+            start: () => `${getScrollPos(slide04.offsetLeft - window.innerWidth * 0.05)}px top`,
+            end: () => `${getScrollPos(anchorCenter(slide04) + window.innerWidth * 0.2)}px top`,
             scrub: true,
           }
         }
       );
 
-      // 2. NEW: The continuous vibration effect
       gsap.to(soundGrowText, {
-        x: 2,                 // Move 3px to the right
-        duration: 0.05,       // Extremely fast (20 times per second)
-        repeat: -1,           // Loop infinitely
-        yoyo: true,           // Ping-pong back and forth (0 to 3 to 0 to -3...)
-        ease: "sine.inOut",   // Smooth direction changes
+        x: 2,
+        duration: 0.05,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
         scrollTrigger: {
           trigger: track,
-          start: () => `${scrollAt(0.3)}px top`,
-          end: () => `${scrollAt(0.6)}px top`,
-          // Instead of scrubbing, just play/pause the vibration based on visibility
-          toggleActions: "play pause resume pause" 
+          start: () => `${getScrollPos(slide04.offsetLeft - window.innerWidth * 0.1)}px top`,
+          end: () => `${getScrollPos(anchorCenter(slide04) + slide04.offsetWidth * 0.5)}px top`,
+          toggleActions: "play pause resume pause"
         }
       });
     }
 
     if (metricsSection && pressureLine && statCards.length > 0) {
-      
-      // Helper function
-      const getScrollPos = (horizontalPos: number) => {
-        const totalHorizontal = strip.scrollWidth - window.innerWidth;
-        const totalVertical = track.offsetHeight - window.innerHeight;
-        return (horizontalPos / totalHorizontal) * totalVertical;
-      };
 
       // 1. Draw the "Pressure" Line
       gsap.fromTo(pressureLine,
@@ -1103,12 +1190,6 @@ const sections = [
 
     if (roiSection && roiCounter && roiWrapper) {
       const roiObj = { val: 1.0 };
-      
-      const getScrollPos = (horizontalPos: number) => {
-        const totalHorizontal = strip.scrollWidth - window.innerWidth;
-        const totalVertical = track.offsetHeight - window.innerHeight;
-        return (horizontalPos / totalHorizontal) * totalVertical;
-      };
 
       // Create a master timeline for the whole "Amplification" sequence
       const roiTl = gsap.timeline({
@@ -1187,12 +1268,6 @@ const sections = [
 
     // SUCCESS COUNTER LOGIC
     if (successCounter && successSection && successRing) {
-
-      const getScrollPos = (horizontalPos: number) => {
-        const totalHorizontal = strip.scrollWidth - window.innerWidth;
-        const totalVertical = track.offsetHeight - window.innerHeight;
-        return (horizontalPos / totalHorizontal) * totalVertical;
-      };
 
       // The exact physical scroll window:
       // Starts when the counter enters the right edge (0.5)

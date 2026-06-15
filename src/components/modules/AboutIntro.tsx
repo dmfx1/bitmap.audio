@@ -19,7 +19,7 @@ export default function AboutIntro() {
 
       {/* 1. BACKGROUND SKETCH (Bleeding Layer) */}
       <div
-        className="absolute right-0 md:right-[0%] top-[5%] w-[300px] md:w-[700px] pointer-events-none z-0"
+        className="absolute right-0 md:right-12 top-[5%] md:top-4 w-[300px] md:w-[750px] pointer-events-none z-0"
         style={{
           clipPath: `inset(0 ${100 - revealProgress}% 0 0)`,
           transition: 'clip-path 0.1s linear'
@@ -44,12 +44,12 @@ export default function AboutIntro() {
       <div className="w-full md:max-w-4xl pl-4 md:pl-12 relative z-10 md:mb-24">
         <a 
           href="/home" 
-          className="group inline-flex items-center text-sm pb-4 md:pb-0 font-mono tracking-widest text-primary/60 hover:text-primary transition-colors mb-4 md:mb-12"
+          className="group inline-flex items-center text-lg pb-4 md:pb-0 font-mono tracking-widest text-primary/60 hover:text-primary transition-colors mb-4 md:mb-12"
         >
           <ChevronLeft className="w-3 h-3 mr-1 group-hover:-translate-x-1 transition-transform" />
-          BACK TO HOME
+          RTN:HOME
         </a>
-        <p className="text-eyebrow text-accent font-bold animate-fade-in mb-4">About Us</p>
+        <p className="text-eyebrow text-accent text-base font-bold animate-fade-in mb-4">About Us</p>
 
         <TypewriterHero
           text={"Two minds,\none sonic vision"} // Added newline character here
@@ -58,7 +58,13 @@ export default function AboutIntro() {
 
         <p className={`text-body-muted text-lg font-mono bg-background/50 md:max-w-[60%] transition-all duration-1000
           ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-          bitmap.audio is the collaboration of two audio specialists bridging the gap between digital data and human perception.
+          bitmap.audio is the collaboration of two audio specialists looking to bridge the gap between machine states and human perception.
+        </p>
+        <p className={`text-body-muted text-lg font-mono bg-background/50 md:max-w-[85%] transition-all duration-1000
+          ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+          <br/>
+          We deconstruct brand identity into its smallest possible components <i>[the "bit"]</i> and re-engineer them across a 
+          functional sonic framework <i>[the "map"]</i> to help build trust and alleviate friction in digital experiences.
         </p>
       </div>
 
