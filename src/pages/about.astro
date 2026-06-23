@@ -1,5 +1,6 @@
 ---
 /* src/pages/about.astro */
+import { getImage } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
 import Section from '../components/Section.astro';
 import AboutIntro from '../components/modules/AboutIntro.tsx';
@@ -7,6 +8,14 @@ import Founders from '../components/modules/Founders.tsx';
 import AboutPhilosophy from '../components/modules/AboutPhilosophy.tsx';
 import Values from '../components/modules/Values.tsx';
 import CTA from '../components/modules/CTA.tsx';
+import heroAboutTwoMinds from '../assets/images/hero-about-two-minds-03.png';
+
+const heroImage = await getImage({
+  src: heroAboutTwoMinds,
+  format: 'webp',
+  width: 1200,
+  quality: 85,
+});
 ---
 
 <Layout
@@ -16,7 +25,7 @@ import CTA from '../components/modules/CTA.tsx';
   {/* Hero: sticks at top of container, content scrolls over it */}
   <div class="md:sticky top-12 md:top-0 z-[1] min-h-svh md:min-h-0 md:h-[90vh]">
     <div class="pt-20 pb-8">
-      <AboutIntro client:load />
+      <AboutIntro client:load imageSrc={heroImage.src} />
     </div>
   </div>
 

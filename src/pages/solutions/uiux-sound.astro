@@ -1,5 +1,6 @@
 ---
 /* src/pages/solutions/uiux-sound.astro */
+import { getImage } from 'astro:assets';
 import Layout from '../../layouts/Layout.astro';
 import Section from '../../components/Section.astro';
 import UIUXHero from '../../components/modules/solutions/UIUXHero.tsx';
@@ -7,6 +8,14 @@ import UIUXAnalysis from '../../components/modules/solutions/UIUXAnalysis.tsx';
 import ConceptGrid from '../../components/modules/ConceptGrid.tsx';
 import DeliverablesGrid from '../../components/modules/solutions/DeliverablesGrid.tsx';
 import CTA from '../../components/modules/CTA.tsx';
+import heroUiux from '../../assets/images/hero-uiux-transparent-02.png';
+
+const heroImage = await getImage({
+  src: heroUiux,
+  format: 'webp',
+  width: 1400,
+  quality: 85,
+});
 
 // DEFINING THE DATA SET FOR THIS PAGE
 const uiuxApplications = [
@@ -60,7 +69,7 @@ const uiuxDeliverables = [
   {/* Hero: sticks at top of container, content scrolls over it */}
   <div class="md:sticky top-12 md:top-0 z-[1] min-h-svh md:min-h-0 md:h-[75vh]">
     <div class="pt-16 pb-8">
-      <UIUXHero client:load />
+      <UIUXHero client:load imageSrc={heroImage.src} />
     </div>
   </div>
 

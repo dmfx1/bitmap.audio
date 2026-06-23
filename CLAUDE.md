@@ -10,6 +10,48 @@ bitmap.audio is a sonic branding agency and experiential audio service website. 
 
 ## ⚠️ Critical Rules — Read Before Making Any Change
 
+### Hero Image Conventions (Hero.tsx, AboutIntro.tsx, UIUXHero.tsx, SonicHero.tsx, ImmersiveHero.tsx)
+
+All hero images across the site follow these non-negotiable rules. Do not deviate without explicit instruction.
+
+**No opacity reduction, no grayscale, no mix-blend-mode on hero images.** Images are full colour and full brightness. The left-edge fade is handled exclusively by CSS `maskImage` on the container.
+
+**Left-edge fade pattern — always use CSS mask, never a gradient overlay div:**
+```tsx
+<div
+  className="absolute inset-y-0 right-0 w-full md:w-[58%] pointer-events-none z-0"
+  style={{
+    WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 22%)',
+    maskImage: 'linear-gradient(to right, transparent 0%, black 22%)',
+  }}
+>
+  <img className="w-full h-full object-cover object-center" ... />
+  {/* Bottom fade — dissolves the image into background before the hard bottom edge */}
+  <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background to-transparent pointer-events-none z-10" />
+</div>
+```
+
+**Bottom-edge rule — the hard bottom clip of the image must never be visible:**
+- Add a gradient overlay div (`bg-gradient-to-t from-background to-transparent`) covering the bottom third of the image container. This fades the image into the background colour before it clips.
+- Do NOT use `height: 115%` or `overflow-x-hidden` on the root — those change page layout and scroll behaviour. The fade overlay achieves the same visual result without touching layout.
+- Root component div keeps `overflow-hidden` (not `overflow-x-hidden`).
+- Image uses `object-cover object-center` — do not change this to `object-top`.
+
+**Horizontal flip:** `style={{ transform: heroFlipped ? 'scaleX(-1)' : 'none' }}` on the `<img>` only, never on the container. The mask stays fixed on the left edge regardless of flip.
+
+**JSX comment placement rule — critical:** Never place a `{/* comment */}` immediately before the root JSX element inside `return ()`. A JSX comment counts as a JSX expression — two expressions at the top level of a `return` is a parse error (`Expected ")" but found "className"`). Place comments INSIDE the root element as the first child instead:
+```tsx
+// WRONG — parse error:
+return (
+  {/* my comment */}
+  <div className="...">
+
+// CORRECT:
+return (
+  <div className="...">
+    {/* my comment */}
+```
+
 ### Do Not Assume Stylistic Intent
 
 Only make changes that were **explicitly requested** in the task. Do not:
@@ -2028,3 +2070,1659 @@ Requirements to plan for:
 - Scope: `returns2.astro` only (not `returns.astro`), consistent with all prior work in this file.
 
 **Do not start implementing yet** — next session should begin by reviewing H6's completion status, then scope out this config system with dom before writing it into this file for VS Code.
+
+---
+
+### H7 — Extend sidebar into `#end-screen` with a "13 / Initiate" entry
+
+**Goal:** The sidebar indicator continues visually into the final logo slide (`#end-screen`), giving it its own label and animated indicator line — so the sidebar runs the full height of the page with no gap.
+
+**Why a separate element:** `#sidebar-track` is `absolute` inside `#scroll-track` and cannot physically extend into `#end-screen` (a sibling in document flow). Instead, add a visually identical sidebar strip *inside* `#end-screen` — same classes, same structure, seamlessly continuing the visual column.
+
+#### Step 1 — Ensure `#end-screen` has `relative` positioning
+
+Find:
+```html
+<div id="end-screen" class="h-svh bg-background ...">
+```
+Add `relative` to its class list if not already present:
+```html
+<div id="end-screen" class="relative h-svh bg-background ...">
+```
+
+#### Step 2 — Add sidebar strip inside `#end-screen`
+
+As the **first child** of `#end-screen`, add:
+```html
+<div class="absolute left-0 top-0 w-24 h-full z-50 pointer-events-none hidden md:flex flex-col items-center justify-center gap-8 border-r border-border/20 bg-background/80 backdrop-blur-md shadow-[20px_0_40px_-15px_rgba(0,0,0,0.5)]">
+  <span class="font-mono text-muted-foreground text-[10px] tracking-widest rotate-180 [writing-mode:vertical-lr] uppercase">Initiate</span>
+  <div class="h-48 w-[1px] bg-border/30 relative">
+    <div id="end-indicator-line" class="absolute top-0 w-[3px] -left-[1px] bg-accent shadow-[0_0_15px_hsl(var(--accent))] origin-top scale-y-0"></div>
+  </div>
+  <span class="font-mono text-accent text-[10px]">13</span>
+</div>
+```
+
+The label "Initiate" and number "13" match the existing aside pattern exactly. Adjust the label text if dom prefers something else (e.g. "Build." or "Begin.").
+
+#### Step 3 — Animate the indicator line via a vertical ScrollTrigger
+
+In the `<script>` block, after the existing horizontal-strip GSAP setup, add:
+
+```js
+// End-screen sidebar indicator — normal vertical scroll trigger, independent of strip
+const endScreen = document.getElementById('end-screen');
+const endIndicator = document.getElementById('end-indicator-line');
+if (endScreen && endIndicator) {
+  gsap.to(endIndicator, {
+    scaleY: 1,
+    ease: "none",
+    scrollTrigger: {
+      trigger: endScreen,
+      start: "top bottom",
+      end: "bottom bottom",
+      scrub: true,
+    }
+  });
+}
+```
+
+This triggers as the user scrolls vertically through `#end-screen` — completely separate from the horizontal strip ScrollTrigger, no interference with any existing animation.
+
+**Do not touch:** `#end-logo`, the logo colour-shift animation, or the two CTA links inside `#end-screen`.
+
+---
+
+## I. NEXT SESSION — Centralised, responsive animation-timing variables (returns2.astro)
+
+**Status: PARTIALLY DONE — read current state before writing any code.**
+
+**Current state of `returns2.astro` (as of last VS Code run):**
+- `getScrollPos` — hoisted to top of `initStickyScroll` ✓
+- `slide01`–`slide04` element refs — added ✓
+- All animations wired — using `TIMING.x.y` references ✓
+- `TIMING` object — exists at top of `<script>` block (above `initStickyScroll`) ✓
+- `sections` array in frontmatter — **still plain, no `width`, no `anim`** ✗
+- `define:vars` bridge — **not added** ✗
+- `applyWidths()` — **not added** ✗
+- `COUNTERS` — **not added** ✗
+- Hardcoded `w-[Xvw]` classes on section elements — **still present** ✗
+
+**What VS Code must do now (Option B — full conversion):**
+Steps I1 → I5 below. Do them in order. Do NOT redo the already-completed work (getScrollPos, slide refs, animation wiring structure).
+
+**Approach:** Timing values live in the existing `sections` array at the top of the frontmatter (one place, easy to find), passed to the client script via a small `define:vars` bridge. The `TIMING` object in the script block gets removed and replaced by this frontmatter-driven approach.
+
+**Why not CSS custom properties / Tailwind:** Scroll trigger positions are computed at runtime from live DOM measurements — CSS variables can't express them.
+
+---
+
+### I1 — Expand `sections` array to include width + timing + other tunables (frontmatter)
+
+Replace the existing `sections` array at the top of `returns2.astro` with this expanded version. Every property dom might want to tweak without going deep into code lives here. The existing `sections.map(...)` HTML loop only reads `sec.id` and `sec.label` — all extra properties are ignored by it, so nothing in the sidebar rendering changes.
+
+```ts
+// ═══════════════════════════════════════════════════════════════════════════════
+// SLIDE CONFIG — edit widths, animation timings, and key values here.
+// Do not edit anywhere else for these values.
+//
+// width:      desktop slide width (vw string). Mobile is always "100vw".
+//             Changing this here automatically updates layout + GSAP timing.
+//
+// anim:       scroll-driven animation timing, as viewport-width multipliers
+//             relative to each slide's left edge.
+//             Negative = before slide enters screen (-0.9 = 90vw ahead of entry).
+//             Positive = after slide left edge has passed viewport left edge.
+//             Rule: start ≈ -0.9 (just entering right), end ≈ -0.2 to 0 (at mid-screen).
+//             scrub: how elastic the animation feels on scroll (0.1 = snappy, 1 = laggy).
+//
+// counter:    for animated number values (ROI, success ring) — change the numbers here.
+// ═══════════════════════════════════════════════════════════════════════════════
+const sections = [
+  { id: "00", label: "Status",               width: "75vw"  },
+  { id: "01", label: "Context",              width: "66vw",  anim: {
+    trainFade:   { start: -0.9,  end: -0.3,  scrub: 0.5 },
+  }},
+  { id: "02", label: "Architecture",         width: "100vw", anim: {
+    nodes:       { start: -0.85, end: -0.55, scrub: 0.5 },
+    paths:       { start: -0.75, end: -0.35, scrub: 0.5 },
+  }},
+  { id: "03", label: "Neurology.Processing", width: "200vw", anim: {
+    tigerFocus:  { start: -0.8,  end:  0.1,  scrub: 0.5 },
+  }},
+  { id: "04", label: "Neurology.Memory",     width: "100vw", anim: {
+    visualsFade: { start: -0.85, end: -0.2,  scrub: 0.5 },
+    soundGrow:   { start: -0.8,  end: -0.1,  scrub: 0.5 },
+    vibration:   { start: -0.5,  end:  1.0,  scrub: 0.5 },
+  }},
+  { id: "05", label: "Metrics",              width: "150vw" },
+  { id: "06", label: "Conversion",           width: "75vw"  },
+  { id: "07", label: "Credibility",          width: "75vw"  },
+  { id: "08", label: "Perception",           width: "100vw" },
+  { id: "09", label: "Culture",              width: "125vw" },
+  { id: "10", label: "Asset.Ownership",      width: "125vw" },
+  { id: "11", label: "Belief",               width: "75vw"  },
+  { id: "12", label: "Execution",            width: "100vw" },
+];
+
+// Separate tunables for counter animations (not tied to a sidebar entry)
+const COUNTERS = {
+  roi:     { from: 1.0, to: 4.0, decimals: 1 },  // ROI counter: "1.0x → 4.0x"
+  success: { to: 25 },                             // Success ring target: 25%
+};
+// ═══════════════════════════════════════════════════════════════════════════════
+```
+
+**Widths for interstitial slides** (no `data-sidebar`, desktop-only: SLIDE-0.5 woman image, SLIDE-3.5 brain speed, SLIDE-4.5 memory stat, SLIDE-6.5 ROI counter, SLIDE-7.5 success ring, SLIDE-8.5 SME) are left hardcoded in the template — these are less likely to need tweaking and are not driven by the sections array.
+
+---
+
+### I2 — Bridge frontmatter to client script
+
+Astro frontmatter runs server-side; the `<script>` block is client-side. Add this inline script immediately before the existing `<script>` tag to pass both `sections` and `COUNTERS` across:
+
+```astro
+<script define:vars={{ sections, COUNTERS }} is:inline>
+  window.__SECTIONS__ = sections;
+  window.__COUNTERS__ = COUNTERS;
+</script>
+```
+
+Do not modify the existing `<script>` tag itself.
+
+### I2b — Remove hardcoded width classes from section elements (template only)
+
+**This is a template-only change — no script edits here. All script additions are in I3.**
+
+In the `returns2.astro` template, find every `<section data-sidebar="N" ...>` element and remove its hardcoded `md:w-[Xvw]` or `w-[Xvw]` Tailwind width class. Widths will be applied at runtime by `applyWidths()` (added in I3).
+
+- Keep `w-screen` as the mobile baseline (or remove the width class entirely — `applyWidths()` sets `100vw` on mobile anyway).
+- Do NOT remove widths from interstitial slides (those without `data-sidebar`) — they have no entry in `sections` config and must keep their hardcoded Tailwind widths.
+- Do not change any other classes on these elements.
+
+---
+
+### I3 — Remove `TIMING` object, add `sectionConfig` + `anim()` helper
+
+**First: delete the entire `TIMING` block** from the top of the `<script>` block (the `const TIMING = { ... } as const;` block and its surrounding comments — approximately 15 lines). This is replaced by the frontmatter-driven `sections` config.
+
+**Then:** Near the top of `initStickyScroll`, immediately after `if (!strip || !track) return;` and before `const isMobile`, add:
+
+```ts
+// Read config from frontmatter (bridged via window.__SECTIONS__ / window.__COUNTERS__)
+const sectionConfig = (window as any).__SECTIONS__ as Array<{
+  id: string; label: string; width?: string;
+  anim?: Record<string, { start: number; end: number; scrub?: number }>;
+}>;
+const counters = (window as any).__COUNTERS__ as { roi: { from: number; to: number; decimals: number }; success: { to: number } };
+
+// Helper: get a single animation timing entry by slide id + key
+const anim = (id: string, key: string) =>
+  sectionConfig?.find(s => s.id === id)?.anim?.[key] ?? null;
+
+// Apply desktop slide widths from config (mobile always 100vw)
+const applyWidths = () => {
+  sectionConfig?.forEach(sec => {
+    if (!sec.width) return;
+    const el = strip.querySelector(`[data-sidebar="${sec.id}"]`) as HTMLElement | null;
+    if (!el) return;
+    el.style.width = window.innerWidth >= 768 ? sec.width : '100vw';
+  });
+};
+applyWidths();
+window.addEventListener('resize', () => { applyWidths(); ScrollTrigger.refresh(); });
+```
+
+**Note:** `getScrollPos` and `slide01`–`slide04` are already in the file from the previous run — do NOT add them again.
+
+**Note:** `applyWidths` must be placed BEFORE the `const isMobile` check so widths are set on both mobile and desktop.
+
+---
+
+### I4 — Wire timing into each animation
+
+Replace each stale `scrollAt(fraction)` trigger. The `anim(id, key)` helper returns `{ start, end }` or `null` (falls back gracefully if the entry is missing from sections).
+
+**Train fade** (`#train-fade-layer`, SLIDE-01):
+```ts
+const t01 = anim("01", "trainFade");
+// in ScrollTrigger:
+start: () => `${getScrollPos(slide01.offsetLeft + (t01?.start ?? -0.9) * window.innerWidth)}px top`,
+end:   () => `${getScrollPos(slide01.offsetLeft + (t01?.end   ?? -0.3) * window.innerWidth)}px top`,
+```
+
+**Data map nodes** (`.data-node`, SLIDE-02):
+```ts
+const t02n = anim("02", "nodes");
+start: getScrollPos(slide02.offsetLeft + (t02n?.start ?? -0.85) * window.innerWidth),
+end:   getScrollPos(slide02.offsetLeft + (t02n?.end   ?? -0.55) * window.innerWidth),
+```
+
+**Data map paths** (`.data-path`, SLIDE-02):
+```ts
+const t02p = anim("02", "paths");
+start: getScrollPos(slide02.offsetLeft + (t02p?.start ?? -0.75) * window.innerWidth),
+end:   getScrollPos(slide02.offsetLeft + (t02p?.end   ?? -0.35) * window.innerWidth),
+```
+
+**Tiger focus** (`#tiger-focus-layer`, SLIDE-03):
+```ts
+const t03 = anim("03", "tigerFocus");
+start: getScrollPos(slide03.offsetLeft + (t03?.start ?? -0.8) * window.innerWidth),
+end:   getScrollPos(slide03.offsetLeft + (t03?.end   ??  0.1) * window.innerWidth),
+```
+
+**Visuals-fade text** (`#visuals-fade-text`, SLIDE-04):
+```ts
+const t04v = anim("04", "visualsFade");
+start: getScrollPos(slide04.offsetLeft + (t04v?.start ?? -0.85) * window.innerWidth),
+end:   getScrollPos(slide04.offsetLeft + (t04v?.end   ?? -0.2)  * window.innerWidth),
+```
+
+**Sound-grow text** (`#sound-grow-text`, SLIDE-04):
+```ts
+const t04s = anim("04", "soundGrow");
+start: getScrollPos(slide04.offsetLeft + (t04s?.start ?? -0.8)  * window.innerWidth),
+end:   getScrollPos(slide04.offsetLeft + (t04s?.end   ?? -0.1)  * window.innerWidth),
+```
+
+**Sound-grow vibration** (`toggleActions` trigger, SLIDE-04):
+```ts
+const t04vib = anim("04", "vibration");
+start: getScrollPos(slide04.offsetLeft + (t04vib?.start ?? -0.5) * window.innerWidth),
+end:   getScrollPos(slide04.offsetLeft + (t04vib?.end   ??  1.0) * window.innerWidth),
+```
+
+The `?? fallback` values mean removing an `anim` entry from `sections` never breaks the animation — it just reverts to the hardcoded default.
+
+---
+
+### I5 — Work order
+
+1. Replace `sections` array with expanded version including `width`, `anim`, and add `COUNTERS` — frontmatter only (I1).
+2. Add `define:vars` bridge inline script immediately before the `<script lang="ts">` tag (I2).
+3. Remove hardcoded `md:w-[Xvw]` classes from every `<section data-sidebar="N">` element in the template (I2b). Do NOT touch interstitial slides.
+4. In the `<script>` block: delete the `TIMING` object; add `sectionConfig`, `counters`, `anim()`, `applyWidths()`, and the resize listener — all immediately after `if (!strip || !track) return;`, before `const isMobile`. Do NOT re-add `getScrollPos` or `slide01`–`slide04` — they are already there (I3).
+5. Replace all `TIMING.x.y` references with `anim("id","key")?.[field] ?? fallback` calls, one animation at a time (I4). Verify each against "enters right → resolved by mid-screen" rule.
+6. Wire `counters.roi.from`/`counters.roi.to` into the ROI counter animation start/end values, and `counters.success.to` into the success ring target. Verify both animate correctly.
+6. Wire `counters.roi.from/to` into the ROI counter animation (find `val: 0` start and `val: 100`/`4.0` end in `roiTl` and replace with `counters.roi.from` / `counters.roi.to`). Wire `counters.success.to` into the success ring/counter target value.
+7. Resize window across breakpoints — widths, timings, and counter values should all stay correct.
+
+**Do not touch:** metrics `pressureLine`, stat-card fan positioning logic — these use `innerWidth` offsets that are already section-relative and work correctly.
+
+---
+
+## J. Extended animation config — slides 05–13, word highlights, strip end
+
+**All work on `returns2.astro` only. Follow the workflow: read CLAUDE.md → execute → verify — do not batch J steps.**
+
+---
+
+### J0 — Fix `applyWidths` selector bug (do this before any J1+ work)
+
+**The problem:** `applyWidths()` queries `[data-sidebar="${sec.id}"]` where `sec.id` is zero-padded (e.g. `"05"`). But the DOM attributes are unpadded (`data-sidebar="5"`). Worse, after H1 removed the old entry 08, sections array positions 8–12 (ids `"08"`–`"12"`) correspond to DOM data-sidebar values `9`–`13` — not 8–12. So `applyWidths` silently does nothing for 5 of the 13 slides.
+
+**The fix:** In `initStickyScroll`, move the `sidebarSections` definition to BEFORE `applyWidths` (currently it appears after, in the sidebar block). Then rewrite `applyWidths` to use positional index rather than id matching:
+
+Find the existing `applyWidths` function (added in Section I) and replace it entirely:
+
+```ts
+// sidebarSections must be defined before applyWidths so positional matching works.
+// Move this definition up from the sidebar block if it's currently defined later.
+const sidebarSections = (Array.from(strip.querySelectorAll('[data-sidebar]')) as HTMLElement[])
+  .sort((a, b) => parseInt(a.dataset.sidebar!) - parseInt(b.dataset.sidebar!));
+
+const applyWidths = () => {
+  sectionConfig?.forEach((sec, i) => {
+    if (!sec.width) return;
+    const el = sidebarSections[i] as HTMLElement | null;
+    if (!el) return;
+    el.style.width = window.innerWidth >= 768 ? sec.width : '100vw';
+  });
+};
+applyWidths();
+window.addEventListener('resize', () => { applyWidths(); ScrollTrigger.refresh(); });
+```
+
+Then find the existing `sidebarSections` definition in the sidebar block (around line 976) and remove it — it is now defined above and should not be re-declared.
+
+---
+
+### J1 — Expand `sections` array in frontmatter (slides 05 and 06)
+
+In the frontmatter `sections` array, replace the existing entries for `"05"` and `"06"` with these expanded versions (add the `anim` field, keep everything else the same):
+
+```ts
+{ id: "05", label: "Metrics", width: "150vw", anim: {
+  // pressureLine: the horizontal bar that draws across the section as it enters
+  pressureLine: { start: -0.4, end: -0.1, scrub: 0.5 },
+  // statCards: how far apart the cards fan (px between each card)
+  // start/end: when the fan begins and fully opens
+  statCards: { start: -0.2, end: -0.5, scrub: 1, cardSpacing: 300 },
+}},
+{ id: "06", label: "Conversion", width: "75vw", anim: {
+  // roiGrow: the "ROI." word in SLIDE-06 grows with scroll as the slide enters
+  roiGrow: { start: -0.8, end: 0.3, scrub: 0.5 },
+}},
+```
+
+Note on `statCards.end`: the negative value means "before the section's left edge is centred" which, combined with the dynamic `maxDealDistance` calculation, gives you a start point. The actual end scroll position is computed dynamically in the script from the physical card spread — the `end` multiplier here only affects the starting trigger point. See J5.
+
+---
+
+### J2 — Expand `COUNTERS` to include timing
+
+Replace the existing `COUNTERS` object in frontmatter with:
+
+```ts
+const COUNTERS = {
+  roi: {
+    from: 1.0, to: 4.0, decimals: 1,
+    // timing: scroll window relative to roi-section's left edge (vw multipliers)
+    // negative = before the section enters screen; positive = after section left edge passes viewport left
+    start: -0.3,   // counter starts when roi-section is 30% of a vw before its left edge
+    end: 0.6,      // counter finishes when roi-section has scrolled 60% of a vw past screen left
+    scrub: 1,      // 1 = smooth elastic follow; true = exact 1:1
+  },
+  success: {
+    to: 25,
+    start: 0.25,   // ring starts filling when section is 25% of a vw past screen left
+    end: 0.95,     // ring reaches target at 95% of a vw past screen left
+    scrub: 1,
+  },
+};
+```
+
+---
+
+### J3 — Add `HIGHLIGHTS` config for word colour animations
+
+Add below `COUNTERS` in frontmatter:
+
+```ts
+// Word highlight config — words that shift colour AND scale subtly as the slide scrolls in.
+// 'words' must match the id="" values added to <span> elements in the template (without "hl-" prefix).
+// start/end: vw multipliers relative to the slide's left edge (same convention as anim entries).
+// scale: subtle grow multiplier. 1.05 = 5% larger at peak. Keep between 1.03–1.1.
+// scaleOnly: if true, animate scale only (no colour change) — for words already in accent colour.
+const HIGHLIGHTS = {
+  // SLIDE-8.5 (SME/Untapped) — 5 targets, staggered by index
+  untapped: {
+    words: ["untapped", "opportunity-heading", "loyalty", "purchasing", "opportunity-cta"],
+    start: -0.85, end: 0.3, scrub: 0.5,
+    scale: 1.05,
+    // "opportunity-cta" is already text-accent — mark it scale-only
+    scaleOnly: ["opportunity-cta"],
+  },
+  // SLIDE-12 (Belief) — "Believe" and "power" shift to primary on accent background
+  belief: {
+    words: ["believe", "power"],
+    start: -0.8, end: -0.2, scrub: 0.5,
+    scale: 1.05,
+    scaleOnly: [],
+  },
+};
+```
+
+---
+
+### J4 — Add `CONFIG` for strip end offset
+
+Add below `HIGHLIGHTS` in frontmatter:
+
+```ts
+// Global config — tune values that affect the overall scroll experience.
+const CONFIG = {
+  // stripEndOffset (pixels): how many px short of full horizontal travel the strip parks.
+  // Goal: SLIDE-13 "Master the Signal." heading is centred in viewport when vertical scroll takes over.
+  // Start at 0 and increase in increments of 100px until the heading feels centred.
+  // Typical range: 200–600px depending on how much of SLIDE-13 you want in view.
+  stripEndOffset: 0,
+};
+```
+
+---
+
+### J4b — Update the `define:vars` bridge to pass HIGHLIGHTS and CONFIG
+
+Find the existing inline bridge script (added in Section I2):
+```astro
+<script define:vars={{ sections, COUNTERS }} is:inline>
+  window.__SECTIONS__ = sections;
+  window.__COUNTERS__ = COUNTERS;
+</script>
+```
+Replace with:
+```astro
+<script define:vars={{ sections, COUNTERS, HIGHLIGHTS, CONFIG }} is:inline>
+  window.__SECTIONS__ = sections;
+  window.__COUNTERS__ = COUNTERS;
+  window.__HIGHLIGHTS__ = HIGHLIGHTS;
+  window.__CONFIG__ = CONFIG;
+</script>
+```
+
+---
+
+### J4c — Add `stripTravel` to script and wire CONFIG
+
+In the main `<script>` block, immediately after `const config = (window as any).__CONFIG__` (add this line if not present), compute `stripTravel` and use it everywhere `strip.scrollWidth - window.innerWidth` currently appears:
+
+**Step 1 — Read config and compute stripTravel.** Add these lines immediately after `if (!strip || !track) return;`:
+
+```ts
+const config = (window as any).__CONFIG__ as { stripEndOffset: number };
+const highlights = (window as any).__HIGHLIGHTS__;
+```
+
+**Step 2 — Update `getScrollPos`.** Find the existing `getScrollPos` function and update the `totalHorizontal` line:
+```ts
+const getScrollPos = (horizontalPos: number) => {
+  const totalHorizontal = strip.scrollWidth - window.innerWidth - (config?.stripEndOffset ?? 0);
+  const totalVertical = track.offsetHeight - window.innerHeight;
+  return (horizontalPos / totalHorizontal) * totalVertical;
+};
+```
+
+**Step 3 — Update the strip x-animation.** Find:
+```ts
+gsap.to(strip, {
+  x: () => -(strip.scrollWidth - window.innerWidth),
+```
+Change to:
+```ts
+gsap.to(strip, {
+  x: () => -(strip.scrollWidth - window.innerWidth - (config?.stripEndOffset ?? 0)),
+```
+
+Also update the `totalH` variable in the sidebar block if it uses the same expression:
+```ts
+const totalH = strip.scrollWidth - window.innerWidth - (config?.stripEndOffset ?? 0);
+```
+
+---
+
+### J5 — Wire metrics timing to `anim()` config
+
+In the script, find the metrics animation block (`if (metricsSection && pressureLine && statCards.length > 0)`).
+
+**Add a slide reference before the block:**
+```ts
+const slide05 = document.querySelector('[data-sidebar="5"]') as HTMLElement;
+const t05pl = anim("05", "pressureLine");
+const t05sc = anim("05", "statCards");
+```
+
+**Update pressureLine trigger** (currently uses hardcoded `-0.4` and `-0.1`):
+```ts
+start: () => `${getScrollPos(metricsSection.offsetLeft + (t05pl?.start ?? -0.4) * window.innerWidth)}px top`,
+end:   () => `${getScrollPos(metricsSection.offsetLeft + (t05pl?.end   ?? -0.1) * window.innerWidth)}px top`,
+scrub: t05pl?.scrub ?? true,
+```
+
+**Update statCards timeline trigger** (currently uses hardcoded `-0.2` for start):
+```ts
+start: () => `${getScrollPos(metricsSection.offsetLeft + (t05sc?.start ?? -0.2) * window.innerWidth)}px top`,
+// end stays dynamic — it's computed from maxDealDistance, keep as-is
+```
+
+**Update cardOffset** — replace the hardcoded `300`:
+```ts
+const cardOffset = (t05sc as any)?.cardSpacing ?? 300;
+```
+
+---
+
+### J6 — Add SLIDE-06 ROI text growth animation
+
+The `#roi-word` element in SLIDE-06 currently scales as part of `roiTl` (which triggers on SLIDE-6.5's position). Add a separate, independent animation that drives scale from SLIDE-06's own scroll position, so the word starts growing as SLIDE-06 enters:
+
+**Add a slide reference (after slide04, alongside slide05):**
+```ts
+const slide06 = document.querySelector('[data-sidebar="6"]') as HTMLElement;
+const t06r = anim("06", "roiGrow");
+```
+
+**Add animation block after the train fade or data-map animations:**
+```ts
+// SLIDE-06: "ROI." word grows as the Conversion slide enters
+const roiWordEl = document.getElementById('roi-word');
+if (slide06 && roiWordEl) {
+  gsap.fromTo(roiWordEl,
+    { scale: 0.4, opacity: 0.3 },
+    {
+      scale: 1, opacity: 1,
+      ease: "power2.out",
+      scrollTrigger: {
+        trigger: track,
+        start: () => `${getScrollPos(slide06.offsetLeft + (t06r?.start ?? -0.8) * window.innerWidth)}px top`,
+        end:   () => `${getScrollPos(slide06.offsetLeft + (t06r?.end   ??  0.3) * window.innerWidth)}px top`,
+        scrub: t06r?.scrub ?? 0.5,
+      }
+    }
+  );
+}
+```
+
+Note: this animation resolves `scale: 1, opacity: 1` — meaning when SLIDE-6.5 fires `roiTl` and also animates `roi-word`, the two will co-exist. The SLIDE-06 animation completes first (arrives at 1.0/1.0) and then roiTl can re-scale it from 0.5→1.0 again as the counter fires. If this double-fires looks wrong, set `overwrite: "auto"` on the roiTl.fromTo for roiWord.
+
+---
+
+### J7 — Wire COUNTERS timing into ROI counter and success ring
+
+**ROI counter (`roiTl`):** Find:
+```ts
+start: () => `${getScrollPos(roiSection.offsetLeft - window.innerWidth * 0.3)}px top`,
+end: () => `${getScrollPos(roiSection.offsetLeft + window.innerWidth * 0.6)}px top`,
+scrub: 1,
+```
+Replace with:
+```ts
+start: () => `${getScrollPos(roiSection.offsetLeft + counters.roi.start * window.innerWidth)}px top`,
+end:   () => `${getScrollPos(roiSection.offsetLeft + counters.roi.end   * window.innerWidth)}px top`,
+scrub: counters.roi.scrub ?? 1,
+```
+
+**Success ring/counter:** Find:
+```ts
+const startTrigger = () => `${getScrollPos(successSection.offsetLeft + window.innerWidth * 0.25)}px top`;
+const endTrigger = () => `${getScrollPos(successSection.offsetLeft + window.innerWidth * 0.95)}px top`;
+```
+Replace with:
+```ts
+const startTrigger = () => `${getScrollPos(successSection.offsetLeft + counters.success.start * window.innerWidth)}px top`;
+const endTrigger   = () => `${getScrollPos(successSection.offsetLeft + counters.success.end   * window.innerWidth)}px top`;
+```
+And update the `scrub` on both the ring and counter ScrollTriggers to `counters.success.scrub ?? 1`.
+
+---
+
+### J8 — Template: add ids for word highlight targets
+
+**SLIDE-8.5 (SME/Untapped):** `id="slide-sme"` is already on the section element (added in an earlier run). Make the following span changes inside it. Every span that will be scaled must also have `inline-block` — inline elements can't be scaled with GSAP.
+
+**Heading line** — currently:
+```html
+An <span id="hl-untapped">untapped</span> opportunity for SME's
+```
+Change to:
+```html
+An&nbsp;<span id="hl-untapped" class="inline-block">untapped</span>&nbsp;<span id="hl-opportunity-heading" class="inline-block">opportunity</span>&nbsp;for SME's
+```
+
+**Why `&nbsp;`:** The `h3` has `class="flex items-start"`. Flex containers collapse whitespace between child nodes — regular space characters between "An", the span, and "opportunity" vanish, merging the words. `&nbsp;` (non-breaking space) is a real character, not whitespace, so flex preserves it. This is the only heading change; do not alter any other text or classes.
+
+**"loyalty"** — currently:
+```html
+<span class="text-foreground text-lg">loyalty </span>
+```
+Change to:
+```html
+<span id="hl-loyalty" class="text-foreground text-lg inline-block">loyalty</span>
+```
+
+**"purchasing decisions"** — currently:
+```html
+<span class="text-foreground text-lg">purchasing decisions</span>
+```
+Change to:
+```html
+<span id="hl-purchasing" class="text-foreground text-lg inline-block">purchasing decisions</span>
+```
+
+**"That's an opportunity."** — currently:
+```html
+<span class="text-accent text-sm">That's an opportunity.</span>
+```
+Change to:
+```html
+<span id="hl-opportunity-cta" class="text-accent text-sm inline-block">That's an opportunity.</span>
+```
+Note: this span is already `text-accent` — the GSAP animation will scale it only, not change its colour.
+
+**SLIDE-12 (Belief, `data-sidebar="12"`):** The existing spans already have `class="text-background/50"`. Add `id` and `inline-block`:
+```html
+<!-- Find: -->
+<span class="text-background/50">Believe</span>
+<!-- Change to: -->
+<span id="hl-believe" class="text-background/50 inline-block">Believe</span>
+
+<!-- Find: -->
+<span class="text-background/50">power</span>
+<!-- Change to: -->
+<span id="hl-power" class="text-background/50 inline-block">power</span>
+```
+
+---
+
+### J9 — Add word highlight GSAP animations (colour + subtle scale)
+
+After all existing animations, add the word highlight animations. Each targeted word grows subtly and shifts colour as its slide scrolls into view. Words stagger slightly so they reveal in sequence rather than all at once.
+
+```ts
+// WORD HIGHLIGHTS — subtle scale + colour shift as each word's slide scrolls into view
+if (highlights) {
+
+  const animateWords = (
+    slideEl: HTMLElement | null,
+    cfg: {
+      words: string[];
+      start: number;
+      end: number;
+      scrub: number;
+      scale?: number;
+      scaleOnly?: string[];
+    },
+    fromColour: string,
+    toColour: string
+  ) => {
+    if (!slideEl) return;
+    const peakScale = cfg.scale ?? 1.05;
+    const scaleOnlyIds = cfg.scaleOnly ?? [];
+
+    cfg.words.forEach((word, i) => {
+      const el = document.getElementById(`hl-${word}`);
+      if (!el) return;
+
+      // Stagger: each subsequent word starts slightly later in the scroll window
+      const stagger = i * 0.07 * window.innerWidth;
+      const isScaleOnly = scaleOnlyIds.includes(word);
+
+      // Scale + colour (or scale-only for words already in the target colour)
+      gsap.fromTo(el,
+        {
+          scale: 1,
+          ...(isScaleOnly ? {} : { color: fromColour }),
+        },
+        {
+          scale: peakScale,
+          ease: "power1.out",
+          ...(isScaleOnly ? {} : { color: toColour }),
+          scrollTrigger: {
+            trigger: track,
+            start: () => `${getScrollPos(slideEl.offsetLeft + cfg.start * window.innerWidth + stagger)}px top`,
+            end:   () => `${getScrollPos(slideEl.offsetLeft + cfg.end   * window.innerWidth + stagger)}px top`,
+            scrub: cfg.scrub ?? 0.5,
+          }
+        }
+      );
+    });
+  };
+
+  // SLIDE-8.5 (SME/Untapped) — 5 words, staggered
+  const slideSme = document.getElementById('slide-sme') as HTMLElement | null;
+  if (highlights.untapped) {
+    animateWords(
+      slideSme,
+      highlights.untapped,
+      'hsl(var(--foreground) / 0.5)',   // from: muted
+      'hsl(var(--accent))'              // to: accent amber
+    );
+  }
+
+  // SLIDE-12 (Belief) — bg-accent background, so use background/50 → primary
+  const slide12 = document.querySelector('[data-sidebar="12"]') as HTMLElement | null;
+  if (highlights.belief) {
+    animateWords(
+      slide12,
+      highlights.belief,
+      'hsl(var(--background) / 0.5)',   // from: faded (matches existing text-background/50 class)
+      'hsl(var(--primary))'             // to: cyan — readable on amber background
+    );
+  }
+}
+```
+
+**Note on `ease: "power1.out"`:** With `scrub` enabled, easing on scrubbed animations is effectively ignored (scrub overrides the playhead). The ease only affects how the animation plays when `scrub: false`. It's included here for completeness but won't change the scrubbed behaviour. If the effect feels too abrupt, widen the `start`/`end` gap in HIGHLIGHTS config rather than changing the ease.
+
+**Note on `"That's an opportunity."` (id `hl-opportunity-cta`):** Listed in `scaleOnly` in the HIGHLIGHTS config, so it will scale 1→1.05 only — no colour change since it's already `text-accent`. This gives it a subtle "landing" feel without fighting its existing style.
+
+---
+
+### J10 — Work order
+
+1. **J0** — Fix `applyWidths` selector (move `sidebarSections` definition up, switch to positional index). Remove the now-duplicate `sidebarSections` definition from the sidebar block. Verify slide widths still apply correctly at 1440px.
+2. **J1** — Add `anim` entries to sections `"05"` and `"06"` in frontmatter.
+3. **J2** — Expand `COUNTERS` with `start`, `end`, `scrub` for both roi and success.
+4. **J3** — Add `HIGHLIGHTS` config to frontmatter.
+5. **J4** — Add `CONFIG` with `stripEndOffset: 0` to frontmatter.
+6. **J4b** — Update `define:vars` bridge to pass HIGHLIGHTS and CONFIG.
+7. **J4c** — Add `config` and `highlights` vars to script; update `getScrollPos` to use `stripEndOffset`; update strip x-animation; update `totalH` in sidebar block.
+8. **J5** — Add `slide05`, `t05pl`, `t05sc` refs; update pressureLine trigger; update statCards start trigger; replace hardcoded `300` with `t05sc?.cardSpacing ?? 300`.
+9. **J6** — Add `slide06`, `t06r` refs; add roiGrow animation for `#roi-word`.
+10. **J7** — Wire `counters.roi.start/end/scrub` into roiTl ScrollTrigger; wire `counters.success.start/end/scrub` into success ring/counter triggers.
+11. **J8** — Add `id="slide-sme"` to SLIDE-8.5 section; add `id="hl-untapped"` around "untapped" in heading; add `id="hl-believe"` and `id="hl-power"` to existing spans in SLIDE-12.
+12. **J9** — Add `animateWords` helper and both word-highlight animation calls after all existing animations.
+
+**Do not touch:** the `roiTl` counter value targets (`.roi.from`/`.roi.to` already wired from I5), success ring's `counters.success.to` target, mobile content blocks, any GSAP easing values, colours, typography, or `returns.astro`.
+
+---
+
+## J11 — Fix incomplete J3/J8 implementation: wire up all 5 highlight words
+
+**What VS Code did:** Only `"untapped"` was added to `HIGHLIGHTS.untapped.words`, and only the heading's `hl-untapped` span was touched. The other four highlight targets — `loyalty`, `purchasing decisions`, `That's an opportunity`, and the second heading word `opportunity` — have no `id` attributes and are absent from the config. The `animateWords` helper is already in place in the script and will handle all words automatically once they have IDs and are listed in the config. Two changes needed: frontmatter config and template spans.
+
+---
+
+### J11a — Fix `HIGHLIGHTS` frontmatter config
+
+Find in frontmatter (the `untapped` block only has one word currently):
+```ts
+const HIGHLIGHTS = {
+  untapped: {
+    words: ["untapped"],
+    start: -0.8, end: -0.1, scrub: 0.5,
+  },
+```
+Replace the entire `untapped` entry with:
+```ts
+const HIGHLIGHTS = {
+  untapped: {
+    words: ["untapped", "opportunity-heading", "loyalty", "purchasing", "opportunity-cta"],
+    start: -0.85, end: 0.3, scrub: 0.5,
+    scale: 1.05,
+    scaleOnly: ["opportunity-cta"],  // already text-accent — scale only, no colour change
+  },
+```
+Keep the `belief` entry unchanged.
+
+---
+
+### J11b — Fix heading in SLIDE-8.5 (add `&nbsp;` + second span)
+
+Find (line ~690 in the template):
+```html
+An <span id="hl-untapped">untapped</span> opportunity for SME's
+```
+Replace with:
+```html
+An&nbsp;<span id="hl-untapped" class="inline-block">untapped</span>&nbsp;<span id="hl-opportunity-heading" class="inline-block">opportunity</span>&nbsp;for SME's
+```
+
+**Critical:** Use `&nbsp;` (the literal entity string, not a regular space) between "An" and the first span, between the two spans, and between the second span and "for". The `h3` is `flex items-start` — regular space characters between flex children are collapsed to zero. `&nbsp;` is a real character and is preserved. Do not use regular spaces or the words will concatenate again.
+
+Also add `class="inline-block"` to the existing `hl-untapped` span (it currently has no classes). The `id` is already there — just add the class.
+
+---
+
+### J11c — Add `id` and `inline-block` to body copy spans in SLIDE-8.5
+
+In the body copy of SLIDE-8.5 (line ~693), there is a single long `<span>` containing the paragraph text. Inside it, find and update these three child spans:
+
+**"loyalty"** — find:
+```html
+<span class="text-foreground text-lg">loyalty </span>
+```
+Change to:
+```html
+<span id="hl-loyalty" class="text-foreground text-lg inline-block">loyalty</span>
+```
+(Remove the trailing space inside the span text — it's now outside the element.)
+
+**"purchasing decisions"** — find:
+```html
+<span class="text-foreground text-lg">purchasing decisions</span>
+```
+Change to:
+```html
+<span id="hl-purchasing" class="text-foreground text-lg inline-block">purchasing decisions</span>
+```
+
+**"That's an opportunity."** — find:
+```html
+<span class="text-accent text-sm">That's an opportunity.</span>
+```
+Change to:
+```html
+<span id="hl-opportunity-cta" class="text-accent text-sm inline-block">That's an opportunity.</span>
+```
+
+Do not touch any other text, classes, or elements in this line.
+
+---
+
+### J11d — Update `animateWords` call to pass `scale` and `scaleOnly`
+
+The `animateWords` function signature in the script currently reads:
+```ts
+const animateWords = (
+  slideEl: HTMLElement | null,
+  cfg: { words: string[]; start: number; end: number; scrub: number },
+```
+This is missing `scale` and `scaleOnly` from the type. Update to:
+```ts
+const animateWords = (
+  slideEl: HTMLElement | null,
+  cfg: { words: string[]; start: number; end: number; scrub: number; scale?: number; scaleOnly?: string[] },
+```
+And inside the function body, where `gsap.fromTo` is called, replace the hardcoded `scale: 1.05` with:
+```ts
+const peakScale = cfg.scale ?? 1.05;
+const scaleOnlyIds = cfg.scaleOnly ?? [];
+```
+Then in the `fromTo`:
+- `from`: `{ scale: 1, ...(scaleOnlyIds.includes(word) ? {} : { color: fromColour }) }`
+- `to`: `{ scale: peakScale, ...(scaleOnlyIds.includes(word) ? {} : { color: toColour }), ... }`
+
+If the `animateWords` function body already contains `peakScale` and `scaleOnlyIds` logic from J9, skip this step — just update the type signature.
+
+---
+
+### J11 Work order
+
+1. **J11a** — Update `HIGHLIGHTS.untapped.words` to include all 5 words, add `scale` and `scaleOnly` properties.
+2. **J11b** — Replace heading line with `&nbsp;` entities and `hl-opportunity-heading` span. Add `class="inline-block"` to existing `hl-untapped`.
+3. **J11c** — Add `id` + `inline-block` to the three body copy spans.
+4. **J11d** — Update `animateWords` type + body to handle `scale`/`scaleOnly` if not already present.
+
+Verify at `/returns2`: scroll to SLIDE-8.5 and confirm "untapped", "opportunity", "loyalty", "purchasing decisions", and "That's an opportunity." all shift colour (except the last which is already accent and only scales). The heading must read `An untapped opportunity for SME's` with spaces between all words.
+
+---
+
+## K. Scroll smoothness + counter accuracy fixes
+
+**Priority — fix these before tuning any J-section timing values. All work on `returns2.astro` only.**
+
+---
+
+### K1 — Counter scrub must be `true`, not a number
+
+**The problem:** Both counters (`roi` and `success`) are configured with `scrub: 1` in `COUNTERS`. A numeric scrub means the animation permanently lags behind scroll by that many seconds. When the user's scroll position reaches the `end` trigger, the counter is still catching up. If the user has scrolled past it, the counter freezes wherever it is and never resolves to its target (`4.0x`, `25%`). This is visible in the screenshots — counter stops at `3.7x` and `24%`.
+
+**The fix:** In `COUNTERS` in the frontmatter, change `scrub` to `true` for both counters:
+
+```ts
+const COUNTERS = {
+  roi: {
+    from: 1.0, to: 4.0, decimals: 1,
+    start: -0.3, end: 0.6,
+    scrub: true,   // ← was 1, must be true. Numbers cause lag; true = exact 1:1, always reaches target.
+  },
+  success: {
+    to: 25,
+    start: 0.25, end: 0.95,
+    scrub: true,   // ← was 1, must be true.
+  },
+};
+```
+
+**Rule for future:** `scrub: true` (or `scrub: 1`) is for visual animations where lag feels natural. For any animation that drives a number display (counter, percentage, progress ring fill), always use `scrub: true` so the displayed value is always exactly where the scroll says it should be. The user can scroll slowly through the section and watch the number count precisely.
+
+---
+
+### K2 — Add `will-change: transform` to `#horizontal-strip`
+
+**The problem:** The browser is not GPU-compositing the horizontal strip's translation. Without `will-change: transform`, the browser repaints the entire strip on every scroll event, causing jank — especially with the many GSAP-animated children inside it.
+
+**The fix:** In the template, find `#horizontal-strip`:
+```html
+<div id="horizontal-strip" class="flex h-full">
+```
+Add `will-change: transform` via an inline style or Tailwind's `[will-change:transform]`:
+```html
+<div id="horizontal-strip" class="flex h-full [will-change:transform]">
+```
+
+---
+
+### K3 — Add `invalidateOnRefresh: true` to all dynamic ScrollTriggers
+
+**The problem:** Every ScrollTrigger that uses `start: () => ...` or `end: () => ...` (i.e. a function, not a string) must have `invalidateOnRefresh: true`. Without it, GSAP evaluates the function once on init and caches the result. If `strip.scrollWidth` changes after init (images finish loading, fonts render, etc.), the cached pixel values are wrong and the strip snaps or jerks when ScrollTrigger finally recalculates.
+
+**The fix:** Add `invalidateOnRefresh: true` to every ScrollTrigger block that has a function-based `start` or `end`. This includes all of the following animation blocks in `returns2.astro`:
+- The main strip `x` animation (the master horizontal scroll driver)
+- `#train-fade-layer` ScrollTrigger
+- `.data-node` ScrollTrigger
+- `.data-path` ScrollTrigger
+- `#tiger-focus-layer` ScrollTrigger
+- `#visuals-fade-text` ScrollTrigger
+- `#sound-grow-text` ScrollTrigger
+- Sound vibration `toggleActions` ScrollTrigger
+- `pressureLine` ScrollTrigger
+- `cardTimeline` ScrollTrigger
+- `roiTl` ScrollTrigger
+- Success ring ScrollTrigger
+- Success counter ScrollTrigger
+- `#roi-word` roiGrow ScrollTrigger (if added in J6)
+
+In each, add `invalidateOnRefresh: true` alongside the other ScrollTrigger properties:
+```ts
+scrollTrigger: {
+  trigger: track,
+  start: () => `...`,
+  end: () => `...`,
+  scrub: ...,
+  invalidateOnRefresh: true,  // ← add this line
+}
+```
+
+Do not add it to ScrollTriggers with static string `start`/`end` values (e.g. the end-screen logo animation, the end-screen indicator line) — `invalidateOnRefresh` only matters for function-based triggers.
+
+---
+
+### K4 — Debounce the resize listener
+
+**The problem:** The current resize listener calls `applyWidths()` and `ScrollTrigger.refresh()` synchronously on every `resize` event. Window resize fires continuously while dragging — this triggers dozens of full GSAP recalculations per second during a resize, locking up the main thread.
+
+**The fix:** Wrap the resize listener in a debounce:
+
+Find:
+```ts
+window.addEventListener('resize', () => { applyWidths(); ScrollTrigger.refresh(); });
+```
+Replace with:
+```ts
+let resizeTimer: ReturnType<typeof setTimeout>;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    applyWidths();
+    ScrollTrigger.refresh();
+  }, 150);
+});
+```
+
+150ms debounce means the recalculation fires 150ms after the resize stops — invisible to the user, but prevents the main-thread lockup.
+
+---
+
+### K5 — Work order
+
+1. **K1** — Change `scrub: true` in COUNTERS frontmatter (one-line change). Verify counters reach exactly `4.0x` and `25%` when their end trigger is passed.
+2. **K2** — Add `[will-change:transform]` to `#horizontal-strip` in the template. Hard refresh and check scroll smoothness.
+3. **K3** — Add `invalidateOnRefresh: true` to every function-based ScrollTrigger, working through the list above in order. This is mechanical — do not change any other properties.
+4. **K4** — Replace the resize listener with the debounced version.
+
+Verify after each step — K1 and K2 have the biggest impact and can be confirmed quickly.
+
+---
+
+## L. global.css — Remove dead multi-theme CSS
+
+**Context:** The site is dark-only. A multi-theme system (solaris-architect, mono-light, palette-retro, tech-solaris, retro-camp, jade-architect) was built and then abandoned. None of these theme class names are applied anywhere in the codebase — no component, layout, or page ever adds them to the DOM. The CSS is dead weight.
+
+**File:** `src/styles/global.css` only. No other files need changing.
+
+---
+
+### L1 — Delete `.theme-solaris-architect header` block
+
+Find and delete this entire block (approximately lines 196–209):
+
+```css
+.theme-solaris-architect header {
+  /* 1. Make the paint slightly more transparent so the filter is visible */
+  background-color: hsl(var(--background) / 0.65) !important;
+  
+  /* 2. THE MAGIC COMBINATION:
+     - blur(12px): The frosted glass look you like.
+     - brightness(2): Forces dark sections (Sepia) to appear bright/washed out behind the glass.
+     - saturate(0.5): Desaturates the brown slightly to reduce visual noise.
+  */
+  backdrop-filter: blur(12px) brightness(2) saturate(0.5);
+  
+  /* Smooth transition for when you switch themes */
+  transition: all 0.5s ease;
+}
+```
+
+Delete the entire block. Do not touch `.section-inverted` or anything before/after it.
+
+---
+
+### L2 — Delete `.theme-solaris-architect &` nested block inside `.section-inverted`
+
+Inside the `.section-inverted { }` block, find and delete only the nested theme override (approximately lines 220–240):
+
+```css
+.theme-solaris-architect & {
+  --background: 40 19% 14%; 
+  --foreground: 51 29% 92%;
+  --muted-foreground: 40 10% 70%;
+  --card: 40 20% 18%;
+  --card-foreground: 51 29% 92%;
+  --border: 40 10% 30%;
+  --grid-color: 40 10% 25%;
+
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+
+  /* Architect Inverted Cursors */
+  --cursor-dot: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 16 16'%3E%3Crect fill='%23FF9F1C' x='6' y='6' width='4' height='4'/%3E%3C/svg%3E") 8 8, auto;
+  --cursor-link: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2020/svg' width='32' height='32' viewBox='0 0 16 16'%3E%3Cpath fill='%23F2EFE9' d='M2 7h6v2H2V7zm6-2h2v6H8V5zm2 2h2v2h-2V7zm-2-4h2v2H8V3zm0 8h2v2H8v-2z'/%3E%3C/svg%3E") 16 16, pointer;
+  
+  /* 2. ALSO RE-APPLY for links inside the section */
+  a, button, [role="button"], .concept-card, .cursor-pointer {
+    cursor: var(--cursor-link) !important;
+  }
+}
+```
+
+Keep the rest of `.section-inverted` intact — the base background, foreground, cursor variables, and the `h2, h3 / .text-eyebrow` overrides below it all stay.
+
+---
+
+### L3 — Delete the 6-selector binary-layer theme inversion block
+
+Find and delete this entire block (approximately lines 293–302):
+
+```css
+/* This block forces the color inversion for light themes */
+/* Note: We target the layer inside the theme class */
+.theme-mono-light .binary-layer,
+.theme-palette-retro .binary-layer,
+.theme-tech-solaris .binary-layer,
+.theme-retro-camp .binary-layer,
+.theme-jade-architect .binary-layer,
+.theme-solaris-architect .binary-layer {
+  filter: invert(1); 
+}
+```
+
+Delete the entire block including the comments. The `.binary-layer` class itself and the `.binary-waterfall` container above it are still needed — only this theme-specific rule targeting those layers is deleted.
+
+---
+
+### L4 — Consolidate duplicate `.section-inverted` heading overrides
+
+The heading/eyebrow colour overrides for `.section-inverted` appear twice in the file — once inside the `.section-inverted { }` block and again as standalone rules later (approximately lines 450–466):
+
+```css
+/* --- INVERTED SECTION OVERRIDES --- */
+/* 1. Force main headings to be Primary (Teal) */
+.section-inverted h2,
+.section-inverted h3 {
+  color: hsl(var(--primary)) !important;
+}
+
+/* 2. Force ConceptGrid card titles to be Primary */
+.section-inverted .concept-card h3 {
+  color: hsl(var(--primary)) !important;
+}
+
+/* 3. Optional: Make the small eyebrow text white/primary to stand out */
+.section-inverted .text-eyebrow {
+  color: hsl(var(--primary)) !important;
+  opacity: 1;
+}
+```
+
+Delete this second occurrence (the standalone block at ~lines 450–466). The identical rules already exist inside the `.section-inverted { }` block earlier in the file, so removing the duplicate changes nothing visually.
+
+---
+
+### L5 — Work order and verification
+
+1. **L1** — Delete `.theme-solaris-architect header` block.
+2. **L2** — Delete `.theme-solaris-architect &` nested block inside `.section-inverted`.
+3. **L3** — Delete the 6-selector `.theme-*-* .binary-layer` inversion block.
+4. **L4** — Delete the duplicate `.section-inverted` heading overrides (second occurrence only).
+
+After all four deletions, verify:
+- `/home`, `/about`, `/solutions/*`, `/contact`, `/faq` — visually unchanged (dark theme intact)
+- `/404` — page still renders correctly with its amber cursor and teal heading overrides (these come from the `.section-inverted` base block which was not touched)
+- No other pages or routes should look different
+
+**Do not touch:** `:root { }` variable block, `.binary-layer` or `.binary-waterfall` CSS, any keyframe animations, any Tailwind layer blocks, or any other component classes.
+
+---
+
+## M. Image optimisation — swap PNG → WebP across all files
+
+**Context:** All site images were served as raw PNGs from `public/images/`. WebP versions have already been generated and saved alongside the originals in `public/images/` — they are ready to use right now. No file copying or conversion needed.
+
+**Weight reduction achieved (pre-calculated):**
+- `listening.woman2.emptyHands`: 244KB → 71KB (71% smaller)
+- `listening.woman2.emptyBook`: 332KB → 109KB (67% smaller)
+- `listening.woman2`: 255KB → 74KB (71% smaller)
+- `listening.woman2.train`: 341KB → 71KB (79% smaller)
+- `stalking.sabretooth`: 196KB → 35KB (82% smaller)
+- `bitmap.b.data.map`: 498KB → 60KB (88% smaller)
+- `dom-nick-about-sketch`: 488KB → 132KB (73% smaller, resized 2048→1200px)
+- `dstorrs.headshot`: 211KB → 23KB (89% smaller)
+- `dstorrs.headshot2`: 349KB → 12KB (96% smaller)
+- `dstorrs.headshot3`: 939KB → 33KB (96% smaller)
+
+**Total for returns2.astro images alone: 1.8MB → ~420KB (78% reduction)**
+
+The PNG originals are kept in place — do not delete them. Only update the `src` paths in the files listed below.
+
+---
+
+### M1 — `src/pages/returns2.astro`
+
+Make these six path changes. Each is a simple `.png` → `.webp` extension swap. Do not change any other attributes (`id`, `class`, `alt`, etc.) on these elements. Also add `decoding="async"` to every one of these `<img>` tags — it allows the browser to decode image data off the main thread, reducing jank.
+
+**1. Mobile woman background (SLIDE-00 mobile):**
+```
+src="/images/listening.woman2.emptyBook.png"
+```
+→
+```
+src="/images/listening.woman2.emptyBook.webp" decoding="async"
+```
+
+**2. Base hands layer (GSAP target `id="base-hands-layer"`):**
+```
+src="/images/listening.woman2.emptyHands.png"
+```
+→
+```
+src="/images/listening.woman2.emptyHands.webp" decoding="async"
+```
+
+**3. Book fade layer (GSAP target `id="book-fade-layer"`):**
+```
+src="/images/listening.woman2.emptyBook.png"
+```
+→
+```
+src="/images/listening.woman2.emptyBook.webp" decoding="async"
+```
+
+**4. Phone fade layer (GSAP target `id="phone-fade-layer"`):**
+```
+src="/images/listening.woman2.png"
+```
+→
+```
+src="/images/listening.woman2.webp" decoding="async"
+```
+
+**5. Train fade layer (`id="train-fade-layer"` img):**
+```
+src="/images/listening.woman2.train.png"
+```
+→
+```
+src="/images/listening.woman2.train.webp" decoding="async"
+```
+
+**6. Tiger — both occurrences** (mobile background + GSAP target `id="tiger-focus-layer"`). There are two `<img>` tags referencing this file — update both:
+```
+src="/images/stalking.sabretooth.png"
+```
+→
+```
+src="/images/stalking.sabretooth.webp" decoding="async"
+```
+
+---
+
+### M2 — `src/pages/returns.astro`
+
+Apply the identical six changes from M1 to `returns.astro`. The file references the same images in the same structure. This is path-only — do not change any layout, classes, or animation logic.
+
+---
+
+### M3 — `src/components/modules/AboutIntro.tsx`
+
+Find:
+```tsx
+src="/images/dom-nick-about-sketch.png"
+```
+Change to:
+```tsx
+src="/images/dom-nick-about-sketch.webp"
+```
+Add `decoding="async"` to the same `<img>` element.
+
+---
+
+### M4 — `src/components/modules/Founders.tsx` (if headshot images are used)
+
+If `Founders.tsx` references any of `dstorrs.headshot.png`, `dstorrs.headshot2.png`, or `dstorrs.headshot3.png`, update each to `.webp`. Add `decoding="async"` to each.
+
+---
+
+### M5 — Work order
+
+1. **M1** — Update `returns2.astro` (6 path changes + `decoding="async"`). Verify at `/returns2` — all images must display identically to before.
+2. **M2** — Update `returns.astro` (same 6 changes). Verify at `/returns`.
+3. **M3** — Update `AboutIntro.tsx`. Verify `/about` hero sketch renders correctly.
+4. **M4** — Update `Founders.tsx` headshots if applicable.
+
+---
+
+## N. Proper Astro image optimisation — hero images via `getImage()`
+
+**Context:** Three hero images are in `src/assets/images/` as full-res PNGs:
+- `hero-data-meets-emotion-07.png` → used by `Hero.tsx` (home page)
+- `hero-about-two-minds-03.png` → used by `AboutIntro.tsx` (about page)
+- `hero-uiux-transparent-02.png` → used by `UIUXHero.tsx` (UI/UX sound page)
+
+These are currently served as pre-converted WebP from `public/images/heroes/` — good file size, but no `srcset`, no responsive sizes, no Astro-managed CLS prevention. This section migrates to the proper `getImage()` pattern so Astro handles everything at build time.
+
+**Pattern:** React `.tsx` components cannot import from `src/assets/` directly. The parent `.astro` page calls `getImage()` (server-side at build time), then passes the resulting URL string as a prop to the React component. The component just renders `<img src={imageSrc} />` — no Astro-specific imports needed.
+
+---
+
+### N1 — Update `Hero.tsx` to accept `imageSrc` prop
+
+In `src/components/modules/Hero.tsx`, update the `HeroProps` interface and component signature:
+
+```tsx
+// Before:
+interface HeroProps {
+  heroFlipped?: boolean;
+}
+export default function Hero({ heroFlipped = HERO_IMAGE_FLIPPED_DEFAULT }: HeroProps) {
+
+// After:
+interface HeroProps {
+  heroFlipped?: boolean;
+  imageSrc?: string;
+}
+export default function Hero({ heroFlipped = HERO_IMAGE_FLIPPED_DEFAULT, imageSrc }: HeroProps) {
+```
+
+In the JSX, update the `<img>` `src` attribute:
+```tsx
+// Before:
+src="/images/heroes/hero-data-meets-emotion-07.webp"
+
+// After:
+src={imageSrc ?? "/images/heroes/hero-data-meets-emotion-07.webp"}
+```
+
+The fallback to the `/images/heroes/` WebP ensures the image still shows in local dev before the build step runs.
+
+---
+
+### N2 — Update `AboutIntro.tsx` to accept `imageSrc` prop
+
+In `src/components/modules/AboutIntro.tsx`, update `AboutIntroProps` and the component signature:
+
+```tsx
+// Before:
+interface AboutIntroProps {
+  heroFlipped?: boolean;
+}
+export default function AboutIntro({ heroFlipped = HERO_IMAGE_FLIPPED_DEFAULT }: AboutIntroProps) {
+
+// After:
+interface AboutIntroProps {
+  heroFlipped?: boolean;
+  imageSrc?: string;
+}
+export default function AboutIntro({ heroFlipped = HERO_IMAGE_FLIPPED_DEFAULT, imageSrc }: AboutIntroProps) {
+```
+
+Update the hero image `<img>` `src`:
+```tsx
+src={imageSrc ?? "/images/heroes/hero-about-two-minds-03.webp"}
+```
+
+Do not touch the sketch `<img>` src — that stays as `/images/dom-nick-about-sketch.webp`.
+
+---
+
+### N3 — Update `UIUXHero.tsx` to accept `imageSrc` prop
+
+In `src/components/modules/solutions/UIUXHero.tsx`, update `UIUXHeroProps`:
+
+```tsx
+// Before:
+interface UIUXHeroProps {
+  heroFlipped?: boolean;
+}
+export default function UIUXHero({ heroFlipped = HERO_IMAGE_FLIPPED_DEFAULT }: UIUXHeroProps) {
+
+// After:
+interface UIUXHeroProps {
+  heroFlipped?: boolean;
+  imageSrc?: string;
+}
+export default function UIUXHero({ heroFlipped = HERO_IMAGE_FLIPPED_DEFAULT, imageSrc }: UIUXHeroProps) {
+```
+
+Update the hero image `<img>` `src`:
+```tsx
+src={imageSrc ?? "/images/heroes/hero-uiux-transparent-02.webp"}
+```
+
+---
+
+### N4 — Update `src/pages/home.astro` to pass optimised image URL
+
+In `src/pages/home.astro`, add the `getImage()` import and call, then pass the result as a prop:
+
+```astro
+---
+import { getImage } from 'astro:assets';
+import heroDataMeetsEmotion from '../assets/images/hero-data-meets-emotion-07.png';
+import Hero from '../components/modules/Hero.tsx';
+// ... other existing imports ...
+
+// Optimise hero image at build time — Astro generates WebP + correct dimensions
+const heroImage = await getImage({
+  src: heroDataMeetsEmotion,
+  format: 'webp',
+  width: 1200,
+  quality: 85,
+});
+---
+```
+
+Pass the URL to the component. Find the `<Hero` render call and add `imageSrc`:
+```astro
+<Hero client:load imageSrc={heroImage.src} />
+```
+
+---
+
+### N5 — Update `src/pages/about.astro` to pass optimised image URL
+
+```astro
+---
+import { getImage } from 'astro:assets';
+import heroAboutTwoMinds from '../assets/images/hero-about-two-minds-03.png';
+import AboutIntro from '../components/modules/AboutIntro.tsx';
+// ... other existing imports ...
+
+const heroImage = await getImage({
+  src: heroAboutTwoMinds,
+  format: 'webp',
+  width: 1200,
+  quality: 85,
+});
+---
+```
+
+Pass to the component:
+```astro
+<AboutIntro client:load imageSrc={heroImage.src} />
+```
+
+---
+
+### N6 — Update `src/pages/solutions/uiux-sound.astro` to pass optimised image URL
+
+```astro
+---
+import { getImage } from 'astro:assets';
+import heroUiux from '../../assets/images/hero-uiux-transparent-02.png';
+import UIUXHero from '../../components/modules/solutions/UIUXHero.tsx';
+// ... other existing imports ...
+
+const heroImage = await getImage({
+  src: heroUiux,
+  format: 'webp',
+  width: 1400,
+  quality: 85,
+});
+---
+```
+
+Pass to the component:
+```astro
+<UIUXHero client:load imageSrc={heroImage.src} />
+```
+
+Note: `hero-uiux-transparent-02.png` has an RGBA channel (transparency). `getImage()` with `format: 'webp'` preserves transparency. Do not use `format: 'jpeg'` — it discards the alpha channel.
+
+---
+
+### N7 — Verify after all changes
+
+1. Run `npm run build` and check the output for the three hero image paths — they should now be `/\_astro/hero-*.HASH.webp` (Astro-hashed filenames), not `/images/heroes/`.
+2. Check that `home`, `/about`, and `/solutions/uiux-sound` still display their hero images correctly.
+3. If any hero shows as a broken image, check that the prop name (`imageSrc`) is passed correctly and that the fallback URL in the component is still pointing to a valid `/images/heroes/*.webp` file.
+4. The `public/images/heroes/` WebP files can be deleted once the build is verified — they are no longer needed. Do not delete them until the build is confirmed working.
+
+---
+
+### N8 — What NOT to touch
+
+- `returns2.astro` and `returns.astro` — the images there are already at good WebP sizes from section M. They use `public/` paths which is fine for their use case (GSAP targets).
+- `dom-nick-about-sketch.webp` — this is already in `public/images/` and served statically. No change needed.
+- Any image that isn't one of the three hero images listed above.
+
+**Do not:** delete the `.png` originals, change any `id` attributes on GSAP-targeted images, modify any class names, or touch any other files.
+
+---
+
+## O. Hero image fixes — revert bad overflow changes, add bottom fade
+
+**Context:** A previous Cowork session made incorrect changes to the three hero components trying to prevent the hard bottom edge of images from showing. The approach used (`height: '115%'`, `overflow-x-hidden`) was wrong — it altered page layout and created scroll issues. This section corrects those changes and implements the right approach: a gradient overlay div that fades the image into the background colour at the bottom.
+
+**Apply to all three files in order. Do not touch any other properties.**
+
+---
+
+### O1 — `src/components/modules/Hero.tsx`
+
+**Step 1** — Revert the root div overflow class. Find:
+```tsx
+<div className="w-full relative overflow-x-hidden">
+```
+Change to:
+```tsx
+<div className="w-full relative overflow-hidden">
+```
+
+**Step 2** — Revert the image container. Find:
+```tsx
+      <div
+        className="absolute top-0 right-0 w-full md:w-[58%] pointer-events-none z-0"
+        style={{
+          height: '115%',
+          WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 22%)',
+          maskImage: 'linear-gradient(to right, transparent 0%, black 22%)',
+        }}
+      >
+        <img
+          src={imageSrc ?? "/images/heroes/hero-data-meets-emotion-07.webp"}
+          alt=""
+          decoding="async"
+          loading="eager"
+          className="w-full h-full object-cover object-top"
+          style={{ transform: heroFlipped ? 'scaleX(-1)' : 'none' }}
+        />
+      </div>
+```
+Replace with:
+```tsx
+      <div
+        className="absolute inset-y-0 right-0 w-full md:w-[58%] pointer-events-none z-0"
+        style={{
+          WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 22%)',
+          maskImage: 'linear-gradient(to right, transparent 0%, black 22%)',
+        }}
+      >
+        <img
+          src={imageSrc ?? "/images/heroes/hero-data-meets-emotion-07.webp"}
+          alt=""
+          decoding="async"
+          loading="eager"
+          className="w-full h-full object-cover object-center"
+          style={{ transform: heroFlipped ? 'scaleX(-1)' : 'none' }}
+        />
+        {/* Bottom fade — dissolves image into background before the hard clip edge */}
+        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background to-transparent pointer-events-none z-10" />
+      </div>
+```
+
+---
+
+### O2 — `src/components/modules/AboutIntro.tsx`
+
+**Step 1** — Revert the root div overflow class. Find:
+```tsx
+<div className="relative w-full md:py-32 min-h-svh flex flex-col overflow-x-hidden">
+```
+Change to:
+```tsx
+<div className="relative w-full md:py-32 min-h-svh flex flex-col overflow-hidden">
+```
+
+**Step 2** — Revert the image container. Find:
+```tsx
+      <div
+        className="absolute right-0 top-0 w-full md:w-[65%] pointer-events-none z-0"
+        style={{
+          height: '115%',
+          clipPath: `inset(0 ${100 - revealProgress}% 0 0)`,
+          transition: 'clip-path 0.1s linear',
+          WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 22%)',
+          maskImage: 'linear-gradient(to right, transparent 0%, black 22%)',
+        }}
+      >
+        <img
+          src={imageSrc ?? "/images/heroes/hero-about-two-minds-03.webp"}
+          alt=""
+          decoding="async"
+          loading="eager"
+          className="w-full h-full object-cover object-top"
+          style={{ transform: heroFlipped ? 'scaleX(-1)' : 'none' }}
+        />
+      </div>
+```
+Replace with:
+```tsx
+      <div
+        className="absolute right-0 top-0 w-full md:w-[65%] h-full pointer-events-none z-0"
+        style={{
+          clipPath: `inset(0 ${100 - revealProgress}% 0 0)`,
+          transition: 'clip-path 0.1s linear',
+          WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 22%)',
+          maskImage: 'linear-gradient(to right, transparent 0%, black 22%)',
+        }}
+      >
+        <img
+          src={imageSrc ?? "/images/heroes/hero-about-two-minds-03.webp"}
+          alt=""
+          decoding="async"
+          loading="eager"
+          className="w-full h-full object-cover object-center"
+          style={{ transform: heroFlipped ? 'scaleX(-1)' : 'none' }}
+        />
+        {/* Bottom fade — dissolves image into background before the hard clip edge */}
+        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background to-transparent pointer-events-none z-10" />
+      </div>
+```
+
+---
+
+### O3 — `src/components/modules/solutions/UIUXHero.tsx`
+
+**Step 1** — Revert the root div overflow class. Find:
+```tsx
+<div className="relative w-full md:py-32 min-h-[50vh] flex flex-col overflow-x-hidden">
+```
+Change to:
+```tsx
+<div className="relative w-full md:py-32 min-h-[50vh] flex flex-col overflow-hidden">
+```
+
+**Step 2** — Revert the image container height. Find:
+```tsx
+        className="absolute right-0 md:right-[-5%] top-0 w-full md:w-[65%] pointer-events-none z-0"
+        style={{
+          height: '115%',
+```
+Change to:
+```tsx
+        className="absolute right-0 md:right-[-5%] top-0 w-full md:w-[65%] h-full pointer-events-none z-0"
+        style={{
+```
+(Remove the `height: '115%',` line entirely from the style object.)
+
+**Step 3** — Change `object-top` back to `object-center` on the hero image. Find:
+```tsx
+          className="absolute inset-0 w-full h-full object-cover object-top"
+```
+Change to:
+```tsx
+          className="absolute inset-0 w-full h-full object-cover object-center"
+```
+
+**Step 4** — Add the bottom fade div immediately after the `<img>` close tag and before the icon constellation div:
+```tsx
+        {/* Bottom fade — dissolves image into background before the hard clip edge */}
+        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background to-transparent pointer-events-none z-10" />
+```
+
+---
+
+### O4 — Work order
+
+1. O1 (Hero.tsx) — two edits. Verify `/home` renders, no scroll change.
+2. O2 (AboutIntro.tsx) — two edits. Verify `/about` renders, no scroll change.
+3. O3 (UIUXHero.tsx) — four edits. Verify `/solutions/uiux-sound` renders, no scroll change.
+
+**Do not touch** any other properties on these elements. Do not touch `SonicHero.tsx` or `ImmersiveHero.tsx` — they did not have the bad changes applied.
+
+---
+
+## P. Visualizer width alignment — match button edges exactly
+
+**File:** `src/components/modules/Hero.tsx` only.
+
+**The problem:** The visualizer (`hidden md:flex flex-col w-full`) fills the full `md:max-w-[52%]` column width. The CTA buttons (`flex items-stretch gap-4 w-full max-w-xl`) are capped at `max-w-xl` (36rem). On desktop the visualizer is therefore wider than the buttons — its left and right edges don't align.
+
+**The goal:** The visualizer's left edge aligns with "OUR STORY" button's left edge, and its right edge aligns with "START A PROJECT" button's right edge.
+
+**The fix:** Wrap the CTA buttons div and the visualizer div in a shared outer container with `max-w-xl`. Both children then fill `w-full` within that container and share identical left/right edges.
+
+In `src/components/modules/Hero.tsx`, find the CTA buttons + visualizer block:
+
+```tsx
+          {/* CTA BUTTONS */}
+          <div className="flex items-stretch gap-4 w-full max-w-xl">
+            <a href="/about" className="flex-1">
+              <Button variant="default" size="xl" className="rounded-none w-full text-xs md:text-base">
+                OUR STORY
+              </Button>
+            </a>
+            <a href="/contact" className="flex-1">
+              <Button variant="outline" size="xl" className="morph-accent rounded-none w-full text-xs md:text-base">
+                START A PROJECT
+              </Button>
+            </a>
+          </div>
+
+          {/* VISUALIZER — desktop only, fills column width */}
+          <div className="hidden md:flex flex-col w-full">
+```
+
+Replace with:
+
+```tsx
+          {/* SHARED WIDTH CONTAINER — constrains both buttons and visualizer to the same max width */}
+          <div className="w-full max-w-xl">
+
+            {/* CTA BUTTONS */}
+            <div className="flex items-stretch gap-4 w-full">
+              <a href="/about" className="flex-1">
+                <Button variant="default" size="xl" className="rounded-none w-full text-xs md:text-base">
+                  OUR STORY
+                </Button>
+              </a>
+              <a href="/contact" className="flex-1">
+                <Button variant="outline" size="xl" className="morph-accent rounded-none w-full text-xs md:text-base">
+                  START A PROJECT
+                </Button>
+              </a>
+            </div>
+
+            {/* VISUALIZER — desktop only, fills shared container width */}
+            <div className="hidden md:flex flex-col w-full mt-8">
+```
+
+Also close the new outer container div after the visualizer block closes. Find the closing `</div>` of the visualizer section and add another `</div>` after it to close the shared container:
+
+```tsx
+            </div>
+
+          </div>
+          {/* END SHARED WIDTH CONTAINER */}
+```
+
+Key changes:
+- `max-w-xl` moves from the buttons div to a new outer wrapper
+- Buttons div loses `max-w-xl` (inherited from wrapper) — keeps `w-full`
+- Visualizer gains `mt-8` for spacing above it — was previously `space-y-8` on the parent handling this gap, but now it's inside the shared container which doesn't have `space-y-8`
+- Visualizer `w-full` fills the shared `max-w-xl` container exactly
+
+Do not change any other classes on buttons, the visualizer stage div, bar elements, or status label.

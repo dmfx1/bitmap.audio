@@ -193,20 +193,6 @@ a, button, [role="button"] {
   box-shadow: inset 0 0 0 1px hsl(var(--accent) / var(--glow-intensity, 0));
   }
 
-  .theme-solaris-architect header {
-    /* 1. Make the paint slightly more transparent so the filter is visible */
-    background-color: hsl(var(--background) / 0.65) !important;
-    
-    /* 2. THE MAGIC COMBINATION:
-       - blur(12px): The frosted glass look you like.
-       - brightness(2): Forces dark sections (Sepia) to appear bright/washed out behind the glass.
-       - saturate(0.5): Desaturates the brown slightly to reduce visual noise.
-    */
-    backdrop-filter: blur(12px) brightness(2) saturate(0.5);
-    
-    /* Smooth transition for when you switch themes */
-    transition: all 0.5s ease;
-  }
   .section-inverted {
     background-color: transparent;
     color: hsl(var(--foreground));
@@ -216,28 +202,6 @@ a, button, [role="button"] {
 
     /* Default Inverted Cursor (Bitmap Orange) */
     --cursor-dot: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 16 16'%3E%3Crect fill='%23FF9F1C' x='6' y='6' width='4' height='4'/%3E%3C/svg%3E") 8 8, auto;
-
-    .theme-solaris-architect & {
-      --background: 40 19% 14%; 
-      --foreground: 51 29% 92%;
-      --muted-foreground: 40 10% 70%;
-      --card: 40 20% 18%;
-      --card-foreground: 51 29% 92%;
-      --border: 40 10% 30%;
-      --grid-color: 40 10% 25%;
-
-      background-color: hsl(var(--background));
-      color: hsl(var(--foreground));
-
-      /* Architect Inverted Cursors */
-      --cursor-dot: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 16 16'%3E%3Crect fill='%23FF9F1C' x='6' y='6' width='4' height='4'/%3E%3C/svg%3E") 8 8, auto;
-      --cursor-link: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 16 16'%3E%3Cpath fill='%23F2EFE9' d='M2 7h6v2H2V7zm6-2h2v6H8V5zm2 2h2v2h-2V7zm-2-4h2v2H8V3zm0 8h2v2H8v-2z'/%3E%3C/svg%3E") 16 16, pointer;
-      
-      /* 2. ALSO RE-APPLY for links inside the section */
-      a, button, [role="button"], .concept-card, .cursor-pointer {
-        cursor: var(--cursor-link) !important;
-      }
-    }
 
     /* Force visibility for specific components within inverted sections */
     h2, h3, .concept-card h3, .text-eyebrow {
@@ -288,17 +252,6 @@ a, button, [role="button"] {
     background-size: 600px 800px;
     /* Opacity is slightly higher on near layer naturally, 
        but we multiply it by the variable effectively */
-  }
-
-  /* This block forces the color inversion for light themes */
-  /* Note: We target the layer inside the theme class */
-  .theme-mono-light .binary-layer,
-  .theme-palette-retro .binary-layer,
-  .theme-tech-solaris .binary-layer,
-  .theme-retro-camp .binary-layer,
-  .theme-jade-architect .binary-layer,
-  .theme-solaris-architect .binary-layer {
-    filter: invert(1); 
   }
 
   /* src/styles/global.css */
@@ -445,24 +398,6 @@ a, button, [role="button"] {
     height: 0px;
     background-color: hsl(var(--accent-muted));
     filter: brightness(0.4);
-  }
-
-  /* --- INVERTED SECTION OVERRIDES --- */
-  /* 1. Force main headings to be Primary (Teal) */
-  .section-inverted h2,
-  .section-inverted h3 {
-    color: hsl(var(--primary)) !important;
-  }
-
-  /* 2. Force ConceptGrid card titles to be Primary */
-  .section-inverted .concept-card h3 {
-    color: hsl(var(--primary)) !important;
-  }
-  
-  /* 3. Optional: Make the small eyebrow text white/primary to stand out */
-  .section-inverted .text-eyebrow {
-    color: hsl(var(--primary)) !important;
-    opacity: 1;
   }
 }
 

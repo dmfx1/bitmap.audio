@@ -2,29 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-export default function Hero() {
+// ── HERO IMAGE CONFIG ─────────────────────────────────────────────────────────
+// Flip the hero image horizontally — change this line or pass heroFlipped prop.
+const HERO_IMAGE_FLIPPED_DEFAULT = false;
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface HeroProps {
+  heroFlipped?: boolean;
+  imageSrc?: string;
+}
+
+export default function Hero({ heroFlipped = HERO_IMAGE_FLIPPED_DEFAULT, imageSrc }: HeroProps) {
   const [phase, setPhase] = useState<'idle' | 'grow' | 'expand' | 'active'>('idle');
-  // Individual states for precise text control
   const [activeText, setActiveText] = useState<'syncing' | 'connection' | 'activated' | null>(null);
 
   useEffect(() => {
-    // 1. MECHANICAL: Start growing the center line
-    const tGrow = setTimeout(() => setPhase('grow'), 600);
-    
-    // 2. TEXT: "Syncing" appears once the line is roughly half-way up (~400ms after grow starts)
-    const tSyncText = setTimeout(() => setActiveText('syncing'), 600);
-    
-    // 3. MECHANICAL: Expansion begins
-    const tExpand = setTimeout(() => setPhase('expand'), 1800);
-    
-    // 4. TEXT: "Connection" appears only AFTER the breakout is well underway
-    const tConnText = setTimeout(() => setActiveText('connection'), 2400);
-    
-    // 5. MECHANICAL: Wave activates
-    const tActive = setTimeout(() => setPhase('active'), 3400);
-    
-    // 6. TEXT: "Activated" appears as a final confirmation after the wave stabilizes
-    const tActiveText = setTimeout(() => setActiveText('activated'), 3600);
+    const tGrow      = setTimeout(() => setPhase('grow'),                600);
+    const tSyncText  = setTimeout(() => setActiveText('syncing'),        600);
+    const tExpand    = setTimeout(() => setPhase('expand'),             1800);
+    const tConnText  = setTimeout(() => setActiveText('connection'),    2400);
+    const tActive    = setTimeout(() => setPhase('active'),             3400);
+    const tActiveText = setTimeout(() => setActiveText('activated'),    3600);
 
     return () => {
       [tGrow, tSyncText, tExpand, tConnText, tActive, tActiveText].forEach(clearTimeout);
@@ -32,25 +30,56 @@ export default function Hero() {
   }, []);
 
   return (
-      <div className="w-full"> {/* Changed from section to div */}
-        <div className="mx-auto py-8 px-4 md:pl-24 flex flex-col md:flex-row items-center justify-between gap-16 min-h-[80vh]">
-          
-          {/* TEXT CONTENT */}
-          <div className="flex-1 space-y-8 animate-fade-in-up">
-            <div className="space-y-4">
-              <p className="text-eyebrow text-sm tracking-[0.4em]">Sonic Architecture</p>
-              <h1 className="heading-hero md:text-7xl">
-                Where data <br /> meets 
-                <span className={`text-accent font-medium block md:inline ${phase === 'active' ? 'pulse-sync-active' : ''}`}>
-                  <br className="hidden md:block" /> emotion
-                </span>
-              </h1>
-            </div>
-            <p className="text-body-muted max-w-base text-xl">
-              We architect sonic experiences that bridge the gap between digital interfaces and human perception.
-            </p>
-            
-            <div className="flex items-stretch gap-4 w-full max-w-xl">
+    <div className="w-full relative overflow-hidden">
+
+      {/* ── HERO IMAGE — background, right half, bleeds below frame ──────── */}
+      {/* CSS mask fades the left edge to transparent — full colour/brightness on the right */}
+      <div
+        className="absolute inset-y-0 right-0 w-full md:w-[66%] pointer-events-none z-0"
+        style={{
+          WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 50%)',
+          maskImage: 'linear-gradient(to right, transparent 0%, black 50%)',
+        }}
+      >
+        <img
+          src={imageSrc ?? "/images/heroes/hero-data-meets-emotion-07.webp"}
+          alt=""
+          decoding="async"
+          loading="eager"
+          className="w-full h-full object-cover object-center"
+          style={{ transform: heroFlipped ? 'scaleX(-1)' : 'none' }}
+        />
+        {/* Bottom fade — dissolves image into background before the hard clip edge */}
+        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background to-transparent pointer-events-none z-10" />
+      </div>
+
+      {/* ── CONTENT ───────────────────────────────────────────────────────── */}
+      {/* Single left-aligned column — hero image bleeds in from right as absolute background */}
+      <div className="relative z-10 py-8 px-4 md:pl-24 flex flex-col justify-center min-h-[80vh]">
+
+        <div className="flex flex-col space-y-8 animate-fade-in-up md:max-w-[52%]">
+
+          {/* HEADLINE */}
+          <div className="space-y-4">
+            <p className="text-eyebrow text-sm tracking-[0.4em]">Sonic Architecture</p>
+            <h1 className="heading-hero md:text-7xl">
+              Where data <br /> meets
+              <span className={`text-accent font-medium block md:inline ${phase === 'active' ? 'pulse-sync-active' : ''}`}>
+                <br className="hidden md:block" /> emotion
+              </span>
+            </h1>
+          </div>
+
+          {/* BODY */}
+          <p className="text-body-muted max-w-base text-xl">
+            We architect sonic experiences that bridge the gap between digital interfaces and human perception.
+          </p>
+
+          {/* SHARED WIDTH CONTAINER — constrains both buttons and visualizer to the same max width */}
+          <div className="w-full max-w-xl">
+
+            {/* CTA BUTTONS */}
+            <div className="flex items-stretch gap-4 w-full">
               <a href="/about" className="flex-1">
                 <Button variant="default" size="xl" className="rounded-none w-full text-xs md:text-base">
                   OUR STORY
@@ -62,30 +91,32 @@ export default function Hero() {
                 </Button>
               </a>
             </div>
-          </div>
 
-          {/* VISUALIZER SECTION */}
-          <div className="flex-1 flex flex-col items-center justify-center">
-            <div className={`visualizer-stage phase-${phase}`}>
-              <div className="relative w-full h-[40px] flex items-center justify-center">
-                {[...Array(36)].map((_, i) => (
-                  <div 
-                    key={i} 
-                    className="bar-element" 
-                    style={{ '--i': i } as React.CSSProperties} 
-                  />
-                ))}
-              </div>
-              
-              {/* The label uses activeText for content and a long duration for smooth transitions */}
-              <div className={`status-label transition-all duration-1000 ${activeText ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
-                {activeText === 'activated' ? "Activated" : 
-                activeText === 'connection' ? "Connecting" : 
-                activeText === 'syncing' ? "Syncing" : ""}
+            {/* VISUALIZER — desktop only, fills shared container width */}
+            <div className="hidden md:hidden flex-col w-full mt-8">
+              <div className={`visualizer-stage phase-${phase}`}>
+                <div className="relative w-full h-[40px] flex items-center justify-center">
+                  {[...Array(36)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="bar-element"
+                      style={{ '--i': i } as React.CSSProperties}
+                    />
+                  ))}
+                </div>
+                <div className={`status-label transition-all duration-1000 ${activeText ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
+                  {activeText === 'activated' ? "Activated" :
+                   activeText === 'connection' ? "Connecting" :
+                   activeText === 'syncing' ? "Syncing" : ""}
+                </div>
               </div>
             </div>
+
           </div>
+          {/* END SHARED WIDTH CONTAINER */}
+
         </div>
       </div>
+    </div>
   );
 }

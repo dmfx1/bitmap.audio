@@ -2,22 +2,92 @@
 import Layout from '../layouts/Layout.astro';
 import { Button } from "@/components/ui/button";
 
-// The 11 sections mapped strictly for the sidebars
+// ═══════════════════════════════════════════════════════════════════════════════
+// SLIDE CONFIG — edit widths, animation timings, and key values here.
+// Do not edit anywhere else for these values.
+//
+// width:      desktop slide width (vw string). Mobile is always "100vw".
+//             Changing this here automatically updates layout + GSAP timing.
+//
+// anim:       scroll-driven animation timing, as viewport-width multipliers
+//             relative to each slide's left edge.
+//             Negative = before slide enters screen (-0.9 = 90vw ahead of entry).
+//             Positive = after slide left edge has passed viewport left edge.
+//             Rule: start ≈ -0.9 (just entering right), end ≈ -0.2 to 0 (at mid-screen).
+//             scrub: how elastic the animation feels on scroll (0.1 = snappy, 1 = laggy).
+//
+// counter:    for animated number values (ROI, success ring) — change the numbers here.
+// ═══════════════════════════════════════════════════════════════════════════════
 const sections = [
-  { id: "00", label: "Status" },
-  { id: "01", label: "Context" },
-  { id: "02", label: "Architecture" },
-  { id: "03", label: "Neurology.Processing" },
-  { id: "04", label: "Neurology.Memory" },
-  { id: "05", label: "Metrics" },
-  { id: "06", label: "Conversion" },
-  { id: "07", label: "Credibility" },
-  { id: "08", label: "Perception" },
-  { id: "09", label: "Culture" },
-  { id: "10", label: "Asset.Ownership" },
-  { id: "11", label: "Belief" },
-  { id: "12", label: "Execution" }
+  { id: "00", label: "Status",               width: "90vw"  },
+  { id: "01", label: "Context",              width: "66vw",  anim: {
+    trainFade:   { start: -0.5,  end: -0.0,  scrub: 1 },
+  }},
+  { id: "02", label: "Architecture",         width: "110vw", anim: {
+    nodes:       { start: -0.85, end: 0.5, scrub: 0.5 },
+    paths:       { start: -0.75, end: 0.3, scrub: 0.5 },
+  }},
+  { id: "03", label: "Neurology.Processing", width: "200vw", anim: {
+    tigerFocus:  { start: -0.5,  end:  1.5,  scrub: 1 },
+  }},
+  { id: "04", label: "Neurology.Memory",     width: "100vw", anim: {
+    visualsFade: { start: -0.85, end: -0.2,  scrub: 0.5 },
+    soundGrow:   { start: -0.8,  end: -0.1,  scrub: 0.5 },
+    vibration:   { start: -0.5,  end:  1.0,  scrub: 0.5 },
+  }},
+  { id: "05", label: "Metrics",              width: "150vw", anim: {
+    pressureLine: { start: -0.4, end: -0.1, scrub: 0.5 },
+    statCards:    { start: -0.5, end: -0.0, scrub: 0, cardSpacing: 300 },
+  }},
+  { id: "06", label: "Conversion",           width: "75vw",  anim: {
+    roiGrow: { start: -0.8, end: 0.3, scrub: 1 },
+  }},
+  { id: "07", label: "Credibility",          width: "75vw"  },
+  { id: "08", label: "Perception",           width: "100vw" },
+  { id: "09", label: "Culture",              width: "125vw" },
+  { id: "10", label: "Asset.Ownership",      width: "125vw" },
+  { id: "11", label: "Belief",               width: "75vw"  },
+  { id: "12", label: "Execution",            width: "100vw" },
 ];
+
+// Separate tunables for counter animations (not tied to a sidebar entry)
+const COUNTERS = {
+  roi: {
+    from: 1.0, to: 4.0, decimals: 1,
+    // timing: vw multipliers relative to roi-section's left edge
+    start: -0.7,   // counter starts when roi-section is 30vw before its left edge enters screen
+    end: -0.3,      // counter finishes when roi-section has scrolled 60vw past screen left
+    scrub: true,   // must be true (not a number) — numeric scrub lags and counter never reaches target
+  },
+  success: {
+    to: 25,
+    start: -0.7,   // ring starts filling when section is 25vw past screen left
+    end: -0.2,     // ring reaches target at 95vw past screen left
+    scrub: true,   // must be true — numeric scrub causes ring to freeze short of 25%
+  },
+};
+// Word highlight config — words that shift colour as their slide scrolls in.
+// 'words' must match id="hl-{word}" attributes added to <span> elements in the template.
+// start/end: vw multipliers relative to the slide's left edge (same convention as anim entries).
+const HIGHLIGHTS = {
+  untapped: {
+    words: ["untapped", "loyalty", "purchasing", "decisions", "opportunity"],
+    start: -0.8, end: -0.1, scrub: 0.5,
+    scaleOnly: ["opportunity"],   // stays amber — subtle scale pulse only, no colour change
+  },
+  belief: {
+    words: ["believe", "power"],
+    start: -0.8, end: -0.2, scrub: 0.5,
+  },
+};
+
+// Global config — tune values that affect the overall scroll experience.
+const CONFIG = {
+  // How many px short of full horizontal travel the strip parks.
+  // Increase in increments of 100 until SLIDE-13 heading is centred when vertical scroll takes over.
+  stripEndOffset: 0,
+};
+// ═══════════════════════════════════════════════════════════════════════════════
 ---
 
 {/*
@@ -81,16 +151,16 @@ const sections = [
                "Your brand is Muted." | data-sidebar="0"
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-00 | Status | w-screen -->
-          <section data-sidebar="0" class="relative w-[75vw] h-full flex-shrink-0 flex flex-col justify-center items-center pl-4 pr-4 group bg-background z-10 mobile:pl-0">
+          <section data-sidebar="0" class="relative h-full flex-shrink-0 flex flex-col justify-center items-center pl-4 pr-4 group bg-background z-10 mobile:pl-0">
             <!-- Mobile background image — woman reading, bottom-right -->
             <div class="md:hidden absolute bottom-0 right-0 w-[75vw] h-[70vh] pointer-events-none z-0">
-              <img src="/images/listening.woman2.emptyBook.png" alt=""
+              <img src="/images/listening.woman2.emptyBook.webp" decoding="async" alt=""
                    class="w-full h-full object-contain object-right-bottom opacity-40" />
             </div>
             <div class="mobile:hidden absolute -right-20 bottom-0 text-[35vw] font-mono font-bold text-muted/5 select-none pointer-events-none transition-transform duration-1000 group-hover:scale-105 z-0">00</div>
             <!-- 12-col container: pl-24 clears the 96px sidebar; pr-6 matches nav right padding -->
             <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
-              <div data-sidebar-anchor class="relative z-10 pl-8 md:pl-0 py-2 md:col-start-3 md:col-span-9">
+              <div data-sidebar-anchor class="relative z-10 pl-8 md:pl-0 py-2 md:col-start-2 md:col-span-9">
                 <span class="text-eyebrow text-sm mb-8 mobile:mb-3 block">[ Status // Critical ]</span>
                 <h2 class="font-mono text-6xl mobile:text-5xl md:text-[8vw] leading-[0.9] tracking-tighter mb-12 mobile:mb-6 uppercase text-foreground">
                   Your brand<br/>is <span class="text-accent drop-shadow-[0_0_20px_hsl(var(--accent)/0.3)]">Muted.</span>
@@ -115,9 +185,9 @@ const sections = [
           <section class="hidden md:flex w-[50vw] h-full md:items-center flex-shrink-0 relative bg-background z-10">
             <div class="absolute top-0 left-0 w-full h-full flex items-end justify-start pointer-events-none opacity-80 mix-blend-screen z-0">
               <div class="relative w-full max-w-2xl -mb-10">
-                <img id="base-hands-layer" src="/images/listening.woman2.emptyHands.png" alt="Woman listening" class="w-full h-auto object-contain object-bottom" />
-                <img id="book-fade-layer" src="/images/listening.woman2.emptyBook.png" alt="Book appearing" class="absolute inset-0 w-full h-auto object-contain object-bottom opacity-0" />
-                <img id="phone-fade-layer" src="/images/listening.woman2.png" alt="Phone disappearing" class="absolute inset-0 w-full h-auto object-contain object-bottom opacity-0" />
+                <img id="base-hands-layer" src="/images/listening.woman2.emptyHands.webp" decoding="async" alt="Woman listening" class="w-full h-auto object-contain object-bottom" />
+                <img id="book-fade-layer" src="/images/listening.woman2.emptyBook.webp" decoding="async" alt="Book appearing" class="absolute inset-0 w-full h-auto object-contain object-bottom opacity-0" />
+                <img id="phone-fade-layer" src="/images/listening.woman2.webp" decoding="async" alt="Phone disappearing" class="absolute inset-0 w-full h-auto object-contain object-bottom opacity-0" />
               </div>
             </div>
           </section>
@@ -129,12 +199,12 @@ const sections = [
                "When everyone is listening." + train fade | data-sidebar="1"
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-01 | Context | w-screen md:w-[50vw] -->
-          <section data-sidebar="1" class="w-screen md:w-[66vw] h-full flex-shrink-0 flex items-center relative group bg-background z-20">
+          <section data-sidebar="1" class="w-screen h-full flex-shrink-0 flex items-center relative group bg-background z-20">
 
             <div class="mobile:hidden absolute right-0 bottom-0 text-[35vw] font-mono font-bold text-muted/5 select-none pointer-events-none z-0">01</div>
 
             <div id="train-fade-layer" class="absolute bottom-0 right-0 w-[33vw] h-full z-0 opacity-0 pointer-events-none mix-blend-screen flex items-end justify-end">
-                <img src="/images/listening.woman2.train.png" alt="Woman and Train" class="w-full h-full object-contain object-right-bottom" />
+                <img src="/images/listening.woman2.train.webp" decoding="async" alt="Woman and Train" class="w-full h-full object-contain object-right-bottom" />
             </div>
 
             <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
@@ -159,7 +229,7 @@ const sections = [
                Tweak widths here: gap-left=12vw, text=28vw, svg=80vw, gap-right=30vw
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-02 | Architecture SVG | w-[100vw] -->
-          <section data-sidebar="2" class="w-[100vw] h-full flex-shrink-0 flex flex-row items-center border-r border-border/20 bg-primary/80 overflow-hidden group z-10 relative">
+          <section data-sidebar="2" class="w-screen h-full flex-shrink-0 flex flex-row items-center border-r border-border/20 bg-primary/80 overflow-hidden group z-10 relative">
 
             <!-- MOBILE: stacked layout — SVG behind, text in front -->
             <div class="md:hidden absolute inset-0 pointer-events-none z-0 opacity-30">
@@ -206,7 +276,7 @@ const sections = [
             <!-- DESKTOP: container/12-col — text at col-start-1 (clears sidebar); SVG absolute (full-bleed behind text) -->
 
             <!-- SVG diagram — absolute positioned, extends right from ~20vw within section, sits behind text (z-0) -->
-            <div class="hidden md:block absolute left-[25vw] top-[7.5vh] w-[80vw] h-[85vh] opacity-80 z-0">
+            <div class="hidden md:block absolute left-[35vw] top-[7.5vh] w-[80vw] h-[85vh] opacity-80 z-0">
               <svg viewBox="50 200 650 800" class="w-full h-full overflow-visible">
                 <g class="stroke-accent" fill="none" stroke-width="3" stroke-linecap="square" stroke-linejoin="miter">
                   <path class="data-path" d="M100,300 H200 V400 H100 Z" />
@@ -262,24 +332,25 @@ const sections = [
                Tiger blur-to-focus animation | data-sidebar="3"
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-03 | Neurology Processing | w-screen -->
-          <section data-sidebar="3" class="w-[200vw] h-full flex-shrink-0 grid grid-cols-1 border-r border-border/20 bg-card/30 overflow-hidden relative group z-10 mobile:pl-0">
+          <section data-sidebar="3" class="w-screen h-full flex-shrink-0 grid grid-cols-1 border-r border-border/20 bg-card/30 overflow-hidden relative group z-10 mobile:pl-0">
 
             <!-- Mobile background image — tiger, bottom-right -->
               <div class="md:hidden absolute bottom-0 right-0 w-[100vw] h-[100vh] pointer-events-none z-0">
-                <img src="/images/stalking.sabretooth.png" alt=""
+                <img src="/images/stalking.sabretooth.webp" decoding="async" alt=""
                     class="w-full h-full object-contain object-right-bottom opacity-40" />
               </div>
 
             <div class="absolute right-[40vw] -bottom-[20vh] w-[100vw] h-full flex items-start justify-end mix-blend-screen pointer-events-none z-0">
                <img 
-               id="tiger-focus-layer" 
-               src="/images/stalking.sabretooth.png" 
+               id="tiger-focus-layer"
+               src="/images/stalking.sabretooth.webp"
+               decoding="async"
                alt="Sabretooth snapping a twig"
                class="w-full h-auto object-contain object-right-bottom opacity-0 blur-[30px] transition-transform duration-1000 group-hover:scale-[1.02]" />
             </div>
 
             <div class="md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
-              <div data-sidebar-anchor class="flex flex-col items-end mobile:items-start justify-center mobile:pl-4 mobile:pr-4 relative z-10 border-l border-border/20 bg-background/20 md:col-start-3 md:col-span-4">
+              <div data-sidebar-anchor class="flex flex-col items-end mobile:items-start justify-center mobile:pl-4 mobile:pr-4 relative z-10 border-l border-border/20 bg-background/20 md:col-start-3 md:col-span-3">
                 <div class="border-l-2 border-accent bg-background/20 ml-0 pl-8 py-2">
                   <span class="text-eyebrow text-sm mb-8 mobile:mb-3 block text-accent">[ Neurology // Processing_Speed ]</span>
                   <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 mobile:mb-4 uppercase">Faster than<br/><span class="text-accent">Sight.</span></h2>
@@ -362,7 +433,7 @@ const sections = [
                Desktop uses hidden md:flex — mobile has separate slides below
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-05 | Metrics | w-screen | DESKTOP + MOBILE VARIANTS -->
-          <section id="metrics-section" data-sidebar="5" class="w-[150vw] h-full flex-shrink-0 hidden md:flex md:items-center relative border-r border-border/20 bg-card/20 overflow-hidden group z-10">
+          <section id="metrics-section" data-sidebar="5" class="w-screen h-full flex-shrink-0 hidden md:flex md:items-center relative border-r border-border/20 bg-card/20 overflow-hidden group z-10">
             <div class="md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
             <div data-sidebar-anchor class="w-full max-w-5xl border-l-2 border-accent pl-8 py-2 md:col-start-3 md:col-span-9 md:row-start-1">
               <span class="text-eyebrow text-sm mb-8 block">[ Metrics // Awareness ]</span>
@@ -445,7 +516,7 @@ const sections = [
                "Amplified ROI." text panel | data-sidebar="6"
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-06 | Conversion Text | w-screen md:w-[50vw] -->
-          <section data-sidebar="6" class="w-screen md:w-[75vw] h-full flex-shrink-0 flex flex-col justify-center border-r border-border/20 bg-background overflow-hidden relative z-10 mobile:pl-0">
+          <section data-sidebar="6" class="w-screen h-full flex-shrink-0 flex flex-col justify-center border-r border-border/20 bg-background overflow-hidden relative z-10 mobile:pl-0">
             <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
             <div data-sidebar-anchor class="flex flex-col justify-center mobile:pl-4 mobile:pr-4 relative z-10 md:col-start-3 md:col-span-7 md:row-start-1">
               <div class="pl-6 mobile:pl-4 py-2">
@@ -514,7 +585,7 @@ const sections = [
                "Subconscious Trust." text panel | data-sidebar="7"
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-07 | Credibility Text | w-screen -->
-          <section data-sidebar="7" class="w-[75vw] h-full flex-shrink-0 flex flex-col justify-center bg-foreground/90 overflow-hidden relative group z-10">
+          <section data-sidebar="7" class="w-screen h-full flex-shrink-0 flex flex-col justify-center bg-foreground/90 overflow-hidden relative group z-10">
             <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
             <div data-sidebar-anchor class="flex flex-col justify-center mobile:pl-4 mobile:pr-4 relative z-10 md:col-start-4 md:col-span-8 md:row-start-1">
               <div class="w-full md:max-w-2xl border-l-2 border-accent pl-8 py-2">
@@ -613,15 +684,15 @@ const sections = [
                NOTE: numbered 8.5 but appears after slide 09 in DOM order
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-8.5 | SME Opportunity | w-[66vw] | DESKTOP ONLY -->
-          <section class="hidden md:flex md:items-center w-screen bg-primary/10 h-full flex-shrink-0 border-l border-border/20 overflow-hidden relative group z-10">
+          <section id="slide-sme" class="hidden md:flex md:items-center w-screen bg-primary/10 h-full flex-shrink-0 border-l border-border/20 overflow-hidden relative group z-10">
             <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
               <div class="flex flex-col items-center justify-center relative overflow-hidden pointer-events-none z-10 text-center md:col-start-3 md:col-span-8">
                  <div class="absolute inset-0 bg-gradient-glow opacity-10"></div>
                  <h3 class="flex items-start font-mono w-full text-[2vw] leading-none text-foreground font-light tracking-tighter drop-shadow-md">
-                   An untapped opportunity for SME's
+                   An&nbsp;<span id="hl-untapped" class="inline-block">untapped</span>&nbsp;opportunity&nbsp;for&nbsp;SME's
                  </h3>
                  <br/>
-                 <span class="font-mono w-full text-foreground/50 tracking-[0.6em] uppercase mt-4 drop-shadow-md text-justify leading-[2em]">Sonic branding drives <span class="text-foreground text-lg">loyalty, equity, </span>and <span class="text-foreground text-lg">purchase decisions</span> — yet it remains the exclusive domain of global giants.<br/><br/><span class="text-foreground/80 text-xl">SME's make up 90% of businesses worldwide,</span> but most are leaving audio completely untapped.<br/><br/><span class="text-foreground text-base">That's not a gap.</span><br/><br/><span class="text-accent text-sm">That's an opportunity.</span></span>
+                 <span class="font-mono w-full text-foreground/50 tracking-[0.6em] uppercase mt-4 drop-shadow-md text-justify leading-[2em]">Sonic branding drives <span id="hl-loyalty" class="inline-block text-foreground text-lg">loyalty</span> and <span id="hl-purchasing" class="inline-block text-foreground text-lg">purchasing</span> <span id="hl-decisions" class="inline-block text-foreground text-lg">decisions</span> — yet it remains the exclusive domain of global giants.<br/><br/><span class="text-foreground/80 text-xl">SME's make up 90% of businesses worldwide,</span> but most are leaving audio completely untapped.<br/><br/><span class="text-foreground text-base">That's not a gap.</span><br/><br/><span id="hl-opportunity" class="inline-block text-accent text-sm">That's an opportunity.</span></span>
               </div>
             </div>
           </section>
@@ -633,7 +704,7 @@ const sections = [
                "Seamless cultural Resonance." | data-sidebar="10"
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-10 | Culture | w-screen md:w-[66vw] -->
-          <section data-sidebar="10" class="relative w-screen md:w-[125vw] h-full flex-shrink-0 flex flex-col justify-center group bg-background z-10 mobile:pl-0">
+          <section data-sidebar="10" class="relative w-screen h-full flex-shrink-0 flex flex-col justify-center group bg-background z-10 mobile:pl-0">
             <div class="mobile:hidden absolute -right-20 bottom-0 text-[35vw] font-mono font-bold text-muted/5 select-none pointer-events-none transition-transform duration-1000 group-hover:scale-105 z-0">00</div>
             <div class="md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
             <div data-sidebar-anchor class="relative z-10 pl-8 md:pl-0 py-2 md:col-start-4 md:col-span-6 md:row-start-1">
@@ -658,7 +729,7 @@ const sections = [
                Includes mobile-only 30% stat slide below
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-11 | Asset Ownership | w-screen | DESKTOP + MOBILE VARIANT -->
-          <section data-sidebar="11" class="w-[125vw] h-full flex-shrink-0 flex flex-col justify-center items-center mobile:items-start text-left mobile:pl-4 mobile:pr-4 relative border-r border-border/20 bg-primary/5 overflow-hidden group z-10">
+          <section data-sidebar="11" class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center mobile:items-start text-left mobile:pl-4 mobile:pr-4 relative border-r border-border/20 bg-primary/5 overflow-hidden group z-10">
             <div class="md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
             <div data-sidebar-anchor class="pl-8 md:pl-0 py-2 z-10 mobile:border-l-2 mobile:border-accent md:col-start-4 md:col-span-8 md:row-start-1">
               <span class="text-eyebrow text-sm mb-8 block">[ Asset // Ownership ]</span>
@@ -697,14 +768,14 @@ const sections = [
                "Trust in the power of sound." | data-sidebar="12"
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-12 | Belief | w-screen md:w-[66vw] -->
-          <section data-sidebar="12" class="w-screen md:w-[75vw] h-full flex-shrink-0 md:flex md:items-center border-r border-border/20 bg-accent overflow-hidden relative group z-10 mobile:pl-0">
+          <section data-sidebar="12" class="w-screen h-full flex-shrink-0 md:flex md:items-center border-r border-border/20 bg-accent overflow-hidden relative group z-10 mobile:pl-0">
             <div class="md:container md:mx-auto md:pl-36 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
             <div data-sidebar-anchor class="flex flex-col justify-center mobile:pl-4 mobile:pr-4 relative z-10 md:col-start-3 md:col-span-8 md:row-start-1">
               <div class="border-l-2 border-accent pl-8 py-2">
                 <span class="text-eyebrow text-sm text-background mb-8 block">[ Belief // Power ]</span>
                 <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 uppercase">Tap into the <br/><span class="text-background text-8xl font-bold drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">subconscious</span></h2>
                 <div class="mr-32">
-                  <p class="text-right text-2xl text-foreground/50 uppercase"><span class="text-background/50">Believe</span> in the <span class="text-background/50">power</span> of sound.</p>
+                  <p class="text-right text-2xl text-foreground/50 uppercase"><span id="hl-believe" class="text-background/50">Believe</span> in the <span id="hl-power" class="text-background/50">power</span> of sound.</p>
                 </div>
               </div>
               <div>
@@ -762,6 +833,16 @@ const sections = [
 
     <!-- End-of-journey screen -->
     <div id="end-screen" class="h-svh flex flex-col items-center justify-center gap-8 bg-background relative overflow-hidden">
+
+      <!-- Sidebar continuation — visually extends #sidebar-track into the end screen -->
+      <div class="absolute left-0 top-0 w-24 h-full z-50 pointer-events-none hidden md:flex flex-col items-center justify-center gap-8 border-r border-border/20 bg-background/80 backdrop-blur-md shadow-[20px_0_40px_-15px_rgba(0,0,0,0.5)]">
+        <span class="font-mono text-muted-foreground text-[10px] tracking-widest rotate-180 [writing-mode:vertical-lr] uppercase">Initiate</span>
+        <div class="h-48 w-[1px] bg-border/30 relative">
+          <div id="end-indicator-line" class="absolute top-0 w-[3px] -left-[1px] bg-accent shadow-[0_0_15px_hsl(var(--accent))] origin-top scale-y-0"></div>
+        </div>
+        <span class="font-mono text-accent text-[10px]">13</span>
+      </div>
+
       <svg id="end-logo" width="48" height="56" viewBox="-1 0.5 7 8" shape-rendering="crispEdges" fill="hsl(var(--primary))" stroke="hsl(var(--primary))" stroke-width="0.25" class="animate-pulse-glow-svg" aria-hidden="true">
         <rect x="0" y="1" width="1" height="1" />
         <rect x="1" y="2" width="1" height="5" />
@@ -771,11 +852,11 @@ const sections = [
       </svg>
       <p class="font-mono text-xs uppercase tracking-[0.4em] text-muted-foreground">bitmap.audio</p>
       <div class="flex flex-col items-center gap-4 mt-4">
-        <a href="/home" class="font-mono text-xs uppercase tracking-widest text-accent hover:brightness-125 transition-all">
+        <a href="/home" class="font-mono text-sm w-full uppercase tracking-widest text-accent hover:brightness-125 border border-primary p-2 transition-all">
           ← Return to Site
         </a>
-        <a href="/contact" class="font-mono text-sm uppercase tracking-widest text-primary/60 hover:text-primary transition-colors">
-          Start a Project
+        <a href="/contact" class="font-mono text-sm w-full uppercase tracking-widest text-primary hover:brightness-125 border border-accent p-2 transition-colors">
+          Start a Project → 
         </a>
       </div>
     </div>
@@ -783,6 +864,13 @@ const sections = [
 
   {/* returns2.astro — Grid layout rebuild complete. All slides use CSS Grid fractional columns. Review with dom before merging back to returns.astro. */}
 </Layout>
+
+<script define:vars={{ sections, COUNTERS, HIGHLIGHTS, CONFIG }} is:inline>
+  window.__SECTIONS__ = sections;
+  window.__COUNTERS__ = COUNTERS;
+  window.__HIGHLIGHTS__ = HIGHLIGHTS;
+  window.__CONFIG__ = CONFIG;
+</script>
 
 <script>
   import { gsap } from "gsap";
@@ -836,6 +924,46 @@ const sections = [
 
     if (!strip || !track) return;
 
+    const config = (window as any).__CONFIG__ as { stripEndOffset: number };
+    const highlights = (window as any).__HIGHLIGHTS__;
+
+    // Read config bridged from Astro frontmatter via window.__SECTIONS__ / window.__COUNTERS__
+    const sectionConfig = (window as any).__SECTIONS__ as Array<{
+      id: string; label: string; width?: string;
+      anim?: Record<string, { start: number; end: number; scrub?: number }>;
+    }>;
+    const counters = (window as any).__COUNTERS__ as {
+      roi: { from: number; to: number; decimals: number; start: number; end: number; scrub?: number };
+      success: { to: number; start: number; end: number; scrub?: number };
+    };
+
+    // Returns the timing entry for a given slide id + animation key, or null if not configured.
+    const anim = (id: string, key: string) =>
+      sectionConfig?.find(s => s.id === id)?.anim?.[key] ?? null;
+
+    // Shared sorted list of all [data-sidebar] sections — used by both applyWidths and sidebar logic.
+    // Must be defined before applyWidths so the resize handler can reuse the same reference.
+    const sidebarSections = (Array.from(strip.querySelectorAll('[data-sidebar]')) as HTMLElement[])
+      .sort((a, b) => parseInt(a.dataset.sidebar!) - parseInt(b.dataset.sidebar!));
+
+    // Apply desktop slide widths from config. Uses positional mapping (same as sidebar script)
+    // to avoid data-sidebar ID gaps and leading-zero mismatches.
+    const applyWidths = () => {
+      sectionConfig?.forEach((sec, i) => {
+        if (!sec.width || !sidebarSections[i]) return;
+        sidebarSections[i].style.width = window.innerWidth >= 768 ? sec.width : '100vw';
+      });
+    };
+    applyWidths();
+    let resizeTimer: ReturnType<typeof setTimeout>;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        applyWidths();
+        ScrollTrigger.refresh();
+      }, 150);
+    });
+
     const isMobile = window.innerWidth < 768;
 
     if (isMobile) {
@@ -849,9 +977,9 @@ const sections = [
     }
 
     // Converts a horizontal strip position to an absolute vertical scroll position.
-    // Hoisted here so all animation blocks share it — replaces three duplicate definitions below.
+    // Accounts for stripEndOffset so the strip parks short of full travel when configured.
     const getScrollPos = (horizontalPos: number) => {
-      const totalHorizontal = strip.scrollWidth - window.innerWidth;
+      const totalHorizontal = strip.scrollWidth - window.innerWidth - (config?.stripEndOffset ?? 0);
       const totalVertical = track.offsetHeight - window.innerHeight;
       return (horizontalPos / totalHorizontal) * totalVertical;
     };
@@ -869,9 +997,11 @@ const sections = [
     const slide02 = document.querySelector('[data-sidebar="2"]') as HTMLElement | null;
     const slide03 = document.querySelector('[data-sidebar="3"]') as HTMLElement | null;
     const slide04 = document.querySelector('[data-sidebar="4"]') as HTMLElement | null;
+    const slide06 = document.querySelector('[data-sidebar="6"]') as HTMLElement | null;
+    const t06r = anim("06", "roiGrow");
 
     gsap.to(strip, {
-      x: () => -(strip.scrollWidth - window.innerWidth),
+      x: () => -(strip.scrollWidth - window.innerWidth - (config?.stripEndOffset ?? 0)),
       ease: "none",
       scrollTrigger: {
         trigger: track,
@@ -898,21 +1028,15 @@ const sections = [
     // then resize asides and set indicator triggers to match those real positions.
     const sidebarEl = document.getElementById('sidebar-track') as HTMLElement;
     const sidebarAsides = sidebarEl ? (Array.from(sidebarEl.querySelectorAll('aside')) as HTMLElement[]) : [];
-    const sidebarSections = (Array.from(strip.querySelectorAll('[data-sidebar]')) as HTMLElement[])
-      .sort((a, b) => parseInt(a.dataset.sidebar!) - parseInt(b.dataset.sidebar!));
 
-    const totalH = strip.scrollWidth - window.innerWidth;
+    const totalH = strip.scrollWidth - window.innerWidth - (config?.stripEndOffset ?? 0);
     const totalV = track.offsetHeight - window.innerHeight;
 
     // Vertical scroll position at which each section's content anchor is horizontally centered.
-    // Uses [data-sidebar-anchor] on the text wrapper when present; falls back to section geometric center.
-    const sectionScrollPos = sidebarSections.map(sec => {
-      const anchor = sec.querySelector('[data-sidebar-anchor]') as HTMLElement | null;
-      const centerH = anchor
-        ? sec.offsetLeft + anchor.offsetLeft + anchor.offsetWidth / 2 - window.innerWidth / 2
-        : sec.offsetLeft + sec.offsetWidth / 2 - window.innerWidth / 2;
-      return Math.max(0, (centerH / totalH) * totalV);
-    });
+    // Uses anchorCenter() which prefers [data-sidebar-anchor] and falls back to section geometric center.
+    const sectionScrollPos = sidebarSections.map(sec =>
+      Math.max(0, (anchorCenter(sec) / totalH) * totalV)
+    );
 
     // Resize each aside so its vertical center is at the viewport midpoint
     // exactly when scrollY equals that section's horizontal center position.
@@ -1015,6 +1139,7 @@ const sections = [
     }
 
     // Train fade: starts as SLIDE-01 enters from the right; resolves when text anchor reaches centre
+    const t01 = anim("01", "trainFade");
     if (trainFadeLayer && slide01) {
       gsap.fromTo(trainFadeLayer,
         { opacity: 0 },
@@ -1023,20 +1148,24 @@ const sections = [
           ease: "none",
           scrollTrigger: {
             trigger: track,
-            start: () => `${getScrollPos(slide01.offsetLeft - window.innerWidth * 0.9)}px top`,
-            end: () => `${getScrollPos(anchorCenter(slide01))}px top`,
-            scrub: true,
+            start: () => `${getScrollPos(slide01.offsetLeft + (t01?.start ?? -0.9) * window.innerWidth)}px top`,
+            end: () => `${getScrollPos(slide01.offsetLeft + (t01?.end ?? -0.3) * window.innerWidth)}px top`,
+            scrub: t01?.scrub ?? true,
+            invalidateOnRefresh: true,
           }
         }
       );
     }
 
     if (dataPaths.length > 0) {
-      
+
       dataPaths.forEach((path: any) => {
         const length = path.getTotalLength();
         gsap.set(path, { strokeDasharray: length, strokeDashoffset: length });
       });
+
+      const t02n = anim("02", "nodes");
+      const t02p = anim("02", "paths");
 
       // 1. FADE THE NODES — reveal as SLIDE-02 enters; done before anchor reaches centre
       gsap.fromTo(dataNodes,
@@ -1047,9 +1176,10 @@ const sections = [
           ease: "none",
           scrollTrigger: {
             trigger: track,
-            start: () => slide02 ? `${getScrollPos(slide02.offsetLeft - window.innerWidth * 0.9)}px top` : "top top",
-            end: () => slide02 ? `${getScrollPos(anchorCenter(slide02) - window.innerWidth * 0.1)}px top` : "top top",
-            scrub: true,
+            start: () => slide02 ? `${getScrollPos(slide02.offsetLeft + (t02n?.start ?? -0.85) * window.innerWidth)}px top` : "top top",
+            end: () => slide02 ? `${getScrollPos(slide02.offsetLeft + (t02n?.end ?? -0.55) * window.innerWidth)}px top` : "top top",
+            scrub: t02n?.scrub ?? true,
+            invalidateOnRefresh: true,
           }
         }
       );
@@ -1061,14 +1191,16 @@ const sections = [
         ease: "power1.inOut",
         scrollTrigger: {
           trigger: track,
-          start: () => slide02 ? `${getScrollPos(slide02.offsetLeft - window.innerWidth * 0.8)}px top` : "top top",
-          end: () => slide02 ? `${getScrollPos(anchorCenter(slide02) + window.innerWidth * 0.3)}px top` : "top top",
-          scrub: true,
+          start: () => slide02 ? `${getScrollPos(slide02.offsetLeft + (t02p?.start ?? -0.75) * window.innerWidth)}px top` : "top top",
+          end: () => slide02 ? `${getScrollPos(slide02.offsetLeft + (t02p?.end ?? -0.35) * window.innerWidth)}px top` : "top top",
+          scrub: t02p?.scrub ?? true,
+          invalidateOnRefresh: true,
         }
       });
     }
 
     // Tiger blur-to-focus: starts entering from right, resolves sharp at anchor centre + half a screen
+    const t03 = anim("03", "tigerFocus");
     if (tigerFocusLayer && slide03) {
       gsap.fromTo(tigerFocusLayer,
         { opacity: 0, filter: "blur(30px)" },
@@ -1079,13 +1211,18 @@ const sections = [
           ease: "power2.out",
           scrollTrigger: {
             trigger: track,
-            start: () => `${getScrollPos(slide03.offsetLeft - window.innerWidth * 0.9)}px top`,
-            end: () => `${getScrollPos(anchorCenter(slide03) + window.innerWidth * 0.5)}px top`,
-            scrub: true,
+            start: () => `${getScrollPos(slide03.offsetLeft + (t03?.start ?? -0.8) * window.innerWidth)}px top`,
+            end: () => `${getScrollPos(slide03.offsetLeft + (t03?.end ?? 0.1) * window.innerWidth)}px top`,
+            scrub: t03?.scrub ?? true,
+            invalidateOnRefresh: true,
           }
         }
       );
     }
+
+    const t04v = anim("04", "visualsFade");
+    const t04s = anim("04", "soundGrow");
+    const t04vib = anim("04", "vibration");
 
     // "Visuals Fade" text: dims out as SLIDE-04 settles into view
     if (visualsFadeText && slide04) {
@@ -1096,9 +1233,10 @@ const sections = [
           ease: "none",
           scrollTrigger: {
             trigger: track,
-            start: () => `${getScrollPos(slide04.offsetLeft - window.innerWidth * 0.1)}px top`,
-            end: () => `${getScrollPos(slide04.offsetLeft + window.innerWidth * 0.3)}px top`,
-            scrub: true,
+            start: () => `${getScrollPos(slide04.offsetLeft + (t04v?.start ?? -0.85) * window.innerWidth)}px top`,
+            end: () => `${getScrollPos(slide04.offsetLeft + (t04v?.end ?? -0.2) * window.innerWidth)}px top`,
+            scrub: t04v?.scrub ?? true,
+            invalidateOnRefresh: true,
           }
         }
       );
@@ -1113,9 +1251,10 @@ const sections = [
           ease: "none",
           scrollTrigger: {
             trigger: track,
-            start: () => `${getScrollPos(slide04.offsetLeft - window.innerWidth * 0.05)}px top`,
-            end: () => `${getScrollPos(anchorCenter(slide04) + window.innerWidth * 0.2)}px top`,
-            scrub: true,
+            start: () => `${getScrollPos(slide04.offsetLeft + (t04s?.start ?? -0.8) * window.innerWidth)}px top`,
+            end: () => `${getScrollPos(slide04.offsetLeft + (t04s?.end ?? -0.1) * window.innerWidth)}px top`,
+            scrub: t04s?.scrub ?? true,
+            invalidateOnRefresh: true,
           }
         }
       );
@@ -1128,12 +1267,36 @@ const sections = [
         ease: "sine.inOut",
         scrollTrigger: {
           trigger: track,
-          start: () => `${getScrollPos(slide04.offsetLeft - window.innerWidth * 0.1)}px top`,
-          end: () => `${getScrollPos(anchorCenter(slide04) + slide04.offsetWidth * 0.5)}px top`,
-          toggleActions: "play pause resume pause"
+          start: () => `${getScrollPos(slide04.offsetLeft + (t04vib?.start ?? -0.5) * window.innerWidth)}px top`,
+          end: () => `${getScrollPos(slide04.offsetLeft + (t04vib?.end ?? 1.0) * window.innerWidth)}px top`,
+          toggleActions: "play pause resume pause",
+          invalidateOnRefresh: true,
         }
       });
     }
+
+    // SLIDE-06: "ROI." word grows as the Conversion slide enters — resolves before roiTl takes over
+    const roiWordEl = document.getElementById('roi-word');
+    if (slide06 && roiWordEl) {
+      gsap.fromTo(roiWordEl,
+        { scale: 0.4, opacity: 0.3 },
+        {
+          scale: 1, opacity: 1,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: track,
+            start: () => `${getScrollPos(slide06.offsetLeft + (t06r?.start ?? -0.8) * window.innerWidth)}px top`,
+            end:   () => `${getScrollPos(slide06.offsetLeft + (t06r?.end   ??  0.3) * window.innerWidth)}px top`,
+            scrub: t06r?.scrub ?? 0.5,
+            invalidateOnRefresh: true,
+          }
+        }
+      );
+    }
+
+    const slide05 = document.querySelector('[data-sidebar="5"]') as HTMLElement;
+    const t05pl = anim("05", "pressureLine");
+    const t05sc = anim("05", "statCards");
 
     if (metricsSection && pressureLine && statCards.length > 0) {
 
@@ -1145,31 +1308,31 @@ const sections = [
           ease: "none",
           scrollTrigger: {
             trigger: track,
-            // Start drawing when section is entering
-            start: () => `${getScrollPos(metricsSection.offsetLeft - window.innerWidth * 0.4)}px top`,
-            // Finish drawing exactly when centered
-            end: () => `${getScrollPos(metricsSection.offsetLeft - window.innerWidth * 0.1)}px top`,
-            scrub: true,
+            start: () => `${getScrollPos(metricsSection.offsetLeft + (t05pl?.start ?? -0.4) * window.innerWidth)}px top`,
+            end: () => `${getScrollPos(metricsSection.offsetLeft + (t05pl?.end ?? -0.1) * window.innerWidth)}px top`,
+            scrub: t05pl?.scrub ?? true,
+            invalidateOnRefresh: true,
           }
         }
       );
 
       // 2. Slide the Cards out horizontally (Locked to physical screen center)
       if (statCards.length > 1) {
-        
-        // Calculate the total physical distance the cards will fan out (300px per card)
-        const cardOffset = 300;
+
+        // Calculate the total physical distance the cards will fan out
+        const cardOffset = (t05sc as any)?.cardSpacing ?? 300;
         const maxDealDistance = (statCards.length - 1) * cardOffset; 
         
         // Create a single timeline to sequence the animations
         const cardTimeline = gsap.timeline({
           scrollTrigger: {
             trigger: track,
-            // START: When the base card hits exactly the center of the screen
-            start: () => `${getScrollPos(metricsSection.offsetLeft - window.innerWidth * 0.2)}px top`,
-            // END: Exactly when the physical location of the final card hits the center
+            // START: when base card is near centre (configurable via t05sc.start)
+            start: () => `${getScrollPos(metricsSection.offsetLeft + (t05sc?.start ?? -0.2) * window.innerWidth)}px top`,
+            // END: stays dynamic — computed from the physical card spread
             end: () => `${getScrollPos(metricsSection.offsetLeft + maxDealDistance - window.innerWidth * 0.5)}px top`,
-            scrub: 1, 
+            scrub: t05sc?.scrub ?? 1,
+            invalidateOnRefresh: true,
           }
         });
 
@@ -1189,38 +1352,38 @@ const sections = [
     } // Ensure this closing brace is here!
 
     if (roiSection && roiCounter && roiWrapper) {
-      const roiObj = { val: 1.0 };
+      const roiObj = { val: counters.roi.from };
 
       // Create a master timeline for the whole "Amplification" sequence
       const roiTl = gsap.timeline({
         scrollTrigger: {
           trigger: track,
-          // DELAYED START: Wait until the right column is actually visible
-          start: () => `${getScrollPos(roiSection.offsetLeft - window.innerWidth * 0.3)}px top`,
-          // DELAYED END: Finish deep into the section so you have time to watch it
-          end: () => `${getScrollPos(roiSection.offsetLeft + window.innerWidth * 0.6)}px top`,
-          scrub: 1, 
+          start: () => `${getScrollPos(roiSection.offsetLeft + counters.roi.start * window.innerWidth)}px top`,
+          end:   () => `${getScrollPos(roiSection.offsetLeft + counters.roi.end   * window.innerWidth)}px top`,
+          scrub: counters.roi.scrub ?? 1,
+          invalidateOnRefresh: true,
         }
       });
 
-      // 0. NEW: Scale the word "ROI." from small (50%) to full size (100%)
+      // 0. Scale the word "ROI." from small (50%) to full size (100%)
+      // overwrite: 'auto' prevents conflict with the earlier roiGrow animation on the same element.
       if (roiWord) {
-        roiTl.fromTo(roiWord, 
-          { scale: 0.5, opacity: 0.5 }, 
-          { scale: 1, opacity: 1, ease: "power2.out" }, 
-        0); 
+        roiTl.fromTo(roiWord,
+          { scale: 0.5, opacity: 0.5 },
+          { scale: 1, opacity: 1, ease: "power2.out", overwrite: 'auto' },
+        0);
       }
 
-      // 1. The Counter: 1.0 to 4.0
+      // 1. The Counter: from → to (configured in COUNTERS.roi)
       roiTl.to(roiObj, {
-        val: 4.0,
+        val: counters.roi.to,
         ease: "none",
         onUpdate: () => {
-          const currentText = roiObj.val.toFixed(1); 
-          
+          const currentText = roiObj.val.toFixed(counters.roi.decimals);
+
           // Update the main center number
-          roiCounter.innerText = currentText; 
-          
+          roiCounter.innerText = currentText;
+
           // Update the blurred ghost outlines so they count up in perfect sync!
           roiGhosts.forEach(ghost => {
             ghost.innerText = currentText + "x";
@@ -1269,39 +1432,38 @@ const sections = [
     // SUCCESS COUNTER LOGIC
     if (successCounter && successSection && successRing) {
 
-      // The exact physical scroll window:
-      // Starts when the counter enters the right edge (0.5)
-      // Ends exactly when it hits dead-center of the screen (0.85)
-      const startTrigger = () => `${getScrollPos(successSection.offsetLeft + window.innerWidth * 0.25)}px top`;
-      const endTrigger = () => `${getScrollPos(successSection.offsetLeft + window.innerWidth * 0.95)}px top`;
+      const startTrigger = () => `${getScrollPos(successSection.offsetLeft + counters.success.start * window.innerWidth)}px top`;
+      const endTrigger   = () => `${getScrollPos(successSection.offsetLeft + counters.success.end   * window.innerWidth)}px top`;
 
-      // 1. Natively animate the SVG Ring
+      // 1. Animate the SVG Ring
       gsap.fromTo(successRing,
         { strokeDashoffset: 282.7 },
         {
-          strokeDashoffset: 0, // 0 means the stroke covers the entire circle!
+          strokeDashoffset: 0,
           ease: "none",
           scrollTrigger: {
             trigger: track,
             start: startTrigger,
             end: endTrigger,
-            scrub: true,
+            scrub: counters.success.scrub ?? 1,
+            invalidateOnRefresh: true,
           }
         }
       );
 
-      // 2. Natively animate the Number using GSAP's text snapping
+      // 2. Animate the Number using GSAP's text snapping
       gsap.fromTo(successCounter,
         { innerText: 0 },
         {
-          innerText: 25,
-          snap: { innerText: 1 }, // Forces GSAP to only render clean whole numbers
+          innerText: counters.success.to,
+          snap: { innerText: 1 },
           ease: "none",
           scrollTrigger: {
             trigger: track,
             start: startTrigger,
             end: endTrigger,
-            scrub: true,
+            scrub: counters.success.scrub ?? 1,
+            invalidateOnRefresh: true,
           }
         }
       );
@@ -1332,6 +1494,64 @@ const sections = [
         ease: "power2.in",
         duration: 0.5,
       }, 0.6);
+    }
+
+    // END SCREEN — sidebar indicator line fills as the user scrolls through the end screen
+    const endIndicator = document.getElementById('end-indicator-line');
+    if (endScreen && endIndicator) {
+      gsap.to(endIndicator, {
+        scaleY: 1,
+        ease: "none",
+        scrollTrigger: {
+          trigger: endScreen,
+          start: "top bottom",
+          end: "bottom bottom",
+          scrub: true,
+        }
+      });
+    }
+
+    // WORD HIGHLIGHTS — shift specific words from muted → accent as their slide enters
+    if (highlights) {
+      const animateWords = (
+        slideEl: HTMLElement | null,
+        cfg: { words: string[]; start: number; end: number; scrub: number; scaleOnly?: string[] },
+        fromColour: string,
+        toColour: string
+      ) => {
+        if (!slideEl) return;
+        cfg.words.forEach((word, i) => {
+          const el = document.getElementById(`hl-${word}`);
+          if (!el) return;
+          const stagger = i * 0.08 * window.innerWidth;
+          const isScaleOnly = cfg.scaleOnly?.includes(word) ?? false;
+          const trigger = {
+            trigger: track,
+            start: () => `${getScrollPos(slideEl.offsetLeft + cfg.start * window.innerWidth + stagger)}px top`,
+            end:   () => `${getScrollPos(slideEl.offsetLeft + cfg.end   * window.innerWidth + stagger)}px top`,
+            scrub: cfg.scrub ?? 0.5,
+            invalidateOnRefresh: true,
+          };
+          if (isScaleOnly) {
+            // Stays its current colour — just pulses scale slightly as scroll hits it
+            gsap.fromTo(el, { scale: 1 }, { scale: 1.08, ease: "none", scrollTrigger: trigger });
+          } else {
+            gsap.fromTo(el, { color: fromColour }, { color: toColour, ease: "none", scrollTrigger: trigger });
+          }
+        });
+      };
+
+      // SLIDE-8.5 (SME/Untapped) — "untapped" shifts to accent
+      const slideSme = document.getElementById('slide-sme') as HTMLElement | null;
+      if (highlights.untapped) {
+        animateWords(slideSme, highlights.untapped, 'hsl(var(--foreground) / 0.6)', 'hsl(var(--accent))');
+      }
+
+      // SLIDE-12 (Belief) — "Believe" and "power" shift to primary (readable on amber bg)
+      const slide12 = document.querySelector('[data-sidebar="12"]') as HTMLElement | null;
+      if (highlights.belief) {
+        animateWords(slide12, highlights.belief, 'hsl(var(--background) / 0.5)', 'hsl(var(--primary))');
+      }
     }
   };
 
