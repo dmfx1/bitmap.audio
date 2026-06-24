@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ChevronLeft } from 'lucide-react';
 import TypewriterHero from '../TypewriterHero';
 import * as Icons from '../../ui/icons';
@@ -25,7 +25,6 @@ const ICON_POOL = [
 
 export default function UIUXHero({ heroFlipped = HERO_IMAGE_FLIPPED_DEFAULT, imageSrc }: UIUXHeroProps) {
   const [showContent, setShowContent] = useState(false);
-  const [revealProgress, setRevealProgress] = useState(0);
 
   const constellation = useMemo(() => {
     const slots = [
@@ -42,25 +41,15 @@ export default function UIUXHero({ heroFlipped = HERO_IMAGE_FLIPPED_DEFAULT, ima
     }));
   }, []);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setRevealProgress(prev => (prev < 100 ? prev + 1 : 100));
-    }, 20);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
-    <div className="relative w-full md:py-32 min-h-[50vh] flex flex-col overflow-hidden">
+    <div className="relative w-full md:py-32 min-h-[50vh] md:h-full flex flex-col overflow-hidden">
 
-      {/* 1. BACKGROUND REVEAL AREA — hero image + icon constellation, bleeds below frame */}
-      {/* CSS mask fades the left edge to transparent — full colour/brightness everywhere else */}
+      {/* 1. BACKGROUND — hero image + icon constellation */}
       <div
-        className="absolute right-0 md:right-[-5%] top-0 w-full md:w-[65%] h-full pointer-events-none z-0"
+        className="absolute right-0 top-0 w-full md:w-[85%] h-full pointer-events-none z-0"
         style={{
-          clipPath: `inset(0 ${100 - revealProgress}% 0 0)`,
-          transition: 'clip-path 0.1s linear',
-          WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 22%)',
-          maskImage: 'linear-gradient(to right, transparent 0%, black 22%)',
+          WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 30%)',
+          maskImage: 'linear-gradient(to right, transparent 0%, black 30%)',
         }}
       >
         {/* HERO IMAGE — full colour, no blend mode, mask handles the fade */}
@@ -69,7 +58,7 @@ export default function UIUXHero({ heroFlipped = HERO_IMAGE_FLIPPED_DEFAULT, ima
           alt=""
           decoding="async"
           loading="eager"
-          className="absolute inset-0 w-full h-full object-cover object-center"
+          className="absolute -top-80 inset-0 w-full h-[120vh] object-cover object-center contrast-[1.25] brightness-[1.75]"
           style={{ transform: heroFlipped ? 'scaleX(-1)' : 'none' }}
         />
 
@@ -95,13 +84,6 @@ export default function UIUXHero({ heroFlipped = HERO_IMAGE_FLIPPED_DEFAULT, ima
           <div className="absolute top-0 right-[45%] w-px h-full bg-foreground/5" />
         </div>
 
-        {/* Scanning line — clears once reveal is complete */}
-        {revealProgress < 100 && (
-          <div
-            className="absolute top-0 bottom-0 w-[1px] bg-accent/50 shadow-[0_0_15px_hsl(var(--accent))] z-20"
-            style={{ left: `${revealProgress}%` }}
-          />
-        )}
       </div>
 
       {/* 2. HERO CONTENT */}

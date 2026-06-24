@@ -5,7 +5,7 @@
      'JetBrains Mono'  ← default
      'DM Mono'         ← trial
    ─────────────────────────────────────────────────────────────────────────── */
-:root { --font-mono: 'DM Mono', monospace; }
+:root { --font-mono: 'JetBrains Mono', monospace; }
 
 @tailwind base;
 @tailwind components;

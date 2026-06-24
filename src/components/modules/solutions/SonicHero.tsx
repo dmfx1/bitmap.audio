@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ChevronLeft } from 'lucide-react';
 import TypewriterHero from '../TypewriterHero';
 import * as Icons from '../../ui/icons';
@@ -13,9 +13,12 @@ const ICON_POOL = [
   Icons.BitmapChevron
 ];
 
-export default function SonicHero() {
+interface SonicHeroProps {
+  imageSrc?: string;
+}
+
+export default function SonicHero({ imageSrc }: SonicHeroProps) {
   const [showContent, setShowContent] = useState(false);
-  const [revealProgress, setRevealProgress] = useState(0);
 
   const constellation = useMemo(() => {
     const slots = [
@@ -35,24 +38,33 @@ export default function SonicHero() {
     }));
   }, []);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setRevealProgress(prev => (prev < 100 ? prev + 1 : 100));
-    }, 20); 
-    return () => clearInterval(interval);
-  }, []);
-
   return (
-    <div className="relative w-full md:py-32 min-h-[50vh] flex flex-col overflow-visible">
-      
-      {/* 1. ICON CONSTELLATION */}
-      <div 
-        className="absolute right-0 md:right-[-5%] top-[5%] w-[350px] md:w-[750px] h-[550px] pointer-events-none z-0"
+    <div className="relative w-full md:py-32 min-h-[50vh] md:h-full flex flex-col overflow-hidden">
+
+      {/* 1. ICON CONSTELLATION + HERO IMAGE */}
+      <div
+        className="absolute right-0 top-0 w-full md:w-[85%] h-full pointer-events-none z-0"
         style={{
-          clipPath: `inset(0 ${100 - revealProgress}% 0 0)`,
-          transition: 'clip-path 0.1s linear'
+          WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 30%)',
+          maskImage: 'linear-gradient(to right, transparent 0%, black 30%)',
         }}
       >
+        {/* HERO IMAGE — full colour, mask handles left-edge fade */}
+        {imageSrc && (
+          <img
+            src={imageSrc}
+            alt=""
+            decoding="async"
+            loading="eager"
+            className="absolute left-20 inset-0 w-full h-full object-cover object-center"
+          />
+        )}
+
+        {/* Bottom fade */}
+        {imageSrc && (
+          <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background to-transparent pointer-events-none z-10" />
+        )}
+
         <div className="relative w-full h-full grayscale brightness-200 contrast-125">
            {constellation.map((icon, idx) => (
              <icon.Component 
@@ -71,13 +83,6 @@ export default function SonicHero() {
            <div className="absolute top-0 right-[45%] w-px h-full bg-foreground/5" />
         </div>
 
-        {/* FIX: Line disappears when reveal is finished */}
-        {revealProgress < 100 && (
-          <div 
-            className="absolute top-0 bottom-0 w-[1px] bg-accent/50 shadow-[0_0_15px_hsl(var(--accent))]"
-            style={{ left: `${revealProgress}%` }}
-          />
-        )}
       </div>
 
       <div className="w-full md:max-w-4xl pl-4 md:pl-12 relative z-10">

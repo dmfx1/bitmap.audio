@@ -3897,3 +3897,156 @@ Two `fixed z-[1]` overlay divs sit between the background and the cube image, ad
 ### Q2 — CSS 3D tilt (DECIDED AGAINST — do not implement)
 
 The mouse-responsive 3D rotation on the cube was implemented and then reverted — it didn't look good. The implementation spec remains in Q2 above for reference only. Do not re-implement without explicit instruction.
+
+---
+
+## R. New hero images — Sonic Branding + Immersive Audio
+
+Two new images have been added to `src/assets/images/`:
+- `hero-sonic-branding-transparent-03.png` — for the Sonic Branding solution page
+- `hero-immersive-audio-01.png` — for the Immersive Audio solution page
+
+Wire them using the exact same `getImage()` + prop pattern established in section N for UIUXHero.
+
+---
+
+### R1 — Add `imageSrc` prop to `SonicHero.tsx`
+
+**File:** `src/components/modules/solutions/SonicHero.tsx`
+
+The component currently has no `imageSrc` prop. Add it following the UIUXHero pattern exactly.
+
+**Step 1 — Add the prop interface.** Find:
+```tsx
+export default function SonicHero() {
+```
+Replace with:
+```tsx
+interface SonicHeroProps {
+  imageSrc?: string;
+}
+
+export default function SonicHero({ imageSrc }: SonicHeroProps) {
+```
+
+**Step 2 — Wire `imageSrc` into the image tag.** Inside the component, find the background reveal area. SonicHero currently renders icon constellations but no `<img>`. Add an `<img>` as the first child inside the reveal container div (before the constellation div), following the same pattern as UIUXHero:
+
+Find the reveal container — it's the `absolute` div with `clipPath` and `maskImage` styles (approximately line 48). Inside it, before the constellation div, add:
+
+```tsx
+{/* HERO IMAGE — full colour, mask handles left-edge fade */}
+{imageSrc && (
+  <img
+    src={imageSrc}
+    alt=""
+    decoding="async"
+    loading="eager"
+    className="absolute inset-0 w-full h-full object-cover object-center"
+  />
+)}
+
+{/* Bottom fade */}
+{imageSrc && (
+  <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background to-transparent pointer-events-none z-10" />
+)}
+```
+
+The icon constellation stays — it floats in front of the hero image when both are present. When no `imageSrc` is passed, the component renders constellation-only as before.
+
+---
+
+### R2 — Add `imageSrc` prop to `ImmersiveHero.tsx`
+
+**File:** `src/components/modules/solutions/ImmersiveHero.tsx`
+
+Apply the identical changes as R1 — same prop interface, same `<img>` + bottom-fade insertion inside the reveal container.
+
+---
+
+### R3 — Update `sonic-branding.astro`
+
+**File:** `src/pages/solutions/sonic-branding.astro`
+
+Add `getImage()` import and call, then pass the result to `SonicHero`:
+
+```astro
+---
+import { getImage } from 'astro:assets';
+import Layout from '../../layouts/Layout.astro';
+import Section from '../../components/Section.astro';
+import SonicHero from '../../components/modules/solutions/SonicHero.tsx';
+import SonicAnalysis from '../../components/modules/solutions/SonicAnalysis.tsx';
+import DeliverablesGrid from '../../components/modules/solutions/DeliverablesGrid.tsx';
+import CTA from '../../components/modules/CTA.tsx';
+import heroSonic from '../../assets/images/hero-sonic-branding-transparent-03.png';
+
+const heroImage = await getImage({
+  src: heroSonic,
+  format: 'webp',
+  width: 1400,
+  quality: 85,
+});
+
+const sonicDeliverables = [ ...existing array unchanged... ];
+---
+```
+
+Then on the `<SonicHero>` render call:
+```astro
+<SonicHero client:load imageSrc={heroImage.src} />
+```
+
+---
+
+### R4 — Update `immersive-audio.astro`
+
+**File:** `src/pages/solutions/immersive-audio.astro`
+
+Same pattern as R3:
+
+```astro
+import { getImage } from 'astro:assets';
+import heroImmersive from '../../assets/images/hero-immersive-audio-01.png';
+
+const heroImage = await getImage({
+  src: heroImmersive,
+  format: 'webp',
+  width: 1400,
+  quality: 85,
+});
+```
+
+Then:
+```astro
+<ImmersiveHero client:load imageSrc={heroImage.src} />
+```
+
+---
+
+## S. Hero image direction — make solution/about heroes feel more like the landing page
+
+**The vision:** The landing page cube image is beautiful because it fills the entire viewport, the text sits on top of it, and the two feel like one unified composition rather than "text on left, image on right." The solution page heroes currently constrain images to the right ~65% with a left-edge mask. The goal is to make them feel more immersive — bigger images, more visual tension between image and text.
+
+**Two approaches to try, in order:**
+
+### S1 — Wider image, text overlay (closer to landing page feel)
+
+Instead of `md:w-[65%]` on the image container, push it to `md:w-[85%]` or `md:w-full`. The text (`pl-4 md:pl-12`) already sits above the image via `z-10` — a wider image simply puts more of it behind the text, creating a more immersive overlap. The left-edge mask gradient handles the fade so text stays readable.
+
+In UIUXHero, SonicHero, ImmersiveHero — find:
+```tsx
+className="absolute right-0 md:right-[-5%] top-0 w-full md:w-[65%] h-full pointer-events-none z-0"
+```
+Try:
+```tsx
+className="absolute right-0 md:right-[-5%] top-0 w-full md:w-[85%] h-full pointer-events-none z-0"
+```
+Widen the mask fade range if text legibility drops — change `22%` in the `maskImage` gradient to `30–35%`.
+
+Apply to all three solution heroes. Verify text is readable at 1440px. Do not change anything else.
+
+### S2 — Full-bleed image, wider mask (maximum drama)
+
+Push to `md:w-full` and widen the mask to `35%`. The image fills the entire hero width, the text floats over the left third. This is closest to the landing page feel within the existing sticky hero architecture.
+
+**Do not attempt S1/S2 until R1–R4 are done and verified** — the new images need to be wired in first so there's something to see. Start with S1 and review before trying S2.

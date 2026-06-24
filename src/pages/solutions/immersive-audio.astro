@@ -1,5 +1,6 @@
 ---
 /* src/pages/solutions/sonic-branding.astro */
+import { getImage } from 'astro:assets';
 import Layout from '../../layouts/Layout.astro';
 import Section from '../../components/Section.astro';
 import ImmersiveHero from '../../components/modules/solutions/ImmersiveHero.tsx';
@@ -7,6 +8,14 @@ import ImmersiveAnalysis from '../../components/modules/solutions/ImmersiveAnaly
 import ConceptGrid from '../../components/modules/ConceptGrid.tsx';
 import DeliverablesGrid from '../../components/modules/solutions/DeliverablesGrid.tsx';
 import CTA from '../../components/modules/CTA.tsx';
+import heroImmersive from '../../assets/images/hero-immersive-audio-01.png';
+
+const heroImage = await getImage({
+  src: heroImmersive,
+  format: 'webp',
+  width: 1400,
+  quality: 85,
+});
 
 // DEFINING THE DATA SET FOR THIS PAGE
 const immersiveAudioApplications = [
@@ -68,19 +77,18 @@ const immersiveDeliverables = [
   </Fragment>
   {/* Hero: sticks at top of container, content scrolls over it */}
   <div class="md:sticky top-12 md:top-0 z-[1] min-h-svh md:min-h-0 md:h-[75vh]">
-    <div class="pt-16 pb-8">
-      <ImmersiveHero client:load />
+    <div class="h-full pt-16 pb-8">
+      <ImmersiveHero client:load imageSrc={heroImage.src} />
     </div>
   </div>
 
-  {/* Content: scrolls over the sticky hero */}
-  <div class="relative z-10 bg-background">
-    <Section id="analysis" delay="0.5s">
+  {/* Content: scrolls over the sticky hero — sections are frosted glass so hero colours bleed through */}
+  <div class="relative z-10">
+    <Section id="analysis" delay="0.5s" className="!bg-background/50 backdrop-blur-xl">
       <ImmersiveAnalysis client:visible />
     </Section>
 
-    {/* FIXED: Passing the defined items to ConceptGrid */}
-    <Section id="applications" delay="0.8s">
+    <Section id="applications" delay="0.8s" className="!bg-background/50 backdrop-blur-xl">
       <ConceptGrid
         client:visible
         eyebrow="Applications"
@@ -90,7 +98,7 @@ const immersiveDeliverables = [
       />
     </Section>
 
-    <Section id="deliverables" delay="1.2s">
+    <Section id="deliverables" delay="1.2s" className="!bg-background/50 backdrop-blur-xl">
       <DeliverablesGrid
         client:visible
         items={immersiveDeliverables}
@@ -98,7 +106,7 @@ const immersiveDeliverables = [
       />
     </Section>
 
-    <Section id="cta" delay="1.5s">
+    <Section id="cta" delay="1.5s" className="!bg-background/95 backdrop-blur-xl">
       <CTA
         client:visible
         title="Enter new dimensions"

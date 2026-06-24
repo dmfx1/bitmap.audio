@@ -42,7 +42,7 @@ export default function AboutIntro({ heroFlipped = HERO_IMAGE_FLIPPED_DEFAULT, i
           alt=""
           decoding="async"
           loading="eager"
-          className="w-full h-full object-cover object-center"
+          className="w-full h-full object-cover object-center brightness-[1.2] contrast-[1.25]"
           style={{ transform: heroFlipped ? 'scaleX(-1)' : 'none' }}
         />
         {/* Bottom fade — dissolves image into background before the hard clip edge */}
