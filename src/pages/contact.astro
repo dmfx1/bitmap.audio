@@ -34,8 +34,8 @@ const contactCards = [
     </div>
   </div>
 
-  <div class="relative z-10 bg-background">
-    <Section id="details" delay="0.5s">
+  <div class="relative z-10">
+    <Section id="details" delay="0.5s" className="!bg-background/80 backdrop-blur-sm">
       <ConceptGrid
         client:visible
         items={contactCards}
@@ -43,7 +43,7 @@ const contactCards = [
       />
     </Section>
 
-    <Section id="socials" delay="1.2s">
+    <Section id="socials" delay="1.2s" className="!bg-background">
       <SocialsGrid client:idle />
     </Section>
   </div>

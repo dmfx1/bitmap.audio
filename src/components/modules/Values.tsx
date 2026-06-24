@@ -44,7 +44,7 @@ export default function Values() {
 
             {/* Container limits the width of the full-span tape */}
             <p className="max-w-[280px] w-full">
-              <span className="label-tape">
+              <span className="">
                 {v.desc}
               </span>
             </p>

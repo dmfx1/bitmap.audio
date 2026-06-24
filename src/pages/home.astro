@@ -29,18 +29,17 @@ const heroImage = await getImage({
     </div>
   </div>
 
-  {/* Content: scrolls over the sticky hero */}
-  <div class="relative z-10 bg-background">
-    <Section id="services" delay="0.2s">
+  {/* Content: scrolls over the sticky hero — sections are frosted glass so hero colours bleed through */}
+  <div class="relative z-10">
+    <Section id="services" delay="0.2s" className="!bg-background/50 backdrop-blur-xl">
       <ServicePillars client:visible />
     </Section>
 
-    <Section id="philosophy" invert delay="0.3s">
+    <Section id="philosophy" invert delay="0.3s" className="!bg-background/50 backdrop-blur-xl">
       <Philosophy client:visible />
     </Section>
 
-    {/* FIXED: Changed ID from philosophy to cta */}
-    <Section id="cta" delay="0.4s">
+    <Section id="cta" delay="0.4s" className="!bg-background/95 backdrop-blur-xl">
       <CTA
         client:visible
         title="Ready to define your sound?"

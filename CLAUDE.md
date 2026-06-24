@@ -4050,3 +4050,103 @@ Apply to all three solution heroes. Verify text is readable at 1440px. Do not ch
 Push to `md:w-full` and widen the mask to `35%`. The image fills the entire hero width, the text floats over the left third. This is closest to the landing page feel within the existing sticky hero architecture.
 
 **Do not attempt S1/S2 until R1–R4 are done and verified** — the new images need to be wired in first so there's something to see. Start with S1 and review before trying S2.
+
+---
+
+## T. Session 2026-06-24 — COMPLETED
+
+All items below are done and pushed. Do not redo any of them.
+
+---
+
+### T1 — R1–R4 DONE + S1 DONE
+
+`imageSrc` prop wired into all three solution heroes via `getImage()`. Images are 85% width (`md:w-[85%]`) with a 30% left-edge mask fade. All three solution pages pass the processed WebP URL from `getImage()` to their hero component.
+
+**Bug fixed:** `uiux-sound.astro` was importing `hero-uiux-transparent-01.png` (a trial image). Corrected to `hero-uiux-transparent-02.png`.
+
+---
+
+### T2 — Scan animation removed from solution heroes — DONE
+
+`revealProgress` state, `setInterval` useEffect, `clipPath` style, and scanning line element removed from `SonicHero.tsx`, `UIUXHero.tsx`, and `ImmersiveHero.tsx`. Images are now visible immediately — only the typewriter text animation remains. `useEffect` import removed from all three (now `useState, useMemo` only).
+
+---
+
+### T3 — Mono font variable system — DONE
+
+`src/styles/global.css` — Google Fonts import loads only JetBrains Mono, Inter, and DM Mono. A single CSS variable controls the site-wide mono font:
+
+```css
+:root { --font-mono: 'DM Mono', monospace; }
+```
+
+To switch back to JetBrains: change `'DM Mono'` to `'JetBrains Mono'` in that one line. All heading and `.font-mono` rules reference `var(--font-mono)` — no other changes needed to swap fonts.
+
+**Currently set to:** DM Mono.
+
+---
+
+### T4 — Ambient glow on landing page — DONE (see Q3 above)
+
+Two `fixed z-[1]` glow layers added to `HomeHero.tsx`. Both gradient stops at 100% — creates an open atmospheric glow rather than a tight spotlight vignette. CSS 3D tilt (Q2) was trialled and reverted — do not re-implement.
+
+---
+
+### T5 — Image folder structure — two systems, do not conflate
+
+**`src/assets/images/`** — hero images only. Processed by Astro's `getImage()` at build time → output as hashed WebP in `dist/_astro/`. Never served directly. To trial a new hero image: drop PNG here, update the import line in the relevant `.astro` page frontmatter — nothing else needed.
+
+**`public/images/`** — everything else, served as static files with stable URLs. Includes GSAP animation targets (`listening.woman2.*`, `stalking.sabretooth.*`, `bitmap.b.data.map.*`), logo, about sketch, headshots, and the landing page cube. These must stay in `public/` — GSAP references them by path at runtime.
+
+**`public/images/heroes/`** — three old manual WebP fallbacks (`hero-about-two-minds-03.webp`, `hero-data-meets-emotion-07.webp`, `hero-uiux-transparent-02.webp`). Now redundant since `getImage()` handles all conversion. On the safe-to-delete list.
+
+**Files to delete (confirmed unused — do not delete automatically, check with dom first):**
+```
+src/assets/images/hero-uiux-transparent-01.png
+src/assets/images/hero-uiux-transparent-03.png
+src/assets/images/hero-uiux-transparent-03_2.png
+src/assets/images/home-hero-sonic-infrastructure-01.png
+src/assets/images/home-hero-sonic-infrastructure-02.png
+src/assets/images/home-hero-sonic-infrastructure-03.png
+src/assets/images/home-hero-sonic-infrastructure-04.png
+public/images/heroes/hero-about-two-minds-03.webp
+public/images/heroes/hero-data-meets-emotion-07.webp
+public/images/heroes/hero-uiux-transparent-02.webp
+public/images/bitmap.data.b.png
+```
+
+**Needs visual confirm before deleting:**
+```
+public/images/home-hero-cube-transparent.png   (index.astro uses _2 version)
+public/images/listening.woman.png              (returns.astro uses .woman2.* variants)
+```
+
+---
+
+### T6 — Solution hero black space fix — DONE
+
+**Problem:** Sticky hero container is `md:h-[75vh]` but hero components only had `min-h-[50vh]`, leaving a bare `bg-background` gap at the bottom.
+
+**Fix applied to all three solution hero components** (`SonicHero.tsx`, `UIUXHero.tsx`, `ImmersiveHero.tsx`):
+- Root div: added `md:h-full` alongside `min-h-[50vh]`
+
+**Fix applied to all three solution pages** (`sonic-branding.astro`, `uiux-sound.astro`, `immersive-audio.astro`):
+- Inner wrapper div: `pt-16 pb-8` → `h-full pt-16 pb-8`
+
+**Additional fix in `ImmersiveHero.tsx`:** Image was hardcoded to `h-[90svh]` — changed to `h-full` to match the other two heroes.
+
+---
+
+### T7 — Hero shine-through on content sections — DONE
+
+**What it does:** On desktop, the sticky hero image's colours bleed through the sections that scroll over it. Each content section is a frosted glass pane (`!bg-background/80 backdrop-blur-sm`) rather than a solid block. The CTA section at the bottom of each page is solid (`!bg-background`) for a clean arrival feel.
+
+**Applied to all three solution pages.** The scrolling content wrapper `<div>` had `bg-background` removed — no background at the wrapper level. Each `<Section>` receives the glass treatment via `className`.
+
+**Tuning:**
+- Opacity: `80` in `!bg-background/80` — lower (e.g. `/60`) for more hero bleed-through, raise (e.g. `/90`) for subtler effect
+- Blur: `backdrop-blur-sm` — increase to `backdrop-blur-md` for more frosted glass feel
+- The `!` prefix on the background class overrides the `bg-background` baked into `Section.astro`'s class list
+
+**Do not apply this pattern to `home.astro`, `about.astro`, or `contact.astro`** without explicit instruction — those pages have different hero content and the effect may not be appropriate.

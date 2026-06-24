@@ -30,20 +30,20 @@ const heroImage = await getImage({
   </div>
 
   {/* Content: scrolls over the sticky hero */}
-  <div class="relative z-10 bg-background">
-    <Section id="founders" delay="0.2s">
+  <div class="relative z-10">
+    <Section id="founders" delay="0.2s" className="!bg-background/50 backdrop-blur-xl">
       <Founders client:visible />
     </Section>
 
-    <Section id="philosophy" delay="0.3s">
+    <Section id="philosophy" delay="0.3s" className="!bg-background/50 backdrop-blur-xl">
       <AboutPhilosophy client:visible />
     </Section>
 
-    <Section id="Values" invert delay="0.4s">
+    <Section id="Values" invert delay="0.4s" className="!bg-background/50 backdrop-blur-xl">
       <Values client:visible />
     </Section>
 
-    <Section id="cta" delay="0.4s">
+    <Section id="cta" delay="0.4s" className="!bg-background/95 backdrop-blur-xl">
       <CTA
         client:visible
         title="Define your brand's audio identity"
