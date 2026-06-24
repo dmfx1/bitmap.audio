@@ -2,14 +2,15 @@
 /* src/components/GridBackground.astro */
 interface Props {
   showRain?: boolean;
+  showGrid?: boolean;
 }
 
-const { showRain = true } = Astro.props;
+const { showRain = true, showGrid = true } = Astro.props;
 ---
 <div class="fixed inset-0 pointer-events-none z-0">
   
-  {/* Layer 1: The Grid (Base - Always Visible) */}
-  <div class="absolute inset-0 bitmap-grid transition-opacity duration-500" style={{ opacity: 'var(--grid-opacity)' }}></div>
+  {/* Layer 1: The Grid (conditional via showGrid prop) */}
+  {showGrid && <div class="absolute inset-0 bitmap-grid transition-opacity duration-500" style={{ opacity: 'var(--grid-opacity)' }}></div>}
 
   {/* Layer 1.5: The Binary Parallax Waterfall (CONDITIONAL) */}
   {showRain && (

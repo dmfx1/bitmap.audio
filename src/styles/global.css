@@ -1,4 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@300;400&display=swap');
+
+/* ── ACTIVE MONO FONT — change this one line to switch site-wide ─────────────
+   Options:
+     'JetBrains Mono'  ← default
+     'DM Mono'         ← trial
+   ─────────────────────────────────────────────────────────────────────────── */
+:root { --font-mono: 'DM Mono', monospace; }
 
 @tailwind base;
 @tailwind components;
@@ -127,7 +134,7 @@
   }
 
   h1, h2, h3, h4, h5, h6, .font-mono {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: var(--font-mono);
   }
 
   p, li, td, label {
@@ -546,33 +553,39 @@ a, button, [role="button"] {
     color: black;
     padding-left: 2px;
     padding-right: 2px;
-    font-family: 'JetBrains Mono', monospace; /* Maps to your font-mono stack */
+    font-family: var(--font-mono); /* Maps to your font-mono stack */
     font-weight: 600;
     font-size: 0.7rem;
     letter-spacing: 0.05em;
   }
 
-  /* This is the animation used for the intro sequence "Big B" */
-  @keyframes power-up-sequence {
-    0% {
-      opacity: 1;
-      background-color: hsl(var(--primary));
-      box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
-    }
-    15%, 25%, 35%, 45% { opacity: 0; }
-    10%, 20%, 30%, 40% { opacity: 1; }
-    50% {
-      background-color: hsl(var(--primary));
-    }
-    100% {
-      opacity: 1;
-      background-color: hsl(var(--accent));
-      box-shadow: 0 0 50px hsl(var(--accent) / 0.5);
-    }
+  /* Intro sequence: initial flash-in for the b logo */
+  @keyframes logo-flash-in {
+    0%   { opacity: 0; }
+    7%   { opacity: 0; }
+    13%  { opacity: 0; }
+    19%  { opacity: 0.5; }
+    25%  { opacity: 0; }
+    31%  { opacity: 0; }
+    37%  { opacity: 0; }
+    44%  { opacity: 0.2; }
+    50%  { opacity: 0; }
+    58%  { opacity: 1; }
+    100% { opacity: 1; }
   }
 
-  .animate-power-up {
-    animation: power-up-sequence 1.5s ease-in-out forwards;
+  /* Intro sequence: rapid flicker-to-nothing for the b logo exit */
+  @keyframes logo-flicker-out {
+    0%   { opacity: 1; }
+    10%  { opacity: 0; }
+    20%  { opacity: 0.9; }
+    32%  { opacity: 0; }
+    42%  { opacity: 0.6; }
+    55%  { opacity: 0; }
+    65%  { opacity: 0.3; }
+    78%  { opacity: 0; }
+    88%  { opacity: 0.1; }
+    100% { opacity: 0; }
   }
 
   @keyframes morph-breathing {

@@ -67,7 +67,7 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
     <SoundProvider client:load>
       <TooltipProvider client:load>
         
-        <GridBackground showRain={!isLandingPage && !isReturnsPage} />
+        <GridBackground showRain={!isLandingPage && !isReturnsPage} showGrid={!isLandingPage} />
         
         { !isLandingPage && <Navigation currentPath={currentPath} client:load /> }
         

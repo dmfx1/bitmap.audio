@@ -3726,3 +3726,174 @@ Key changes:
 - Visualizer `w-full` fills the shared `max-w-xl` container exactly
 
 Do not change any other classes on buttons, the visualizer stage div, bar elements, or status label.
+
+
+---
+
+## Q. Landing page (`index.astro`) + `HomeHero.tsx` — Current state and next task
+
+### Q1 — What was done (do not redo or revert any of this)
+
+The landing page (`/`) and `HomeHero.tsx` were significantly reworked. **We are happy with the current state.** Do not change anything below unless explicitly asked.
+
+**`src/pages/index.astro`**
+- Points to `/images/home-hero-cube-transparent.png` as `heroSrc` — the PNG with background removed. Do not change this.
+- Passes `heroSrc` to `<HomeHero client:load imageSrc={heroSrc} />`
+- `showGrid={false}` is passed via Layout — no background grid on the landing page
+- `hideHeader={true}` — nav is hidden on the landing page
+
+**`src/components/modules/HomeHero.tsx`**
+
+The component has a full intro animation sequence controlled by the `T = { }` timing constants block at the top of the file. These are the only values that should be adjusted to tune animation feel.
+
+Key architecture decisions made and settled:
+- **Image is NOT portaled** — rendered as a plain `fixed inset-0 z-[1]` div directly in the JSX (not via `createPortal`). This keeps it inside the Layout stacking context so content can sit above it.
+- **Logo flash IS portaled** — `createPortal(logoPortal, document.body)` at `z-[100]` so it beats the Layout `z-10` wrapper during the intro flash.
+- **Content wrappers use `z-[2]`** — the main content div and concept grid div both have `relative z-[2]` so they sit above the `z-[1]` image.
+- **Image sizing** — the img uses `absolute top-1/2 left-1/2 w-[90vw] h-[90vh] object-contain` with `transform: translate(-50%, -50%) scale(${imgScale})`. The `translate(-50%, -50%)` and `scale()` are combined in the inline style — do NOT add Tailwind translate classes (`-translate-x-1/2` etc.) as they conflict with the inline transform.
+- **No opacity fade on content** — subtitle, buttons, and concept grid use `opacity-0`/`opacity-100` Tailwind classes toggled by `isScanning` state (instant snap, no transition). They stay in the DOM always to prevent layout shift.
+- **Grayscale** — image starts fully grey (`filter: grayscale(1)`), transitions to full colour at the flare peak, settles to slight grey at ambient (`grayscale(0.4)`).
+- **Logo sequence** — flash → flare (amber) → post-flare → primary (cyan) → fade-out (clean, no flicker). The `'flicker'` phase was removed.
+- **Ambient timing** — `T.imgAmbient: 2000` (fires just as typing starts at `T.logoDone: 1960`). Ambient transition is `1.5s ease` — quick enough to clear before content is read.
+- **Button** — outline button uses `bg-background` (solid, not `bg-background/50`).
+
+**`src/layouts/Layout.astro`**
+- Landing page (`isLandingPage`) uses the full-bleed path — no `max-w-[1400px]` wrapper, no `z-10` on the content. This is correct and intentional.
+- `showGrid={!isLandingPage}` — grid hidden on landing page only.
+
+**`src/components/GridBackground.astro`**
+- `showGrid` prop added with default `true`. When `false`, the bitmap-grid div is not rendered.
+
+---
+
+### Q2 — Next task: CSS 3D tilt on the cube image (mouse-responsive rotation)
+
+**Goal:** The cube image responds to mouse position by rotating subtly in 3D, using the orange corner (which sits approximately at the visual centre of the image on screen) as the pivot point.
+
+**Approach: CSS 3D transforms + mouse tracking in `HomeHero.tsx`**
+
+No new libraries needed. Add mouse tracking to the existing component and combine the rotation into the existing inline transform on the image.
+
+**Implementation plan:**
+
+#### Step 1 — Add mouse tracking state
+
+```tsx
+const [mouseX, setMouseX] = useState(0); // -1 to 1 (left to right)
+const [mouseY, setMouseY] = useState(0); // -1 to 1 (top to bottom)
+```
+
+#### Step 2 — Add mouse move listener in `useEffect`
+
+Add inside the existing `useEffect` (alongside the timers):
+
+```tsx
+const handleMouseMove = (e: MouseEvent) => {
+  // Normalise to -1 → 1 relative to viewport centre
+  setMouseX((e.clientX / window.innerWidth - 0.5) * 2);
+  setMouseY((e.clientY / window.innerHeight - 0.5) * 2);
+};
+window.addEventListener('mousemove', handleMouseMove);
+
+// Add to cleanup:
+return () => {
+  timers.forEach(clearTimeout);
+  window.removeEventListener('mousemove', handleMouseMove);
+};
+```
+
+#### Step 3 — Derive rotation values
+
+```tsx
+// ── MOUSE TILT ───────────────────────────────────────────────────────────────
+// MAX_TILT: maximum degrees of rotation. Keep subtle (6–12°). Tune here.
+const MAX_TILT = 8;
+const tiltX = mouseY * -MAX_TILT; // mouse up → cube tilts toward viewer (rotateX positive)
+const tiltY = mouseX * MAX_TILT;  // mouse right → cube rotates right (rotateY positive)
+```
+
+#### Step 4 — Wire into the image transform
+
+The image already has an inline `style` with `transform`. Add the rotations alongside the existing translate and scale:
+
+```tsx
+style={{
+  transform: `translate(-50%, -50%) scale(${imgScale}) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`,
+  filter: `grayscale(${imgGrayscale})`,
+  transition: imgAmbient
+    ? 'opacity 1.5s ease, transform 1.5s ease, filter 0.8s ease'
+    : imgTransition,
+}}
+```
+
+**Important:** Once ambient is reached, the `transform` transition (`1.5s`) will lag behind fast mouse movements. Switch to a separate CSS transition for the tilt only, or add a shorter transition override post-ambient. A clean approach: use a separate `transitionProperty` and `transitionDuration` once ambient:
+
+```tsx
+const tiltTransition = imgAmbient
+  ? 'opacity 1.5s ease, filter 0.8s ease, transform 0.12s ease-out'  // snappy tilt after ambient
+  : imgTransition; // during intro, use the existing slow transition
+```
+
+Then use `tiltTransition` instead of `imgTransition` on both the wrapper div and the img element.
+
+#### Step 5 — Add perspective to the container
+
+The container div (`fixed inset-0 z-[1]`) needs a `perspective` so the 3D rotation has depth:
+
+```tsx
+<div
+  className="fixed inset-0 z-[1] pointer-events-none overflow-hidden"
+  style={{
+    opacity: imgOpacity,
+    transition: imgTransition,
+    perspective: '1200px',        // ← add this
+    perspectiveOrigin: '50% 50%', // ← centre of viewport = approximately the orange corner
+  }}
+>
+```
+
+Adjust `perspective` value: lower = more dramatic distortion, higher = subtler. `800px`–`1400px` is a good range.
+
+**Tuning notes:**
+- `MAX_TILT` (step 3): `6–10°` is the sweet spot. Below 6 is imperceptible, above 12 looks unstable.
+- `perspective` (step 5): `1200px` is a good start. Lower for more drama.
+- `perspectiveOrigin`: `50% 50%` centres on the viewport middle. If the orange corner is slightly off-centre on your screen, adjust (e.g. `48% 52%`).
+- The tilt transition `0.12s ease-out` (step 4) controls how snappily the cube follows the mouse. `0.08s`–`0.15s` feels responsive without jitter.
+
+**Do not touch:**
+- The `T` timing constants
+- Any opacity, grayscale, or scale values
+- The logo portal or its z-index
+- The `z-[1]` / `z-[2]` stacking setup
+- `src/pages/index.astro` or `Layout.astro`
+
+---
+
+### Q3 — Ambient glow layers (DONE — do not change)
+
+Two `fixed z-[1]` overlay divs sit between the background and the cube image, added directly in `HomeHero.tsx` just before the image div. Both fade in with the image (`opacity 3s ease` triggered by `imgVisible`).
+
+```tsx
+{/* AMBIENT GLOW — fixed layers behind the cube for depth */}
+<div
+  className="fixed inset-0 z-[1] pointer-events-none"
+  style={{ opacity: imgVisible ? 1 : 0, transition: 'opacity 3s ease' }}
+>
+  {/* Primary glow — full-screen subtle cyan atmosphere */}
+  <div className="absolute inset-0 bg-[radial-gradient(ellipse_100%_100%_at_center,hsl(var(--primary)/0.07)_0%,transparent_100%)]" />
+  {/* Vignette — minimal edge darkening */}
+  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_100%,hsl(var(--background))_100%)]" />
+</div>
+```
+
+**What the 100% stops do:** Both stops at 100% means the vignette only darkens at the very edge — effectively an open glowing atmosphere rather than a framed spotlight. The glow's `transparent 100%` spreads the cyan across the entire void. The cube floats in a softly charged open space. This is intentional — do not revert to tighter stop values.
+
+**Tune here:**
+- Glow intensity: the `0.07` alpha on `hsl(var(--primary)/0.07)` — increase for more visible cyan wash
+- Ellipse shape: `ellipse_100%_100%` — can be made asymmetric (e.g. `ellipse_80%_60%`) for a wider-than-tall glow
+
+**What was removed:** The old `index.astro` had an `absolute` vignette div that no longer worked once the image moved to `fixed`. Do not add it back to `index.astro`.
+
+### Q2 — CSS 3D tilt (DECIDED AGAINST — do not implement)
+
+The mouse-responsive 3D rotation on the cube was implemented and then reverted — it didn't look good. The implementation spec remains in Q2 above for reference only. Do not re-implement without explicit instruction.
