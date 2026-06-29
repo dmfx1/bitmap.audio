@@ -27,7 +27,7 @@ export default function ImmersiveHero({ imageSrc }: ImmersiveHeroProps) {
             alt=""
             decoding="async"
             loading="eager"
-            className="absolute  inset-0 w-full h-full object-fill object-center"
+            className="absolute  inset-0 w-full h-full object-cover object-center"
           />
         )}
 
