@@ -89,7 +89,7 @@ export default function DeliverablesGrid({
       )}
     >
       <div className="text-center mb-16 space-y-4">
-        <p className="text-eyebrow text-accent uppercase tracking-[0.5em] text-xs font-medium">
+        <p className="text-eyebrow text-accent uppercase tracking-[0.5em] text-base font-medium">
           {eyebrow}
         </p>
         <h2 className="text-3xl md:text-4xl font-mono text-foreground tracking-tight px-4 font-light">

@@ -4175,3 +4175,101 @@ public/images/listening.woman.png              (returns.astro uses .woman2.* var
 ### T9 — Scanning animation removed from `AboutIntro.tsx` — DONE
 
 `revealProgress` state, `setInterval` useEffect, `clipPath`/`transition` on the image container, and the wireframe sketch div (which was already `hidden`) all removed. `useEffect` removed from the import. Image now visible immediately on load — same pattern as all other hero components. `AboutIntro.tsx` is now the last hero using `useState` only (no `useMemo` needed as it has no constellation).
+
+---
+
+### T10 — Icon constellations removed site-wide — DONE
+
+Removed from `SonicHero.tsx`, `UIUXHero.tsx`, `ImmersiveHero.tsx`, `ContactHero.tsx`:
+- `import * as Icons from '...'`
+- `useMemo` from React import
+- `ICON_POOL` constant
+- `constellation` useMemo
+- Constellation JSX div (including the two faint `bg-foreground/5` wireframe accent lines)
+
+Also fixed a stray `left-20` conflicting with `inset-0` on `SonicHero`'s image tag.
+
+No global.css changes — `animate-pulse-glow` and `animate-pulse-glow-svg` are separate classes, unaffected.
+
+---
+
+### T11 — Footer hero image — DONE
+
+`src/components/Footer.astro` updated:
+- Imports `hero-footer-04.png` from `src/assets/images/` via `getImage()` (webp, 1200px, quality 80)
+- Image: `absolute inset-y-0 right-0 w-full md:w-[60%]`, `opacity-20`, left-edge mask fade at 35%
+- Bottom fade div (`h-1/4`) dissolves image into copyright bar
+- Copyright bar has `relative z-10` so it sits above image
+- To swap image: change the import line in `Footer.astro` frontmatter only
+
+---
+
+### T12 — Nav Contact button continuous morph loop — DONE
+
+Added `.morph-accent-loop` to `src/styles/global.css` — runs `morph-pulse-outline` unconditionally (no `:hover` required), with 8s start delay and 6s cycle. Used only on the nav Contact button in `Navigation.tsx`. The home hero "START A PROJECT" button keeps `morph-accent` (hover-only).
+
+```css
+.morph-accent-loop {
+  animation: morph-pulse-outline 6s ease-in-out 8s infinite;
+}
+```
+
+---
+
+### T13 — Values.tsx highlight carousel — DONE
+
+`Values.tsx` rebuilt with:
+- `activeIndex` state cycling every 10s (`CYCLE_MS = 10000` — one constant controls everything)
+- `IntersectionObserver` (threshold 0.3) starts cycle on scroll-in, pauses on scroll-out
+- `hoveredIndex` state — hover pauses the auto-cycle and takes visual precedence (`displayIndex = hoveredIndex ?? activeIndex`)
+- Active card: full opacity, cyan number glow + slow pulse (`valuesPulse` 4s keyframe, defined inline so it doesn't affect global `animate-pulse`)
+- Inactive cards: `opacity-25`, `hover:opacity-50`
+- Progress bar: thin line fills over `CYCLE_MS` on active card; shows solid amber when hovering (paused state); resets on switch
+- Clicking a card jumps to it and resets the timer
+
+---
+
+## U. Session 2026-06-29 — COMPLETED
+
+### U1 — Hero legibility overlay — constrained to text zone only — DONE
+
+All 5 hero components (`ImmersiveHero.tsx`, `SonicHero.tsx`, `UIUXHero.tsx`, `ContactHero.tsx`, `AboutIntro.tsx`) had their legibility overlay changed from `absolute inset-0` (full width, dimming the image) to a width-constrained left-side-only overlay. Two divs — one for mobile, one for desktop:
+
+```tsx
+{/* Mobile: top-to-bottom fade */}
+<div className="md:hidden absolute inset-0 z-[5] pointer-events-none bg-gradient-to-b from-background/70 to-transparent" />
+{/* Desktop: constrained to text zone, steep right-edge dissolve */}
+<div
+  className="hidden md:block absolute inset-y-0 left-0 z-[5] pointer-events-none w-[38%]"
+  style={{ background: 'linear-gradient(to right, hsl(var(--background) / 0.90) 0%, hsl(var(--background) / 0.85) 55%, hsl(var(--background) / 0.15) 85%, transparent 100%)' }}
+/>
+```
+
+Desktop overlay covers left ~38% of hero only — image is completely untouched beyond that point. Tune `w-[38%]` (width), the `55%` stop (where steep fade begins), and opacity values. Each hero page may have slightly different values — check the file.
+
+**Do not revert to `inset-0`** — that approach dimmed the image on the right side.
+
+---
+
+### U2 — Founders.tsx headshots — DONE
+
+Both founder cards now have background headshots using `mix-blend-screen` + radial vignette mask. Config object at top of file controls all per-person settings:
+
+```ts
+// ── HEADSHOT CONFIG ───────────────────────────────────────────────────────────
+// scale:        zoom multiplier (1.0 = no zoom, images are now same dimensions)
+// position:     CSS object-position — shifts which part of image is visible
+//               lower Y% = image shifts down in card; higher Y% = shifts up
+// vignetteAt:   "x% y%" — centre of radial vignette bright spot (aim for nose)
+// ─────────────────────────────────────────────────────────────────────────────
+```
+
+Both images (`dom-headshot-01.webp`, `nick-headshot-01.webp`) are in `public/images/`. Source PNGs are in `src/assets/images/` (not processed by Astro — used as static files since they're card backgrounds, not hero images). To update: replace PNG in `src/assets/images/`, reconvert to WebP in `public/images/` using PIL.
+
+Key implementation details:
+- `mix-blend-screen` — on dark backgrounds, dark pixels vanish, bright skin/highlights glow through. Enables higher opacity without competing with text.
+- `overflow-hidden` on the mask container — required for `scale` transform not to bleed outside card
+- `transformOrigin: 'center center'` — scale zooms from centre of image
+- Both images are now same dimensions (1792×2390 portrait) — stable at all viewport sizes
+
+**Do not use `opacity` overlays or `bg-background/50` on text paragraphs** — `mix-blend-screen` handles legibility naturally.

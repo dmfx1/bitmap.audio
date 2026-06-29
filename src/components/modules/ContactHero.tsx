@@ -38,6 +38,16 @@ export default function ContactHero({ imageSrc }: ContactHeroProps) {
 
       </div>
 
+      {/* Text legibility overlay — mobile: top-to-bottom fade */}
+      <div className="md:hidden absolute inset-0 z-[5] pointer-events-none bg-gradient-to-b from-background/70 to-transparent" />
+      {/* Text legibility overlay — desktop: constrained to text zone, steep right-edge dissolve */}
+      {/* Tune: % values control stop positions within this div (which is 38% of hero width) */}
+      {/* 0→55%: solid dark behind text | 55→85%: steep fade | 85→100%: final dissolve */}
+      <div
+        className="hidden md:block absolute inset-y-0 left-0 z-[5] pointer-events-none w-[52%]"
+        style={{ background: 'linear-gradient(to right, hsl(var(--background) / 0) 0%, hsl(var(--background) / 0.70) 75%, hsl(var(--background) / 0.30) 95%, transparent 100%)' }}
+      />
+
       {/* 2. HERO CONTENT */}
       <div className="w-full md:max-w-4xl pl-4 md:pl-12 relative z-10">
         
@@ -58,7 +68,7 @@ export default function ContactHero({ imageSrc }: ContactHeroProps) {
           onComplete={() => setTimeout(() => setShowContent(true), 200)}
         />
 
-        <p className={`text-body-muted text-xl bg-background/80 max-w-full md:max-w-[65%] transition-all duration-1000 mt-8
+        <p className={`text-foreground text-xl max-w-full md:max-w-[65%] transition-all duration-1000 mt-8
           ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
           Have a project in mind? We'd love to hear about it. Get in touch and let's explore how we can architect your sonic vision together.
         </p>

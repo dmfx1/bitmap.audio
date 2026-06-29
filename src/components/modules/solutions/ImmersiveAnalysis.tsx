@@ -7,7 +7,7 @@ export default function ImmersiveAnalysis() {
       {/* THE CHALLENGE */}
       <div className="space-y-8">
         <div className="space-y-2">
-          <p className="text-sm font-mono text-accent tracking-[0.4em] uppercase">The Challenge</p>
+          <p className="text-base font-mono text-accent tracking-[0.4em] uppercase">The Challenge</p>
           <h2 className="text-3xl font-mono text-foreground leading-tight">Flat audio breaks immersion</h2>
         </div>
         <div className="space-y-6 text-body-muted text-base leading-relaxed">
@@ -19,7 +19,7 @@ export default function ImmersiveAnalysis() {
       {/* THE APPROACH */}
       <div className="space-y-8">
         <div className="space-y-2">
-          <p className="text-sm font-mono text-accent tracking-[0.4em] uppercase">Our Approach</p>
+          <p className="text-base font-mono text-accent tracking-[0.4em] uppercase">Our Approach</p>
           <h2 className="text-3xl font-mono text-foreground leading-tight">Engineering presence through sound.</h2>
         </div>
         <div className="space-y-6 text-body-muted text-base leading-relaxed">

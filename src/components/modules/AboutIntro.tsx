@@ -19,6 +19,16 @@ export default function AboutIntro({ heroFlipped = HERO_IMAGE_FLIPPED_DEFAULT, i
   return (
     <div className="relative w-full md:py-32 min-h-svh flex flex-col overflow-hidden">
 
+      {/* Text legibility overlay — mobile: top-to-bottom fade */}
+      <div className="md:hidden absolute inset-0 z-[5] pointer-events-none bg-gradient-to-b from-background/70 to-transparent" />
+      {/* Text legibility overlay — desktop: constrained to text zone, steep right-edge dissolve */}
+      {/* Tune: % values control stop positions within this div (which is 38% of hero width) */}
+      {/* 0→55%: solid dark behind text | 55→85%: steep fade | 85→100%: final dissolve */}
+      <div
+        className="hidden md:block absolute inset-y-0 left-0 z-[5] pointer-events-none w-[52%]"
+        style={{ background: 'linear-gradient(to right, hsl(var(--background) / 0) 0%, hsl(var(--background) / 0.85) 75%, hsl(var(--background) / 0.15) 95%, transparent 100%)' }}
+      />
+
       {/* 1. HERO IMAGE */}
       <div
         className="absolute right-0 top-0 w-full md:w-[65%] h-full pointer-events-none z-0"
@@ -55,11 +65,11 @@ export default function AboutIntro({ heroFlipped = HERO_IMAGE_FLIPPED_DEFAULT, i
           onComplete={() => setTimeout(() => setShowContent(true), 200)}
         />
 
-        <p className={`text-body-muted text-xl font-mono bg-background/50 md:max-w-[60%] transition-all duration-1000
+        <p className={`text-foreground/90 text-xl font-mono md:max-w-[60%] transition-all duration-1000
           ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
           bitmap.audio are two audio specialists bridging the gap between machine states and human perception.
         </p>
-        <p className={`text-body-muted text-xl font-mono bg-background/50 md:max-w-[85%] transition-all duration-1000
+        <p className={`text-foreground/90 text-xl font-mono md:max-w-[75%] transition-all duration-1000
           ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
           <br/>
           We deconstruct brand identity into its smallest possible components <i>[the "bit"]</i> and re-engineer them across a

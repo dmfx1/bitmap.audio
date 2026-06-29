@@ -78,7 +78,7 @@ const Navigation = ({ currentPath }: { currentPath: string }) => {
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
                     {/* Added rounded-none to the container below */}
-                    <div className="w-64 bg-background/75 border border-border shadow-xl flex flex-col rounded-none">
+                    <div className="w-64 bg-background/85 border border-border shadow-xl flex flex-col rounded-none">
                       {solutions.map((s) => (
                         <a 
                           key={s.href} 
@@ -89,7 +89,7 @@ const Navigation = ({ currentPath }: { currentPath: string }) => {
                           <span className="block font-mono text-base text-foreground group-hover:text-accent transition-colors">
                             {s.name}
                           </span>
-                          <span className="block text-[10px] uppercase tracking-tight text-muted-foreground mt-1">
+                          <span className="block text-[12px] uppercase tracking-tight text-muted-foreground mt-1">
                             {s.description}
                           </span>
                           <div className="h-px w-0 bg-accent transition-all group-hover:w-full mt-2" />

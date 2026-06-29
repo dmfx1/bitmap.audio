@@ -71,7 +71,7 @@ export default function Hero({ heroFlipped = HERO_IMAGE_FLIPPED_DEFAULT, imageSr
           </div>
 
           {/* BODY */}
-          <p className="text-body-muted max-w-base text-xl">
+          <p className="text-foreground/90 max-w-base text-xl">
             We architect sonic experiences that bridge the gap between digital interfaces and human perception.
           </p>
 

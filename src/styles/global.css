@@ -331,6 +331,7 @@ a, button, [role="button"] {
   .heading-hero {
     @apply font-mono text-5xl md:text-6xl font-light leading-[1.05] tracking-tight text-foreground;
   }
+
   .heading-section {
     @apply font-mono text-3xl md:text-4xl font-medium tracking-tight text-foreground;
   }
