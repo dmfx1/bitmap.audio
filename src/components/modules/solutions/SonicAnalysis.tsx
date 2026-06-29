@@ -11,8 +11,8 @@ export default function SonicAnalysis() {
           <h2 className="text-3xl font-mono text-foreground leading-tight">In a world of visual noise, sound cuts through.</h2>
         </div>
         <div className="space-y-6 text-body-muted text-base leading-relaxed">
-          <p className="text-lg">Your audience encounters thousands of visual messages daily. But sound operates differently—it bypasses rational filters and connects directly to emotion and memory.</p>
-          <p className="text-lg">A thoughtfully crafted sonic brand becomes instantly recognizable, consistently memorable, and emotionally resonant across every touchpoint.</p>
+          <p className="text-xl">Your audience encounters thousands of visual messages daily. But sound operates differently—it bypasses rational filters and connects directly to emotion and memory.</p>
+          <p className="text-xl">A thoughtfully crafted sonic brand becomes instantly recognizable, consistently memorable, and emotionally resonant across every touchpoint.</p>
         </div>
       </div>
 
@@ -23,8 +23,8 @@ export default function SonicAnalysis() {
           <h2 className="text-3xl font-mono text-foreground leading-tight">From brand essence to sonic expression.</h2>
         </div>
         <div className="space-y-6 text-body-muted text-base leading-relaxed">
-          <p className="text-lg">We begin by understanding your brand's core values, personality, and audience. We translate these abstract qualities into concrete sonic attributes—tempo, texture, timbre, and tone.</p>
-          <p className="text-lg">The result is a comprehensive audio identity system that scales from a two-second notification sound to a full musical composition.</p>
+          <p className="text-xl">We begin by understanding your brand's core values, personality, and audience. We translate these abstract qualities into concrete sonic attributes—tempo, texture, timbre, and tone.</p>
+          <p className="text-xl">The result is a comprehensive audio identity system that scales from a two-second notification sound to a full musical composition.</p>
         </div>
       </div>
     </div>

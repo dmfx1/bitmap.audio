@@ -55,14 +55,14 @@ const Navigation = ({ currentPath }: { currentPath: string }) => {
                 {/* HOME & ABOUT LINKS */}
                 <NavigationMenuItem>
                   <a href="/home" className={cn(
-                    "font-mono text-sm uppercase tracking-wider link-underline transition-colors",
+                    "font-mono text-base uppercase tracking-wider link-underline transition-colors",
                     isActive("/home") ? "text-primary hover:text-accent" : "text-muted-foreground hover:text-accent"
                   )}>Home</a>
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>
                   <a href="/about" className={cn(
-                    "font-mono text-sm uppercase tracking-wider link-underline transition-colors",
+                    "font-mono text-base uppercase tracking-wider link-underline transition-colors",
                     isActive("/about") ? "text-primary hover:text-accent" : "text-muted-foreground hover:text-accent"
                   )}>About</a>
                 </NavigationMenuItem>
@@ -70,7 +70,7 @@ const Navigation = ({ currentPath }: { currentPath: string }) => {
                 {/* SOLUTIONS DROPDOWN (UPDATED FOR ACCENT & SQUARE EDGES) */}
                 <NavigationMenuItem className="relative">
                   <NavigationMenuTrigger className={cn(
-                    "bg-transparent p-0 h-auto font-mono text-sm uppercase tracking-wider transition-colors rounded-none", // Added rounded-none
+                    "bg-transparent p-0 h-auto font-mono text-base uppercase tracking-wider transition-colors rounded-none", // Added rounded-none
                     "hover:bg-transparent hover:text-accent focus:bg-transparent focus:text-accent data-[state=open]:text-accent", // Added accent colors
                     currentPath.startsWith("/solutions") ? "text-primary" : "text-muted-foreground"
                   )}>
@@ -86,7 +86,7 @@ const Navigation = ({ currentPath }: { currentPath: string }) => {
                           className="group block px-4 py-3 hover:bg-secondary transition-colors border-b border-border last:border-b-0"
                         >
                           {/* Text color now switches to primary (teal) or accent (amber) on hover */}
-                          <span className="block font-mono text-sm text-foreground group-hover:text-accent transition-colors">
+                          <span className="block font-mono text-base text-foreground group-hover:text-accent transition-colors">
                             {s.name}
                           </span>
                           <span className="block text-[10px] uppercase tracking-tight text-muted-foreground mt-1">
@@ -101,7 +101,7 @@ const Navigation = ({ currentPath }: { currentPath: string }) => {
 
                 <NavigationMenuItem>
                   <a href="/returns2" className={cn(
-                    "font-mono text-sm uppercase tracking-wider link-underline transition-colors",
+                    "font-mono text-base uppercase tracking-wider link-underline transition-colors",
                     isActive("/returns") ? "text-primary hover:text-accent" : "text-muted-foreground hover:text-accent"
                   )}>ROI</a>
                 </NavigationMenuItem>
@@ -109,7 +109,7 @@ const Navigation = ({ currentPath }: { currentPath: string }) => {
               </NavigationMenuList>
             </NavigationMenu>
 
-            <Button variant="outline" size="sm" asChild className="morph-accent">
+            <Button variant="outline" size="sm" asChild className="morph-accent-loop">
               <a href="/contact">Contact</a>
             </Button>
           </div>

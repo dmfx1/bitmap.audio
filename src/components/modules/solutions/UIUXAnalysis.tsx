@@ -11,8 +11,8 @@ export default function UIUXAnalysis() {
           <h2 className="text-3xl font-mono text-foreground leading-tight">Digital products feel silent and disconnected</h2>
         </div>
         <div className="space-y-6 text-body-muted text-base leading-relaxed">
-          <p className="text-lg">Most apps and websites operate in silence. Users miss feedback, misunderstand states, and feel disconnected from the interface. Sound bridges this gap.</p>
-          <p className="text-lg">Thoughtful audio design reduces cognitive load, confirms actions, and creates a more human-centered digital experience.</p>
+          <p className="text-xl">Most apps and websites operate in silence. Users miss feedback, misunderstand states, and feel disconnected from the interface. Sound bridges this gap.</p>
+          <p className="text-xl">Thoughtful audio design reduces cognitive load, confirms actions, and creates a more human-centered digital experience.</p>
         </div>
       </div>
 
@@ -23,8 +23,8 @@ export default function UIUXAnalysis() {
           <h2 className="text-3xl font-mono text-foreground leading-tight">Functional sound, beautiful execution</h2>
         </div>
         <div className="space-y-6 text-body-muted text-base leading-relaxed">
-          <p className="text-lg">We map your product's interaction patterns, identify key feedback moments, and design a cohesive sound system that enhances usability without becoming annoying.</p>
-          <p className="text-lg">Every sound is tested for context, repetition tolerance, and emotional impact — ensuring it serves the user, not just the brand.</p>
+          <p className="text-xl">We map your product's interaction patterns, identify key feedback moments, and design a cohesive sound system that enhances usability without becoming annoying.</p>
+          <p className="text-xl">Every sound is tested for context, repetition tolerance, and emotional impact — ensuring it serves the user, not just the brand.</p>
         </div>
       </div>
     </div>

@@ -53,7 +53,7 @@ export default function SonicHero({ imageSrc }: SonicHeroProps) {
           onComplete={() => setTimeout(() => setShowContent(true), 200)} 
         />
         
-        <p className={`text-body-muted text-lg bg-background/50 max-w-full md:max-w-[65%] transition-all duration-1000 mt-8
+        <p className={`text-body-muted text-xl bg-background/50 max-w-full md:max-w-[65%] transition-all duration-1000 mt-8
           ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
           Just as your visual identity communicates who you are, your sonic identity creates emotional connections that words and images alone cannot achieve.
         </p>

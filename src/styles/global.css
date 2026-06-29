@@ -659,6 +659,12 @@ a, button, [role="button"] {
   animation: morph-pulse-outline 4s infinite ease-in-out;
 }
 
+/* Continuous loop variant — no hover required. Used on nav Contact button. */
+/* shorthand order: name duration timing-function delay iteration-count */
+.morph-accent-loop {
+  animation: morph-pulse-outline 6s ease-in-out 8s infinite;
+}
+
 .morph-accent-fill:hover {
   animation: morph-pulse-fill 4s infinite ease-in-out;
 }

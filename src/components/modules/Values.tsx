@@ -5,17 +5,17 @@ const values = [
   { 
     id: "01", 
     title: "Precision", 
-    desc: "Every frequency is intentional. We engineer sound with the precision of code." 
+    desc: "Every frequency is intentional. We engineer our smallest data points with precision to ensure the collective experience is fresh and engaging." 
   },
   { 
     id: "02", 
     title: "Empathy", 
-    desc: "We design for humans. Sound should feel intuitive, not intrusive." 
+    desc: "We design for humans. Sound should feel intuitive, not intrusive and systems should be collaborative to ensure user frustration is kept to a minimmum." 
   },
   { 
     id: "03", 
     title: "Innovation", 
-    desc: "We push the boundaries of what's possible in sonic design and technology." 
+    desc: "By breaking sounds down to their fundamental compenents, we can push the boundaries of what's possible in sonic design and technology." 
   }
 ];
 
@@ -43,7 +43,7 @@ export default function Values() {
             </h3>
 
             {/* Container limits the width of the full-span tape */}
-            <p className="max-w-[280px] w-full text-base font-mono">
+            <p className="max-w-[280px] w-full text-base font-mono text-justify">
               <span className="">
                 {v.desc}
               </span>

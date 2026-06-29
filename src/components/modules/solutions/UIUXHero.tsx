@@ -61,7 +61,7 @@ export default function UIUXHero({ heroFlipped = HERO_IMAGE_FLIPPED_DEFAULT, ima
           onComplete={() => setTimeout(() => setShowContent(true), 200)}
         />
 
-        <p className={`text-body-muted text-lg bg-background/50 max-w-full md:max-w-[65%] transition-all duration-1000 mt-8
+        <p className={`text-body-muted text-xl bg-background/50 max-w-full md:max-w-[65%] transition-all duration-1000 mt-8
           ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
           Enhance usability and provide critical feedback through purposeful audio. We bridge the gap between digital interaction and human intuition.
         </p>

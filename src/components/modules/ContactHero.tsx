@@ -58,7 +58,7 @@ export default function ContactHero({ imageSrc }: ContactHeroProps) {
           onComplete={() => setTimeout(() => setShowContent(true), 200)}
         />
 
-        <p className={`text-body-muted text-lg bg-background/50 max-w-full md:max-w-[65%] transition-all duration-1000 mt-8
+        <p className={`text-body-muted text-xl bg-background/80 max-w-full md:max-w-[65%] transition-all duration-1000 mt-8
           ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
           Have a project in mind? We'd love to hear about it. Get in touch and let's explore how we can architect your sonic vision together.
         </p>
