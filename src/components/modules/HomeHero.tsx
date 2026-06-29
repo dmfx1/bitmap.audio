@@ -49,7 +49,7 @@ const T = {
   logoFadeOutDur:  200,  // duration of clean fade
   logoDone:        1960, // logo gone, typing starts
   contentIn:       2400, // buttons + grid scramble in
-  imgAmbient:      2000, // image settles to ambient opacity
+  imgAmbient:      3000, // image settles to ambient opacity
 };
 
 type LogoPhase = 'hidden' | 'flash' | 'flare' | 'post-flare' | 'primary' | 'fade-out' | 'gone';

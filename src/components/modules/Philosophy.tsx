@@ -42,7 +42,7 @@ export default function Philosophy() {
 
   return (
     <div ref={sectionRef} className="flex flex-col items-center text-center">
-      <p className="text-eyebrow text-accent text-base mb-12 font-bold">Our Philosophy:<br/><br/><span className="text-accent text-sm">The Micro/Macro Architecture</span></p>
+      <p className="text-eyebrow text-accent text-lg mb-12 font-bold">Our Philosophy:<br/><br/><span className="text-accent text-base">The Micro/Macro Architecture</span></p>
       
       <div className="max-w-4xl min-h-[160px] md:min-h-[200px]">
         <h2 className="text-2xl md:text-4xl lg:text-5xl font-mono text-foreground/60 leading-tight">

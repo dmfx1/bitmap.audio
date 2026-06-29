@@ -16,7 +16,7 @@ import { BitmapIcon } from "./BitmapText"; // Importing the BitmapIcon component
 const solutions = [
   { name: "Sonic Branding", href: "/solutions/sonic-branding", description: "Brand identity through sound" },
   { name: "UI/UX Sound", href: "/solutions/uiux-sound", description: "Sonic interfaces for technology" },
-  { name: "Immersive Audio", href: "/solutions/immersive-audio", description: "AR/VR & spatial installations" },
+  { name: "Experiential Audio", href: "/solutions/experiential-audio", description: "AR/VR & spatial installations" },
 ];
 
 const why = [

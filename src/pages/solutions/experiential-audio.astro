@@ -1,5 +1,5 @@
 ---
-/* src/pages/solutions/sonic-branding.astro */
+/* src/pages/solutions/immersive-audio.astro */
 import { getImage } from 'astro:assets';
 import Layout from '../../layouts/Layout.astro';
 import Section from '../../components/Section.astro';
@@ -8,7 +8,7 @@ import ImmersiveAnalysis from '../../components/modules/solutions/ImmersiveAnaly
 import ConceptGrid from '../../components/modules/ConceptGrid.tsx';
 import DeliverablesGrid from '../../components/modules/solutions/DeliverablesGrid.tsx';
 import CTA from '../../components/modules/CTA.tsx';
-import heroImmersive from '../../assets/images/hero-immersive-audio-01.png';
+import heroImmersive from '../../assets/images/hero-immersive-audio-06.png';
 
 const heroImage = await getImage({
   src: heroImmersive,
@@ -88,7 +88,7 @@ const immersiveDeliverables = [
       <ImmersiveAnalysis client:visible />
     </Section>
 
-    <Section id="applications" delay="0.8s" className="!bg-background/50 backdrop-blur-xl">
+    <Section id="applications" invert delay="0.8s" className="!bg-background/50 backdrop-blur-xl">
       <ConceptGrid
         client:visible
         eyebrow="Applications"

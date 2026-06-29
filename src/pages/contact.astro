@@ -1,10 +1,19 @@
 ---
+import { getImage } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
 import Section from '../components/Section.astro';
 import ContactHero from '../components/modules/ContactHero.tsx';
 import ConceptGrid from '../components/modules/ConceptGrid.tsx';
 import SocialsGrid from '@/components/modules/SocialsGrid';
 import CTA from '../components/modules/CTA.tsx';
+import heroContact from '../assets/images/hero-contact-07.png';
+
+const heroImage = await getImage({
+  src: heroContact,
+  format: 'webp',
+  width: 1400,
+  quality: 85,
+});
 
 const contactCards = [
   {
@@ -28,14 +37,14 @@ const contactCards = [
   title="Contact bitmap.audio | Start Your Sonic Brand"
   description="Get in touch with bitmap.audio to discuss sonic branding, UI/UX sound design, or immersive audio projects. Email us at root@bitmap.audio."
 >
-  <div class="md:sticky top-12 md:top-0  z-[1] min-h-svh md:h-[75vh]">
-    <div class="pt-16 pb-8">
-      <ContactHero client:load />
+  <div class="md:sticky top-12 md:top-0 z-[1] min-h-svh md:h-[75vh]">
+    <div class="h-full pt-16 pb-8">
+      <ContactHero client:load imageSrc={heroImage.src} />
     </div>
   </div>
 
   <div class="relative z-10">
-    <Section id="details" delay="0.5s" className="!bg-background/80 backdrop-blur-sm">
+    <Section id="details" invert delay="0.5s" className="!bg-background/50 backdrop-blur-xl">
       <ConceptGrid
         client:visible
         items={contactCards}
@@ -43,7 +52,7 @@ const contactCards = [
       />
     </Section>
 
-    <Section id="socials" delay="1.2s" className="!bg-background">
+    <Section id="socials"  delay="1.2s" className="!bg-background/80 backdrop-blur-xl">
       <SocialsGrid client:idle />
     </Section>
   </div>

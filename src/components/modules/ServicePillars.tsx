@@ -169,7 +169,7 @@ function ServiceCard({
         {service.title}
       </h3>
       
-      <p className="font-sans text-muted-foreground font-light leading-relaxed">
+      <p className="font-sans text-muted-foreground text-lg font-light leading-relaxed">
         {service.desc}
       </p>
 

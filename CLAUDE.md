@@ -4149,4 +4149,29 @@ public/images/listening.woman.png              (returns.astro uses .woman2.* var
 - Blur: `backdrop-blur-sm` — increase to `backdrop-blur-md` for more frosted glass feel
 - The `!` prefix on the background class overrides the `bg-background` baked into `Section.astro`'s class list
 
-**Do not apply this pattern to `home.astro`, `about.astro`, or `contact.astro`** without explicit instruction — those pages have different hero content and the effect may not be appropriate.
+**Applied to all pages** — home, about, contact, and all three solution pages. On about, the wrapper `bg-background` must be absent (just `relative z-10`) for the effect to show — the sections themselves carry the glass background.
+
+---
+
+### T8 — Contact hero image + component overhaul — DONE
+
+`ContactHero.tsx` was the last hero component still using the old scanning animation pattern. Brought it in line with the solution heroes:
+- Removed `revealProgress` state, `setInterval`, `useEffect`, and the scanning line
+- Added `imageSrc?: string` prop
+- Added hero image + bottom fade (same pattern as solution heroes — conditional on `imageSrc`)
+- Changed root div to `overflow-hidden` and added `md:h-full`
+- Constellation moved inside the masked container alongside the image
+
+`src/pages/contact.astro` updated:
+- Added `getImage()` import + `hero-contact-06.png` import
+- Added `getImage()` call (webp, 1400px, quality 85)
+- Passes `imageSrc={heroImage.src}` to `<ContactHero>`
+- Inner wrapper: `pt-16 pb-8` → `h-full pt-16 pb-8` (same fix as solution pages)
+
+**To trial a new contact hero image:** drop PNG in `src/assets/images/`, update the import line in `contact.astro` frontmatter — nothing else needed.
+
+---
+
+### T9 — Scanning animation removed from `AboutIntro.tsx` — DONE
+
+`revealProgress` state, `setInterval` useEffect, `clipPath`/`transition` on the image container, and the wireframe sketch div (which was already `hidden`) all removed. `useEffect` removed from the import. Image now visible immediately on load — same pattern as all other hero components. `AboutIntro.tsx` is now the last hero using `useState` only (no `useMemo` needed as it has no constellation).

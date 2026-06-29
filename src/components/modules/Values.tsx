@@ -23,7 +23,7 @@ export default function Values() {
   return (
     <div className="w-full">
       <div className="text-center mb-16 md:mb-10">
-        <p className="text-xs font-mono tracking-[0.5em] uppercase text-accent">
+        <p className="text-base font-mono tracking-[0.5em] uppercase text-accent">
           Our Values
         </p>
       </div>
@@ -38,12 +38,12 @@ export default function Values() {
               {v.id}
             </span>
 
-            <h3 className="text-foreground font-mono text-xl md:text-2xl mb-4 tracking-tight">
+            <h3 className="text-primary font-mono text-xl md:text-2xl mb-4 tracking-tight">
               {v.title}
             </h3>
 
             {/* Container limits the width of the full-span tape */}
-            <p className="max-w-[280px] w-full">
+            <p className="max-w-[280px] w-full text-base font-mono">
               <span className="">
                 {v.desc}
               </span>
