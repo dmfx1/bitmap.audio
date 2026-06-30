@@ -10,7 +10,7 @@ export default function ContactHero({ imageSrc }: ContactHeroProps) {
   const [showContent, setShowContent] = useState(false);
 
   return (
-    <div className="relative w-full md:py-32 min-h-[50vh] md:h-full flex flex-col overflow-hidden">
+    <div data-has-hero className="relative w-full md:py-32 min-h-[50vh] md:h-full flex flex-col overflow-hidden">
 
       {/* 1. BACKGROUND — hero image + icon constellation */}
       <div
@@ -27,7 +27,7 @@ export default function ContactHero({ imageSrc }: ContactHeroProps) {
             alt=""
             decoding="async"
             loading="eager"
-            className="absolute inset-0 w-full h-full object-fill object-center"
+            className="absolute inset-0 w-full h-full object-cover object-center"
           />
         )}
 
@@ -65,7 +65,10 @@ export default function ContactHero({ imageSrc }: ContactHeroProps) {
 
         <TypewriterHero
           text={"Let's start a\nconversation"}
-          onComplete={() => setTimeout(() => setShowContent(true), 200)}
+          onComplete={() => setTimeout(() => {
+            setShowContent(true);
+            setTimeout(() => window.dispatchEvent(new CustomEvent('hero-content-ready')), 500);
+          }, 200)}
         />
 
         <p className={`text-foreground text-xl max-w-full md:max-w-[65%] transition-all duration-1000 mt-8

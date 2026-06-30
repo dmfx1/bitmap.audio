@@ -10,7 +10,7 @@ export default function ImmersiveHero({ imageSrc }: ImmersiveHeroProps) {
   const [showContent, setShowContent] = useState(false);
 
   return (
-    <div className="relative w-full md:py-32 min-h-[50vh] md:h-full flex flex-col overflow-hidden">
+    <div data-has-hero className="relative w-full md:py-32 min-h-[50vh] md:h-full flex flex-col overflow-hidden">
 
       {/* 1. BACKGROUND CONSTELLATION + HERO IMAGE */}
       <div
@@ -65,12 +65,15 @@ export default function ImmersiveHero({ imageSrc }: ImmersiveHeroProps) {
         
         <TypewriterHero 
           text={"Sound that exists\nin space"} 
-          onComplete={() => setTimeout(() => setShowContent(true), 200)} 
+          onComplete={() => setTimeout(() => {
+            setShowContent(true);
+            setTimeout(() => window.dispatchEvent(new CustomEvent('hero-content-ready')), 500);
+          }, 200)}
         />
         
         <p className={`text-foreground/90 text-xl max-w-full md:max-w-[65%] transition-all duration-1000 mt-8
           ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-            We design immersive, spatial audio experiences for physical installations to transport audiences into new dimensions of perception and bring the experience to life through the feeling of sound.
+            We design immersive audio experiences for physical installations and augmented reality experiences to transport users into new perception states and bring experiences to life through the feeling of sound.
         </p>
       </div>
     </div>

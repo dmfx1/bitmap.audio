@@ -50,7 +50,7 @@ export default function VideoModal({ isOpen, onClose, vimeoId, mobileVimeoId }: 
           onClick={onClose} 
           className="absolute -top-12 right-0 flex items-center gap-2 font-mono text-[10px] tracking-[0.3em] text-muted-foreground hover:text-accent group transition-all"
         >
-          <span className="opacity-50 group-hover:opacity-100 uppercase">[ Terminate_Stream ]</span>
+          <span className="opacity-50 group-hover:opacity-100 uppercase">[ Decommission ]</span>
           <BitmapClose className="w-5 h-5 text-accent" />
         </button>
 

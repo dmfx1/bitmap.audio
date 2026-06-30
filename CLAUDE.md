@@ -4233,7 +4233,7 @@ Added `.morph-accent-loop` to `src/styles/global.css` — runs `morph-pulse-outl
 
 ### U1 — Hero legibility overlay — constrained to text zone only — DONE
 
-All 5 hero components (`ImmersiveHero.tsx`, `SonicHero.tsx`, `UIUXHero.tsx`, `ContactHero.tsx`, `AboutIntro.tsx`) had their legibility overlay changed from `absolute inset-0` (full width, dimming the image) to a width-constrained left-side-only overlay. Two divs — one for mobile, one for desktop:
+All 6 hero components (`Hero.tsx`, `ImmersiveHero.tsx`, `SonicHero.tsx`, `UIUXHero.tsx`, `ContactHero.tsx`, `AboutIntro.tsx`) use a width-constrained left-side-only legibility overlay. Two divs — one for mobile, one for desktop:
 
 ```tsx
 {/* Mobile: top-to-bottom fade */}
@@ -4273,3 +4273,99 @@ Key implementation details:
 - Both images are now same dimensions (1792×2390 portrait) — stable at all viewport sizes
 
 **Do not use `opacity` overlays or `bg-background/50` on text paragraphs** — `mix-blend-screen` handles legibility naturally.
+
+---
+
+### U3 — CTA and section background image experiments — REVERTED
+
+Multiple approaches were tried and reverted:
+- Adding `about-bitmap-philosophy-bg-01.png` as a background to the philosophy section (via `bgSrc` prop on Section.astro, then directly in AboutPhilosophy.tsx)
+- Adding a pixelated bitmap texture (`CTA-bg-02.png` downscaled to 32px, tiled via CSS `background-size` + `image-rendering: pixelated`) to all CTA sections via a `texture` prop on Section.astro
+
+All reverted — `Section.astro`, `AboutPhilosophy.tsx`, `CTA.tsx`, and all 6 CTA pages are back to their plain state. The source images (`about-bitmap-philosophy-bg-01.png`, `CTA-bg-02.png`, `cta-texture-32/64/128.webp`) remain in `src/assets/images/` and `public/images/` but are not referenced anywhere.
+
+**Next idea to try:** Re-add the bitmap icon constellations to `CTA.tsx` (removed in T10). These were removed site-wide from hero components but could work well as a decorative background element in the CTA section specifically.
+
+---
+
+## V. Session 2026-06-30 — COMPLETED
+
+### V1 — CTA sections: full-bleed bitmap grid + binary rain — DONE
+
+**The problem:** The sticky hero (`z-[1]`) sits between `GridBackground` (`fixed z-0`) and the scrolling content sections (`z-10`). Making CTA sections transparent revealed the hero image, not the grid/rain. Embedding grid/rain inside `CTA.tsx` was not full-bleed because the component renders inside Section.astro's constrained `max-w-7xl` inner div.
+
+**The fix:** Added a `gridBg?: boolean` prop to `src/components/Section.astro`. When true, renders bitmap grid + binary rain + radial vignette as `absolute inset-0` directly inside `<section>` (before the constrained inner div) — genuinely full-bleed edge-to-edge.
+
+```astro
+{gridBg && (
+  <div class="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+    <div class="absolute inset-0 bitmap-grid" style="opacity: var(--grid-opacity)" />
+    <div class="binary-waterfall">
+      <div class="binary-layer layer-deep" />
+      <div class="binary-layer layer-near" />
+    </div>
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_30%,hsl(var(--background)/0.8)_100%)]" />
+  </div>
+)}
+```
+
+**`CTA.tsx`** — grid/rain block removed. Component is now plain content only.
+
+**All 6 CTA sections** updated to use `gridBg` prop + `!bg-background/80 backdrop-blur-sm`:
+- `src/pages/home.astro`
+- `src/pages/about.astro`
+- `src/pages/solutions/sonic-branding.astro`
+- `src/pages/solutions/uiux-sound.astro`
+- `src/pages/solutions/experiential-audio.astro`
+- `src/pages/faq.astro`
+
+**Tuning:** Adjust `!bg-background/80` opacity per section (lower = more grid visible through the backdrop). `backdrop-blur-sm` keeps the CTA text legible over the animated rain.
+
+---
+
+### V2 — Section background images via `bgSrc` prop — DONE
+
+**`Section.astro`** has a `bgSrc?: string` prop. When provided, renders the image as a full-bleed `absolute inset-0` background (before the inner constrained div) — visible on the left, fading to transparent on the right via CSS mask gradient.
+
+```astro
+{bgSrc && (
+  <div class="absolute inset-0 pointer-events-none overflow-hidden">
+    <img src={bgSrc} class="absolute inset-y-0 left-0 w-full md:w-[55%] h-full object-cover object-left"
+      style="mask-image: linear-gradient(to right, black 0%, black 40%, transparent 100%); opacity: 0.25;" />
+  </div>
+)}
+```
+
+**To add a background image to any Section:**
+1. Import the PNG in the page frontmatter: `import myBg from '../assets/images/my-bg.png';`
+2. Process with `getImage()`: `const bgImg = await getImage({ src: myBg, format: 'webp', width: 1200, quality: 80 });`
+3. Pass to Section: `<Section bgSrc={bgImg.src} bgFade="down">`
+
+**`bgFade` options:**
+- `"right"` (default) — image left-aligned, fades to transparent on the right. Used on: `#philosophy` (about)
+- `"down"` — image pinned to top, fades to transparent at the bottom. Used on: `#applications` sections
+- `"up"` — image pinned to bottom, fades to transparent at the top. Used on: `#deliverables` sections
+
+**Tuning in `Section.astro`:** `opacity: 0.25` (raise for more presence), `black 30%` / `black 40%` fade stop (push value higher for a longer solid zone before the fade).
+
+**Currently used on:**
+- `about.astro` — `#philosophy` section: `about-bitmap-philosophy-bg-01.png`
+- `sonic-branding.astro` — `#deliverables` section: `deliverables-bg-01.png`
+- `uiux-sound.astro` — `#applications` and `#deliverables` sections: `deliverables-bg-01.png`
+- `experiential-audio.astro` — `#applications` and `#deliverables` sections: `deliverables-bg-01.png`
+
+---
+
+### V3 — Section reveal gated by hero animation — DONE
+
+**The problem:** `Section.astro`'s IntersectionObserver fired immediately on page load, revealing sections below the hero before the typewriter + description fade had finished.
+
+**The fix:** Two-part mechanism:
+
+1. **Hero components** (`SonicHero`, `UIUXHero`, `ImmersiveHero`, `ContactHero`, `AboutIntro`) now:
+   - Have `data-has-hero` on their root div
+   - Fire `window.dispatchEvent(new CustomEvent('hero-content-ready'))` 1100ms after `setShowContent(true)` (= 200ms post-typewriter + 1000ms description fade + 100ms buffer)
+
+2. **`Section.astro`** script: wraps IntersectionObserver start in `startObserving()`. If `[data-has-hero]` exists in the DOM, waits for the `hero-content-ready` event before observing. Non-hero pages observe immediately. 6s fallback prevents permanent block if something breaks.
+
+**To tune timing:** adjust the `1100` value in any hero component's `onComplete` callback — it's the ms after `setShowContent(true)` before the event fires.

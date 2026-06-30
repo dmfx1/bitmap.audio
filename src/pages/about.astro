@@ -9,12 +9,20 @@ import AboutPhilosophy from '../components/modules/AboutPhilosophy.tsx';
 import Values from '../components/modules/Values.tsx';
 import CTA from '../components/modules/CTA.tsx';
 import heroAboutTwoMinds from '../assets/images/hero-about-two-minds-03.png';
+import philosophyBg from '../assets/images/about-bitmap-philosophy-bg-01.png';
 
 const heroImage = await getImage({
   src: heroAboutTwoMinds,
   format: 'webp',
   width: 1200,
   quality: 85,
+});
+
+const philosophyBgImage = await getImage({
+  src: philosophyBg,
+  format: 'webp',
+  width: 1200,
+  quality: 80,
 });
 ---
 
@@ -35,7 +43,7 @@ const heroImage = await getImage({
       <Founders client:visible />
     </Section>
 
-    <Section id="philosophy" invert delay="0.3s" className="!bg-background/50 backdrop-blur-xl">
+    <Section id="philosophy" invert delay="0.3s" className="!bg-background/50 backdrop-blur-xl" bgSrc={philosophyBgImage.src}>
       <AboutPhilosophy client:visible />
     </Section>
 
@@ -43,7 +51,7 @@ const heroImage = await getImage({
       <Values client:visible />
     </Section>
 
-    <Section id="cta" delay="0.4s" className="!bg-background/95 backdrop-blur-xl">
+    <Section id="cta" delay="0.4s" className="!bg-background/50 backdrop-blur-xl">
       <CTA
         client:visible
         title="Define your brand's audio identity"

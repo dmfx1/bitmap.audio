@@ -9,6 +9,7 @@ import ConceptGrid from '../../components/modules/ConceptGrid.tsx';
 import DeliverablesGrid from '../../components/modules/solutions/DeliverablesGrid.tsx';
 import CTA from '../../components/modules/CTA.tsx';
 import heroImmersive from '../../assets/images/hero-immersive-audio-13.png';
+import deliverablesBg from '../../assets/images/deliverables-bg-01.png';
 
 const heroImage = await getImage({
   src: heroImmersive,
@@ -17,35 +18,44 @@ const heroImage = await getImage({
   quality: 85,
 });
 
+const deliverablesBgImage = await getImage({
+  src: deliverablesBg,
+  format: 'webp',
+  width: 1200,
+  quality: 80,
+});
+
 // DEFINING THE DATA SET FOR THIS PAGE
 const immersiveAudioApplications = [
   {
     id: 1,
     title: "Virtual Reality",
     subtitle: "VR Experiences & Games",
-    desc: "Full 3D audio design for VR environments, including ambisonic soundscapes, interactive object audio, and spatial music."
+    desc: "3D audio design including ambisonic soundscapes, interactive object audio and spatial music."
   },
   {
     id: 2,
     title: "Augmented Reality",
     subtitle: "AR Applications",
-    desc: "Audio that bridges digital and physical, anchoring virtual objects in real space through precise spatial audio cues."
+    desc: "Audio that anchors virtual objects in real space through precise spatial audio cues."
   },
   {
     id: 3,
     title: "Physical Space",
     subtitle: "Installations & Exhibitions",
-    desc: "Multi-channel audio installations for museums, galleries, and experiential marketing that respond to visitor presence and movement."
+    desc: "Multi-channel audio installations for exhibitions that respond to visitor movement."
   },
   {
     id: 4,
     title: "Generative",
     subtitle: "Interactive Soundscapes",
-    desc: "Algorithmic and generative audio systems that create unique, never-repeating sonic environments based on data or user interaction."
+    desc: "Generative audio systems that create unique, never-repeating sonic environments."
   }
 ];
 
 const immersiveDeliverables = [
+  "Location audit & acoustic analysis",
+  "Implementation strategy",
   "3D / Spatial Audio Design",
   "Ambisonics & Binaural Mixes",
   "Interactive Audio Systems",
@@ -88,17 +98,18 @@ const immersiveDeliverables = [
       <ImmersiveAnalysis client:visible />
     </Section>
 
-    <Section id="applications" invert delay="0.8s" className="!bg-background/50 backdrop-blur-xl">
+    <Section id="applications" invert delay="0.8s" className="!bg-background/50 backdrop-blur-xl" bgSrc={deliverablesBgImage.src} bgFade="down">
       <ConceptGrid
         client:visible
         eyebrow="Applications"
         sectionTitle="Where we create"
         items={immersiveAudioApplications}
         mobileGlow={true}
+        columns={2}
       />
     </Section>
 
-    <Section id="deliverables" delay="1.2s" className="!bg-background/50 backdrop-blur-xl">
+    <Section id="deliverables" delay="1.2s" className="!bg-background/50 backdrop-blur-xl" bgSrc={deliverablesBgImage.src} bgFade="up">
       <DeliverablesGrid
         client:visible
         items={immersiveDeliverables}
@@ -106,7 +117,7 @@ const immersiveDeliverables = [
       />
     </Section>
 
-    <Section id="cta" delay="1.5s" className="!bg-background/95 backdrop-blur-xl">
+    <Section id="cta" delay="1.5s" className="!bg-background/50 backdrop-blur-xl">
       <CTA
         client:visible
         title="Enter new dimensions"

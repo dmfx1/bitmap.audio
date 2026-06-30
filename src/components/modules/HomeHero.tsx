@@ -260,7 +260,7 @@ export default function HomeHero({ imageSrc }: HomeHeroProps) {
               <a href="/home" className="w-full">
                 <Button
                   size="xl"
-                  className="w-full rounded-none font-mono text-lg tracking-widest h-14 hover:text-accent hover:border-primary transition-colors"
+                  className="w-full hover:bg-background/90 rounded-none font-mono text-lg tracking-widest h-14 hover:text-accent hover:border-accent transition-colors"
                 >
                   {scrambledAccess}
                 </Button>

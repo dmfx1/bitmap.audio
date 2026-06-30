@@ -10,11 +10,11 @@ export default function SonicHero({ imageSrc }: SonicHeroProps) {
   const [showContent, setShowContent] = useState(false);
 
   return (
-    <div className="relative w-full md:py-32 min-h-[50vh] md:h-full flex flex-col overflow-hidden">
+    <div data-has-hero className="relative w-full md:py-32 min-h-[50vh] md:h-full flex flex-col overflow-hidden">
 
       {/* 1. HERO IMAGE */}
       <div
-        className="absolute -right-40 top-0 w-full md:w-[85%] h-full pointer-events-none z-0"
+        className="absolute right-0 top-0 w-full md:w-[85%] h-full pointer-events-none z-0"
         style={{
           WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 30%)',
           maskImage: 'linear-gradient(to right, transparent 0%, black 30%)',
@@ -60,12 +60,15 @@ export default function SonicHero({ imageSrc }: SonicHeroProps) {
         
         <TypewriterHero 
           text={"Define your brand's\naudio DNA"} 
-          onComplete={() => setTimeout(() => setShowContent(true), 200)} 
+          onComplete={() => setTimeout(() => {
+            setShowContent(true);
+            setTimeout(() => window.dispatchEvent(new CustomEvent('hero-content-ready')), 500);
+          }, 200)}
         />
         
         <p className={`text-foreground/90 text-xl max-w-full md:max-w-[65%] transition-all duration-1000 mt-8
           ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-          Just as your visual identity communicates who you are, your sonic identity creates emotional connections that words and images alone cannot achieve.
+          Visual identity can only go so far. Turbo charge your brand with a unique sonic footprint to significantly enhance recognition and recall.
         </p>
       </div>
     </div>

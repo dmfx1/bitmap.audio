@@ -25,7 +25,7 @@ const services = [
 
 export default function ServicePillars() {
   const [internalScan, setInternalScan] = useState(false);
-  const [activeAutoIndex, setActiveAutoIndex] = useState<number | null>(null);
+  const [activeAutoIndex, setActiveAutoIndex] = useState<number | null>(0);
   
   // NEW: State to track if the system should keep auto-playing
   const [autoplayActive, setAutoplayActive] = useState(true); 
@@ -65,8 +65,8 @@ export default function ServicePillars() {
           if (current === null || current >= services.length - 1) return 0;
           return current + 1;
         });
-      }, 3500);
-    }, 2000); 
+      }, 4500);
+    }, 450); 
 
     return () => {
       clearTimeout(startDelay);

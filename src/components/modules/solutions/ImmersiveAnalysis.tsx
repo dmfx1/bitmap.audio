@@ -12,7 +12,7 @@ export default function ImmersiveAnalysis() {
         </div>
         <div className="space-y-6 text-body-muted text-base leading-relaxed">
           <p className="text-xl">Traditional stereo audio exists on a flat plane. In immersive environments, sound needs to exist in three dimensions, responding to movement, orientation, and space.</p>
-          <p className="text-xl">Poorly implemented spatial audio destroys presence. Great spatial audio is the foundation of believable virtual worlds.</p>
+          <p className="text-xl">By leveraging spatial audio techniques with object-based audio and immersive audio mixing we can take that flat audio pane and manufacture believable virtual worlds and spaces.</p>
         </div>
       </div>
 
@@ -23,8 +23,8 @@ export default function ImmersiveAnalysis() {
           <h2 className="text-3xl font-mono text-foreground leading-tight">Engineering presence through sound.</h2>
         </div>
         <div className="space-y-6 text-body-muted text-base leading-relaxed">
-          <p className="text-xl">We combine artistic vision with technical expertise in spatial audio formats, game engines, and audio middleware to create experiences that feel real.</p>
-          <p className="text-xl">Whether it's a VR experience, AR application, or a physical installation, we architect sound that responds to space and movement naturally.</p>
+          <p className="text-xl">We combine artistic vision with technical expertise in spatial audio formats and audio middleware to create experiences that feel real and respond to their environment.</p>
+          <p className="text-xl">Whether it's a VR experience, AR application or a physical installation, we architect sound that responds to space and movement naturally.</p>
         </div>
       </div>
     </div>

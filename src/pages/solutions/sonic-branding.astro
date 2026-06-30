@@ -8,6 +8,7 @@ import SonicAnalysis from '../../components/modules/solutions/SonicAnalysis.tsx'
 import DeliverablesGrid from '../../components/modules/solutions/DeliverablesGrid.tsx';
 import CTA from '../../components/modules/CTA.tsx';
 import heroSonic from '../../assets/images/hero-sonic-branding-transparent-03.png';
+import deliverablesBg from '../../assets/images/deliverables-bg-01.png';
 
 const heroImage = await getImage({
   src: heroSonic,
@@ -16,13 +17,20 @@ const heroImage = await getImage({
   quality: 85,
 });
 
+const deliverablesBgImage = await getImage({
+  src: deliverablesBg,
+  format: 'webp',
+  width: 1200,
+  quality: 80,
+});
+
 const sonicDeliverables = [
-  "Audio Logo / Sonic Mnemonic",
-  "Brand Sound Guidelines",
+  "Sonic Audit & Brand Analysis",
+  "Approach Guidelines & Strategy",
   "Adaptive Audio Assets",
   "Notification & Alert Sounds",
-  "Hold Music & Ambience",
-  "Podcast & Video Intros/Outros"
+  "Sonic Logo",
+  "Bespoke Hero Music"
 ];
 ---
 
@@ -59,7 +67,7 @@ const sonicDeliverables = [
       <SonicAnalysis client:visible />
     </Section>
 
-    <Section id="deliverables" invert delay="1.2s" className="!bg-background/50 backdrop-blur-xl">
+    <Section id="deliverables" invert delay="1.2s" className="!bg-background/50 backdrop-blur-xl" bgSrc={deliverablesBgImage.src} bgFade="up">
       <DeliverablesGrid
         client:visible
         items={sonicDeliverables}
@@ -68,7 +76,7 @@ const sonicDeliverables = [
     </Section>
 
     {/* REUSABLE CTA: Passing specific props for this page */}
-    <Section id="cta" delay="1.5s" className="!bg-background/95 backdrop-blur-xl">
+    <Section id="cta" delay="1.5s" className="!bg-background/50 backdrop-blur-xl">
       <CTA
         client:visible
         title="Ready to sound like yourself?"

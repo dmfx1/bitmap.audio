@@ -9,6 +9,7 @@ import ConceptGrid from '../../components/modules/ConceptGrid.tsx';
 import DeliverablesGrid from '../../components/modules/solutions/DeliverablesGrid.tsx';
 import CTA from '../../components/modules/CTA.tsx';
 import heroUiux from '../../assets/images/hero-uiux-transparent-01.png';
+import deliverablesBg from '../../assets/images/deliverables-bg-01.png';
 
 const heroImage = await getImage({
   src: heroUiux,
@@ -17,31 +18,38 @@ const heroImage = await getImage({
   quality: 85,
 });
 
+const deliverablesBgImage = await getImage({
+  src: deliverablesBg,
+  format: 'webp',
+  width: 1200,
+  quality: 80,
+});
+
 // DEFINING THE DATA SET FOR THIS PAGE
 const uiuxApplications = [
   {
     id: 1,
     title: "Mobile Apps",
-    desc: "Haptic-synced audio, gesture feedback, navigation sounds, and notification hierarchies."
+    desc: "Haptic-synced audio, gesture feedback and navigation sounds."
   },
   {
     id: 2,
     title: "Web Applications",
-    desc: "Form interactions, loading states, real-time updates, and collaboration cues."
+    desc: "Form interactions, loading states, real-time updates and collaboration cues."
   },
   {
     id: 3,
     title: "Hardware Products",
-    desc: "Power states, connectivity, errors, and physical button feedback sounds."
+    desc: "Power states, connectivity, errors and physical button feedback sounds."
   }
 ];
 
 const uiuxDeliverables = [
-  "Interaction Sound Library",
+  "UI/UX Audit & Interaction Analysis",
+  "Approach Guidelines & Strategy",
   "State & Feedback Sounds",
-  "Notification Hierarchy",
-  "Error & Success Indicators",
-  "Loading & Progress Audio",
+  "Interface Indicators",
+  "Ongoing Support & Iteration",
   "Implementation Guidelines"
 ];
 ---
@@ -79,7 +87,7 @@ const uiuxDeliverables = [
       <UIUXAnalysis client:visible />
     </Section>
 
-    <Section id="applications" invert delay="0.8s" className="!bg-background/50 backdrop-blur-xl">
+    <Section id="applications" invert delay="0.8s" className="!bg-background/50 backdrop-blur-xl" bgSrc={deliverablesBgImage.src} bgFade="down">
       <ConceptGrid
         client:visible
         eyebrow="Applications"
@@ -89,7 +97,7 @@ const uiuxDeliverables = [
       />
     </Section>
 
-    <Section id="deliverables" delay="1.2s" className="!bg-background/50 backdrop-blur-xl">
+    <Section id="deliverables" delay="1.2s" className="!bg-background/50 backdrop-blur-xl" bgSrc={deliverablesBgImage.src} bgFade="up">
       <DeliverablesGrid
         client:visible
         items={uiuxDeliverables}
@@ -97,7 +105,7 @@ const uiuxDeliverables = [
       />
     </Section>
 
-    <Section id="cta" delay="1.5s" className="!bg-background/95 backdrop-blur-xl">
+    <Section id="cta" delay="1.5s" className="!bg-background/50 backdrop-blur-xl">
       <CTA
         client:visible
         title="Make your product speak"

@@ -7,6 +7,7 @@ import ConceptGrid from '../components/modules/ConceptGrid.tsx';
 import SocialsGrid from '@/components/modules/SocialsGrid';
 import CTA from '../components/modules/CTA.tsx';
 import heroContact from '../assets/images/hero-contact-07.png';
+import contactDetailsBg from '../assets/images/contact-details-bg-04.png';
 
 const heroImage = await getImage({
   src: heroContact,
@@ -15,12 +16,19 @@ const heroImage = await getImage({
   quality: 85,
 });
 
+const contactDetailsBgImage = await getImage({
+  src: contactDetailsBg,
+  format: 'webp',
+  width: 1200,
+  quality: 85,
+});
+
 const contactCards = [
   {
     id: 1,
     title: "EMAIL US",
     subtitle: "root@bitmap.audio",
-    desc: "For project inquiries, collaborations, or just to say hello.",
+    desc: "For project enquiries, collaborations, or just to say hello.",
     icon: "mail"
   },
   {
@@ -37,7 +45,7 @@ const contactCards = [
   title="Contact bitmap.audio | Start Your Sonic Brand"
   description="Get in touch with bitmap.audio to discuss sonic branding, UI/UX sound design, or immersive audio projects. Email us at root@bitmap.audio."
 >
-  <div class="md:sticky top-12 md:top-0 z-[1] min-h-svh md:h-[75vh]">
+  <div class="md:sticky top-12 md:top-0 z-[1] min-h-svh md:min-h-0 md:h-[85vh]">
     <div class="h-full pt-16 pb-8">
       <ContactHero client:load imageSrc={heroImage.src} />
     </div>
@@ -52,7 +60,7 @@ const contactCards = [
       />
     </Section>
 
-    <Section id="socials"  delay="1.2s" className="!bg-background/80 backdrop-blur-xl">
+    <Section id="socials" delay="1.2s" className="!bg-background/80 backdrop-blur-xl min-h-[500px]" bgSrc={contactDetailsBgImage.src} bgSide="left" bgWidth="100%" bgFlip={true}>
       <SocialsGrid client:idle />
     </Section>
   </div>

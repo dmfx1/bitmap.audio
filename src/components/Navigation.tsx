@@ -16,7 +16,7 @@ import { BitmapIcon } from "./BitmapText"; // Importing the BitmapIcon component
 const solutions = [
   { name: "Sonic Branding", href: "/solutions/sonic-branding", description: "Brand identity through sound" },
   { name: "UI/UX Sound", href: "/solutions/uiux-sound", description: "Sonic interfaces for technology" },
-  { name: "Experiential Audio", href: "/solutions/experiential-audio", description: "AR/VR & spatial installations" },
+  { name: "Experiential Audio", href: "/solutions/experiential-audio", description: "Immersive spatial installations" },
 ];
 
 const why = [
@@ -103,7 +103,7 @@ const Navigation = ({ currentPath }: { currentPath: string }) => {
                   <a href="/returns2" className={cn(
                     "font-mono text-base uppercase tracking-wider link-underline transition-colors",
                     isActive("/returns") ? "text-primary hover:text-accent" : "text-muted-foreground hover:text-accent"
-                  )}>ROI</a>
+                  )}>Why</a>
                 </NavigationMenuItem>
                 
               </NavigationMenuList>

@@ -22,7 +22,22 @@ export default function DeliverablesGrid({
   const [autoplayActive, setAutoplayActive] = useState(true);
   
   const containerRef = useRef<HTMLDivElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
   const resumeTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Equalise card heights after render — measures all cards, sets all to the tallest
+  useEffect(() => {
+    const equalise = () => {
+      if (!gridRef.current) return;
+      const cards = Array.from(gridRef.current.querySelectorAll<HTMLElement>('[data-card]'));
+      cards.forEach(c => { c.style.height = ''; }); // reset first so we measure natural height
+      const max = cards.reduce((m, c) => Math.max(m, c.offsetHeight), 0);
+      if (max > 0) cards.forEach(c => { c.style.height = `${max}px`; });
+    };
+    equalise();
+    window.addEventListener('resize', equalise);
+    return () => window.removeEventListener('resize', equalise);
+  }, [items]);
 
   // --- INTERSECTION OBSERVER ---
   useEffect(() => {
@@ -97,13 +112,13 @@ export default function DeliverablesGrid({
         </h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto px-4">
+      <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto px-4">
         {items?.map((item, i) => (
-          <DeliverableCard 
-            key={i} 
-            text={item} 
-            isScanning={isScanning} 
-            index={i} 
+          <DeliverableCard
+            key={i}
+            text={item}
+            isScanning={isScanning}
+            index={i}
             forcePlay={activeAutoIndex === i}
             onUserInteraction={handleUserInteraction}
             onUserLeave={handleUserLeave}
@@ -158,6 +173,7 @@ function DeliverableCard({
 
   return (
     <div
+      data-card
       ref={cardRef}
       onMouseEnter={() => { onUserInteraction(); setIsHovered(true); }}
       onMouseLeave={() => { onUserLeave(); setIsHovered(false); }}
@@ -175,10 +191,9 @@ function DeliverableCard({
           : "md:border-foreground/10 z-10 md:scale-100"
       )}
     >
-      <div className="flex items-center gap-4 relative z-10">
+      <div className="flex items-start gap-4 relative z-10">
         <div className={cn(
-          "shrink-0 transition-all duration-500",
-          // The tick icon reacts to the active state
+          "shrink-0 mt-0.5 transition-all duration-500",
           isActive ? "md:scale-110 text-accent md:drop-shadow-[0_0_8px_hsl(var(--accent)/0.5)]" : "text-accent/50"
         )}>
             <BitmapTick className="w-5 h-5" />

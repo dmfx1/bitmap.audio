@@ -1,10 +1,19 @@
 ---
 /* src/pages/faq.astro */
+import { getImage } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
 import Section from '../components/Section.astro';
 import FAQContent from '../components/modules/FAQContent.tsx';
 import CTA from '../components/modules/CTA.tsx';
 import { BitmapQuestion } from '../components/ui/icons';
+import heroFaq from '../assets/images/hero-faq-10.png';
+
+const heroImage = await getImage({
+  src: heroFaq,
+  format: 'webp',
+  width: 1400,
+  quality: 85,
+});
 ---
 
 <Layout
@@ -51,15 +60,15 @@ import { BitmapQuestion } from '../components/ui/icons';
       ]
     })}</script>
   </Fragment>
-  <Section id="faq-hero" delay="0.1s" className="pt-8 pb-12 md:py-52 min-h-[40vh] flex items-start md:items-end">
+  <Section id="faq-hero" delay="0.1s" className="pt-8 pb-12 md:py-52 min-h-[40vh] flex items-start md:items-end" bgSrc={heroImage.src} bgSide="right" bgWidth="65%">
     <div class="absolute right-4 top-4 pointer-events-none select-none" aria-hidden="true">
-      <BitmapQuestion class="w-32 h-32 text-primary/10 rotate-12" />
+      <BitmapQuestion className="w-32 h-32 text-primary/10 rotate-12" />
     </div>
     <div class="absolute right-20 top-20 pointer-events-none select-none" aria-hidden="true">
-      <BitmapQuestion class="w-16 h-16 text-accent/20 -rotate-6" />
+      <BitmapQuestion className="w-16 h-16 text-accent/20 -rotate-6" />
     </div>
     <div class="max-w-3xl relative z-10">
-      <p class="text-eyebrow text-accent uppercase tracking-[0.5em] text-xs font-medium mb-4">
+      <p class="text-eyebrow text-accent uppercase tracking-[0.5em] text-sm font-medium mb-4">
         Knowledge Base
       </p>
       <h1 class="text-4xl font-mono text-foreground mb-8 tracking-tighter"> 
@@ -75,7 +84,7 @@ import { BitmapQuestion } from '../components/ui/icons';
     <FAQContent client:visible />
   </Section>
 
-  <Section id="cta" delay="0.5s">
+  <Section id="cta" delay="0.5s" className="!bg-background/50 backdrop-blur-xl">
     <CTA client:visible title="Still have questions?" />
   </Section>
 </Layout>

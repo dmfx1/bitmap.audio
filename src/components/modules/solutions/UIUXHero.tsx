@@ -16,7 +16,7 @@ export default function UIUXHero({ heroFlipped = HERO_IMAGE_FLIPPED_DEFAULT, ima
   const [showContent, setShowContent] = useState(false);
 
   return (
-    <div className="relative w-full md:py-32 min-h-[50vh] md:h-full flex flex-col overflow-hidden">
+    <div data-has-hero className="relative w-full md:py-32 min-h-[50vh] md:h-full flex flex-col overflow-hidden">
 
       {/* 1. BACKGROUND — hero image + icon constellation */}
       <div
@@ -68,7 +68,10 @@ export default function UIUXHero({ heroFlipped = HERO_IMAGE_FLIPPED_DEFAULT, ima
 
         <TypewriterHero
           text={"Sound that makes\ninterfaces intuitive"}
-          onComplete={() => setTimeout(() => setShowContent(true), 200)}
+          onComplete={() => setTimeout(() => {
+            setShowContent(true);
+            setTimeout(() => window.dispatchEvent(new CustomEvent('hero-content-ready')), 500);
+          }, 200)}
         />
 
         <p className={`text-foreground/90 text-xl max-w-full md:max-w-[65%] transition-all duration-1000 mt-8

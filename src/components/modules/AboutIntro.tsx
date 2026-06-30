@@ -17,7 +17,7 @@ export default function AboutIntro({ heroFlipped = HERO_IMAGE_FLIPPED_DEFAULT, i
   const [showContent, setShowContent] = useState(false);
 
   return (
-    <div className="relative w-full md:py-32 min-h-svh flex flex-col overflow-hidden">
+    <div data-has-hero className="relative w-full md:py-32 min-h-svh flex flex-col overflow-hidden">
 
       {/* Text legibility overlay — mobile: top-to-bottom fade */}
       <div className="md:hidden absolute inset-0 z-[5] pointer-events-none bg-gradient-to-b from-background/70 to-transparent" />
@@ -62,7 +62,10 @@ export default function AboutIntro({ heroFlipped = HERO_IMAGE_FLIPPED_DEFAULT, i
 
         <TypewriterHero
           text={"Two minds,\none sonic vision"}
-          onComplete={() => setTimeout(() => setShowContent(true), 200)}
+          onComplete={() => setTimeout(() => {
+            setShowContent(true);
+            setTimeout(() => window.dispatchEvent(new CustomEvent('hero-content-ready')), 500);
+          }, 200)}
         />
 
         <p className={`text-foreground/90 text-xl font-mono md:max-w-[60%] transition-all duration-1000

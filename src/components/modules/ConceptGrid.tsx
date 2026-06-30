@@ -32,6 +32,7 @@ interface ConceptGridProps {
   isScanning?: boolean;
   onProjectClick?: (item: Concept) => void;
   mobileGlow?: boolean;
+  columns?: 1 | 2 | 3; // override cards-per-row on desktop (default: auto based on count)
 }
 
 export default function ConceptGrid({
@@ -42,6 +43,7 @@ export default function ConceptGrid({
   isScanning: propIsScanning,
   onProjectClick,
   mobileGlow = false,
+  columns,
 }: ConceptGridProps) {
   const [internalScan, setInternalScan] = useState(false);
   const [activeAutoIndex, setActiveAutoIndex] = useState<number | null>(null);
@@ -94,10 +96,10 @@ export default function ConceptGrid({
   };
 
   const getGridConfig = () => {
-    const count = items.length;
-    if (count === 1) return "md:grid-cols-1 max-w-2xl"; 
-    if (count === 2) return "md:grid-cols-2 max-w-5xl"; 
-    return "md:grid-cols-3 max-w-6xl"; 
+    const cols = columns ?? (items.length <= 1 ? 1 : items.length === 2 ? 2 : 3);
+    if (cols === 1) return "md:grid-cols-1 max-w-2xl";
+    if (cols === 2) return "md:grid-cols-2 max-w-5xl";
+    return "md:grid-cols-3 max-w-6xl";
   };
 
   useEffect(() => {
@@ -254,7 +256,7 @@ function ProjectCard({
             <h3 className={cn(
               "font-mono text-base uppercase tracking-[0.2em] px-1 transition-colors duration-300", 
               item.subtitle ? "mb-1" : "mb-3", 
-              shouldBePlaying ? "text-accent bg-primary/10" : "text-primary"
+              shouldBePlaying ? "text-accent" : "text-primary"
             )}>
               {scrambledTitle}
             </h3>
@@ -269,12 +271,11 @@ function ProjectCard({
             )}
           </div>
           
-          {/* THE FIX: Added min-h-[80px] to absorb any padding the label-tape effect adds */}
-          <div className="mt-4 pb-4 h-[80px] overflow-hidden flex flex-col justify-start">
+          <div className="mt-4 pb-4 h-[100px] overflow-hidden flex flex-col justify-start">
             <p className={cn(
               "font-mono transition-all duration-500 text-base px-1 leading-relaxed font-light", 
               shouldBePlaying 
-                ? "text-foreground bg-primary/10" 
+                ? "text-foreground" 
                 : "text-foreground"
             )}>
               {scrambledDesc}

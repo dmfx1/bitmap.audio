@@ -32,6 +32,14 @@ export default function Hero({ heroFlipped = HERO_IMAGE_FLIPPED_DEFAULT, imageSr
   return (
     <div className="w-full relative overflow-hidden">
 
+      {/* Text legibility overlay — mobile: top-to-bottom fade */}
+      <div className="md:hidden absolute inset-0 z-[5] pointer-events-none bg-gradient-to-b from-background/70 to-transparent" />
+      {/* Text legibility overlay — desktop: constrained to text zone, steep right-edge dissolve */}
+      <div
+        className="hidden md:block absolute inset-y-0 left-0 z-[5] pointer-events-none w-[52%]"
+        style={{ background: 'linear-gradient(to right, hsl(var(--background) / 0) 0%, hsl(var(--background) / 0.85) 75%, hsl(var(--background) / 0.15) 95%, transparent 100%)' }}
+      />
+
       {/* ── HERO IMAGE — background, right half, bleeds below frame ──────── */}
       {/* CSS mask fades the left edge to transparent — full colour/brightness on the right */}
       <div
@@ -61,7 +69,7 @@ export default function Hero({ heroFlipped = HERO_IMAGE_FLIPPED_DEFAULT, imageSr
 
           {/* HEADLINE */}
           <div className="space-y-4">
-            <p className="text-eyebrow text-sm tracking-[0.4em]">Sonic Architecture</p>
+            <p className="text-eyebrow text-sm tracking-[0.4em]">Sonic Infrastructure</p>
             <h1 className="heading-hero md:text-7xl">
               Where data <br /> meets
               <span className={`text-accent font-medium block md:inline ${phase === 'active' ? 'pulse-sync-active' : ''}`}>
@@ -71,7 +79,7 @@ export default function Hero({ heroFlipped = HERO_IMAGE_FLIPPED_DEFAULT, imageSr
           </div>
 
           {/* BODY */}
-          <p className="text-foreground/90 max-w-base text-xl">
+          <p className="text-foreground/90 max-w-lg text-xl">
             We architect sonic experiences that bridge the gap between digital interfaces and human perception.
           </p>
 

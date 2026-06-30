@@ -11,8 +11,8 @@ const socials = [
 
 export default function SocialsGrid() {
   return (
-    <div className="w-full flex flex-col items-center justify-center space-y-8 animate-fade-in-up">
-      <p className="text-eyebrow text-accent uppercase tracking-[0.5em] text-xs font-medium">
+    <div className="w-full flex flex-col items-center justify-center space-y-8 min-h-[80svh] animate-fade-in-up">
+      <p className="text-eyebrow text-accent uppercase tracking-[0.5em] text-base font-medium">
         Follow Our Work
       </p>
 
@@ -26,7 +26,7 @@ export default function SocialsGrid() {
               target="_blank"
               rel="noopener noreferrer"
               className={cn(
-                "w-16 h-16 flex items-center justify-center border border-foreground/10 bg-card/20 backdrop-blur-sm",
+                "w-16 h-16 flex items-center justify-center border border-foreground/50 bg-card/20 backdrop-blur-sm",
                 "transition-all duration-500 ease-out hover:border-primary/50 hover:bg-card/40 hover:scale-105 group relative"
               )}
             >
