@@ -78,12 +78,12 @@ const Navigation = ({ currentPath }: { currentPath: string }) => {
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
                     {/* Added rounded-none to the container below */}
-                    <div className="w-64 bg-background/85 border border-border shadow-xl flex flex-col rounded-none">
+                    <div className="w-64 bg-background/85 shadow-xl flex flex-col rounded-none">
                       {solutions.map((s) => (
-                        <a 
-                          key={s.href} 
-                          href={s.href} 
-                          className="group block px-4 py-3 hover:bg-secondary transition-colors border-b border-border last:border-b-0"
+                        <a
+                          key={s.href}
+                          href={s.href}
+                          className="group block px-4 py-3 hover:bg-secondary transition-colors border-b border-border"
                         >
                           {/* Text color now switches to primary (teal) or accent (amber) on hover */}
                           <span className="block font-mono text-base text-foreground group-hover:text-accent transition-colors">

@@ -589,6 +589,16 @@ a, button, [role="button"] {
     100% { opacity: 0; }
   }
 
+  /* Mobile-only B logo animations — used by HomeHero.tsx mobile sequence */
+  @keyframes mobile-logo-fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes mobile-logo-fade-out {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+  }
+
   @keyframes morph-breathing {
     0%, 100% {
       border-color: hsl(var(--primary) / 0.4);

@@ -8,10 +8,18 @@ import ServicePillars from '../components/modules/ServicePillars';
 import Philosophy from '../components/modules/Philosophy.tsx';
 import CTA from '../components/modules/CTA.tsx';
 import heroDataMeetsEmotion from '../assets/images/hero-data-meets-emotion-07.png';
+import homePhilosophyBg from '../assets/images/home-our-philosophy-bg-06.png';
 
 // Optimise hero image at build time — Astro generates WebP + correct dimensions
 const heroImage = await getImage({
   src: heroDataMeetsEmotion,
+  format: 'webp',
+  width: 1200,
+  quality: 85,
+});
+
+const philosophyBgImage = await getImage({
+  src: homePhilosophyBg,
   format: 'webp',
   width: 1200,
   quality: 85,
@@ -35,7 +43,7 @@ const heroImage = await getImage({
       <ServicePillars client:visible />
     </Section>
 
-    <Section id="philosophy" invert delay="0.3s" className="!bg-background/50 backdrop-blur-xl">
+    <Section id="philosophy" invert delay="0.3s" className="!bg-background/50 backdrop-blur-xl" bgSrc={philosophyBgImage.src}>
       <Philosophy client:visible />
     </Section>
 

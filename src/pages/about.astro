@@ -7,6 +7,7 @@ import AboutIntro from '../components/modules/AboutIntro.tsx';
 import Founders from '../components/modules/Founders.tsx';
 import AboutPhilosophy from '../components/modules/AboutPhilosophy.tsx';
 import Values from '../components/modules/Values.tsx';
+import Clients from '../components/modules/Clients.tsx';
 import CTA from '../components/modules/CTA.tsx';
 import heroAboutTwoMinds from '../assets/images/hero-about-two-minds-03.png';
 import philosophyBg from '../assets/images/about-bitmap-philosophy-bg-01.png';
@@ -51,7 +52,27 @@ const philosophyBgImage = await getImage({
       <Values client:visible />
     </Section>
 
-    <Section id="cta" delay="0.4s" className="!bg-background/50 backdrop-blur-xl">
+    {/* THE FULL BLEED BINARY WALL */}
+    <Section 
+      id="clients" 
+      delay="0.5s" 
+      isFullWidth={true} 
+      noPadding={true} 
+      hasBorder={true}
+      className="!bg-background-blur/50 backdrop-blur-xl pb-8"
+    >
+      {/* 1. Header: Added pt-16 md:pt-32 to give it breathing room at the top */}
+      <div class="w-full max-w-7xl mx-auto px-4 md:px-8 lg:px-12 mb-8 pt-8">
+        <p class="text-base font-mono tracking-[0.5em] uppercase text-accent">
+          [ CLIENT_TERMINAL ]
+        </p>
+      </div>
+      
+      {/* 2. The Grid: Spans 100vw and sits totally flush at the bottom */}
+      <Clients client:visible />
+    </Section>
+
+    <Section id="cta" delay="0.6s" className="!bg-background/50 backdrop-blur-xl">
       <CTA
         client:visible
         title="Define your brand's audio identity"

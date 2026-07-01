@@ -12,7 +12,7 @@ const socials = [
 export default function SocialsGrid() {
   return (
     <div className="w-full flex flex-col items-center justify-center space-y-8 min-h-[80svh] animate-fade-in-up">
-      <p className="text-eyebrow text-accent uppercase tracking-[0.5em] text-base font-medium">
+      <p className="text-eyebrow text-accent uppercase tracking-[0.5em] text-base font-bold">
         Follow Our Work
       </p>
 
@@ -27,12 +27,12 @@ export default function SocialsGrid() {
               rel="noopener noreferrer"
               className={cn(
                 "w-16 h-16 flex items-center justify-center border border-foreground/50 bg-card/20 backdrop-blur-sm",
-                "transition-all duration-500 ease-out hover:border-primary/50 hover:bg-card/40 hover:scale-105 group relative"
+                "transition-all duration-500 ease-out hover:border-accent/50 hover:bg-card/40 hover:scale-105 hover:brightness-125 group relative"
               )}
             >
               {/* Subtle Tech Accents to match the Icon style */}
-              <div className="absolute top-0 left-0 w-2 h-[1px] bg-foreground/20 group-hover:bg-primary" />
-              <div className="absolute top-0 left-0 w-[1px] h-2 bg-foreground/20 group-hover:bg-primary" />
+              <div className="absolute top-1 left-1 w-2 h-[1px] bg-foreground/20 group-hover:bg-accent" />
+              <div className="absolute top-1 left-1 w-[1px] h-2 bg-foreground/20 group-hover:bg-accent" />
               
               <Icon
               className="w-6 h-6 text-foreground group-hover:text-primary transition-colors duration-500" 

@@ -3744,18 +3744,38 @@ The landing page (`/`) and `HomeHero.tsx` were significantly reworked. **We are 
 
 **`src/components/modules/HomeHero.tsx`**
 
-The component has a full intro animation sequence controlled by the `T = { }` timing constants block at the top of the file. These are the only values that should be adjusted to tune animation feel.
+Two separate timing constant blocks control the intro — one for desktop, one for mobile. **Edit only the relevant block** — they are fully independent.
 
-Key architecture decisions made and settled:
-- **Image is NOT portaled** — rendered as a plain `fixed inset-0 z-[1]` div directly in the JSX (not via `createPortal`). This keeps it inside the Layout stacking context so content can sit above it.
-- **Logo flash IS portaled** — `createPortal(logoPortal, document.body)` at `z-[100]` so it beats the Layout `z-10` wrapper during the intro flash.
-- **Content wrappers use `z-[2]`** — the main content div and concept grid div both have `relative z-[2]` so they sit above the `z-[1]` image.
-- **Image sizing** — the img uses `absolute top-1/2 left-1/2 w-[90vw] h-[90vh] object-contain` with `transform: translate(-50%, -50%) scale(${imgScale})`. The `translate(-50%, -50%)` and `scale()` are combined in the inline style — do NOT add Tailwind translate classes (`-translate-x-1/2` etc.) as they conflict with the inline transform.
-- **No opacity fade on content** — subtitle, buttons, and concept grid use `opacity-0`/`opacity-100` Tailwind classes toggled by `isScanning` state (instant snap, no transition). They stay in the DOM always to prevent layout shift.
-- **Grayscale** — image starts fully grey (`filter: grayscale(1)`), transitions to full colour at the flare peak, settles to slight grey at ambient (`grayscale(0.4)`).
-- **Logo sequence** — flash → flare (amber) → post-flare → primary (cyan) → fade-out (clean, no flicker). The `'flicker'` phase was removed.
-- **Ambient timing** — `T.imgAmbient: 2000` (fires just as typing starts at `T.logoDone: 1960`). Ambient transition is `1.5s ease` — quick enough to clear before content is read.
-- **Button** — outline button uses `bg-background` (solid, not `bg-background/50`).
+```ts
+// Desktop — edit T to tune desktop intro
+const T = { imgEnter, logoStart, logoFlash, logoFlare, ... };
+
+// Mobile — edit T_MOBILE to tune mobile intro (completely separate from T)
+const T_MOBILE = { imgEnter, colorUnlock, logoAppear, logoFadeOut, logoDone, contentIn, imgAmbient };
+```
+
+**Desktop intro sequence** — full logo flicker:
+- flash → flare (amber) → post-flare → primary (cyan) → fade-out. Logo rendered via `createPortal(logoPortal, document.body)` at z-[100]. Cube goes grey → full colour at `logoFlare`.
+
+**Mobile intro sequence** — simplified, no flicker:
+1. Cube fades in (greyscale) at `T_MOBILE.imgEnter`
+2. At `T_MOBILE.colorUnlock`, cube transitions to full colour
+3. At `T_MOBILE.logoAppear` (same moment), bitmap B logo appears as a solid primary cyan square — no flicker, no amber, instant appear
+4. At `T_MOBILE.logoFadeOut`, logo fades out
+5. At `T_MOBILE.logoDone`, typing starts; at `T_MOBILE.imgAmbient`, cube drops to ambient
+
+**Mobile logo** — rendered via `createPortal` to `document.body` (same as desktop). Uses `mobileLogoVisible` boolean state + `mobileLogoFadeDur` for the CSS transition so it fades in slowly (800ms) then fades out quickly (400ms). Fade-out starts simultaneously with `imgColorUnlock` so logo disappears exactly as cube reaches full colour. The logo is always mounted (when `isMobile && mounted`); visibility is controlled purely by `opacity` + `transition` so the CSS transition plays correctly.
+
+**`isMobile` detection note:** `isMobile` starts as `false` (SSR default). It is set to the correct value in `useEffect` (first render after mount). By the time any logo timer fires, `isMobile` is already correctly set — safe.
+
+**Grayscale:** mobile uses `imgColorUnlock` state; desktop uses `imgDimmed` state. They are separate and do not interfere.
+
+Additional architecture (applies to both mobile and desktop):
+- **ALL fixed-position elements are portaled to `document.body`** — cube image, ambient glow, mobile logo, desktop logo. This is the ONLY reliable way to guarantee `position: fixed` resolves against the true viewport on iOS Safari. Any ancestor element with `transform`, `filter`, `will-change`, or `backdrop-filter` would silently break viewport-relative fixed positioning. Portaling to body bypasses all of those.
+- **Why content still sits above the cube** — content wrapper is `relative z-[2]`. Portaled cube is body-level at `z-[1]`. Both participate in the root stacking context so `z-2 > z-1` still applies correctly.
+- **`height: '90svh'`** on the cube image — `svh` not `vh`. iOS Safari's `vh` includes browser chrome (address bar); `svh` = small viewport height, always exactly the visible area.
+- **No opacity fade on content** — `opacity-0`/`opacity-100` toggled by `isScanning` state (instant snap, no transition).
+- **Button** — outline button uses `bg-background` (solid).
 
 **`src/layouts/Layout.astro`**
 - Landing page (`isLandingPage`) uses the full-bleed path — no `max-w-[1400px]` wrapper, no `z-10` on the content. This is correct and intentional.
@@ -4369,3 +4389,69 @@ All reverted — `Section.astro`, `AboutPhilosophy.tsx`, `CTA.tsx`, and all 6 CT
 2. **`Section.astro`** script: wraps IntersectionObserver start in `startObserving()`. If `[data-has-hero]` exists in the DOM, waits for the `hero-content-ready` event before observing. Non-hero pages observe immediately. 6s fallback prevents permanent block if something breaks.
 
 **To tune timing:** adjust the `1100` value in any hero component's `onComplete` callback — it's the ms after `setShowContent(true)` before the event fires.
+
+---
+
+## W. Session 2026-06-30 (afternoon) — COMPLETED
+
+### W1 — ConceptGrid `columns` prop — DONE
+
+Added `columns?: 1 | 2 | 3` prop to `src/components/modules/ConceptGrid.tsx`. Overrides the auto-detection (which was based on item count) so any ConceptGrid usage can specify cards-per-row explicitly. `experiential-audio.astro` applications grid set to `columns={2}` (4 cards → 2×2).
+
+---
+
+### W2 — ConceptGrid description fixed height restored — DONE
+
+`h-[100px] overflow-hidden` re-added to the description container in `ConceptGrid.tsx` (was removed previously which caused resize jank during binary scramble animation). User will limit word count in the data to fit. Slightly taller than the previous `h-[80px]`.
+
+---
+
+### W3 — Hero legibility overlay added to `Hero.tsx` (home page) — DONE
+
+`Hero.tsx` was the only hero component missing the two legibility overlay divs. Added both to match all other heroes:
+- Mobile: `md:hidden absolute inset-0 z-[5] bg-gradient-to-b from-background/70 to-transparent`
+- Desktop: `hidden md:block absolute inset-y-0 left-0 z-[5] w-[52%]` with left-anchored gradient
+
+CLAUDE.md U1 updated to list all 6 hero components (was "All 5").
+
+---
+
+### W4 — SonicHero and ContactHero image alignment fixes — DONE
+
+**SonicHero.tsx:** Image container had `absolute -right-40 top-0` — the `-right-40` shifted the container (and its CSS mask) 160px off-screen, misaligning the fade. Fixed to `absolute right-0 top-0`.
+
+**ContactHero.tsx:** Hero image tag had a stray `left-24` class shifting the image 96px inside its container, fighting `inset-0`. Removed `left-24`.
+
+Both now render identically to UIUXHero and ImmersiveHero.
+
+---
+
+### W5 — Section.astro background image system expanded — DONE
+
+Three new props added to `Section.astro`:
+
+- **`bgSide?: 'left' | 'right'`** (default `'left'`) — controls which side the image anchors to. When `'right'`, image sits right and mask fades from the left. One prop controls both position and fade direction together.
+- **`bgFlip?: boolean`** — mirrors the image content horizontally via `transform: scaleX(-1)`.
+- **`bgWidth?: string`** (default `'55%'`) — controls desktop image width via `max-width`. Pass e.g. `bgWidth="75%"` or `bgWidth="100%"` to show more of the image.
+
+**Current Section.astro bgSrc usage:**
+- `about.astro` — `#philosophy`: `about-bitmap-philosophy-bg-01.png`, `bgFade="right"` (default left side)
+- `sonic-branding.astro` — `#deliverables`: `deliverables-bg-01.png`, `bgFade="up"`
+- `uiux-sound.astro` — `#applications`: `bgFade="down"`, `#deliverables`: `bgFade="up"`
+- `experiential-audio.astro` — `#applications`: `bgFade="down"`, `#deliverables`: `bgFade="up"`
+- `contact.astro` — `#socials`: `contact-details-bg-04.png`, `bgSide="right"`, `bgWidth="75%"`, `min-h-[500px]`
+- `faq.astro` — `#faq-hero`: `hero-faq-10.png`, `bgSide="right"`, `bgWidth="65%"`
+
+---
+
+### W6 — FAQ hero image — DONE
+
+`hero-faq-10.png` added to `src/assets/images/`. Wired via `getImage()` in `faq.astro` frontmatter (same pipeline as all other hero images — no need to put it in `public/`). Passed to the `#faq-hero` Section via `bgSrc`. The FAQ hero is a plain Section with inline content, not a React hero component — `getImage()` works fine at the Astro page frontmatter level regardless.
+
+---
+
+### W7 — Nav solutions dropdown — outer border removed — DONE
+
+In `src/components/Navigation.tsx`, the desktop solutions dropdown container had `border border-border` giving it a full outer box border. Removed to leave only the `border-b border-border` dividers between each solution item. The bottom divider (after "Experiential Audio") remains — acts as a subtle base line without the hard box.
+
+**To restore the outer border:** add `border border-border` back to the `<div className="w-64 bg-background/85 shadow-xl ...">` container on line ~81.

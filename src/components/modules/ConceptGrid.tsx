@@ -18,8 +18,8 @@ export interface Concept {
   subtitle?: string; 
   desc: string;
   icon?: string;
-  vimeoId?: string;
-  mobileVimeoId?: string | null; 
+  framerateId?: string;
+  mobileFramerateId?: string | null;
   previewVideo?: string;
   previewVideoMp4?: string;
 }
@@ -156,7 +156,7 @@ export default function ConceptGrid({
             forcePlay={activeAutoIndex === index}
             onUserInteraction={handleUserInteraction}
             onUserLeave={handleUserLeave} // Passed down to the card
-            onClick={item.vimeoId && onProjectClick ? () => onProjectClick(item) : undefined}
+            onClick={item.framerateId && onProjectClick ? () => onProjectClick(item) : undefined}
             mobileGlow={mobileGlow}
           />
         ))}

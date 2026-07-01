@@ -52,7 +52,7 @@ export default function Philosophy() {
       </div>
 
       <p className="font-mono text-body-muted text-xl max-w-2xl mt-16">
-        At <span className="text-accent/75 font-bold">bitmap.audio</span>, we apply this exact strutural logic to sound.
+        At <span className="text-accent/75 font-bold">bitmap.audio</span>, we apply the same strutural logic to sound.
       </p>
     </div>
   );
