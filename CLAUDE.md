@@ -4455,3 +4455,263 @@ Three new props added to `Section.astro`:
 In `src/components/Navigation.tsx`, the desktop solutions dropdown container had `border border-border` giving it a full outer box border. Removed to leave only the `border-b border-border` dividers between each solution item. The bottom divider (after "Experiential Audio") remains — acts as a subtle base line without the hard box.
 
 **To restore the outer border:** add `border border-border` back to the `<div className="w-64 bg-background/85 shadow-xl ...">` container on line ~81.
+
+---
+
+## X. Session 2026-07-06 — Mobile viewport-centered highlighting (CODE DONE — awaiting device verification)
+
+**Context:** `ConceptGrid.tsx`, `ServicePillars.tsx`, `Values.tsx`, and `DeliverablesGrid.tsx` all use the same "timed autoplay" pattern — an `IntersectionObserver` gates a `setInterval`/`setTimeout` chain that cycles a `forcePlay`/`activeIndex` through the cards, with hover taking over on desktop. On mobile this is wrong: cards stack in a single column, the user's scroll position is already the natural attention signal, and a background timer cycling highlights independent of what's actually on screen doesn't match how anyone uses a phone. Decision (dom): **on mobile, remove the timer entirely** — highlighting is driven purely by which card is nearest the vertical center of the viewport, defaulting to the first card in the stack until the user actually scrolls. Desktop hover + autoplay is untouched throughout this work.
+
+This is being rolled out one component at a time. Do not batch — see task order below.
+
+### X1 — Shared hook: `useMobileCenterIndex` — DONE
+
+New file: `src/hooks/use-mobile-center-index.ts`. Reusable across all four components above (and any future card-list component with the same pattern).
+
+```ts
+const { isMobile, centerIndex, intensities } = useMobileCenterIndex(containerRef, '[data-mobile-center-item]');
+```
+
+- `isMobile` — reactive via `matchMedia('(max-width: 767px)')`, not a one-time `window.innerWidth` check, so rotating/resizing across the breakpoint corrects itself without a reload.
+- `centerIndex` — discrete index of whichever `[data-mobile-center-item]` child inside `containerRef` is nearest the viewport's vertical center. **Defaults to `0` and is never recalculated on mount** — only real `scroll`/`resize` events move it. This is the mechanism for "first item is default until the user scrolls."
+- `intensities` — continuous 0–1 proximity value per item, same linear falloff formula already used by `Layout.astro`'s `--glow-intensity` mechanism (`1 - distance / (viewportHeight * 0.5)`, floored at 0). Use this to drive a **smooth crossfade** (opacity/scale) instead of a hard on/off swap — snapping straight to `opacity-100`/`opacity-25` on `centerIndex` change reads as "switching off" rather than fading. `intensities` is `[]` until the first scroll measurement; consumers fall back with `intensities[i] ?? (i === centerIndex ? 1 : 0)` so the pre-scroll default still holds.
+- Scroll listener is `passive`, rAF-throttled (one measurement per animation frame regardless of scroll event frequency), and only attached while `isMobile` is true.
+
+**Pattern for consumers going forward:**
+- Keep `centerIndex` (boolean/discrete) driving anything that needs a definitive single "winner" — text/border colour swaps, or gating a real side effect like `videoRef.current.play()`.
+- Use `intensities[i]` for the opacity (or scale) of the highlight itself, so the visual transition reads as continuous rather than binary. In practice: `opacity: 0.25 + intensity * 0.75` layered as an inline style only when `isMobile` (desktop keeps its existing Tailwind opacity classes untouched), with a short `transitionDuration` (~150ms) rather than the desktop 700ms — the value is already scroll-linked frame-by-frame, a long transition would just make it feel laggy/behind the finger.
+
+### X2 — `Values.tsx` (about.astro) — DONE
+
+- `displayIndex = isMobile ? centerIndex : (hoveredIndex ?? activeIndex)` — mobile branch added ahead of the existing hover/timer precedence (which is untouched for desktop).
+- `startCycle()` now no-ops when `isMobile` (single guard covers all call sites — the entrance `IntersectionObserver`, `handleClick`, `handleMouseLeave` — rather than gating each one separately). The `CYCLE_MS` interval never starts on mobile.
+- Each value card has `data-mobile-center-item` for the hook to query.
+- Mobile opacity uses `intensities[i]` for a continuous crossfade (`0.25 + intensity * 0.75`, `150ms` transition via inline style) instead of the desktop's discrete `opacity-100`/`opacity-25` classes.
+- The progress bar under each value: desktop still shows the animated `CYCLE_MS`-length fill; mobile shows a static solid bar on the active item instead (there's no timer on mobile to animate against).
+- Desktop behaviour (hover + 10s auto-cycle) is completely unchanged.
+
+### X2b — Values.tsx opacity fade fix — DONE
+
+Follow-up after first review: the mobile opacity swap (`opacity-100` ↔ `opacity-25`) read as "switching off" rather than fading, because a discrete class swap during fast scrolling can't keep pace with how often `centerIndex` flips — the CSS transition keeps getting interrupted mid-flight. Fixed by extending the hook to also expose `intensities: number[]` (continuous 0–1 proximity per item, same linear falloff formula as `Layout.astro`'s `--glow-intensity`), and driving mobile opacity from that directly: `opacity: 0.25 + intensity * 0.75` via inline style, `transitionDuration: '150ms'` (short, since the value itself already tracks scroll frame-by-frame — a long transition would just lag behind the finger). `centerIndex` still drives the boolean stuff (text colour, glow-pulse class, progress bar) — only the opacity became continuous. This split (continuous for the primary "how strong is this highlight" cue, discrete for secondary categorical cues) is the pattern to repeat on the remaining components.
+
+### X3 — `ServicePillars.tsx` (home.astro) — DONE
+
+Same shape as Values.tsx, adapted for this component's actual visual deltas:
+
+- `isActive = isMobile ? isCentered : (forcePlay || isHovered)` — mobile branch replaces the old `forcePlay || isHovered`, autoplay effect gated with `if (isMobile) return;` (added to its dependency array too, so switching breakpoints live cleans it up correctly).
+- Each card (the `<a>`) has `data-mobile-center-item` for the hook to query.
+- Unlike Values.tsx, this component's active/inactive states were never a stark opacity swing (`bg-background/40` → `/80`, `scale-100` → `scale-[1.02]` — both fairly subtle deltas), so the "switching off" problem is much milder here. Still applied the same continuous-primary/discrete-secondary split for consistency: on mobile, background opacity and scale are driven continuously from `intensity` via inline style (`hsl(var(--background) / (0.4 + intensity*0.4))`, `scale(1 + intensity*0.02)`, `150ms` transition), while border colour, icon colour/glow, text colour, and the footer accent line stay as discrete `isActive`-driven Tailwind classes (unchanged visual treatment, just now sourced from `isCentered` instead of `forcePlay`/`isHovered` on mobile).
+- Desktop hover + 4.5s auto-cycle completely unchanged.
+
+### X4 — `ConceptGrid.tsx` (contact.astro, uiux-sound.astro, experiential-audio.astro) — DONE
+
+- `shouldBePlaying = isMobile ? isCentered : (isHovered || forcePlay)` — this is the one component where the flag also gates a real side effect (`videoRef.current.play()/.pause()` in the existing `useEffect`), so `centerIndex`/`isCentered` (discrete) drives it directly rather than just styling.
+- Autoplay `setTimeout`/`setInterval` chain gated with `if (isMobile) return;` (added to deps). `handleUserInteraction`/`handleUserLeave` (the hover/autoplay hand-off) now also no-op on mobile (`if (isMobile) return;` at the top of each) — previously these were reachable via touch-simulated mouse events even though the timer itself wasn't mobile-aware before this session; now the whole hand-off machinery is inert on mobile, not just overridden.
+- Each card's outer wrapper has `data-mobile-center-item`. The prior inline `const isMobile = typeof window !== 'undefined' && window.innerWidth < 768` (used only for the `mobileGlow` ring class) was non-reactive — replaced with the hook's reactive `isMobile` prop, fixing a latent resize/rotation bug in passing.
+- Video preview opacity (previously a discrete `opacity-30`/`opacity-0` swap — the same "stark swing" issue as Values.tsx's original opacity bug, just smaller) is now continuous on mobile: `opacity: intensity * 0.3` via inline style, `150ms` transition. Border colour, icon colour, title/subtitle colour, and the corner accent icon swap stay discrete on `isCentered`.
+- The desktop-only "timer is advancing" progress-reveal bar at the bottom of each card (`forcePlay && !isHovered`) is now explicitly `!isMobile && ...` — there's no timer on mobile to visualize.
+- Desktop hover + 3.5s auto-cycle completely unchanged.
+
+### X5 — `DeliverablesGrid.tsx` (all three solution pages) — DONE
+
+This component's active-state classes were deliberately `md:`-only, with a comment anticipating this exact task ("We use md: to ensure this doesn't fight your mobile viewport logic") — turned out the autoplay *timer itself* was never actually gated off mobile before this session (only the styling was), so the tick icon colour (`text-accent`, applied without an `md:` prefix) was already silently cycling on mobile the whole time, independent of scroll — exactly the bug this whole session set out to fix, just undiscovered until this component.
+
+- `isActive = isMobile ? isCentered : (forcePlay || isHovered)`, autoplay effect and hand-off handlers gated `if (isMobile) return;` like the other three components.
+- Card border was previously `md:border` (mobile had no border utility at all, so the `md:border-accent`/`md:border-foreground/10` colour classes had nothing to colour on mobile). Changed to unconditional `border`, with the colour classes dropping their `md:` prefix so mobile now gets the same border treatment as desktop, driven by `isCentered`.
+- Background tint and scale (previously `md:bg-foreground/10 md:scale-[1.02]`, desktop-only) — mobile gets a continuous equivalent via inline style: `hsl(var(--background) / (0.4 + intensity*0.3))`, `scale(1 + intensity*0.02)`, `150ms` transition. Desktop keeps its Tailwind classes untouched.
+- Background glow sweep (previously invisible on mobile — `opacity-0` always at base, only `md:opacity-100` when active) now fades in continuously on mobile via `opacity: intensity * 0.6`.
+- Tech corner accent (previously `border-transparent` on mobile regardless of state) now shows `border-accent/50` on mobile too when `isCentered`, dropping its `md:` prefix.
+- The pre-existing `.mobile-viewport-active` ring (driven independently by `Layout.astro`'s site-wide `--glow-intensity` script) is left in place, layering under the new border/background treatment rather than being replaced by it.
+- Desktop hover + 2.5s auto-cycle completely unchanged.
+
+### X6b — Last-item bottom-of-page fix (index.astro / HomeHero.tsx ConceptGrid) — DONE
+
+**The bug:** `HomeHero.tsx` (the landing page at `/`, via `index.astro`) renders a `ConceptGrid` with 3 cards — Sonic Branding, User Experience, Immersive Audio. `index.astro` is a deliberately minimal splash page: `isLandingPage` is full-bleed with no `<Navigation>` and no `<Footer>` (see `Layout.astro` — both are explicitly excluded when `isLandingPage`). So the "Immersive Audio" card (last in the grid) is the literal last content on the page. On mobile, once the user scrolls that card as far up as the document allows, the page hits its scroll ceiling before the card's midpoint ever reaches true viewport center — it would otherwise be permanently stuck just below full intensity, never fully "lighting up," no matter how far the user scrolls.
+
+**The fix — general, in the shared hook, not page-specific:** `useMobileCenterIndex`'s `update()` now also checks whether the page has hit its scroll bottom (`window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2`). If so, **and** the last item was already the natural front-runner by distance (`closestIndex === lastIndex`) **and** it was already reasonably close (`intensity > 0.3`, i.e. this isn't hijacking a grid whose last item is nowhere near the viewport), its intensity is snapped to `1`. This only ever affects a grid whose own last card is already winning and only when the page truly can't scroll any further — it won't fire for, say, `Values.tsx` on `/about` if the user has scrolled well past it before reaching the true page bottom.
+
+**Why not a blank spacer section instead:** dom raised this as the alternative — add a bit of empty page after the grid so the last card has room to reach true center. Went with the hook fix instead because (a) it's one change that fixes this for all four components site-wide, not just this one instance, since the same "last card is the tail end of the page" situation can happen anywhere DeliverablesGrid/ConceptGrid/Values/ServicePillars is the final section before a page ends, (b) it doesn't add dead scroll space the user has to pass through for no content reason, and (c) padding-as-a-positioning-hack is exactly the pattern this codebase has been actively removing elsewhere (see section E4's spacer-div ban for `returns2.astro`). If a specific page still wants more visual breathing room after a grid for unrelated reasons, that's still fine to add — it just isn't required anymore for the highlight mechanism itself to work.
+
+### X6c — Bottom-of-page fix didn't fire on a real device — hardened — DONE
+
+dom tested X6b on an actual phone (scrolled to the true bottom of `/`) and "Immersive Audio" still wasn't lighting up. Two likely causes, both fixed in `useMobileCenterIndex`:
+
+1. **The `intensity > 0.3` gate was too strict.** It required the last card to already be fairly close to center before the boost would apply — but the whole point of this fix is that the last card can get stuck well below "close" (e.g. its natural resting intensity at true max scroll could easily read as 0.15–0.25 depending on exact card/header heights, comfortably under the old 0.3 cutoff). Removed this condition entirely: if we're at the bottom of the page and the last card is already this grid's own natural front-runner (`closestIndex === lastIndex`), commit to it fully — there's no more scrolling that could ever bring it closer, so there's no reason to also require it to already look close.
+2. **The `scrollY + innerHeight >= scrollHeight - 2` check was too exact for real mobile browsers.** A 2px tolerance assumes desktop-grade precision. Real phones rarely land there: the address bar collapsing changes `window.innerHeight` without reliably firing a `resize` event, momentum/rubber-band scrolling can stop dispatching `scroll` events a few pixels before the mathematical end, and subpixel layout rounding varies by device. Fixed by: using `window.visualViewport?.height ?? window.innerHeight` (visualViewport reflects what's actually on-screen right now, independent of toolbar animation state) for all viewport-height math in this hook, widening the tolerance from 2px to 32px, and adding a trailing 200ms "settle" re-check after the last `scroll`/`resize` event fires (`onScrollSettle`) to catch the final rest position in case the last live scroll event landed a moment before the page fully stopped moving.
+
+Net effect: the boost now fires reliably once the last card is merely the grid's own closest item and the page is roughly at its scroll ceiling, rather than requiring both an already-high intensity and near-perfect pixel alignment.
+
+### X6d — X6c still wrong: "User Experience" (middle card) lit up instead — root cause found — DONE
+
+dom retested: at true page bottom, the **middle** card ("User Experience") was lighting up, not the last one. This revealed the real bug: the `closestIndex === lastIndex` guard from X6b/X6c was never true in the first place. On this layout, the middle card's center can legitimately stay nearer the viewport's vertical center than the last card's *at every possible scroll position, including max scroll* — there's no scroll offset where the last card's own midpoint gets closer than the previous card's. So "only boost if the last card is already winning" was gating on a condition that structurally never occurs here, regardless of threshold or pixel tolerance.
+
+**The actual fix:** once the page is at (or past, within the buffer) its scroll ceiling, force the last item active unconditionally — don't require the plain distance math to have already favoured it. At true page bottom there's no more scrolling that could ever change the outcome, so whichever card is last simply *is* what the user has arrived at. The only guard kept is that the last item must actually be on-screen (`rect.bottom > 0 && rect.top < viewportHeight`), so this doesn't hijack some unrelated grid elsewhere on a page that also happens to be rendered while the page is scrolled to the bottom (relevant if a future page has more than one mobile-tracked grid).
+
+```ts
+if (atPageBottom) {
+  const lastRect = items[lastIndex].getBoundingClientRect();
+  const lastItemOnScreen = lastRect.bottom > 0 && lastRect.top < viewportHeight;
+  if (lastItemOnScreen) {
+    closestIndex = lastIndex;       // overrides the plain-distance winner
+    nextIntensities[lastIndex] = 1;
+  }
+}
+```
+
+### X6 — Verification pass — pending manual check
+
+Code-level checks done: `tsc --noEmit` passes clean on all five touched files (`use-mobile-center-index.ts`, `Values.tsx`, `ServicePillars.tsx`, `ConceptGrid.tsx`, `DeliverablesGrid.tsx`) — remaining `tsc` errors in the repo are pre-existing, unrelated shadcn/ui type issues. A full `astro build`/`astro check` could not be run in this environment (sandbox has a broken `@rollup/rollup-linux-arm64-gnu` optional dependency, unrelated to this change — would need `rm -rf node_modules package-lock.json && npm i` to fix, not attempted since it's outside the scope of this task).
+
+Still needed — manual check on a real device/simulator at 375/390/430px across: `/` (landing page ConceptGrid — specifically confirm "Immersive Audio" now reaches full highlight at the bottom of scroll), `/about` (Values), `/home` (ServicePillars), `/contact`, `/solutions/uiux-sound`, `/solutions/immersive-audio` (ConceptGrid), and all three `/solutions/*` pages (DeliverablesGrid). Confirm: first item/card is active by default before scrolling, highlight follows scroll smoothly (no flicker/pop), desktop is unaffected on every page, and ConceptGrid's video preview still plays only for the centered card.
+
+---
+
+## Y. ServicePillars custom icons — DONE
+
+Replaced the Lucide placeholder icons (`Radio`, `Layers`, `Headphones`) in `src/components/modules/ServicePillars.tsx` with three custom vector icons supplied as raw `.svg` files.
+
+**Source files** — dom supplied three raw `.svg` files (Illustrator/Figma export names with spaces and mixed case: `Services Icons Sonic Branding.svg`, `Services Icons UI UX.svg`, `Services Icons Experiential Audio.svg`), dropped into `src/assets/icons/`. Renamed on the way in for cleaner, descriptive filenames (`icon-sonic-branding.svg`, `icon-uiux-sound.svg`, `icon-experiential-audio.svg`), then their markup was copied directly into three new components in `icons.tsx` (see below). Once embedded, the raw `.svg` files were redundant — the exact same `<g>`/`<rect>` markup now lives as JSX — so they were deleted from `src/assets/icons/` (that folder no longer exists; `src/assets/` is back to just `images/`). Unlike hero images in `src/assets/images/`, these were never going to be consumed via `getImage()`/`<img>`, so there was no ongoing reason to keep the standalone files once they were inlined.
+
+**Why inline components, not `<img>`:** the brief was "no fixed background, whatever colour they need to be" — i.e. they need to inherit `text-accent`/`text-primary` and transition with ServicePillars' active state exactly like the existing hover/hand-off swap does for the rest of the card. An `<img src="icon.svg">` can't be recoloured via CSS text colour; only inline SVG markup with `fill="currentColor"` can.
+
+**Implementation:** added three new components to `src/components/ui/icons.tsx` — `BitmapSonicBranding`, `BitmapUiUxSound`, `BitmapExperientialAudio` — following the exact `IconProps` (`className`, `style`) interface every other icon in that file uses, so they're a drop-in replacement for `<service.icon className="..." />`. Convenient discovery: these source SVGs already turned out to be built from the same "constructed from data blocks" primitive as the site's existing hand-built bitmap icons — each is a field of transformed 28×28 unit squares on a 700×700 canvas (just much higher-resolution than the 16×16-grid icons elsewhere in the file), so they fit the established visual language natively, no redesign needed.
+
+`fill="currentColor"` is set once on each icon's root `<svg>` rather than per-`<rect>` (the convention used by the smaller 16×16 icons) — none of the nested `<g>`/`<rect>` elements in the source markup override fill, so it cascades to every block via normal SVG inheritance. No background element existed in the source files to strip (the "white background" was just the design tool's artboard, not an actual shape).
+
+`ServicePillars.tsx` changes: `import { Radio, Layers, Headphones, ArrowRight } from 'lucide-react'` → `import { ArrowRight } from 'lucide-react'` (still needed for the "LEARN MORE" arrow) + `import { BitmapSonicBranding, BitmapUiUxSound, BitmapExperientialAudio } from '../ui/icons'`. Each `services` array entry's `icon` field points to the matching new component. No other changes needed — `<service.icon className={cn(...)} />` usage is unchanged since both old and new icons share the same `className`-only prop shape.
+
+---
+
+## Z. Applications ConceptGrid icons — 7 new icons, first pass
+
+**Context:** `uiux-sound.astro`'s Applications grid (Mobile Apps, Web Applications, Hardware Products) and `experiential-audio.astro`'s Applications grid (Virtual Reality, Augmented Reality, Physical Space, Generative) previously had no `icon` field set on any item, so those cards rendered with no icon at all (`ConceptGrid`'s `{Icon && (...)}` block simply didn't render).
+
+**Style decision:** dom supplied the three ServicePillars `.svg` reference files again and asked for 7 new icons "in the same style and same sort of size." Those three reference files use a dense export-artifact format (each icon is 9-11 `<rect>` elements individually wrapped in `<g transform="matrix(...)">`, on a 700x700 canvas) — a byproduct of how Illustrator/Figma exports a repeated unit shape, not a deliberately different design system from the rest of `icons.tsx`. The other ~16 icons in that file (`BitmapMap`, `BitmapMail`, `BitmapMonitor`, `BitmapSun`, etc.) use a much simpler, directly-authored 16x16 grid-block convention — same visual language (blocky rectangular units, `fill="currentColor"`, transparent background), just simpler markup. Went with the 16x16 grid convention for the 7 new icons rather than hand-reverse-engineering the matrix-transform format, since it's the file's dominant, more maintainable pattern and produces the same aesthetic result.
+
+**New icons added to `src/components/ui/icons.tsx`** (all `fill="currentColor"`, black by default per dom's "black on transparent for now" — same convention as every other icon in the file, will recolour automatically via `text-*` classes same as the rest):
+- `BitmapMobileApps` — tall stepped-border phone body + home indicator dot
+- `BitmapWebApplications` — browser window: chrome bar with 3 traffic-light dots, frame, page content lines
+- `BitmapHardwareProducts` — IC chip body with pins on all 4 sides (circuit/hardware motif)
+- `BitmapVirtualReality` — wide headset band + strap + two lens cutouts
+- `BitmapAugmentedReality` — 4-corner scan/viewfinder brackets + a floating semi-transparent "virtual object" block in the center
+- `BitmapPhysicalSpace` — open room (floor + two walls + ceiling accents) with a position marker dot, distinct from `BitmapMap`'s location pin
+- `BitmapGenerativeAudio` — an irregular, varying-height waveform (alternating opacity) — deliberately non-uniform, as a visual contrast to the existing regular/symmetric `BitmapWave`
+
+**Wiring:**
+- `ConceptGrid.tsx`'s `ICON_MAP` gained 7 new keys: `mobile`, `web`, `hardware`, `vr`, `ar`, `space`, `generative`.
+- `uiux-sound.astro`'s `uiuxApplications` array: each of the 3 items got `icon: "mobile"` / `"web"` / `"hardware"`.
+- `experiential-audio.astro`'s `immersiveAudioApplications` array: each of the 4 items got `icon: "vr"` / `"ar"` / `"space"` / `"generative"`.
+
+**Status — first pass, needs visual review:** these were designed by reasoning about the pixel grid, not by rendering them in a browser (no live preview available in this environment). `tsc --noEmit` passes clean, and the wiring is mechanically correct, but the actual glyph shapes/legibility at real size need a look on `/solutions/uiux-sound` and `/solutions/immersive-audio` before considering this done. Expect to iterate — these are a reasonable first attempt at recognizable pixel-block icons for each concept, not a final design pass.
+
+---
+
+### Z2 — Second pass: stripped to match reference icons' minimal "single pixel" feel — DONE
+
+**dom's feedback on the first pass:** "too much detail.. i want the similar single pixel feel as with the original icons." The original 3 reference icons (`BitmapSonicBranding`, `BitmapUiUxSound`, `BitmapExperientialAudio`) are built from ONE repeated block size with zero opacity variation, scattered sparsely to abstractly suggest a shape — they never construct a literal detailed scene. The first-pass icons above broke that discipline: multiple rect sizes per icon, `opacity="0.3"`–`"0.6"` shading standing in for borders/bezels/lenses/dots, and compound multi-element scenes (chrome bar + 3 tab dots + 2 page-content lines; chip body + 8 pins + a shaded center square; headset + strap + 2 shaded lens cutouts, etc.).
+
+**The fix — same 7 icons in `src/components/ui/icons.tsx`, rebuilt under stricter rules:**
+- Every block in a given icon is now the same size (no mixing e.g. `width="8"` body blocks with `width="1"` dot blocks in one icon).
+- No `opacity` attribute anywhere in any of the 7 icons — every block is `fill="currentColor"` at full strength, matching the reference icons exactly.
+- Removed all decorative/accessory elements that existed purely to add literal detail: the phone's home-indicator dot, the browser's 3 traffic-light dots + 2 page-content lines, the chip's shaded center square, the VR headset's 2 shaded lens cutouts, the AR object's opacity shading (now a solid full-strength block), the room's second shaded marker block, the waveform's alternating opacity (irregularity now comes purely from varied bar height/position, same information, no shading needed).
+- Net effect: `BitmapMobileApps` and `BitmapWebApplications` now closely mirror `BitmapTick`'s existing stepped-border technique (already the simplest, most "single pixel" construction in the file) — a plain outline built from identical corner/edge/side blocks, no fill-in detail. The other five are now sparse arrangements of 5–9 identical-size blocks each, same discipline as the ServicePillars reference icons.
+- Icon names, `ICON_MAP` keys, and all wiring in `ConceptGrid.tsx`/`uiux-sound.astro`/`experiential-audio.astro` are unchanged — this was a visual-only rebuild of the 7 icon bodies, no API changes.
+
+`tsc --noEmit` passes clean. Still pending: visual review on `/solutions/uiux-sound` and `/solutions/immersive-audio` to confirm the simplified glyphs read clearly at real card size (16–32px) — flag any icon that's now too sparse to be recognizable and it can be given 1–2 more identical-size blocks without reintroducing opacity/multi-size shading.
+
+---
+
+## AA. Mobile grain-gradient background — `@paper-design/shaders-react` (`GrainGradient`)
+
+**Context:** dom tried wiring `GrainGradient` (from https://shaders.paper.design/grain-gradient) into `SonicAnalysis.tsx` as a background and it wasn't showing. Root cause: the `<GrainGradient ... />` JSX was a bare expression sitting between the import and the `export default function SonicAnalysis()` declaration — never returned from the component, never mounted, pure dead code. Three more issues would've blocked it even once moved inside the return: `width={1280} height={720}` are fixed pixel values (would letterbox instead of filling the section), the colours were the demo's stock purple/pink/blue rather than brand tokens, and there was no `position: relative` + `z-0`/`z-10` split to sit it behind the copy.
+
+**Colour format note (important for any future shader work):** `GrainGradient`'s `colors`/`colorBack` props are parsed in plain JS (`get-shader-color-from-string.js` — accepts hex, `rgb()`, or comma-form `hsl(H, S%, L%)`), not through the browser's CSS engine. `hsl(var(--primary))` (space-separated, CSS-custom-property-based — the convention used everywhere else on the site) will NOT resolve here. Brand HSL triplets must be hardcoded as literal comma-form strings matching `global.css`'s `:root` values. If those tokens change, update the strings in `GrainGradientBg.tsx` to match:
+- `--primary: 200 80% 90%` → `"hsl(200, 80%, 90%)"`
+- `--accent: 35 100% 55%` → `"hsl(35, 100%, 55%)"`
+- `--background: 180 20% 9%` → `"hsl(180, 20%, 9%)"`
+
+**Why mobile-only:** every page's sticky hero wrapper is `md:sticky`, not bare `sticky` — on mobile it's a normal block that scrolls fully away, so the frosted-glass sections below it (`!bg-background/50 backdrop-blur-xl`) have nothing bleeding through behind them the way they do on desktop (hero image still sitting sticky underneath, visible through the glass). The grain-gradient fills that gap on mobile specifically. On desktop it must not even mount — a WebGL canvas keeps its rAF loop running under `display:none`/`hidden` CSS, which would waste GPU for a viewer who'll never see it (cuts against the performance work in section C). Solved with a reactive `isMobile` check (`matchMedia('(max-width: 767px)')`, same pattern as `useMobileCenterIndex`) that returns `null` on desktop entirely — component never renders past that check.
+
+**Implementation:**
+- **`src/components/modules/GrainGradientBg.tsx`** (new) — self-contained, no props. Reactive mobile gate, returns `null` on desktop/SSR (avoids hydration mismatch since server-rendered state is also "not mobile"). When mobile: renders `<GrainGradient>` inside an `absolute inset-0 pointer-events-none overflow-hidden` wrapper at `opacity: 0.22`, using `shape="wave"`, `speed={0.3}`, `softness={0.8}`, `intensity={0.3}`, `noise={0.15}` — deliberately subtle per dom's steer ("site conventions lean very subtle" — this matches the ambient glow layers on the landing page at 0.07 alpha and other background treatments), two-colour wave between `--primary`/`--accent` on the `--background` backdrop.
+- **`src/components/Section.astro`** — new `grainBg?: boolean` prop (default `false`), following the exact same convention as the existing `gridBg` prop. When true, renders `<GrainGradientBg client:visible />` as a sibling to the `gridBg`/`bgSrc` background layers, before the `z-10` content div (so it sits behind content automatically, same stacking approach as every other background layer in this file).
+- **`src/components/modules/solutions/SonicAnalysis.tsx`** — dead code removed (the broken import + orphaned JSX). Background now lives at the `Section` level via `grainBg`, not embedded per-content-component — matches the existing `gridBg`/`bgSrc` centralization philosophy (don't duplicate background logic inside individual content modules).
+
+**Rollout — `grainBg` applied to sections that lack an existing `bgSrc` image, on every page using the `md:sticky` hero pattern** (dom's call: reusable site-wide, not scoped to just SonicAnalysis):
+- `home.astro` — `#services`, `#cta` (`#philosophy` already has `bgSrc`, skipped)
+- `about.astro` — `#founders`, `#Values`, `#cta` (`#philosophy` has `bgSrc`, `#clients` is a full-bleed binary-wall section with its own content, both skipped)
+- `contact.astro` — `#details` (`#socials` has `bgSrc`, skipped)
+- `solutions/sonic-branding.astro` — `#analysis`, `#cta` (`#deliverables` has `bgSrc`, skipped)
+- `solutions/uiux-sound.astro` — `#analysis`, `#cta` (`#applications`/`#deliverables` have `bgSrc`, skipped)
+- `solutions/experiential-audio.astro` — `#analysis`, `#cta` (`#applications`/`#deliverables` have `bgSrc`, skipped)
+
+**`faq.astro` deliberately excluded:** it has no `md:sticky` hero at all (its hero is a plain, non-sticky `Section` with its own `bgSrc`) — the mobile hero-bleed-through gap this feature solves doesn't exist on that page, so adding `grainBg` there wouldn't be fixing anything, just decoration for its own sake.
+
+**Verification:** `tsc --noEmit` clean (only pre-existing, unrelated shadcn/ui errors remain — `calendar.tsx`, `chart.tsx`, `form.tsx`, `pagination.tsx`, `resizable.tsx`, `sidebar.tsx`). `astro check`/`astro build` still can't run in this sandbox (`@rollup/rollup-linux-arm64-gnu` missing native module, pre-existing and unrelated — documented previously in section X6, needs `rm -rf node_modules package-lock.json && npm i` to fix, out of scope here). `grep` confirms all 12 target `<Section>` instances have `grainBg` and `Section.astro` renders it correctly.
+
+**Still needed:** visual/device check that the wave reads as intended (subtle, slow-moving colour behind the frosted glass) at 375–430px, and that it doesn't fight legibility of the text sitting on top. Tune `opacity` (currently `0.22`) or `intensity`/`softness` in `GrainGradientBg.tsx` if it's too strong or too invisible — one file controls all 12 instances.
+
+---
+
+### AA1 — Follow-up: colour + "not seeing anything on mobile" — DONE
+
+dom reported the wash wasn't showing on mobile at all (not just too subtle) and wanted a brighter accent orange + a cool teal rather than the pale `--primary` token. Two separate fixes, both in `GrainGradientBg.tsx` / `Section.astro`:
+
+**Colour:** swapped `hsl(200, 80%, 90%)` (the literal `--primary` value — renders almost white against the dark background, easy to lose) for `hsl(185, 100%, 50%)`, the same saturated teal/cyan already used site-wide for glow effects (`--gradient-glow: linear-gradient(135deg, hsl(185 100% 50% / 0.2), ...)`). Swapped `hsl(35, 100%, 55%)` (base `--accent`) for `hsl(35, 100%, 60%)` (`--accent-peak`, the brighter variant already defined in `global.css` for exactly this "make the amber pop" purpose). Both are existing tokens already used elsewhere in the codebase for punchier moments — not invented hues. `colorBack` stays `hsl(180, 20%, 9%)` (`--background`, unchanged). Also bumped `intensity` 0.3→0.5, `softness` 0.8→0.7, and the wrapper `opacity` 0.22→0.5 so the wave actually reads instead of disappearing into the frosted glass.
+
+**Why it wasn't rendering at all — most likely cause:** `GrainGradientBg`'s own initial render is `null` (the component defaults `isMobile` to `false` until its `useEffect` runs, and SSR always renders the `false` branch). Astro's `client:visible` directive hydrates via an `IntersectionObserver` watching the island's host element — an island whose own output is `null` has no real rendered box for that observer to key off reliably. Switched the directive in `Section.astro` from `client:visible` to `client:load`, which hydrates immediately on page load regardless of visibility/size, sidestepping that ambiguity entirely. The work deferred (one `matchMedia` check) is cheap enough that `client:load` costs nothing meaningful.
+
+**Belt-and-suspenders:** also moved the `<GrainGradient>` canvas's positioning from Tailwind classes (`className="w-full h-full"`) to an inline `style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}`. The shader library auto-injects its own sizing CSS scoped inside a native `@layer paper-shaders { ... }` block, and this project's Tailwind output (`@tailwind base/components/utilities` used directly, no explicit `@layer` wrapper around them) compiles to plain unlayered CSS — under the CSS Cascade Layers spec, unlayered rules always beat layered ones on a genuine property conflict, layer order or specificity notwithstanding. There wasn't a proven conflict, but it's cheap insurance: inline styles win regardless of any layer/specificity edge case, so positioning no longer depends on that interaction working correctly.
+
+`tsc --noEmit` clean. Still pending: confirm on an actual phone that the teal/orange wave is now visible and reads as intended against the frosted glass.
+
+---
+
+### AA2 — Follow-up: `/about` jank/jumping on load — DONE
+
+dom reported the about page felt "glitchy, jumping around a bit" after AA1's `client:load` fix. Root cause: `about.astro` has `grainBg` on 3 sections (founders, Values, cta — dom has since removed it from `founders` while narrowing this down, current state is Values + cta only, see file). With `client:load`, that's 2-3 separate WebGL shader islands all hydrating and starting their render loop immediately at page load — competing for the main thread against `AboutIntro`'s own `client:load` typewriter/hero-image animation. This is exactly the hydration-directive misuse this codebase's own performance rules (section C1) warn against: `client:load` is reserved for content needed immediately on page paint, not below-the-fold decorative background elements.
+
+**The fix:** `client:load` → `client:idle` in `Section.astro`'s `grainBg` render. `client:idle` still hydrates without depending on `client:visible`'s IntersectionObserver (which the AA1 writeup already ruled out, since this island's own initial render is `null`), but defers the work to the browser's idle callback — after initial paint/hero animation, instead of competing with it. This is the correct middle ground and matches the codebase's own stated convention for non-critical components that can wait.
+
+`tsc --noEmit` clean. Should resolve the jank; still worth a re-check on device.
+
+---
+
+### AA3 — Follow-up: still slow on mobile after `client:idle` — DONE
+
+dom tuned `GrainGradientBg.tsx` directly (`noise` 0.15→1, `softness` 0.7→1, `speed` 0.3→1, and added an extra inline `opacity: 0.2` on `<GrainGradient>` itself, stacking with the outer wrapper's `opacity: 0.5`) but mobile still felt slow. Two real, separate performance costs identified, both fixed in `GrainGradientBg.tsx`:
+
+1. **The render loop never stops once mounted.** `client:idle` (AA2) only affects when the component *hydrates* — once mounted, `ShaderMount`'s internal `requestAnimationFrame` loop keeps redrawing every frame for as long as `speed !== 0`, with no built-in awareness of whether its own canvas has scrolled out of view. With `grainBg` on 2-3 sections per page, that's 2-3 canvases all still rendering continuously in the background long after the user has scrolled past them. Fixed with an `IntersectionObserver` (`rootMargin: '200px 0px'` so it pauses/resumes just before the section actually leaves/enters the viewport, avoiding a visible pop) that drives `speed` to `0` when off-screen — `0` fully halts the shader's render loop (confirmed in the library's own source: `if (this.currentSpeed !== 0) requestRender(); else this.rafId = null;`), and restores the configured speed when back in view. Same "pause what isn't visible" principle already applied to `ConceptGrid`'s video previews.
+2. **Full retina resolution was overkill for a blurred background wash.** On a 3x-DPR phone, the canvas was rendering at up to 3x the CSS pixel dimensions by default, and dom's own tweaks (`noise={1}`, `softness={1}`) make each of those pixels more expensive to compute (more noise-texture sampling, more colour-band blending) — a legitimate reason mobile felt slower after the tuning. Added `maxPixelCount={1280 * 720}` to cap the actual render resolution — this is a soft, `backdrop-blur`'d ambient wash, not a sharp foreground graphic, so full retina sharpness buys nothing visible while costing real fragment-shader time per frame. Adjust this value directly if the grain still feels blocky (raise it) or still feels slow (lower it further).
+
+`tsc --noEmit` clean. Note for dom: the tuned values (`noise={1}`, `softness={1}`, `speed={1}`) are inherently more expensive per-frame than the original subtler defaults — if it's still slow after this fix, dialing those back down is the next lever, independent of the two structural fixes above.
+
+---
+
+## AB. `returns2.astro` SLIDE-0.5 — new photo replaces the 3-image hands/phone/book cross-fade
+
+**Context:** dom supplied a new photo (`why-girl-phone-headphone-your-brand-is-muted.png`, 2048×2048, non-transparent bokeh background) to replace the three separate photos previously cross-fading in SLIDE-0.5 ("Woman Image", desktop-only, sits between SLIDE-00 and SLIDE-01): `listening.woman2.emptyHands.webp` (base, always visible by default), `listening.woman2.emptyBook.webp` (faded in via GSAP), `listening.woman2.webp` (briefly flashed in then faded out via GSAP — the "phone" layer). dom confirmed this new photo should replace all three, not just one.
+
+**Image processing:** source PNG lived in `src/assets/images/` (per dom's placement) but this page's images are GSAP-referenced static assets, not `getImage()`-pipeline hero images — same reasoning as every other image on `returns.astro`/`returns2.astro` (see section T5/M/N8). Converted and moved rather than imported via Astro's asset pipeline:
+- Resized 2048×2048 → 1400×1400 (this displays inside a `max-w-2xl` box on a `w-[50vw]` slide, nowhere near needing full source resolution)
+- Converted PNG → WebP, quality 82 → 5.2MB → 135KB
+- Saved to `public/images/girl.phone.headphones.webp` (new file — the old three `listening.woman2.*` variants are left in place, unused by this slide now but not deleted, consistent with the site's "don't delete old image variants" convention)
+
+**Why the 3-image cross-fade had to be removed, not just have its `src`s swapped:** the old GSAP block ("3-STEP STAGGERED FADE LOGIC") animated opacity between `phone-fade-layer` → `book-fade-layer` → `base-hands-layer` to visually show a phone appearing/disappearing then a book appearing, replacing empty hands. If all three elements pointed at the identical new photo, that opacity choreography would produce zero visible change (fading between identical pixels) — pure dead computation kept alive for no visual payoff. Removed entirely:
+- The `#phone-fade-layer` and `#book-fade-layer` `<img>` elements from the SLIDE-0.5 template (redundant duplicates of the single new photo)
+- Their `phoneFadeLayer`/`bookFadeLayer`/`baseHandsLayer` `document.querySelector` const declarations in the script
+- The whole "3-STEP STAGGERED FADE LOGIC" `gsap.fromTo` block (3 separate ScrollTrigger-driven opacity tweens)
+- Left a one-line comment in the script where the block used to live, pointing back to the SLIDE-0.5 template, for anyone later wondering where it went
+
+`base-hands-layer` id is kept on the single remaining `<img>` for continuity even though nothing currently targets it via JS — harmless to keep, useful if a future animation needs a hook there.
+
+**Fade treatment:** per dom's ask (same conversation, general policy for new non-transparent images: fade edges to transparent/whatever's behind rather than a hardcoded colour), added a CSS `mask-image` (not a gradient-overlay div) on the image's wrapper div, fading both left and right edges to transparent:
+```css
+mask-image: linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%);
+-webkit-mask-image: linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%);
+```
+This slide's `<section>` is a uniform `bg-background` (no per-slide colour variation here), so masking to transparent correctly reveals that same dark tone on both edges — softening what would otherwise be a hard photographic rectangle edge (the source photo has its own visible bokeh background, unlike a transparent-background PNG) against the surrounding page. Applied to the wrapper div, not the raw `<img>`, matching the established hero left-edge-fade convention (mask goes on the container, not the image itself).
+
+**Not touched:** the SLIDE-00 mobile-only background image (line ~157) still references `listening.woman2.emptyBook.webp` — that's a separate usage context dom didn't ask to change, left as-is. `returns.astro` (the non-experimental original) also untouched, per the standing rule that all `returns2.astro` work stays there until dom reviews and merges back.
+
+`tsc --noEmit` clean; no stray references to the removed elements remain (`grep` confirms).

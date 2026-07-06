@@ -31,24 +31,28 @@ const immersiveAudioApplications = [
     id: 1,
     title: "Virtual Reality",
     subtitle: "VR Experiences & Games",
+    icon: "vr",
     desc: "3D audio design including ambisonic soundscapes, interactive object audio and spatial music."
   },
   {
     id: 2,
     title: "Augmented Reality",
     subtitle: "AR Applications",
+    icon: "ar",
     desc: "Audio that anchors virtual objects in real space through precise spatial audio cues."
   },
   {
     id: 3,
     title: "Physical Space",
     subtitle: "Installations & Exhibitions",
+    icon: "space",
     desc: "Multi-channel audio installations for exhibitions that respond to visitor movement."
   },
   {
     id: 4,
     title: "Generative",
     subtitle: "Interactive Soundscapes",
+    icon: "generative",
     desc: "Generative audio systems that create unique, never-repeating sonic environments."
   }
 ];
@@ -94,7 +98,7 @@ const immersiveDeliverables = [
 
   {/* Content: scrolls over the sticky hero — sections are frosted glass so hero colours bleed through */}
   <div class="relative z-10">
-    <Section id="analysis" delay="0.5s" className="!bg-background/50 backdrop-blur-xl">
+    <Section id="analysis" delay="0.5s" className="!bg-background/50 backdrop-blur-xl" grainBg>
       <ImmersiveAnalysis client:visible />
     </Section>
 
@@ -117,7 +121,7 @@ const immersiveDeliverables = [
       />
     </Section>
 
-    <Section id="cta" delay="1.5s" className="!bg-background/50 backdrop-blur-xl">
+    <Section id="cta" delay="1.5s" className="!bg-background/50 backdrop-blur-xl" grainBg>
       <CTA
         client:visible
         title="Enter new dimensions"

@@ -2,7 +2,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { cn } from "@/lib/utils";
 import { useBinaryScramble } from '@/hooks/use-binary-scramble';
-import { BitmapTick } from '../../ui/icons'; 
+import { useMobileCenterIndex } from '@/hooks/use-mobile-center-index';
+import { BitmapTick } from '../../ui/icons';
 
 interface DeliverablesGridProps {
   eyebrow?: string;
@@ -39,6 +40,11 @@ export default function DeliverablesGrid({
     return () => window.removeEventListener('resize', equalise);
   }, [items]);
 
+  // Mobile: highlight follows scroll position (nearest to viewport center),
+  // defaulting to the first card until the user actually scrolls. No timer
+  // runs in the background on mobile — scrolling is the interaction.
+  const { isMobile, centerIndex, intensities } = useMobileCenterIndex(containerRef, '[data-mobile-center-item]');
+
   // --- INTERSECTION OBSERVER ---
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -58,8 +64,9 @@ export default function DeliverablesGrid({
     return () => observer.disconnect();
   }, []);
 
-  // --- SEQUENTIAL AUTOPLAY LOGIC (Desktop Visuals Only) ---
+  // --- SEQUENTIAL AUTOPLAY LOGIC (Desktop only — mobile is viewport-driven, no timer) ---
   useEffect(() => {
+    if (isMobile) return;
     if (!isScanning || items?.length === 0 || !autoplayActive) return;
 
     let interval: NodeJS.Timeout;
@@ -79,20 +86,22 @@ export default function DeliverablesGrid({
       clearTimeout(startDelay);
       if (interval) clearInterval(interval);
     };
-  }, [isScanning, autoplayActive, items?.length]);
+  }, [isScanning, autoplayActive, items?.length, isMobile]);
 
-  // --- HAND-OFF LOGIC ---
+  // --- HAND-OFF LOGIC (Desktop only — no hover/autoplay hand-off to manage on mobile) ---
   const handleUserInteraction = () => {
+    if (isMobile) return;
     if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
-    setAutoplayActive(false); 
-    setActiveAutoIndex(null); 
+    setAutoplayActive(false);
+    setActiveAutoIndex(null);
   };
 
   const handleUserLeave = () => {
+    if (isMobile) return;
     if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
     resumeTimerRef.current = setTimeout(() => {
       setAutoplayActive(true);
-    }, 2500); 
+    }, 2500);
   };
 
   return (
@@ -104,7 +113,7 @@ export default function DeliverablesGrid({
       )}
     >
       <div className="text-center mb-16 space-y-4">
-        <p className="text-eyebrow text-accent uppercase tracking-[0.5em] text-base font-medium">
+        <p className="hiddentext-eyebrow text-accent uppercase tracking-[0.5em] text-base font-medium">
           {eyebrow}
         </p>
         <h2 className="text-3xl md:text-4xl font-mono text-foreground tracking-tight px-4 font-light">
@@ -120,6 +129,9 @@ export default function DeliverablesGrid({
             isScanning={isScanning}
             index={i}
             forcePlay={activeAutoIndex === i}
+            isMobile={isMobile}
+            isCentered={centerIndex === i}
+            intensity={intensities[i] ?? (i === centerIndex ? 1 : 0)}
             onUserInteraction={handleUserInteraction}
             onUserLeave={handleUserLeave}
           />
@@ -129,18 +141,24 @@ export default function DeliverablesGrid({
   );
 }
 
-function DeliverableCard({ 
-  text, 
-  isScanning, 
+function DeliverableCard({
+  text,
+  isScanning,
   index,
   forcePlay,
+  isMobile,
+  isCentered,
+  intensity,
   onUserInteraction,
   onUserLeave
-}: { 
-  text: string; 
-  isScanning: boolean; 
+}: {
+  text: string;
+  isScanning: boolean;
   index: number;
   forcePlay: boolean;
+  isMobile: boolean;
+  isCentered: boolean;
+  intensity: number;
   onUserInteraction: () => void;
   onUserLeave: () => void;
 }) {
@@ -149,8 +167,9 @@ function DeliverableCard({
   const [isVisible, setIsVisible] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
-  // Active state logic
-  const isActive = forcePlay || isHovered;
+  // Desktop: hover or the autoplay timer. Mobile: purely whichever card is
+  // nearest viewport center — no timer to fall back to.
+  const isActive = isMobile ? isCentered : (forcePlay || isHovered);
 
   // Fade-in observer
   useEffect(() => {
@@ -174,21 +193,34 @@ function DeliverableCard({
   return (
     <div
       data-card
+      data-mobile-center-item
       ref={cardRef}
       onMouseEnter={() => { onUserInteraction(); setIsHovered(true); }}
       onMouseLeave={() => { onUserLeave(); setIsHovered(false); }}
-      style={{ transitionDelay: `${index * 100}ms` }}
+      style={{
+        transitionDelay: `${index * 100}ms`,
+        ...(isMobile ? {
+          // Background tint + scale track scroll continuously (mirrors the
+          // Values.tsx/ServicePillars.tsx/ConceptGrid.tsx fix) — border, icon,
+          // text colour and the glow sweep below stay a discrete swap on isActive.
+          backgroundColor: `hsl(var(--background) / ${(0.4 + intensity * 0.3).toFixed(3)})`,
+          transform: `scale(${(1 + intensity * 0.02).toFixed(4)})`,
+          transitionDuration: '150ms',
+        } : {}),
+      }}
       className={cn(
         // Base styling + Mobile behavior
-        "mobile-viewport-active relative p-6 overflow-hidden transition-all duration-500 cursor-default",
-        "bg-background/40 md:border backdrop-blur-sm",
+        "mobile-viewport-active relative p-6 overflow-hidden border transition-all duration-500 cursor-default",
+        "bg-background/40 backdrop-blur-sm",
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5",
-        
-        // --- DESKTOP ACTIVE STATES (`md:`) ---
-        // We use md: to ensure this doesn't fight your mobile viewport logic
-        isActive 
-          ? "md:border-accent md:bg-foreground/10 md:shadow-[0_0_15px_hsl(var(--primary)/0.05)] md:scale-[1.02] z-20" 
-          : "md:border-foreground/10 z-10 md:scale-100"
+
+        // --- ACTIVE STATE --- border/shadow now apply on mobile too (previously
+        // md:-only — mobile is no longer left with just the glow ring), driven
+        // by isCentered instead of the timer. bg lift + scale stay desktop-only
+        // Tailwind classes since mobile gets those continuously via inline style above.
+        isActive
+          ? cn("border-accent shadow-[0_0_15px_hsl(var(--primary)/0.05)] z-20", !isMobile && "md:bg-foreground/10 md:scale-[1.02]")
+          : cn("border-foreground/10 z-10", !isMobile && "md:scale-100")
       )}
     >
       <div className="flex items-start gap-4 relative z-10">
@@ -207,16 +239,19 @@ function DeliverableCard({
         </span>
       </div>
 
-      {/* Background glow sweep */}
-      <div className={cn(
-        "absolute inset-0 bg-primary/5 pointer-events-none transition-opacity duration-500",
-        isActive ? "md:opacity-100 opacity-0" : "opacity-0"
-      )} />
+      {/* Background glow sweep — continuous on mobile (tracks intensity), discrete on desktop */}
+      <div
+        style={isMobile ? { opacity: intensity * 0.6, transitionDuration: '150ms' } : undefined}
+        className={cn(
+          "absolute inset-0 bg-primary/5 pointer-events-none transition-opacity duration-500",
+          !isMobile && (isActive ? "opacity-100" : "opacity-0")
+        )}
+      />
 
-      {/* Tech Corner Accent */}
+      {/* Tech Corner Accent — now shows on mobile too, driven by isCentered */}
       <div className={cn(
         "absolute top-0 right-0 w-3 h-3 border-t border-r transition-all duration-700",
-        isActive ? "md:border-accent/50 border-transparent" : "border-transparent"
+        isActive ? "border-accent/50" : "border-transparent"
       )} />
     </div>
   );

@@ -30,16 +30,19 @@ const uiuxApplications = [
   {
     id: 1,
     title: "Mobile Apps",
+    icon: "mobile",
     desc: "Haptic-synced audio, gesture feedback and navigation sounds."
   },
   {
     id: 2,
     title: "Web Applications",
+    icon: "web",
     desc: "Form interactions, loading states, real-time updates and collaboration cues."
   },
   {
     id: 3,
     title: "Hardware Products",
+    icon: "hardware",
     desc: "Power states, connectivity, errors and physical button feedback sounds."
   }
 ];
@@ -83,7 +86,7 @@ const uiuxDeliverables = [
 
   {/* Content: scrolls over the sticky hero — sections are frosted glass so hero colours bleed through */}
   <div class="relative z-10">
-    <Section id="analysis" delay="0.5s" className="!bg-background/50 backdrop-blur-xl">
+    <Section id="analysis" delay="0.5s" className="!bg-background/50 backdrop-blur-xl" grainBg>
       <UIUXAnalysis client:visible />
     </Section>
 
@@ -105,7 +108,7 @@ const uiuxDeliverables = [
       />
     </Section>
 
-    <Section id="cta" delay="1.5s" className="!bg-background/50 backdrop-blur-xl">
+    <Section id="cta" delay="1.5s" className="!bg-background/50 backdrop-blur-xl" grainBg>
       <CTA
         client:visible
         title="Make your product speak"

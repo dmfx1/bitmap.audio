@@ -10,7 +10,7 @@ const concepts = [
 export default function AboutPhilosophy() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24">
-        <div className="space-y-6">
+        <div className="text-justify space-y-6">
           <p className="text-eyebrow text-base"><u className="text-accent">The Bitmap Philosophy</u></p>
           <h2 className="text-3xl font-mono text-foreground leading-tight">
             'In computer science, a bitmap maps individual, micro-level data points across an array to construct a complete visual image.'

@@ -63,7 +63,7 @@ const sonicDeliverables = [
 
   {/* Content: scrolls over the sticky hero — sections are frosted glass so hero colours bleed through */}
   <div class="relative z-10">
-    <Section id="analysis" delay="0.5s" className="!bg-background/50 backdrop-blur-xl">
+    <Section id="analysis" delay="0.5s" className="!bg-background/50 backdrop-blur-xl" grainBg>
       <SonicAnalysis client:visible />
     </Section>
 
@@ -76,7 +76,7 @@ const sonicDeliverables = [
     </Section>
 
     {/* REUSABLE CTA: Passing specific props for this page */}
-    <Section id="cta" delay="1.5s" className="!bg-background/50 backdrop-blur-xl">
+    <Section id="cta" delay="1.5s" className="!bg-background/50 backdrop-blur-xl" grainBg>
       <CTA
         client:visible
         title="Ready to sound like yourself?"

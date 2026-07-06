@@ -1,7 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { cn } from "@/lib/utils";
 import { useBinaryScramble } from '@/hooks/use-binary-scramble';
-import { BitmapMail, BitmapMap, BitmapArrow, BitmapChevron, BitmapNode, BitmapTick } from '../ui/icons'; 
+import { useMobileCenterIndex } from '@/hooks/use-mobile-center-index';
+import {
+  BitmapMail, BitmapMap, BitmapArrow, BitmapChevron, BitmapNode, BitmapTick,
+  BitmapMobileApps, BitmapWebApplications, BitmapHardwareProducts,
+  BitmapVirtualReality, BitmapAugmentedReality, BitmapPhysicalSpace, BitmapGenerativeAudio,
+} from '../ui/icons';
 
 const ICON_MAP: Record<string, React.ElementType> = {
   mail: BitmapMail,
@@ -10,6 +15,13 @@ const ICON_MAP: Record<string, React.ElementType> = {
   chevron: BitmapChevron,
   node: BitmapNode,
   tick: BitmapTick,
+  mobile: BitmapMobileApps,
+  web: BitmapWebApplications,
+  hardware: BitmapHardwareProducts,
+  vr: BitmapVirtualReality,
+  ar: BitmapAugmentedReality,
+  space: BitmapPhysicalSpace,
+  generative: BitmapGenerativeAudio,
 };
 
 export interface Concept {
@@ -52,11 +64,17 @@ export default function ConceptGrid({
   const [autoplayActive, setAutoplayActive] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const resumeTimerRef = useRef<NodeJS.Timeout | null>(null);
-  
+
   const activeScan = propIsScanning ?? internalScan;
 
-  // --- SEQUENTIAL AUTOPLAY LOGIC ---
+  // Mobile: highlight follows scroll position (nearest to viewport center),
+  // defaulting to the first card until the user actually scrolls. No timer
+  // runs in the background on mobile — scrolling is the interaction.
+  const { isMobile, centerIndex, intensities } = useMobileCenterIndex(containerRef, '[data-mobile-center-item]');
+
+  // --- SEQUENTIAL AUTOPLAY LOGIC (Desktop only — mobile is viewport-driven, no timer) ---
   useEffect(() => {
+    if (isMobile) return;
     // Break early if autoplay is paused or disabled
     if (!activeScan || items.length === 0 || !autoplayActive) return;
 
@@ -79,20 +97,22 @@ export default function ConceptGrid({
       clearTimeout(startDelay);
       if (interval) clearInterval(interval);
     };
-  }, [activeScan, items.length, autoplayActive]); // Added autoplayActive to deps
+  }, [activeScan, items.length, autoplayActive, isMobile]); // Added isMobile to deps
 
-  // --- HAND-OFF LOGIC ---
+  // --- HAND-OFF LOGIC (Desktop only — no hover/autoplay hand-off to manage on mobile) ---
   const handleUserInteraction = () => {
+    if (isMobile) return;
     if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
-    setAutoplayActive(false); 
-    setActiveAutoIndex(null); 
+    setAutoplayActive(false);
+    setActiveAutoIndex(null);
   };
 
   const handleUserLeave = () => {
+    if (isMobile) return;
     if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
     resumeTimerRef.current = setTimeout(() => {
       setAutoplayActive(true);
-    }, 2500); 
+    }, 2500);
   };
 
   const getGridConfig = () => {
@@ -154,6 +174,9 @@ export default function ConceptGrid({
             item={item}
             isScanning={activeScan}
             forcePlay={activeAutoIndex === index}
+            isMobile={isMobile}
+            isCentered={centerIndex === index}
+            intensity={intensities[index] ?? (index === centerIndex ? 1 : 0)}
             onUserInteraction={handleUserInteraction}
             onUserLeave={handleUserLeave} // Passed down to the card
             onClick={item.framerateId && onProjectClick ? () => onProjectClick(item) : undefined}
@@ -170,16 +193,22 @@ function ProjectCard({
     onClick,
     isScanning,
     forcePlay,
+    isMobile,
+    isCentered,
+    intensity,
     onUserInteraction,
-    onUserLeave, 
+    onUserLeave,
     mobileGlow = false,
   }: {
     item: Concept;
     onClick?: () => void;
     isScanning: boolean;
     forcePlay: boolean;
+    isMobile: boolean;
+    isCentered: boolean;
+    intensity: number;
     onUserInteraction: () => void;
-    onUserLeave: () => void; 
+    onUserLeave: () => void;
     mobileGlow?: boolean;
   }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -189,7 +218,11 @@ function ProjectCard({
   const scrambledTitle = useBinaryScramble(item.title, isScanning, 40);
   const scrambledDesc = useBinaryScramble(item.desc, isScanning, 60);
 
-  const shouldBePlaying = isHovered || forcePlay;
+  // Desktop: hover or the autoplay timer. Mobile: purely whichever card is
+  // nearest viewport center — no timer to fall back to. This also gates the
+  // actual video play()/pause() call below, so it needs to be a real boolean,
+  // not just a continuous style value.
+  const shouldBePlaying = isMobile ? isCentered : (isHovered || forcePlay);
 
   useEffect(() => {
     if (shouldBePlaying) {
@@ -201,10 +234,9 @@ function ProjectCard({
   }, [shouldBePlaying]);
 
   const hasVideo = item.previewVideo || item.previewVideoMp4;
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   return (
-    <div className={cn("relative w-full min-h-[200px]", mobileGlow && isMobile && "mobile-viewport-active")}>
+    <div data-mobile-center-item className={cn("relative w-full min-h-[200px]", mobileGlow && isMobile && "mobile-viewport-active")}>
       <div 
         onMouseEnter={() => { onUserInteraction(); setIsHovered(true); }} 
         onMouseLeave={() => { onUserLeave(); setIsHovered(false); }} 
@@ -230,17 +262,22 @@ function ProjectCard({
           </div>
         </div>
 
-        {/* Video Preview */}
+        {/* Video Preview — mobile fades continuously with scroll proximity (mirrors the
+            Values.tsx/ServicePillars.tsx fix: a discrete opacity swap can't keep up with
+            fast scrolling), desktop keeps the discrete hover/timer swap */}
         {hasVideo && (
-          <div className={cn(
-            "absolute inset-0 z-0 transition-opacity duration-700 pointer-events-none mix-blend-screen",
-            shouldBePlaying ? "opacity-30" : "opacity-0"
-          )}>
-            <video 
-              ref={videoRef} 
-              muted loop playsInline 
-              src={item.previewVideoMp4 || item.previewVideo} 
-              className="w-full h-full object-cover grayscale contrast-125" 
+          <div
+            style={isMobile ? { opacity: intensity * 0.3, transitionDuration: '150ms' } : undefined}
+            className={cn(
+              "absolute inset-0 z-0 transition-opacity duration-700 pointer-events-none mix-blend-screen",
+              !isMobile && (shouldBePlaying ? "opacity-30" : "opacity-0")
+            )}
+          >
+            <video
+              ref={videoRef}
+              muted loop playsInline
+              src={item.previewVideoMp4 || item.previewVideo}
+              className="w-full h-full object-cover grayscale contrast-125"
             />
           </div>
         )}
@@ -282,7 +319,8 @@ function ProjectCard({
             </p>
           </div>
 
-          {forcePlay && !isHovered && (
+          {/* Desktop-only: shows the autoplay timer advancing. No timer runs on mobile. */}
+          {!isMobile && forcePlay && !isHovered && (
             <div className="absolute bottom-0 left-0 h-[2px] bg-accent w-full animate-progress-reveal origin-left" />
           )}
         </div>

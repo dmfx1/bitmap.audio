@@ -45,13 +45,13 @@ export default function Philosophy() {
       <p className="text-eyebrow text-accent text-lg mb-12 font-bold">Our Philosophy:<br/><br/><span className="text-accent text-base">The Micro/Macro Architecture</span></p>
       
       <div className="max-w-4xl min-h-[160px] md:min-h-[200px]">
-        <h2 className="text-2xl md:text-4xl lg:text-5xl font-mono text-foreground/60 leading-tight">
+        <h2 className="text-2xl md:text-4xl lg:text-5xl font-mono text-foreground/60 text-justify md:text-center leading-tight">
           {visibleText}
           <span className="inline-block w-[0.5ch] h-[0.9em] bg-accent brightness-125 ml-2 animate-pulse align-middle" />
         </h2>
       </div>
 
-      <p className="font-mono text-body-muted text-xl max-w-2xl mt-16">
+      <p className="font-mono text-body-muted text-justify md:text-center text-xl max-w-2xl mt-16">
         At <span className="text-accent/75 font-bold">bitmap.audio</span>, we apply the same strutural logic to sound.
       </p>
     </div>

@@ -34,8 +34,7 @@ function ClientWord({ text, isActive }: { text: string, isActive: boolean }) {
         }
 
         const interval = setInterval(() => {
-            // FIX: Map over the *target text* instead of the *current text*.
-            // This guarantees the string length instantly matches the new client name.
+            // FIX: Map over target text to prevent leftover ghost binary
             setDisplayText(() =>
                 text.split('').map((char, i) => {
                     if (i < iterations.current) return char;
@@ -58,7 +57,8 @@ function ClientWord({ text, isActive }: { text: string, isActive: boolean }) {
         <span className={`
             inline transition-all duration-300
             ${isActive 
-                ? 'text-primary text-glow font-bold mx-1 text-sm md:text-base tracking-widest z-10' 
+                // Slightly smaller text on mobile to accommodate long names
+                ? 'text-primary text-glow font-bold mx-1 text-xs md:text-base tracking-widest z-10' 
                 : 'text-muted-foreground/30 font-light tracking-normal text-[10px] md:text-xs z-0'}
         `}>
             {displayText}
@@ -69,11 +69,21 @@ function ClientWord({ text, isActive }: { text: string, isActive: boolean }) {
 // 2. MAIN COMPONENT
 export default function Clients() {
     const [activeSlots, setActiveSlots] = useState<{id: string, name: string}[]>([]);
-    
-    const COLUMNS = 7;
-    const CLIENTS_PER_COL = 5; 
+    const [isMobile, setIsMobile] = useState(false);
 
-    // We now just build 35 EMPTY slots. No names attached!
+    // Hydration-safe mobile detection
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile(); 
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+    
+    // Dynamic Layout: 3 columns on mobile, 7 on desktop
+    const COLUMNS = isMobile ? 3 : 7;
+    const CLIENTS_PER_COL = isMobile ? 6 : 5; 
+
+    // We now just build EMPTY slots. No names attached!
     const columnsData = useMemo(() => {
         const totalSlots = COLUMNS * CLIENTS_PER_COL;
         const cols = Array.from({ length: COLUMNS }, () => [] as any[]);
@@ -96,7 +106,7 @@ export default function Clients() {
             slots: col,
             noiseTail: generateBinary(400)
         }));
-    }, []);
+    }, [COLUMNS, CLIENTS_PER_COL]);
 
     // Rolling Reveal Engine - Now with smooth, lingering pacing
     useEffect(() => {
@@ -104,15 +114,19 @@ export default function Clients() {
 
         const updateActive = () => {
             setActiveSlots(current => {
-                // 1. SLOWER TURNOVER: Shuffle the current active slots, then deliberately
-                // drop only 1 or 2 names per cycle (if we have enough on screen).
-                // This stops mass disappearances and lets names linger for much longer.
+                // 1. Drop a few names so it rolls nicely
                 let kept = [...current].sort(() => Math.random() - 0.5);
-                const dropCount = current.length > 5 ? Math.floor(Math.random() * 2) + 1 : 0; 
+                
+                // Drop threshold adapts to screen size
+                const dropThreshold = isMobile ? 3 : 5;
+                const dropCount = current.length > dropThreshold ? Math.floor(Math.random() * 2) + 1 : 0; 
                 kept = kept.slice(dropCount);
                 
-                // 2. LESS CLUTTER: Maintain 6 to 9 active names instead of 8 to 12.
-                const targetCount = 6 + Math.floor(Math.random() * 4); 
+                // 2. Adaptive Clutter Control
+                const minActive = isMobile ? 3 : 6;
+                const maxActive = isMobile ? 5 : 9;
+                const targetCount = minActive + Math.floor(Math.random() * (maxActive - minActive + 1)); 
+                
                 if (kept.length > targetCount) kept = kept.slice(0, targetCount);
 
                 const needed = targetCount - kept.length;
@@ -144,14 +158,15 @@ export default function Clients() {
         };
 
         updateActive();
-        // SLOWER INTERVAL: Runs every 2 seconds instead of 1.2s.
+        // Preserved your 1600ms timing
         const cycleInterval = setInterval(updateActive, 1600);
         return () => clearInterval(cycleInterval);
-    }, [columnsData]);
+    }, [columnsData, isMobile]);
 
     return (
         <div className="w-full relative overflow-hidden">
-            <div className="w-full grid grid-cols-1 md:grid-cols-7 gap-0 h-[40vh] border-y border-border/20 bg-background">
+            {/* Added dynamic grid-cols-3 for mobile and responsive height h-[30vh] */}
+            <div className="w-full grid grid-cols-3 md:grid-cols-7 gap-0 h-[30vh] md:h-[40vh] border-y border-border/20 bg-background">
                 {columnsData.map((col, colIndex) => (
                     <div 
                         key={`col-${colIndex}`} 

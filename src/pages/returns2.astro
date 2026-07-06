@@ -121,7 +121,7 @@ const CONFIG = {
   title="The ROI of Audio Branding | bitmap.audio"
   description="Audio branding delivers 4x brand recall, 25% credibility lift, and measurable conversion gains. Explore the data behind sonic identity."
 >
-  <main class="bg-background text-foreground selection:bg-accent selection:text-foreground">
+  <main class="bg-background text-foreground selection:bg-accent selection:text-foreground grainBG">
     
     <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
       <div id="parallax-grid" class="absolute top-0 left-0 w-full h-[200vh] bitmap-grid opacity-[0.05] will-change-transform"></div>
@@ -182,12 +182,15 @@ const CONFIG = {
                DESKTOP ONLY (hidden md:flex) | no sidebar
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-0.5 | Woman Image | w-[50vw] | DESKTOP ONLY -->
-          <section class="hidden md:flex w-[50vw] h-full md:items-center flex-shrink-0 relative bg-background z-10">
+          <section class="hidden md:flex w-[100vw] h-full md:items-center flex-shrink-0 relative bg-background z-10">
             <div class="absolute top-0 left-0 w-full h-full flex items-end justify-start pointer-events-none opacity-80 mix-blend-screen z-0">
-              <div class="relative w-full max-w-2xl -mb-10">
-                <img id="base-hands-layer" src="/images/listening.woman2.emptyHands.webp" decoding="async" alt="Woman listening" class="w-full h-auto object-contain object-bottom" />
-                <img id="book-fade-layer" src="/images/listening.woman2.emptyBook.webp" decoding="async" alt="Book appearing" class="absolute inset-0 w-full h-auto object-contain object-bottom opacity-0" />
-                <img id="phone-fade-layer" src="/images/listening.woman2.webp" decoding="async" alt="Phone disappearing" class="absolute inset-0 w-full h-auto object-contain object-bottom opacity-0" />
+              <!-- Single static photo (replaces the old 3-image hands/book/phone cross-fade — see script comment
+                   near the removed "3-STEP STAGGERED FADE LOGIC" block). Left/right edges mask to transparent
+                   (not a hardcoded colour) so it dissolves into whatever's behind — bg-background on this
+                   section, consistently — instead of showing a hard photographic edge. -->
+              <div class="relative w-full max-w-6xl -mb-10"
+                   style="mask-image: linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%); -webkit-mask-image: linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%);">
+                <img id="base-hands-layer" src="/images/girl.phone.headphones.webp" decoding="async" alt="Woman listening to music on her phone" class="w-full h-auto object-contain object-bottom" />
               </div>
             </div>
           </section>
@@ -884,11 +887,7 @@ const CONFIG = {
     const indicators = gsap.utils.toArray(".indicator-line") as HTMLElement[];
 
     const parallaxGrid = document.querySelector("#parallax-grid");
-    // Grab the new fading phone layer
-    const phoneFadeLayer = document.querySelector("#phone-fade-layer");
-    const bookFadeLayer = document.querySelector("#book-fade-layer"); // NEW
-    const baseHandsLayer = document.querySelector("#base-hands-layer"); // NEW
-    
+
     // Grab the new Train layer
     const trainFadeLayer = document.querySelector("#train-fade-layer"); // NEW
 
@@ -1089,54 +1088,11 @@ const CONFIG = {
       }
     });
 
-    // THE 3-STEP STAGGERED FADE LOGIC (Woman on Left)
-    if (phoneFadeLayer && bookFadeLayer && baseHandsLayer) {
-      
-      // PHASE 1: Fade the phone OUT quickly
-      gsap.fromTo(phoneFadeLayer, 
-        { opacity: 1 }, 
-        {
-          opacity: 0,   
-          ease: "none",
-          scrollTrigger: {
-            trigger: track,
-            start: "top -33%",   
-            end: "top -35%",    
-            scrub: true,
-          }
-        }
-      );
-
-      // PHASE 2A: Fade the book IN
-      gsap.fromTo(bookFadeLayer, 
-        { opacity: 0 }, 
-        {
-          opacity: 1,   
-          ease: "none",
-          scrollTrigger: {
-            trigger: track,
-            start: "top -35%",  
-            end: "top -40%",    
-            scrub: true,
-          }
-        }
-      );
-
-      // PHASE 2B: Fade the empty hands OUT at the exact same time
-      gsap.fromTo(baseHandsLayer, 
-        { opacity: 1 }, 
-        {
-          opacity: 0,   
-          ease: "none",
-          scrollTrigger: {
-            trigger: track,
-            start: "top -40%",  // Exactly matches the book fade IN start
-            end: "top -50%",    // Exactly matches the book fade IN end
-            scrub: true,
-          }
-        }
-      );
-    }
+    // NOTE: the old "3-STEP STAGGERED FADE LOGIC" (hands → phone → book cross-fade across
+    // three separate images) lived here. Removed — SLIDE-0.5 now uses a single static photo
+    // (girl.phone.headphones.webp), so cross-fading opacity between what would now be three
+    // identical images accomplished nothing visually. See the SLIDE-0.5 section template for
+    // the replacement.
 
     // Train fade: starts as SLIDE-01 enters from the right; resolves when text anchor reaches centre
     const t01 = anim("01", "trainFade");

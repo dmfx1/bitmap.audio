@@ -39,7 +39,7 @@ const philosophyBgImage = await getImage({
 
   {/* Content: scrolls over the sticky hero — sections are frosted glass so hero colours bleed through */}
   <div class="relative z-10">
-    <Section id="services" delay="0.2s" className="!bg-background/50 backdrop-blur-xl">
+    <Section id="services" delay="0.2s" className="!bg-background/50 backdrop-blur-xl" grainBg>
       <ServicePillars client:visible />
     </Section>
 
@@ -47,7 +47,7 @@ const philosophyBgImage = await getImage({
       <Philosophy client:visible />
     </Section>
 
-    <Section id="cta" delay="0.4s" className="!bg-background/50 backdrop-blur-xl">
+    <Section id="cta" delay="0.4s" className="!bg-background/50 backdrop-blur-xl" grainBg>
       <CTA
         client:visible
         title="Ready to define your sound?"

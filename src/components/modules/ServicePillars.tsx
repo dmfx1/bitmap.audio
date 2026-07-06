@@ -1,23 +1,25 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Radio, Layers, Headphones, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useMobileCenterIndex } from '@/hooks/use-mobile-center-index';
+import { BitmapSonicBranding, BitmapUiUxSound, BitmapExperientialAudio } from '../ui/icons';
 
 const services = [
-  { 
-    icon: Radio, 
-    title: "Sonic Branding", 
+  {
+    icon: BitmapSonicBranding,
+    title: "Sonic Branding",
     href: "/solutions/sonic-branding",
     desc: "Define your brand's audio identity with comprehensive sonic infrastructure that resonates across your entire network."
   },
-  { 
-    icon: Layers, 
-    title: "UI/UX Sound", 
+  {
+    icon: BitmapUiUxSound,
+    title: "UI/UX Sound",
     href: "/solutions/uiux-sound",
     desc: "Enhance digital products and systems with audio feedback and interface sounds, enhancing trust and confidence in user experience."
   },
-  { 
-    icon: Headphones, 
-    title: "Experiential Audio", 
+  {
+    icon: BitmapExperientialAudio,
+    title: "Experiential Audio",
     href: "/solutions/immersive-audio",
     desc: "Bring experiences to life. We create spatial audio experiences for AR/VR, installations, and experiential environments."
   },
@@ -32,15 +34,20 @@ export default function ServicePillars() {
   const containerRef = useRef<HTMLDivElement>(null);
   const resumeTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Mobile: highlight follows scroll position (nearest to viewport center),
+  // defaulting to the first card until the user actually scrolls. No timer
+  // runs in the background on mobile — scrolling is the interaction.
+  const { isMobile, centerIndex, intensities } = useMobileCenterIndex(containerRef, '[data-mobile-center-item]');
+
   // --- INTERSECTION OBSERVER ---
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setTimeout(() => setInternalScan(true), 400); 
+          setTimeout(() => setInternalScan(true), 400);
         } else {
           setInternalScan(false);
-          setActiveAutoIndex(null); 
+          setActiveAutoIndex(null);
           setAutoplayActive(true); // Reset autoplay if they scroll completely away and come back
         }
       },
@@ -50,8 +57,9 @@ export default function ServicePillars() {
     return () => observer.disconnect();
   }, []);
 
-  // --- SEQUENTIAL AUTOPLAY LOGIC ---
+  // --- SEQUENTIAL AUTOPLAY LOGIC (Desktop only — mobile is viewport-driven, no timer) ---
   useEffect(() => {
+    if (isMobile) return;
     // NEW: If autoplayActive is false, we instantly return and kill the interval
     if (!internalScan || services.length === 0 || !autoplayActive) return;
 
@@ -66,13 +74,13 @@ export default function ServicePillars() {
           return current + 1;
         });
       }, 4500);
-    }, 450); 
+    }, 450);
 
     return () => {
       clearTimeout(startDelay);
       if (interval) clearInterval(interval);
     };
-  }, [internalScan, autoplayActive]); // Added autoplayActive to dependencies
+  }, [internalScan, autoplayActive, isMobile]); // Added isMobile to dependencies
 
   // REPLACE your old handleUserInteraction with these two functions
   const handleUserInteraction = () => {
@@ -110,10 +118,13 @@ export default function ServicePillars() {
       {/* GRID AREA */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {services.map((s, i) => (
-          <ServiceCard 
-            key={i} 
-            service={s} 
+          <ServiceCard
+            key={i}
+            service={s}
             forcePlay={activeAutoIndex === i}
+            isMobile={isMobile}
+            isCentered={centerIndex === i}
+            intensity={intensities[i] ?? (i === centerIndex ? 1 : 0)}
             onUserInteraction={handleUserInteraction} // Passed down to the cards
             onUserLeave={handleUserLeave} // <--- Pass the new prop here
           />
@@ -124,31 +135,49 @@ export default function ServicePillars() {
 }
 
 // --- EXTRACTED CARD COMPONENT ---
-function ServiceCard({ 
-  service, 
-  forcePlay, 
+function ServiceCard({
+  service,
+  forcePlay,
+  isMobile,
+  isCentered,
+  intensity,
   onUserInteraction,
   onUserLeave // <--- Accept the new prop
-}: { 
-  service: typeof services[0]; 
-  forcePlay: boolean; 
+}: {
+  service: typeof services[0];
+  forcePlay: boolean;
+  isMobile: boolean;
+  isCentered: boolean;
+  intensity: number;
   onUserInteraction: () => void;
   onUserLeave: () => void; // <--- Add to type definition
 }) {
   const [isHovered, setIsHovered] = useState(false);
-  const isActive = forcePlay || isHovered;
+  // Desktop: hover or the autoplay timer. Mobile: purely whichever card is
+  // nearest viewport center — no timer to fall back to.
+  const isActive = isMobile ? isCentered : (forcePlay || isHovered);
 
   return (
-    <a 
+    <a
       href={service.href} // The whole card is now the link
+      data-mobile-center-item
       onMouseEnter={() => { onUserInteraction(); setIsHovered(true); }}
       onMouseLeave={() => { onUserLeave(); setIsHovered(false); }} // Fire the resume timer
+      style={isMobile ? {
+        // Background/scale track scroll continuously so the highlight reads as
+        // a fade as the spotlight moves, not a switch — mirrors the Values.tsx
+        // fix. Border/icon/text colour below stay a discrete swap on isActive.
+        backgroundColor: `hsl(var(--background) / ${(0.4 + intensity * 0.4).toFixed(3)})`,
+        transform: `scale(${(1 + intensity * 0.02).toFixed(4)})`,
+        transitionDuration: '150ms',
+      } : undefined}
       className={cn(
         "relative flex flex-col p-6 md:p-12 pb-14 md:pb-20 transition-all duration-500 overflow-hidden border cursor-pointer block focus:outline-none focus:ring-1 focus:ring-accent",
-        "bg-background/40 backdrop-blur-sm",
+        !isMobile && "bg-background/40 backdrop-blur-sm",
+        isMobile && "backdrop-blur-sm",
         isActive
-          ? "border-accent bg-background/80 shadow-[0_0_30px_hsl(var(--primary)/0.1)] scale-[1.02] z-20"
-          : "border-border/20 z-10 scale-100"
+          ? cn("border-accent shadow-[0_0_30px_hsl(var(--primary)/0.1)] z-20", !isMobile && "bg-background/80 scale-[1.02]")
+          : cn("border-border/20 z-10", !isMobile && "scale-100")
       )}
     >
       {/* ICON */}

@@ -1,5 +1,6 @@
 /* src/components/modules/Values.tsx */
 import React, { useState, useEffect, useRef } from 'react';
+import { useMobileCenterIndex } from '@/hooks/use-mobile-center-index';
 
 const values = [
   {
@@ -27,19 +28,27 @@ export default function Values() {
   const containerRef = useRef<HTMLDivElement>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Mobile: highlight follows scroll position (nearest to viewport center),
+  // defaulting to the first item until the user actually scrolls. No timer
+  // runs in the background on mobile — scrolling is the interaction.
+  const { isMobile, centerIndex, intensities } = useMobileCenterIndex(containerRef, '[data-mobile-center-item]');
+
   const stopCycle = () => {
     if (intervalRef.current) clearInterval(intervalRef.current);
   };
 
   const startCycle = () => {
+    if (isMobile) return; // desktop-only ambient cycle
     stopCycle();
     intervalRef.current = setInterval(() => {
       setActiveIndex(i => (i + 1) % values.length);
     }, CYCLE_MS);
   };
 
-  // Start cycle when section enters viewport, pause when it leaves
+  // Start cycle when section enters viewport, pause when it leaves (desktop only)
   useEffect(() => {
+    if (isMobile) { stopCycle(); return; }
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -57,7 +66,7 @@ export default function Values() {
       observer.disconnect();
       stopCycle();
     };
-  }, []);
+  }, [isMobile]);
 
   const handleClick = (index: number) => {
     setActiveIndex(index);
@@ -74,8 +83,9 @@ export default function Values() {
     startCycle(); // resume from current activeIndex
   };
 
-  // Hover takes precedence over the auto-cycle for display
-  const displayIndex = hoveredIndex ?? activeIndex;
+  // Desktop: hover takes precedence over the auto-cycle for display.
+  // Mobile: viewport-centered item wins, always (no timer to fall back to).
+  const displayIndex = isMobile ? centerIndex : (hoveredIndex ?? activeIndex);
 
   return (
     <div className="w-full" ref={containerRef}>
@@ -88,12 +98,20 @@ export default function Values() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-12">
         {values.map((v, i) => {
           const isActive = i === displayIndex;
+          // Mobile: opacity tracks scroll continuously (proximity to viewport
+          // center) instead of snapping between two fixed values — reads as a
+          // fade as the spotlight moves, not a switch. Desktop keeps the
+          // discrete opacity-100/opacity-25 Tailwind classes driven by isActive.
+          const intensity = intensities[i] ?? (i === centerIndex ? 1 : 0);
+          const mobileOpacity = 0.25 + intensity * 0.75;
           return (
             <div
               key={v.id}
+              data-mobile-center-item
               onClick={() => handleClick(i)}
               onMouseEnter={() => handleMouseEnter(i)}
               onMouseLeave={handleMouseLeave}
+              style={isMobile ? { opacity: mobileOpacity, transitionDuration: '150ms' } : undefined}
               className={`flex flex-col items-center text-center px-4 cursor-pointer transition-all duration-700 ${
                 isActive ? 'opacity-100' : 'opacity-25 hover:opacity-50'
               }`}
@@ -116,16 +134,18 @@ export default function Values() {
                 {v.desc}
               </p>
 
-              {/* Progress bar — fills over CYCLE_MS, pauses on hover */}
+              {/* Progress bar — animated fill on desktop (tracks CYCLE_MS timer, pauses on hover).
+                  On mobile there's no timer to animate against, so the active item just shows
+                  a static solid bar (same look as the desktop paused/hover state). */}
               <div className="mt-6 w-12 h-px bg-foreground/10 relative overflow-hidden">
-                {isActive && hoveredIndex === null && (
+                {isActive && !isMobile && hoveredIndex === null && (
                   <div
                     key={`${v.id}-${activeIndex}`}
                     className="absolute inset-y-0 left-0 bg-primary"
                     style={{ animation: `fillBar ${CYCLE_MS}ms linear forwards` }}
                   />
                 )}
-                {isActive && hoveredIndex !== null && (
+                {isActive && (isMobile || hoveredIndex !== null) && (
                   <div className="absolute inset-y-0 left-0 bg-accent w-full" />
                 )}
               </div>
