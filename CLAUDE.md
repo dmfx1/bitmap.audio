@@ -4715,3 +4715,24 @@ This slide's `<section>` is a uniform `bg-background` (no per-slide colour varia
 **Not touched:** the SLIDE-00 mobile-only background image (line ~157) still references `listening.woman2.emptyBook.webp` — that's a separate usage context dom didn't ask to change, left as-is. `returns.astro` (the non-experimental original) also untouched, per the standing rule that all `returns2.astro` work stays there until dom reviews and merges back.
 
 `tsc --noEmit` clean; no stray references to the removed elements remain (`grep` confirms).
+
+---
+
+### AB1 — SLIDE-00 gets a desktop background image too (cityscape)
+
+dom supplied `bitmap-cityscape-returns-your-brand-is-muted.png` (2048×2048, non-transparent) for SLIDE-00 ("Your brand is Muted."), asking for the "same big-bleed vein" as the SLIDE-0.5 girl-headphones treatment. Converted the same way: resized 2048×2048 → 1600×1600, PNG → WebP quality 82, saved to `public/images/bitmap.cityscape.muted.webp` (~246KB).
+
+**Why this needed a new image slot rather than reusing an existing one:** unlike SLIDE-0.5 (a dedicated image-only slide with no competing content), SLIDE-00 previously had a background image only on mobile (`listening.woman2.emptyBook.webp`, bottom-right, `md:hidden`) — desktop had no image at all, just the `bg-background` section with text and a giant faint "00" watermark. Added a new `mobile:hidden` (desktop-only) sibling block right where the mobile image div used to sit alone:
+
+```html
+<div class="mobile:hidden absolute bottom-0 right-0 w-[60vw] h-[90vh] pointer-events-none z-0 opacity-70 mix-blend-screen"
+     style="mask-image: linear-gradient(to right, transparent 0%, black 35%); -webkit-mask-image: linear-gradient(to right, transparent 0%, black 35%);">
+  <img src="/images/bitmap.cityscape.muted.webp" decoding="async" alt="" class="w-full h-full object-contain object-right-bottom" />
+</div>
+```
+
+**Positioning rationale:** bottom-right, mirroring the existing mobile image's anchor point and matching where the "00" watermark also sits — the text column occupies most of the left/centre of the slide (`md:col-start-2 md:col-span-9` of 12), so bottom-right is the open space. `mix-blend-screen` + `opacity-70` matches the established "dark image glows into the dark background" treatment used everywhere else on the site (tiger, listening woman, ROI ghost counter, etc.) rather than sitting as a flat opaque photo.
+
+**Mask is one-sided here, unlike the girl-headphones image:** only the left edge fades to transparent (`transparent 0% → black 35%`, no fade-out on the right). The image bleeds to the slide's actual right edge rather than floating as a bounded rectangle, so only the edge facing the text column (left) needs softening — the right edge has nothing to dissolve into since it's already at the slide boundary.
+
+`tsc --noEmit` clean. Not touched: the mobile-only image block, the giant "00" watermark, `returns.astro`.

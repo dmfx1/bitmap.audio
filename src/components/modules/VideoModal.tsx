@@ -1,35 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { BitmapClose } from '../ui/icons';
+import { buildEmbedUrl, DEFAULT_THEME } from '@/data/videos';
 
 interface VideoModalProps {
   isOpen: boolean;
   onClose: () => void;
   framerateId: string;
   mobileFramerateId?: string | null;
+  /** Framerate embed theme. Defaults to 'minimal' (strips the page header). */
+  theme?: string;
 }
 
-// ── TUNE THIS if the Framerate header offset changes ──────────────────────────
-// This clips the Framerate page header (black area) from the top of the iframe.
-// Value is a fraction of the device screen height (0.0–1.0).
-// From testing: ~0.38 works for iPhone 14. Adjust up/down if black space remains.
-const FRAMERATE_HEADER_RATIO = 0.7;
-
-export default function VideoModal({ isOpen, onClose, framerateId, mobileFramerateId }: VideoModalProps) {
+export default function VideoModal({ isOpen, onClose, framerateId, mobileFramerateId, theme = DEFAULT_THEME }: VideoModalProps) {
   const [activeId, setActiveId] = useState(framerateId);
   const [isVertical, setIsVertical] = useState(false);
-  const [headerOffset, setHeaderOffset] = useState(0);
 
   useEffect(() => {
     if (isOpen) {
       const isMobile = window.innerWidth < 768;
+      // Use the vertical (9:16) edit on mobile only when one exists — otherwise fall
+      // back to the landscape edit in the desktop layout.
       if (isMobile && mobileFramerateId) {
         setActiveId(mobileFramerateId);
         setIsVertical(true);
-        setHeaderOffset(Math.round(window.innerHeight * FRAMERATE_HEADER_RATIO));
       } else {
         setActiveId(framerateId);
         setIsVertical(false);
-        setHeaderOffset(0);
       }
     }
   }, [isOpen, framerateId, mobileFramerateId]);
@@ -37,23 +33,47 @@ export default function VideoModal({ isOpen, onClose, framerateId, mobileFramera
   if (!isOpen) return null;
 
   if (isVertical) {
+    // Vertical (9:16) mobile layout — FULL-SCREEN COVER, tap-to-play.
+    //
+    // Source videos are 1080×1920 (exactly 9:16) and Framerate's Mux player uses
+    // object-fit: contain, so a true-9:16 iframe fills with no internal letterbox. The iframe
+    // is sized to cover the viewport in both axes via max() (kept a true 9:16); overflow:hidden
+    // on the container crops the sliver that spills off the sides on a tall phone (~19.5:9).
+    //
+    // SOUND: no autoplay here. Mobile browsers block autoplay WITH sound, and the minimal
+    // theme hides the unmute control — so muted autoplay would be permanently silent. Instead
+    // the poster + play button shows; the user's tap on it is an in-iframe gesture, which lets
+    // the video start WITH audio. (Desktop keeps autoplay — see below.)
+    //
+    // Container and iframe share the 100dvh (dynamic viewport) basis so the iframe matches the
+    // container height at every toolbar state — no dark band top/bottom.
     return (
-      // backgroundColor required: without it the wrapper is transparent and the portaled
-      // cube (z-1, body-level) shows through during iframe load + Framerate header clipping.
-      <div style={{ position: 'fixed', inset: 0, zIndex: 200, overflow: 'hidden', backgroundColor: 'hsl(var(--background))' }}>
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100dvh',
+          zIndex: 200,
+          backgroundColor: 'hsl(var(--background))',
+          overflow: 'hidden',
+          display: 'grid',
+          placeItems: 'center',
+        }}
+      >
         <iframe
-          src={`https://framerate.tv/embed/${activeId}`}
+          src={buildEmbedUrl(activeId, { theme })}
           style={{
-            position: 'absolute',
-            top: -headerOffset,
-            left: 0,
-            width: '100%',
-            height: `calc(100% + ${headerOffset}px)`,
+            width: 'max(100vw, calc(100dvh * 9 / 16))',
+            height: 'max(100dvh, calc(100vw * 16 / 9))',
             border: 'none',
+            display: 'block',
           }}
           allow="autoplay; fullscreen; picture-in-picture"
           allowFullScreen
         />
+
         <button
           onClick={onClose}
           style={{ position: 'absolute', top: '1rem', right: '1rem', zIndex: 50 }}
@@ -66,7 +86,7 @@ export default function VideoModal({ isOpen, onClose, framerateId, mobileFramera
     );
   }
 
-  // Desktop: constrained aspect-video box
+  // Desktop: constrained 16:9 (aspect-video) box.
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-12 lg:p-24">
       <div className="absolute inset-0 bg-background/95 backdrop-blur-3xl animate-fade-in" onClick={onClose} />
@@ -84,7 +104,7 @@ export default function VideoModal({ isOpen, onClose, framerateId, mobileFramera
         </button>
 
         <iframe
-          src={`https://framerate.tv/embed/${activeId}`}
+          src={buildEmbedUrl(activeId, { theme, autoplay: true })}
           className="absolute inset-0 w-full h-full border-0"
           allow="autoplay; fullscreen; picture-in-picture"
           allowFullScreen

@@ -5,30 +5,29 @@ import TypewriterHero from './TypewriterHero';
 import ConceptGrid, { type Concept } from './ConceptGrid';
 import { useBinaryScramble } from '@/hooks/use-binary-scramble';
 import { Button } from '@/components/ui/button';
+import { getVideo } from '@/data/videos';
 
+// Videos are referenced by slug — the IDs themselves live in src/data/videos.ts.
 const projects: Concept[] = [
   {
     id: 1,
     title: 'SONIC BRANDING',
     desc: 'Sonic branding for digital infrastructure.',
-    framerateId: '113dace6-9edc-4ce1-a987-21ffff42fc4c',
-    mobileFramerateId: '145d48c0-a621-4a9b-a279-2d9dbf7a1418',
+    videoSlug: 'sonic-branding',
     previewVideo: '/video/regency_silent.mp4'
   },
   {
     id: 2,
     title: 'USER EXPERIENCE',
     desc: 'UI/UX sound for digital interfaces + apps.',
-    framerateId: '0a0c408e-7230-4a9e-b7b1-372b20567e64',
-    mobileFramerateId: null, // add mobile vertical ID here when ready
+    videoSlug: 'user-experience',
     previewVideo: '/video/seon_silent.mp4'
   },
   {
     id: 3,
     title: 'IMMERSIVE AUDIO',
     desc: 'Spatial audio for immersive environments.',
-    framerateId: 'ebaaa7a9-5123-4e4c-bf1a-e97c450de950',
-    mobileFramerateId: null, // add mobile vertical ID here when ready
+    videoSlug: 'immersive-audio',
     previewVideo: '/video/matchroom_silent.mp4'
   },
 ];
@@ -381,6 +380,9 @@ export default function HomeHero({ imageSrc }: HomeHeroProps) {
     </div>
   ) : null;
 
+  // Resolve the clicked project's slug to its Framerate IDs (desktop + mobile).
+  const activeVideo = activeProject?.videoSlug ? getVideo(activeProject.videoSlug) : undefined;
+
   return (
     <div className="relative w-full max-w-6xl mx-auto flex flex-col items-center text-center">
 
@@ -479,8 +481,9 @@ export default function HomeHero({ imageSrc }: HomeHeroProps) {
       <VideoModal
         isOpen={!!activeProject}
         onClose={() => setActiveProject(null)}
-        framerateId={activeProject?.framerateId || ""}
-        mobileFramerateId={activeProject?.mobileFramerateId}
+        framerateId={activeVideo?.desktopId || ""}
+        mobileFramerateId={activeVideo?.mobileId}
+        theme={activeVideo?.theme}
       />
     </div>
   );

@@ -30,6 +30,8 @@ export interface Concept {
   subtitle?: string; 
   desc: string;
   icon?: string;
+  /** Slug into src/data/videos.ts — preferred way to attach a video. */
+  videoSlug?: string;
   framerateId?: string;
   mobileFramerateId?: string | null;
   previewVideo?: string;
@@ -179,7 +181,7 @@ export default function ConceptGrid({
             intensity={intensities[index] ?? (index === centerIndex ? 1 : 0)}
             onUserInteraction={handleUserInteraction}
             onUserLeave={handleUserLeave} // Passed down to the card
-            onClick={item.framerateId && onProjectClick ? () => onProjectClick(item) : undefined}
+            onClick={(item.videoSlug || item.framerateId) && onProjectClick ? () => onProjectClick(item) : undefined}
             mobileGlow={mobileGlow}
           />
         ))}

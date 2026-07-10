@@ -157,6 +157,14 @@ const CONFIG = {
               <img src="/images/listening.woman2.emptyBook.webp" decoding="async" alt=""
                    class="w-full h-full object-contain object-right-bottom opacity-40" />
             </div>
+            <!-- Desktop background image — big bleed, bottom-right, behind text. Left edge masks to
+                 transparent so it dissolves into bg-background instead of a hard photo edge where it
+                 meets the text column (same treatment as SLIDE-0.5's girl.phone.headphones image). -->
+            <div class="mobile:hidden absolute bottom-0 right-0 w-[60vw] h-[90vh] pointer-events-none z-0 opacity-70 mix-blend-screen"
+                 style="mask-image: linear-gradient(to right, transparent 0%, black 35%); -webkit-mask-image: linear-gradient(to right, transparent 0%, black 35%);">
+              <img src="/images/bitmap.cityscape.muted.webp" decoding="async" alt=""
+                   class="w-full h-full object-contain object-right-bottom" />
+            </div>
             <div class="mobile:hidden absolute -right-20 bottom-0 text-[35vw] font-mono font-bold text-muted/5 select-none pointer-events-none transition-transform duration-1000 group-hover:scale-105 z-0">00</div>
             <!-- 12-col container: pl-24 clears the 96px sidebar; pr-6 matches nav right padding -->
             <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
