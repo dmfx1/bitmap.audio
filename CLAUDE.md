@@ -4916,3 +4916,64 @@ dom will drop **source images** (PNG/JPG, from AI gen or elsewhere) into `public
 - Don't change section `w-[Xvw]` widths without re-checking GSAP counter/timing calibration (AC4.3).
 - Don't remove GSAP anchor ids or `data-sidebar` / `data-sidebar-anchor` attributes.
 - Build tooling (`astro check` / `astro build`) still can't run in the Cowork sandbox — the `@rollup/rollup-linux-arm64-gnu` native module is missing (documented in X6/AA2). Verify TS/logic by hand; run the real build locally.
+
+---
+
+## AD. returns2.astro — Control-surface refactor (2026-07-14 plan)
+
+**Goal (dom):** one simple "interface" at the top of `returns2.astro` that controls: slide width, content position within a slide, edge-fade length on BOTH image AND text slides, background colours derived from images, easy image swapping, the GSAP vividness ramp, and whether an image lives on its own slide or behind text. Kill the Opus/Gemini config drift. Page must pop; mobile snap must be untouched.
+
+**Decisions made with dom:** build-time colour extraction with sharp · full restructure (not incremental patching) · SLIDE-12 goes `md:bg-transparent` and the JOURNEY checkpoint carries the amber.
+
+**Execute one step at a time. Verify after each. Never touch: the `is-mobile-snap` CSS block, the `isMobile` early-return in the script, `bg-* md:bg-transparent` patterns on text slides (mobile needs the opaque bg), GSAP anchor ids (`roi-section`, `success-section`, `metrics-section`), `data-sidebar` / `data-sidebar-anchor` attributes, or `returns.astro`.**
+
+### AD1 — Step 1: Purge — DONE (2026-07-14)
+
+Removed from `returns2.astro` (1780 → 1665 lines):
+- Dead GSAP blocks + selectors: `#train-fade-layer`, `#tiger-focus-layer`, `#parallax-grid`, `.ghost-counter` (elements no longer exist in markup — the blocks were no-ops), plus their `slide01`/`slide03` refs and the `trainFade`/`tigerFocus` `anim` entries in `sections`.
+- Unused `IMG_RAMP` const (shadowed by hardcoded fallbacks in `imgSlideTrigger`) and dead `IMG_DEFAULTS.edgeMask` (ImageSlide only reads `customMask`).
+- **Bug fix:** slide "1.5" used `imgFade: "flow-xlong"` — wrong prop name, silently ignored. Now `fade: "flow-xlong"` (the actual ImageSlide prop). Slide 1.5's mask changes from `flow` to `flow-xlong` — this is the intended look finally applying.
+- Stale comments: LAYOUT AUDIT block, duplicated JOURNEY header + stale "TEST scope" note, duplicated image-slides comment header, "3-STEP STAGGERED FADE" note, "Grid rebuild complete" footer note, SLIDE-0.5/00/02 stale image descriptions, and ALL width claims in header/`#region` comments (they contradicted the config — widths live ONLY in frontmatter config now; comments no longer state widths).
+
+Verify done: no leftover refs (grep clean), `<section>` open/close balanced 27/27, 18 `<ImageSlide>` instances intact.
+
+### AD2 — Step 2: Unify config (single SLIDES array)
+
+**STATUS (2026-07-14): 2a + 2b DONE. Awaiting dev-server verify.**
+- 2a DONE: `SLIDES` single-source-of-truth array added (DOM order, `type:"text"|"image"|"behind"`). `sections`, `imgSlide`, `BACKGROUNDS` now DERIVED from it (byte-identical to old config — no template consumers changed). `define:vars` now also passes whole `SLIDES` (`window.__SLIDES__`); `__SECTIONS__` still derived for the script. `IMG_DEFAULTS` kept as a named const above `SLIDES`.
+- 2b DONE: every desktop section now has `data-slide="{id}"` — 13 text (mapped across the data-sidebar gap: ds9→"08" … ds13→"12"), 6 interstitial/spacer ("3.5","4.5","6.5","7.5","8.5","spacer"), and all image/gradient slides via a new `id` prop on `ImageSlide.astro` → `data-slide`. `applyWidths` rewritten to match by EXACT `data-slide` string (robust to the gap) instead of positional `sidebarSections[i]`. `sidebarSections` still used by sidebar centering (untouched).
+- ⚠️ DEVIATION from brief: hardcoded `w-screen`/`w-[Xvw]` classes were KEPT, not removed. Reason: on these sections `w-screen`(=100vw) is the mobile snap width AND the pre-hydration fallback; `applyWidths` (inline style, from config) overrides it on desktop and is authoritative, so widths still come only from config — but removing the class would regress to a content-width collapse before JS runs (FOUC) on this giant horizontal strip. If dom wants them literally stripped, that's a quick follow-up.
+- ⚠️ GOTCHA (kept for reference): config id ≠ DOM `data-sidebar` after slide 07 (no `data-sidebar="8"`; config `"08"` Perception → DOM `data-sidebar="9"`). Never do numeric id→data-sidebar lookup — use exact `data-slide` string match (now done).
+- Interstitial stat widths (66vw/75vw/w-screen) are addressable via `data-slide` but still hardcoded (not yet in `SLIDES` — they're GSAP-calibration-locked). Folding them into config is a future step.
+
+Merge `sections` + `IMAGE_SLIDES` + `IMG_DEFAULTS` + `BACKGROUNDS` into ONE ordered `SLIDES` array where array order = DOM order. Every entry: `{ id, type: "text" | "image", label?, width, ... }`. Image entries keep `img`/`gradient`, `imgWidth`, `imgX`, `objectPos`, `z`, `opacity`, `blend`, `fade`, `customMask`, `ramp`, and gain `place: "own" | "behind"` (behind = renders inside the PREVIOUS text slide at z-0, replacing the `BACKGROUNDS` map used by SLIDE-13/3.5).
+- Widths come ONLY from config: remove hardcoded `w-screen`/`w-[Xvw]` classes from desktop sections; `applyWidths` switches from positional `sidebarSections[i]` mapping to id-based lookup (`data-sidebar` matches numeric part of config id). Interstitial/no-sidebar slides (3.5, 4.5, 6.5, 7.5, 8.5, spacer) get `data-slide` attributes so they're addressable too.
+- Keep the `define:vars` bridge; pass the whole `SLIDES` array.
+- Verify: every slide width identical to before, sidebar tracking unchanged, mobile snap unchanged (mobile forces 100vw via existing CSS).
+
+### AD3 — Step 3: Content positioning from config
+
+Add `content: { col: [start, span], align?: "start" | "center" | "end" }` to text-slide entries. Template reads it into the existing 12-col grid wrapper (`md:col-start-N md:col-span-N` become inline `style="grid-column: N / span N"` on desktop, since Tailwind can't JIT dynamic classes from config). Mobile classes untouched.
+
+### AD4 — Step 4: Universal edge fades (kills hard edges)
+
+- Add `fade: { left: 0–0.5, right: 0–0.5 }` (fractions of slide width) to EVERY slide. Generates a `mask-image` linear-gradient applied to: image wrapper (replacing the named-preset system — presets become sugar that expands to left/right values) AND text slides' content wrapper on desktop.
+- SLIDE-12: add `md:bg-transparent` (only text slide missing it) — the JOURNEY `#FFA61A` checkpoint at "12" carries the amber.
+- Gradient panels 11.5/12.5: render with soft edge masks instead of opaque full-bleed `bg-gradient-to-r`.
+- Verify: full desktop scroll-through with zero hard vertical edges; mobile unchanged (masks are `md:`-scoped / applied in the desktop-only code path).
+
+### AD5 — Step 5: Colour journey from images
+
+- New `scripts/extract-edge-colors.mjs` using sharp: for each webp in `public/images/returns/`, sample the rightmost ~10% strip, output dominant/average hex to `src/data/returns-edge-colors.json`. Run manually via `npm run colors` (add script to package.json); commit the JSON.
+- Image slides get `bg: "auto" | "#hex" | "none"`. `"auto"` reads the JSON at build time in frontmatter and injects a JOURNEY checkpoint at that slide. Manual JOURNEY checkpoints still supported and take precedence.
+- Verify: journey drifts through image-derived colours; images feel continuous with the background.
+
+### AD6 — Step 6: Vividness ramp (GSAP)
+
+- One generalised loop: every slide with `vivid: true` gets `filter: saturate(S) brightness(B)` scrubbed from `{saturate: 0.4, brightness: 0.85}` → `{1, 1}` as the slide's anchor approaches viewport centre, and optionally back down as it exits. Curve constants live in the top-level `CONFIG` (`vividFrom`, `vividTo`, `vividWindow`).
+- Desktop only (inside the post-`isMobile` path). Watch perf: filter animations repaint — apply only to the slide's content/image wrapper, not the whole section; keep `will-change` scoped.
+- Verify: slides visibly "come alive" at centre; no scroll jank (test with DevTools performance).
+
+### AD7 — Step 7: Mobile regression pass
+
+375/390/430px: snap intact, one slide per viewport, opaque per-slide backgrounds intact, no horizontal overflow, no GSAP running (early-return path), images/masks not applied on mobile. Then desktop re-check at 1024/1280/1440/1920.
