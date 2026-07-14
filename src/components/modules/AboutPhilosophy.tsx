@@ -2,7 +2,7 @@
 import React from 'react';
 
 const concepts = [
-  { term: "Bit [Information]", def: "Represents the digital pulse, the atomic unit and the minutiae we work with to build the bigger picture. Every sound we create for our systems is derived through this process to ensure a unqiue and lasting sonic footprint." },
+  { term: "Bit [Information]", def: "Represents the digital pulse, the atomic unit and the minutiae we work with to build the bigger picture. Every sound we create for our systems is derived through this process to ensure a unique and lasting sonic footprint." },
   { term: "Map [Architecture]", def: "Represents the spatial layout and the framework we use to ensure our micro assets can be integrated across the whole network, whether that is a collective experience for a sonic logo or immersive environment or a singular moment in a UX system." },
   { term: "Synthesis [Infrastructure]", def: "By combining our framework and psychoacoustic research with some of the most exciting tools on the market we are able to synthesise these sounds into experiences that not only sound impressive but resonate with listeners for long term awareness and recall - enhancing user confidence in digital systems." }
 ];

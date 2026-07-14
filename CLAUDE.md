@@ -4736,3 +4736,183 @@ dom supplied `bitmap-cityscape-returns-your-brand-is-muted.png` (2048×2048, non
 **Mask is one-sided here, unlike the girl-headphones image:** only the left edge fades to transparent (`transparent 0% → black 35%`, no fade-out on the right). The image bleeds to the slide's actual right edge rather than floating as a bounded rectangle, so only the edge facing the text column (left) needs softening — the right edge has nothing to dissolve into since it's already at the slide boundary.
 
 `tsc --noEmit` clean. Not touched: the mobile-only image block, the giant "00" watermark, `returns.astro`.
+
+---
+
+## AC. `returns2.astro` — flowing background images via `SlidePlaceholder.astro` (IN PROGRESS — handoff)
+
+**Status: DONE (first pass). All 12 source images converted to WebP and wired into returns2.astro. Awaiting dom's visual review + per-slide tuning (position / width / opacity / fade / blend).**
+
+### AC6 — What was wired this session (2026-07-13)
+
+12 source PNGs dropped into `public/images/returns/`, batch-converted to WebP (≤1600px long edge, q80, Pillow) → 50MB → 2.1MB (96% smaller). Source PNGs left in place (can be deleted to save repo weight). Each image maps to its slide-title filename:
+
+**Flowing `SlidePlaceholder` (8 slides — new component, `fade="flow"`, positioned opposite the text):**
+- `visuals-fade-sound-echoes` → SLIDE-04 (right, blend=true, opacity-60)
+- `brain-processing-speed` → SLIDE-3.5 (full inset-0 behind centred stat, `fade="radial"`, blend=false, opacity-25 — light bg-primary/80)
+- `recall-under-pressure` → SLIDE-05 (right, blend=true, opacity-55)
+- `amplified-roi` → SLIDE-06 (right, blend=true, opacity-60)
+- `subconscious-trust` → SLIDE-07 (left, blend=false — light bg-foreground/90; this replaced the demo placeholder)
+- `perceived-as-innovators` → SLIDE-09 (left, blend=true, opacity-55)
+- `seamless-cultural-resonance` → SLIDE-10 (right, blend=true, opacity-55)
+- `master-the-signal` → SLIDE-13 (left, blend=true, opacity-55)
+
+**Raster src-swaps (3 slides — kept the existing GSAP-animated containers, only swapped the `<img src>`, per dom "rip out the other images just leave the animated svg in place"):**
+- `your-brand-is-muted` → SLIDE-00 (replaced `bitmap.cityscape.muted` — desktop cityscape div + mobile bg). Static, no GSAP.
+- `when-everyone-is-listening` → SLIDE-01 (replaced `listening.woman2.train` inside `#train-fade-layer` — GSAP opacity fade-in preserved).
+- `faster-than-sight` → SLIDE-03 (replaced `stalking.sabretooth` inside `#tiger-focus-layer` — GSAP blur-to-focus preserved; desktop + mobile bg).
+
+**SLIDE-02 untouched** — keeps its animated SVG data-map. `sound-as-a-data-map.webp` is therefore **unused/unreferenced** (the SVG serves that slide). Kept in the folder in case dom wants it later.
+
+**Old now-unreferenced images** (`bitmap.cityscape.muted`, `listening.woman2.train`, `stalking.sabretooth`) remain in `public/images/` — not deleted (still referenced by `returns.astro`, the un-merged original).
+
+**GSAP verified intact:** `#train-fade-layer`, `#tiger-focus-layer`, `#roi-section`, `#success-section`, `#metrics-section` all present; 25 `data-path` SVG elements intact. Build (`astro build`) still can't run in-sandbox (rollup native module) — verify locally.
+
+**Continuing in this same session (Opus) — no model handoff.**
+
+### AC7 — NEW DIRECTION: dedicated image slides between text slides (ROLLED OUT — awaiting dev-server review)
+
+**UPDATE (2026-07-13, later): full rollout done.** dom hand-set the pattern on SLIDE-00 (stripped to clean text) + SLIDE-0.5 (image at `w-[50vw]`) and said "change for all like this". Applied across the board:
+- **Text slides stripped** to clean typography (desktop backgrounds removed): 00 (dom), 01, 03, 04, 05, 06, 07, 09, 10. SLIDE-02 keeps its SVG.
+- **12 dedicated 50vw image slides** inserted after each text slide: 0.5, 1.5, 2.5, 3.25, 4.25, 5.5, 6.25, 7.25, 9.25, 10.5, 11.5, 12.5. All use `.img-slide-fade` except 3.25 (`.img-slide-focus`, blur-to-focus). 2.5 uses the previously-unused `sound-as-a-data-map.webp`. 11.5 + 12.5 are **blank gradient placeholders** (no themed art for Asset Ownership / Belief yet — swap a SlidePlaceholder into the `img-slide-fade` wrapper when ready).
+- **Scroll track grown 1600vh → 2050vh** (est. +27% strip width) to keep per-slide dwell roughly constant. ESTIMATE — tune on dev server.
+- **Exceptions kept (flag for dom):** SLIDE-13 still has `master-the-signal` as a text-slide background (dom praised it; post-CTA image slide felt wrong). `brain-processing-speed` still backs the SLIDE-3.5 stat. Both easy to convert to the image-slide pattern if dom wants full consistency.
+- Section markup verified balanced (39/39). All 12 `/images/returns/*.webp` resolve. Build still can't run in-sandbox — dom verifies feel/pacing + counter resolution (6.5 ROI, 7.5 success ring) locally.
+
+**REFACTOR (2026-07-13, later still): `SlidePlaceholder.astro` → `ImageSlide.astro`.** dom asked to make the image slides "slick… prop-ability baked in… remove what we don't need." Done:
+- **New `src/components/ImageSlide.astro`** renders a whole in-between slide as a one-liner. Props: `src`, `gradient` (colour-transfer mode, no image), `effect` ("fade"|"focus"), `width` (default `50vw` — **change this default to resize every image slide at once**), `opacity`, `blend`, `fade` (mask preset), `label`, `alt`. Keeps the build-time `fs.existsSync` fallback (missing file → labelled box). Emits `.img-slide-fade`/`.img-slide-focus` so the existing GSAP loop wires it automatically.
+- **All 12 `.5` slides converted to one-liners:** `<ImageSlide src=... />` (10 images; 3.25 adds `effect="focus"`), and 11.5/12.5 are `<ImageSlide gradient="from-primary/5 to-accent" />` and `<ImageSlide gradient="from-accent to-background" />` (colour transfers bridging their neighbour bg colours).
+- **Behind-text backgrounds inlined** (they live *inside* a text slide, not as standalone slides, so they're not `ImageSlide`): SLIDE-13 `master-the-signal` (z-0 under text) and SLIDE-3.5 `brain-processing-speed` (behind the stat) are now plain masked `<img>` blocks with a comment noting the "image behind text" pattern.
+- **`SlidePlaceholder.astro` deleted** — fully replaced. No refs remain in `src/`.
+- Section markup balanced; all image paths resolve. Deletion needed `allow_cowork_file_delete` (sandbox `rm` was blocked).
+
+Two ways to place imagery now, by design: **standalone image slide** = `<ImageSlide>`; **image behind text on a content slide** = an inline masked `<img>` at `z-0` (see SLIDE-13). Colour-only interstitial = `<ImageSlide gradient="from-x to-y" />`.
+
+**CONFIG (2026-07-13, later): all image/background slides now driven from a single top-of-frontmatter block** (dom wanted to tweak everything from one place, like the `sections` array does for text slides). In `returns2.astro` frontmatter:
+- `IMG_DEFAULTS` — global `width` (change once to resize ALL image slides), `fade`, `effect`, `opacity`, `blend`.
+- `IMAGE_SLIDES` — per-slide map keyed by slide id (`"0.5"`, `"3.25"`, …). Each entry has `img` (short filename, no path/ext) OR `gradient` (tailwind stops), plus any per-slide overrides (e.g. `effect: "focus"`, `width`). Merged with defaults + path-expanded into `imgSlide[...]`, spread at each call site: `<ImageSlide {...imgSlide["6.25"]} />`.
+- `BACKGROUNDS` — the two behind-text bg images (`"13"` master, `"3.5"` brain): `width` + `opacity` read into the inline masked `<div>`s via `style={...}`. (Their side/fade stay in the markup — offered to lift those too.)
+- `ImageSlide.astro` itself was NOT changed — the config just feeds its existing props. All 12 call sites are `{...imgSlide[id]}` spreads; zero hardcoded image props remain in the markup.
+
+**POSITIONING/BLEED (2026-07-13, later): `ImageSlide` gained size+position props** so image slides can spill over ("underlap") their neighbours and be sized individually:
+- `width` = scroll footprint · `imgWidth` = image render width (`>100%` bleeds over neighbours) · `imgX` = sideways nudge · `z` = stack order vs neighbours · `objectPos` = photo framing. All in `IMG_DEFAULTS` + per-slide overrides.
+- Section is now `overflow-visible` (was `overflow-hidden`) and its z-index is inline (`z` prop) so bleed can show across slide boundaries. The image layer is centred + widened via inline transform.
+- **Constraint documented in the config comment:** text slides have opaque `bg-background`, so an image with a *lower* z is hidden behind them — to make a bleed visible you either raise `z` above the neighbour (image sits over the neighbour's edge, flow-mask softens it) OR drop that neighbour's bg opacity. Left-bleed (into the previous slide) shows at default z; right-bleed (over the next slide) needs a higher `z`.
+- Example set: `"0.5": { imgWidth: "150%" }`. dom set `IMG_DEFAULTS.width` to `100vw` himself.
+
+**UNDERLAP / GENTLE FADE (2026-07-13, later): `TEXT_BG` + `flow-xlong`.**
+- **`TEXT_BG`** (frontmatter, keyed by data-sidebar id) — per-text-slide background opacity 0–100. The 5 plain `bg-background` text slides (0, 1, 6, 10, 13) now render their bg via `style={textBg(id)}` (`background-color:hsl(var(--background)/opacity)`) instead of the `bg-background` class. Lower opacity = an image bleeding from a neighbour shows THROUGH the text slide (genuine underlap, image at a *lower* z). Omitted ids default to 100 (opaque, unchanged). Currently `{"0":70,"1":70}` as the working example for the 0.5 underlap.
+- **`flow-xlong`** fade preset added to `ImageSlide.astro` — a very long, gentle dissolve (`black 46%→54%`, feathers to both edges). Use on wide bleed slides for the "nice and gentle and long" transition dom asked for.
+- Note the two underlap routes now coexist: **image OVER neighbour** (high `z`, mask-softened — dom's current 0.5 experiment uses `z:25, imgX:"-50vw"`) vs **image BEHIND translucent neighbour** (`z` below the neighbour + `TEXT_BG` opacity < 100). Only the colour `bg-*` text slides (02,03,04,05,07,09,11,12) are NOT yet wired to `TEXT_BG` — they keep their intentional colour backgrounds; wire more on request.
+
+**Original IN-PROGRESS notes (mechanism reference) below.**
+
+
+**dom's decision (2026-07-13):** restructure so there's a **dedicated full-width (100vw) image slide between every text slide**. Text slides become **clean typography** (background images stripped); every image lives on its own cinematic image slide that **fades in on a long scroll ramp** between the text slides. GSAP scroll effects (the tiger blur-to-focus, the train fade) are loved and should enhance the image slides.
+
+**Confirmed choices:** image slide width = **100vw (cinematic)** — dom accepts this ~doubles total scroll length. Text slide backgrounds = **stripped** (images only on image slides).
+
+**Mechanism built (generalised, no per-slide GSAP):** in the `<script>` block, two `querySelectorAll` loops drive image-slide reveals by class, each ramping relative to its own `<section>`'s `offsetLeft`:
+- `.img-slide-fade` → opacity 0→1 (long flowing dissolve)
+- `.img-slide-focus` → opacity 0→1 + blur(30px)→blur(0) (the tiger reveal)
+
+Ramp window is `IMG_RAMP = { start: -0.9, end: -0.15 }` (vw multipliers off the slide's left edge) — one place to tune all image-slide timing.
+
+**Image slide markup pattern** (copy this, change src / width / class):
+```astro
+<section class="hidden md:flex w-[100vw] h-full md:items-center flex-shrink-0 relative bg-background z-10">
+  <div class="img-slide-fade absolute inset-0 z-0 opacity-0">   {/* or img-slide-focus */}
+    <SlidePlaceholder src="/images/returns/<name>.webp" label="IMAGE · <name>"
+      fade="flow" wrapperClass="absolute inset-0 opacity-90"
+      imgClass="w-full h-full object-cover object-center" blend={true} />
+  </div>
+</section>
+```
+
+**Done so far (2 reference image slides):**
+- **SLIDE-0.5** — `your-brand-is-muted`, `.img-slide-fade`. (Replaced the old girl.phone.headphones static photo.)
+- **SLIDE-3.25** (new, inserted after SLIDE-03) — `faster-than-sight`, `.img-slide-focus` (blur-to-focus). SLIDE-03 text slide stripped of its tiger backgrounds.
+
+**Judgment calls made (flag for dom review):**
+- **SLIDE-02 kept as-is** (animated SVG data-map is its visual) — no image slide, `sound-as-a-data-map.webp` stays unused.
+- **SLIDE-13 `master-the-signal` left as a text-slide background** (dom said it "looks great", and it's the final CTA — an image slide *after* the CTA felt wrong). Revisit if he wants it moved to its own slide.
+- **`brain-processing-speed` left as the SLIDE-3.5 stat background** (it illustrates the 8-10ms brain stat; 3.5 is a stat interstitial, not a text slide). Revisit.
+- Old `#tiger-focus-layer` / `#train-fade-layer` GSAP blocks now **no-op safely** (their `if (layer && slideN)` guards short-circuit once the layers are removed from the text slides). Dead-but-safe; can be deleted in a cleanup pass. The `trainFade`/`tigerFocus` entries in the `sections` config are likewise now unused.
+
+**PENDING — full rollout (do after dom confirms the cinematic rhythm on his dev server):**
+1. Strip remaining text-slide backgrounds (the `SlidePlaceholder` blocks on 04, 05, 06, 07, 09, 10 — and the raster cityscape/train blocks on 00, 01) and move each image onto a new 100vw image slide after its text slide, using `.img-slide-fade` (or `.img-slide-focus` where a sharpen reveal suits).
+2. **Recalibrate the scroll track height** — the strip is inside a fixed `h-[1600vh]` track. Adding ~8 more 100vw image slides widens the strip ~50%; the vertical track must grow proportionally (est. ~2300–2400vh) or every slide will scrub past too fast. GSAP anim/counter timings are `offsetLeft`-relative so they self-correct to the ratio — but verify the ROI (6.5) and success-ring (7.5) counters still resolve, and re-check `stripEndOffset`, after the track change.
+3. Images with no themed file (SLIDE-11 Asset Ownership, SLIDE-12 Belief) get no image slide unless dom supplies art.
+- Build can't run in-sandbox (rollup native module) — dom verifies on his local dev server.
+
+### AC0 — The vision (dom's words)
+
+Images on `returns2.astro` are the *connective tissue* of the horizontal scroll, not just per-slide backgrounds. They should live **between slides / between text**, at the `x.5` interstitial positions, so the scroll "feels like fluid motion" — an image bleeds in, peaks, and dissolves out as the strip moves. Images need **long, soft fades** so they look like they're flowing rather than sitting in hard rectangles. Background colours of slides may still change, and **slide widths may need changing again** to make room for the image "breaths."
+
+Placeholders go in NOW (so layout/flow can be felt), real images get dropped in later — named by slide title — with **zero code changes** on swap.
+
+### AC1 — What was built: `src/components/SlidePlaceholder.astro`
+
+A reusable Astro component with a **build-time existence check**. Pass the *intended final* image path; at build time it `fs.existsSync`-checks the file and either:
+- **File exists** → renders the real `<img>` with a long fade-to-transparent mask + `mix-blend-screen`, so it flows across slides.
+- **File missing** → renders an on-brand dashed placeholder box showing the slide label + the exact filename it's waiting for (and the active `fade` preset).
+
+**Swap workflow:** drop the correctly-named file into the images folder, rebuild — placeholder auto-disappears, real image appears. No code edits.
+
+**Why fades dissolve to `transparent`, never a bg colour:** dom is changing slide bg colours. An image hard-faded into one colour would show a seam the instant it crosses into a differently-coloured slide. Fading to transparent + `mix-blend-screen` means the image floats over *whatever* is behind it and crosses colour boundaries cleanly. This is the same mask-to-transparent principle already used on SLIDE-00/0.5/03.
+
+**Props:**
+- `src` — intended final path, e.g. `/images/returns/credibility.webp`
+- `fade` — preset (see below), default `"flow"`. `mask` prop overrides with a custom gradient.
+- `wrapperClass` — positioning/sizing of the outer div (absolute, w/h, z, opacity). Default `absolute inset-y-0 right-0 w-[70vw] z-0 opacity-70`.
+- `imgClass` — object-fit/position, default `w-full h-full object-cover object-center`
+- `blend` — `mix-blend-screen`. **`true` for dark-bg slides, `false` for light `bg-foreground/90` slides** (screen blend washes out on light backgrounds).
+- `label` — placeholder text (slide name)
+- `alt` — real image alt
+
+**Fade presets (the `FADES` map in the component):**
+- `flow` (default) — long dissolve on BOTH horizontal edges (`transparent 0% → black 22% → black 78% → transparent 100%`). The "flowing past" look for horizontal scroll.
+- `flow-long` — softer, only a narrow centre band hits full strength (`black 38%→62%`).
+- `in-right` / `in-left` — solid on one side, long fade off the other (image "entering" from a slide edge).
+- `edges` — soft on all four edges via two composited gradients (`mask-composite: intersect` / webkit `source-in`); floating vignette.
+- `radial` — elliptical dissolve from centre outward.
+
+### AC2 — Demo currently in the file
+
+SLIDE-07 (Credibility) has a live demo (heavily commented, marked `DEMO`) waiting on `/images/slide-07-credibility.webp`. It uses `fade="flow"`, `blend={false}` (SLIDE-07 is a light `bg-foreground/90` slide), positioned on the empty left columns. It renders as a placeholder box now. **This is a reference/demo — replace or remove once the real placement plan is set.** The import `import SlidePlaceholder from '../components/SlidePlaceholder.astro';` is at the top of `returns2.astro`.
+
+### AC3 — RESOLVED: image folder location = `public/images/returns/`
+
+**Decision made — folder is `public/images/returns/`** (created this session, empty). Reference images as `src="/images/returns/<slide-title>.webp"` (no `public` in the path — everything in `public/` serves from `/`).
+
+Rationale (dom originally floated `src/assets/images/returns/`): the component checks `public/` at build time via `fs.existsSync`, and every other returns2 image already lives in `public/images/` — `src/assets/images/` is the `getImage()` hero pipeline (imported + hashed, NOT served at a plain `/…` URL). `public/` keeps the drop-in-and-it-appears workflow zero-code and matches all existing returns2 imagery (tiger/cityscape/woman). No `getImage()` glob rework needed.
+
+### AC3b — RESOLVED: format = WebP, no fallback format
+
+- **WebP only.** Matches the site convention (all returns2 images are `.webp`) and gives the biggest weight saving on these large full-bleed background photos. WebP has universal browser support in 2026 (Safari 14+/2020, all Chromium, Firefox), so **no `<picture>`/JPG-PNG fallback is needed** — consistent with the existing webp-only `<img>` tags on returns2.
+- **Export opaque WebPs — transparency not required.** The flowing fade comes from the CSS mask (`fade` preset) + `mix-blend-screen`, not the image's alpha channel. Simpler and smaller.
+
+### AC3c — WORKFLOW: convert source images to WebP before wiring
+
+dom will drop **source images** (PNG/JPG, from AI gen or elsewhere) into `public/images/returns/`. These must be **converted to WebP first**, then the `.webp` gets wired into `returns2.astro`.
+
+- **Tooling:** `cwebp` is NOT in the Cowork sandbox, but **Pillow (12.x) is** — convert with Python/PIL.
+- **Target spec** (matches how tiger/cityscape/woman were done): resize to **~1400–1600px** on the long edge, convert to **WebP quality ~80**. These are soft, blended, low-opacity backdrops — they don't need full-res.
+- **Naming:** keep dom's slide-title names; just change the extension to `.webp`. The `src` in `returns2.astro` must point at the `.webp`, not the source PNG/JPG.
+- Optionally delete the source PNG/JPG after conversion (the site keeps a mix — not critical either way), but the `<img src>` must reference the `.webp`.
+
+### AC4 — Next steps (for the Fable/Sonnet session)
+
+1. **Folder + format resolved** (AC3/AC3b) — `public/images/returns/`, WebP only, no fallback.
+2. **Convert first** (AC3c) — when dom's source images land in `public/images/returns/`, batch-convert PNG/JPG → WebP (Pillow, ~1400–1600px, q~80) before wiring anything.
+3. **Placement:** dom wants images at the `x.5` interstitial slots (SLIDE-0.5, 3.5, 4.5, 6.5, 7.5, 8.5) so they sit *between* content slides. Note several x.5 slides already hold stat interstitials (3.5 = "8-10ms", 4.5 = memory stat, 6.5 = ROI counter, 7.5 = success ring). Decide per-slot whether the image sits behind the existing stat content or a fresh image-only interstitial (SLIDE-0.5 is the existing image-only pattern) is inserted.
+4. **Slide widths will likely need adjusting** to give the images room to breathe. Widths live in the `sections` array in the frontmatter (`width:` field) for `data-sidebar` slides — changing them there auto-updates layout + GSAP timing. Interstitial `x.5` slides have hardcoded `w-[Xvw]` on the `<section>` (they have no `data-sidebar` and aren't in the `sections` array). **GSAP anim/counter timings are relative to each section's live `offsetLeft`, so inserting/resizing interstitials self-corrects** — but re-verify the counter slides (6.5 ROI, 7.5 success ring) and `stripEndOffset` after any width change, and never remove `id="roi-section"` / `id="success-section"` / other GSAP anchor ids.
+5. **Per-slide `blend`:** `true` on dark slides, `false` on the light `bg-foreground/90` slides (05? check each — 07 is light). Get this wrong and the image either washes out (screen on light) or looks flat (no blend on dark).
+6. Wire placeholders one slot at a time, verify the flow visually, then let dom drop real files in.
+
+### AC5 — Guardrails (unchanged from the rest of this file)
+
+- All work stays on `returns2.astro` — do NOT touch `returns.astro` until dom merges.
+- Don't change section `w-[Xvw]` widths without re-checking GSAP counter/timing calibration (AC4.3).
+- Don't remove GSAP anchor ids or `data-sidebar` / `data-sidebar-anchor` attributes.
+- Build tooling (`astro check` / `astro build`) still can't run in the Cowork sandbox — the `@rollup/rollup-linux-arm64-gnu` native module is missing (documented in X6/AA2). Verify TS/logic by hand; run the real build locally.

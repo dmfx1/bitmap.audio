@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { Button } from "@/components/ui/button";
+import ImageSlide from '../components/ImageSlide.astro';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // SLIDE CONFIG — edit widths, animation timings, and key values here.
@@ -19,8 +20,8 @@ import { Button } from "@/components/ui/button";
 // counter:    for animated number values (ROI, success ring) — change the numbers here.
 // ═══════════════════════════════════════════════════════════════════════════════
 const sections = [
-  { id: "00", label: "Status",               width: "90vw"  },
-  { id: "01", label: "Context",              width: "66vw",  anim: {
+  { id: "00", label: "Status",               width: "80vw"  },
+  { id: "01", label: "Context",              width: "75vw",  anim: {
     trainFade:   { start: -0.5,  end: -0.0,  scrub: 1 },
   }},
   { id: "02", label: "Architecture",         width: "110vw", anim: {
@@ -87,6 +88,99 @@ const CONFIG = {
   // Increase in increments of 100 until SLIDE-13 heading is centred when vertical scroll takes over.
   stripEndOffset: 0,
 };
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// IMAGE & GRADIENT "IN-BETWEEN" SLIDES — tweak size / fade / opacity / colour here.
+//
+// Each key is a slide id (matches the SLIDE-X.5 region comments in the markup).
+// Give it EITHER `img` (filename in /public/images/returns, no path or extension)
+// OR `gradient` (tailwind colour stops for a solid colour-transfer panel).
+// Any per-slide key overrides the defaults below.
+//
+//   SIZE & POSITION
+//   width    — scroll footprint (how long the slide takes to scroll past).
+//              Change IMG_DEFAULTS.width to resize ALL image slides at once.
+//   imgWidth — how wide the IMAGE renders. >100% spills over the neighbouring slides
+//              (the bleed / "underlap" look). e.g. "150%" ≈ 25% past each edge.
+//   imgX     — nudge the image sideways, e.g. "-10vw" to bleed more into the left slide.
+//   z        — stack order vs neighbours (text slides are z-10/z-20). Raise to bleed
+//              OVER the next slide; lower tucks behind (but neighbours are opaque, so a
+//              lower z hides the bleed — prefer a higher z + the flow mask).
+//   objectPos— which part of the photo is framed ("center", "left", "50% 30%"…).
+//   LOOK
+//   fade     — edge-mask preset: flow | flow-long | in-left | in-right | radial
+//   effect   — "fade" (dissolve) or "focus" (blur→sharp reveal)
+//   opacity  — 0–100  ·  blend — mix-blend-screen (true = dark slide, false = light)
+// ═══════════════════════════════════════════════════════════════════════════════
+const IMG_DEFAULTS = { 
+  width: "100vw", 
+  imgWidth: "100%", 
+  imgX: "0px", 
+  objectPos: "center", 
+  z: 10, 
+  opacity: 90, 
+  bare: true, // Make ALL images float on the journey by default now
+  
+  // NEW: Default 20% fade on the left and right edges
+  edgeMask: "linear-gradient(to right, transparent 0%, black 20%, black 80%, transparent 100%)",
+  
+  // NEW: Default GSAP scroll timing (vw multipliers relative to left edge)
+  ramp: { start: -1.2, end: -0.1 } 
+};
+
+const IMAGE_SLIDES: Record<string, any> = {
+  "0.5": { img: "your-brand-is-muted", imgWidth: "100%", imgX: "-20vw", z: 0, blend: false, bare: true, objectPos: "left", customMask: "linear-gradient(to right, transparent 0%, transparent 30%, black 60%, black 70%, transparent 100%)", ramp: { start: -1.5, end: 0 } },
+  "1.5": { img: "when-everyone-is-listening", imgFade: "flow-xlong", bare: true },
+  "2.5":  { img: "sound-as-a-data-map", imgX: "-50vw", blend: false, bare: true, objectPos: "left", customMask: "linear-gradient(to right, transparent 0%, transparent 50%, black 60%, black 70%, transparent 100%)" },
+  "3.25": { img: "faster-than-sight", effect: "focus" },
+  "4.25": { img: "visuals-fade-sound-echoes" },
+  "5.5":  { img: "recall-under-pressure" },
+  "6.25": { img: "amplified-roi" },
+  "7.25": { img: "subconscious-trust" },
+  "9.25": { img: "perceived-as-innovators" },
+  "10.5": { img: "seamless-cultural-resonance" },
+  "11.5": { gradient: "from-primary/5 to-accent" },
+  "12.5": { gradient: "from-accent to-background" },
+};
+
+// Behind-text background images (sit INSIDE a text slide at z-0, under the copy).
+// Tweak size + opacity here; position (side) + fade stay in the markup div.
+const BACKGROUNDS: Record<string, any> = {
+  "13":  { width: "52vw", opacity: 55 },  // master-the-signal  (SLIDE-13, side=left)
+  "3.5": { width: "100%", opacity: 25 },  // brain-processing-speed (SLIDE-3.5, side=full)
+};
+
+// ── BACKGROUND COLOUR JOURNEY (desktop only) ─────────────────────────────────
+// One background layer behind the whole strip drifts through these colours as you
+// scroll — a gradual journey instead of hard per-slide background cuts. Each
+// checkpoint pins to a slide (data-sidebar id) and eases to the next. Use any CSS
+// colour GSAP can tween (hex is safest). MOBILE is untouched — slides keep their own
+// backgrounds and snap. TEST scope: opening only (00 → 02); extend to cover the page.
+// ── BACKGROUND COLOUR JOURNEY (desktop only) ─────────────────────────────────
+const JOURNEY = [
+  { at: "0",  color: "#121C1C" }, // bg-background (Status)
+  { at: "2",  color: "#ABC4CE" }, // bg-primary/80 (Architecture)
+  { at: "3",  color: "#11181A" }, // bg-card/30 (Neurology.Processing)
+  { at: "4",  color: "#1E231C" }, // bg-accent/5 (Neurology.Memory)
+  { at: "5",  color: "#111A1B" }, // bg-card/20 (Metrics)
+  { at: "6",  color: "#121C1C" }, // bg-background (Conversion)
+  { at: "7",  color: "#DCDDDD" }, // bg-foreground/90 (Credibility)
+  { at: "9",  color: "#384648" }, // bg-primary/20 (Perception)
+  { at: "10", color: "#121C1C" }, // bg-background (Culture)
+  { at: "11", color: "#1C2727" }, // bg-primary/5 (Asset.Ownership)
+  { at: "12", color: "#FFA61A" }, // bg-accent (Belief)
+  { at: "13", color: "#121C1C" }, // bg-background (Execution)
+];
+
+// Merge defaults + expand image paths → final <ImageSlide> props. (Don't edit below.)
+const RETURNS = (n: string) => `/images/returns/${n}.webp`;
+const imgSlide: Record<string, any> = Object.fromEntries(
+  Object.entries(IMAGE_SLIDES).map(([k, v]) => {
+    const p: any = { ...IMG_DEFAULTS, ...v };
+    if (p.img) { p.src = RETURNS(p.img); delete p.img; }
+    return [k, p];
+  })
+);
 // ═══════════════════════════════════════════════════════════════════════════════
 ---
 
@@ -122,17 +216,21 @@ const CONFIG = {
   description="Audio branding delivers 4x brand recall, 25% credibility lift, and measurable conversion gains. Explore the data behind sonic identity."
 >
   <main class="bg-background text-foreground selection:bg-accent selection:text-foreground grainBG">
-    
-    <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-      <div id="parallax-grid" class="absolute top-0 left-0 w-full h-[200vh] bitmap-grid opacity-[0.05] will-change-transform"></div>
-      
-    </div>
 
-    <div id="scroll-track" class="relative w-full h-[1600vh]">
+    <!-- Background colour "journey" layer — desktop only. GSAP drifts its background-color
+         through the JOURNEY checkpoints as you scroll, behind the (transparent-on-desktop)
+         slides. Hidden on mobile so the per-slide snap backgrounds are untouched. -->
+    <div id="journey-bg" class="hidden md:block fixed inset-0 z-0 pointer-events-none" style="background-color:#111b1b;"></div>
+
+    <!-- Track height grown from 1600vh → 2050vh to keep per-slide scroll dwell roughly
+         constant after adding ~11 new 50vw image slides (strip width up ~27%). ESTIMATE —
+         tune this value on the dev server: too fast/twitchy = increase, too sluggish = decrease.
+         GSAP anim/counter timings are offsetLeft-relative so they self-correct to this value. -->
+    <div id="scroll-track" class="relative w-full h-[2050vh]">
       
       <div id="sidebar-track" class="absolute left-0 top-0 w-24 h-full z-50 pointer-events-none hidden md:flex flex-col">
         {sections.map((sec, index) => (
-          <aside class="h-screen w-full border-r border-border/20 bg-background/80 backdrop-blur-md flex flex-col items-center justify-center gap-8 shadow-[20px_0_40px_-15px_rgba(0,0,0,0.5)]">
+          <aside class="h-screen w-full  bg-background/80 backdrop-blur-md flex flex-col items-center justify-center gap-8 shadow-[20px_0_40px_-15px_rgba(0,0,0,0.5)]">
             <span class="font-mono text-muted-foreground text-[10px] tracking-widest rotate-180 [writing-mode:vertical-lr] uppercase">{sec.label}</span>
             <div class="h-48 w-[1px] bg-border/30 relative">
               <div class="indicator-line absolute top-0 w-[3px] -left-[1px] bg-accent shadow-[0_0_15px_hsl(var(--accent))] origin-top scale-y-0"></div>
@@ -151,20 +249,15 @@ const CONFIG = {
                "Your brand is Muted." | data-sidebar="0"
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-00 | Status | w-screen -->
-          <section data-sidebar="0" class="relative h-full flex-shrink-0 flex flex-col justify-center items-center pl-4 pr-4 group bg-background z-10 mobile:pl-0">
+          <section data-sidebar="0" class="relative h-full flex-shrink-0 flex flex-col justify-center items-center pl-4 pr-4 group bg-background md:bg-transparent z-10 mobile:pl-0">
             <!-- Mobile background image — woman reading, bottom-right -->
             <div class="md:hidden absolute bottom-0 right-0 w-[75vw] h-[70vh] pointer-events-none z-0">
-              <img src="/images/listening.woman2.emptyBook.webp" decoding="async" alt=""
+              <img src="/images/returns/your-brand-is-muted.webp" decoding="async" alt=""
                    class="w-full h-full object-contain object-right-bottom opacity-40" />
             </div>
             <!-- Desktop background image — big bleed, bottom-right, behind text. Left edge masks to
                  transparent so it dissolves into bg-background instead of a hard photo edge where it
                  meets the text column (same treatment as SLIDE-0.5's girl.phone.headphones image). -->
-            <div class="mobile:hidden absolute bottom-0 right-0 w-[60vw] h-[90vh] pointer-events-none z-0 opacity-70 mix-blend-screen"
-                 style="mask-image: linear-gradient(to right, transparent 0%, black 35%); -webkit-mask-image: linear-gradient(to right, transparent 0%, black 35%);">
-              <img src="/images/bitmap.cityscape.muted.webp" decoding="async" alt=""
-                   class="w-full h-full object-contain object-right-bottom" />
-            </div>
             <div class="mobile:hidden absolute -right-20 bottom-0 text-[35vw] font-mono font-bold text-muted/5 select-none pointer-events-none transition-transform duration-1000 group-hover:scale-105 z-0">00</div>
             <!-- 12-col container: pl-24 clears the 96px sidebar; pr-6 matches nav right padding -->
             <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
@@ -189,20 +282,11 @@ const CONFIG = {
                Listening woman image sequence (phone→book fade via GSAP)
                DESKTOP ONLY (hidden md:flex) | no sidebar
                ═══════════════════════════════════════════════════════════ -->
-          <!-- #region SLIDE-0.5 | Woman Image | w-[50vw] | DESKTOP ONLY -->
-          <section class="hidden md:flex w-[100vw] h-full md:items-center flex-shrink-0 relative bg-background z-10">
-            <div class="absolute top-0 left-0 w-full h-full flex items-end justify-start pointer-events-none opacity-80 mix-blend-screen z-0">
-              <!-- Single static photo (replaces the old 3-image hands/book/phone cross-fade — see script comment
-                   near the removed "3-STEP STAGGERED FADE LOGIC" block). Left/right edges mask to transparent
-                   (not a hardcoded colour) so it dissolves into whatever's behind — bg-background on this
-                   section, consistently — instead of showing a hard photographic edge. -->
-              <div class="relative w-full max-w-8xl -mb-[50vh]"
-                   style="mask-image: linear-gradient(to right, transparent 0%, black 5%, black 85%, transparent 100%); -webkit-mask-image: linear-gradient(to right, transparent 0%, black 75%, black 85%, transparent 100%);">
-                <img id="base-hands-layer" src="/images/girl.phone.headphones.webp" decoding="async" alt="Woman listening to music on her phone" class="w-full h-auto object-contain object-bottom" />
-              </div>
-            </div>
-          </section>
-
+          <!-- #region SLIDE-0.5 | Image · Your Brand Is Muted -->
+          <!-- Image slides are one-liners via <ImageSlide>. Props: src, effect ("fade"|"focus"),
+               gradient, width, opacity, blend, fade. Defaults live in ImageSlide.astro — change
+               the width default there to resize every image slide at once. -->
+          <ImageSlide {...imgSlide["0.5"]} />
           <!-- #endregion SLIDE-0.5 -->
 
           <!-- ═══════════════════════════════════════════════════════════
@@ -210,16 +294,13 @@ const CONFIG = {
                "When everyone is listening." + train fade | data-sidebar="1"
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-01 | Context | w-screen md:w-[50vw] -->
-          <section data-sidebar="1" class="w-screen h-full flex-shrink-0 flex items-center relative group bg-background z-20">
+          <section data-sidebar="1" class="w-screen h-full flex-shrink-0 flex items-center relative group bg-background md:bg-transparent z-20">
 
             <div class="mobile:hidden absolute right-0 bottom-0 text-[35vw] font-mono font-bold text-muted/5 select-none pointer-events-none z-0">01</div>
-
-            <div id="train-fade-layer" class="absolute bottom-0 right-0 w-[33vw] h-full z-0 opacity-0 pointer-events-none mix-blend-screen flex items-end justify-end">
-                <img src="/images/listening.woman2.train.webp" decoding="async" alt="Woman and Train" class="w-full h-full object-contain object-right-bottom" />
-            </div>
+            <!-- Text-only now — the "when-everyone-is-listening" image moved to its own image slide (SLIDE-1.5) below. -->
 
             <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
-              <div data-sidebar-anchor class="w-full flex justify-center mobile:justify-start mobile:px-4 relative z-10 md:col-start-1 md:col-span-7">
+              <div data-sidebar-anchor class="w-full flex justify-end mobile:justify-start mobile:px-4 relative z-10 md:col-start-1 md:col-span-7">
                   <div class="max-w-2xl border-l-2 border-accent pl-8 py-2 bg-background/20 backdrop-blur-sm relative z-10">
                       <span class="text-eyebrow text-sm mb-8 mobile:mb-3 block text-primary">[ Context // Always_On ]</span>
                       <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 mobile:mb-4 uppercase text-foreground">When everyone<br/><span class="text-primary drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">is listening.</span></h2>
@@ -233,6 +314,10 @@ const CONFIG = {
 
           <!-- #endregion SLIDE-01 -->
 
+          <!-- #region SLIDE-1.5 | Image · When Everyone Is Listening | w-[50vw] | DESKTOP ONLY -->
+          <ImageSlide {...imgSlide["1.5"]} />
+          <!-- #endregion SLIDE-1.5 -->
+
           <!-- ═══════════════════════════════════════════════════════════
                SLIDE 02 | Architecture | DESKTOP WIDTH: w-[125vw]
                SVG data map path-draw animation | data-sidebar="2"
@@ -240,7 +325,7 @@ const CONFIG = {
                Tweak widths here: gap-left=12vw, text=28vw, svg=80vw, gap-right=30vw
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-02 | Architecture SVG | w-[100vw] -->
-          <section data-sidebar="2" class="w-screen h-full flex-shrink-0 flex flex-row items-center border-r border-border/20 bg-primary/80 overflow-hidden group z-10 relative">
+          <section data-sidebar="2" class="w-screen h-full flex-shrink-0 flex flex-row items-center  bg-primary/80 md:bg-transparent group z-10 relative">
 
             <!-- MOBILE: stacked layout — SVG behind, text in front -->
             <div class="md:hidden absolute inset-0 pointer-events-none z-0 opacity-30">
@@ -338,27 +423,17 @@ const CONFIG = {
 
           <!-- #endregion SLIDE-02 -->
 
+          <!-- #region SLIDE-2.5 | Image · Sound As A Data Map | w-[50vw] | DESKTOP ONLY -->
+          <ImageSlide {...imgSlide["2.5"]} />
+          <!-- #endregion SLIDE-2.5 -->
+
           <!-- ═══════════════════════════════════════════════════════════
                SLIDE 03 | Neurology — Processing Speed | DESKTOP WIDTH: w-screen
                Tiger blur-to-focus animation | data-sidebar="3"
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-03 | Neurology Processing | w-screen -->
-          <section data-sidebar="3" class="w-screen h-full flex-shrink-0 grid grid-cols-1 border-r border-border/20 bg-card/30 overflow-hidden relative group z-10 mobile:pl-0">
-
-            <!-- Mobile background image — tiger, bottom-right -->
-              <div class="md:hidden absolute bottom-0 right-0 w-[100vw] h-[100vh] pointer-events-none z-0">
-                <img src="/images/stalking.sabretooth.webp" decoding="async" alt=""
-                    class="w-full h-full object-contain object-right-bottom opacity-40" />
-              </div>
-
-            <div class="absolute right-[40vw] -bottom-[20vh] w-[100vw] h-full flex items-start justify-end mix-blend-screen pointer-events-none z-0">
-               <img 
-               id="tiger-focus-layer"
-               src="/images/stalking.sabretooth.webp"
-               decoding="async"
-               alt="Sabretooth snapping a twig"
-               class="w-full h-auto object-contain object-right-bottom opacity-0 blur-[30px] transition-transform duration-1000 group-hover:scale-[1.02]" />
-            </div>
+          <section data-sidebar="3" class="w-screen h-full flex-shrink-0 grid grid-cols-1  bg-card/30 md:bg-transparent  relative group z-10 mobile:pl-0">
+            <!-- Text-only now — the "faster-than-sight" image moved to its own image slide (SLIDE-3.25) below. -->
 
             <div class="md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
               <div data-sidebar-anchor class="flex flex-col items-end mobile:items-start justify-center mobile:pl-4 mobile:pr-4 relative z-10 border-l border-border/20 bg-background/20 md:col-start-3 md:col-span-3">
@@ -376,11 +451,25 @@ const CONFIG = {
           <!-- #endregion SLIDE-03 -->
 
           <!-- ═══════════════════════════════════════════════════════════
+               SLIDE 3.25 | Image · Faster Than Sight | w-[100vw] | DESKTOP ONLY
+               Dedicated image slide after SLIDE-03. Uses .img-slide-focus →
+               blur(30px)→blur(0) reveal (the tiger effect) via the generalised loop.
+               ═══════════════════════════════════════════════════════════ -->
+          <!-- #region SLIDE-3.25 | Image · Faster Than Sight | w-[50vw] | DESKTOP ONLY -->
+          <ImageSlide {...imgSlide["3.25"]} />
+          <!-- #endregion SLIDE-3.25 -->
+
+          <!-- ═══════════════════════════════════════════════════════════
                SLIDE 3.5 | Brain Speed Stat | DESKTOP WIDTH: w-[66vw]
                "8-10ms" stat interstitial | DESKTOP ONLY | no sidebar
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-3.5 | Brain Speed Stat | w-[66vw] | DESKTOP ONLY -->
-          <section class="hidden md:flex md:items-center w-[66vw] bg-primary/80 h-full flex-shrink-0 border-r border-border/20 overflow-hidden relative group z-10">
+          <section class="hidden md:flex md:items-center w-[66vw] bg-primary/80 md:bg-transparent h-full flex-shrink-0 relative group z-10">
+            <!-- Behind-stat background image — radial edge-mask, no blend (light bg-primary/80). -->
+            <div class="mobile:hidden absolute inset-0 z-0 pointer-events-none"
+                 style={`opacity:${BACKGROUNDS["3.5"].opacity / 100};-webkit-mask-image:radial-gradient(ellipse at center, black 30%, transparent 78%);mask-image:radial-gradient(ellipse at center, black 30%, transparent 78%);`}>
+              <img src="/images/returns/brain-processing-speed.webp" decoding="async" alt="" class="w-full h-full object-cover object-center" />
+            </div>
             <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
               <div class="flex flex-col items-center justify-center relative overflow-hidden pointer-events-none z-10 text-center md:col-start-1 md:col-span-12">
                  <div class="absolute inset-0 bg-gradient-glow opacity-10"></div>
@@ -399,7 +488,7 @@ const CONFIG = {
                "Visuals fade. Sound echoes." + vibration animation | data-sidebar="4"
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-04 | Neurology Memory | w-screen -->
-          <section data-sidebar="4" class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center text-right mobile:pl-4 mobile:pr-4 relative border-r border-border/20 bg-accent/5 overflow-hidden group z-10 mobile:items-start mobile:text-right">
+          <section data-sidebar="4" class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center text-right mobile:pl-4 mobile:pr-4 relative bg-accent/5 md:bg-transparent group z-10 mobile:items-start mobile:text-right">
             <div class="absolute inset-0 radial-gradient-center opacity-20 pointer-events-none"></div>
             <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
               <div data-sidebar-anchor class="pl-8 md:pl-0 py-2 max-w-4xl relative z-10 mobile:border-l-2 mobile:border-accent md:col-start-3 md:col-span-8">
@@ -419,12 +508,16 @@ const CONFIG = {
 
           <!-- #endregion SLIDE-04 -->
 
+          <!-- #region SLIDE-4.25 | Image · Visuals Fade, Sound Echoes | w-[50vw] | DESKTOP ONLY -->
+          <ImageSlide {...imgSlide["4.25"]} />
+          <!-- #endregion SLIDE-4.25 -->
+
           <!-- ═══════════════════════════════════════════════════════════
                SLIDE 4.5 | Memory Retention Stat | DESKTOP WIDTH: w-[66vw]
                "20x" stat interstitial | DESKTOP ONLY | no sidebar
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-4.5 | Memory Retention Stat | w-[66vw] | DESKTOP ONLY -->
-          <section class="hidden md:flex md:items-center w-[66vw] bg-foreground/80 h-full flex-shrink-0 border-r border-border/20 overflow-hidden relative group z-10">
+          <section class="hidden md:flex md:items-center w-[66vw] bg-foreground/80 md:bg-transparent h-full flex-shrink-0  relative group z-10">
             <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
               <div class="flex flex-col items-center justify-center relative overflow-hidden pointer-events-none z-10 text-center md:col-start-1 md:col-span-12">
                  <div class="absolute inset-0 bg-gradient-glow opacity-10"></div>
@@ -444,7 +537,7 @@ const CONFIG = {
                Desktop uses hidden md:flex — mobile has separate slides below
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-05 | Metrics | w-screen | DESKTOP + MOBILE VARIANTS -->
-          <section id="metrics-section" data-sidebar="5" class="w-screen h-full flex-shrink-0 hidden md:flex md:items-center relative border-r border-border/20 bg-card/20 overflow-hidden group z-10">
+          <section id="metrics-section" data-sidebar="5" class="w-screen h-full flex-shrink-0 hidden md:flex md:items-center relative  bg-card/20 md:bg-transparent group z-10">
             <div class="md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
             <div data-sidebar-anchor class="w-full max-w-5xl border-l-2 border-accent pl-8 py-2 md:col-start-3 md:col-span-9 md:row-start-1">
               <span class="text-eyebrow text-sm mb-8 block">[ Metrics // Awareness ]</span>
@@ -484,7 +577,7 @@ const CONFIG = {
           </section>
 
           <!-- Mobile: Recall Under Pressure heading slide -->
-          <section class="w-screen h-full flex-shrink-0 md:hidden flex flex-col items-center justify-center text-center px-8 bg-card/20 border-r border-border/20 relative z-10">
+          <section class="w-screen h-full flex-shrink-0 md:hidden flex flex-col items-center justify-center text-center px-8 bg-card/20  relative z-10">
             <span class="text-eyebrow text-sm mb-6 block">[ Metrics // Awareness ]</span>
             <h2 class="font-mono text-[13vw] leading-[0.9] tracking-tighter uppercase text-foreground">
               Recall Under<br/><span class="text-accent">Pressure.</span>
@@ -492,28 +585,28 @@ const CONFIG = {
           </section>
 
           <!-- Mobile-only: Recall under Pressure stat slides (one per card) -->
-          <section class="w-screen h-full flex-shrink-0 md:hidden flex flex-col items-center justify-center text-center px-8 bg-card/20 border-r border-border/20 relative z-10">
+          <section class="w-screen h-full flex-shrink-0 md:hidden flex flex-col items-center justify-center text-center px-8 bg-card/20  relative z-10">
             <span class="font-mono text-accent text-[10px] tracking-widest uppercase mb-8 block opacity-60">[ Metrics // Awareness ]</span>
             <span class="font-mono text-[24vw] leading-none text-accent font-bold tracking-tighter drop-shadow-[0_0_30px_hsl(var(--accent)/0.5)]">191%</span>
             <div class="w-12 h-[2px] bg-accent/40 my-8"></div>
             <p class="font-sans text-muted-foreground text-xl leading-relaxed max-w-xs">Lift in brand awareness within the first two seconds of exposure.</p>
           </section>
 
-          <section class="w-screen h-full flex-shrink-0 md:hidden flex flex-col items-center justify-center text-center px-8 bg-background border-r border-border/20 relative z-10">
+          <section class="w-screen h-full flex-shrink-0 md:hidden flex flex-col items-center justify-center text-center px-8 bg-background  relative z-10">
             <span class="font-mono text-accent text-[10px] tracking-widest uppercase mb-8 block opacity-60">[ Metrics // Efficiency ]</span>
             <span class="font-mono text-[24vw] leading-none text-accent font-bold tracking-tighter drop-shadow-[0_0_30px_hsl(var(--accent)/0.5)]">12x</span>
             <div class="w-12 h-[2px] bg-accent/40 my-8"></div>
             <p class="font-sans text-muted-foreground text-xl leading-relaxed max-w-xs">More efficient at driving business results than visual-only advertising.</p>
           </section>
 
-          <section class="w-screen h-full flex-shrink-0 md:hidden flex flex-col items-center justify-center text-center px-8 bg-card/20 border-r border-border/20 relative z-10">
+          <section class="w-screen h-full flex-shrink-0 md:hidden flex flex-col items-center justify-center text-center px-8 bg-card/20  relative z-10">
             <span class="font-mono text-accent text-[10px] tracking-widest uppercase mb-8 block opacity-60">[ Metrics // Recall ]</span>
             <span class="font-mono text-[24vw] leading-none text-accent font-bold tracking-tighter drop-shadow-[0_0_30px_hsl(var(--accent)/0.5)]">30%</span>
             <div class="w-12 h-[2px] bg-accent/40 my-8"></div>
             <p class="font-sans text-muted-foreground text-xl leading-relaxed max-w-xs">Brand recall delivered even during highly distracted environments.</p>
           </section>
 
-          <section class="w-screen h-full flex-shrink-0 md:hidden flex flex-col items-center justify-center text-center px-8 bg-background border-r border-border/20 relative z-10">
+          <section class="w-screen h-full flex-shrink-0 md:hidden flex flex-col items-center justify-center text-center px-8 bg-background  relative z-10">
             <span class="font-mono text-accent text-[10px] tracking-widest uppercase mb-8 block opacity-60">[ Metrics // Engagement ]</span>
             <span class="font-mono text-[24vw] leading-none text-accent font-bold tracking-tighter drop-shadow-[0_0_30px_hsl(var(--accent)/0.5)]">78%</span>
             <div class="w-12 h-[2px] bg-accent/40 my-8"></div>
@@ -522,12 +615,16 @@ const CONFIG = {
 
           <!-- #endregion SLIDE-05 -->
 
+          <!-- #region SLIDE-5.5 | Image · Recall Under Pressure | w-[50vw] | DESKTOP ONLY -->
+          <ImageSlide {...imgSlide["5.5"]} />
+          <!-- #endregion SLIDE-5.5 -->
+
           <!-- ═══════════════════════════════════════════════════════════
                SLIDE 06 | Conversion | DESKTOP WIDTH: w-[50vw] (mobile: w-screen)
                "Amplified ROI." text panel | data-sidebar="6"
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-06 | Conversion Text | w-screen md:w-[50vw] -->
-          <section data-sidebar="6" class="w-screen h-full flex-shrink-0 flex flex-col justify-center border-r border-border/20 bg-background overflow-hidden relative z-10 mobile:pl-0">
+          <section data-sidebar="6" class="w-screen h-full flex-shrink-0 flex flex-col justify-center  bg-background md:bg-transparent relative z-10 mobile:pl-0">
             <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
             <div data-sidebar-anchor class="flex flex-col justify-center mobile:pl-4 mobile:pr-4 relative z-10 md:col-start-3 md:col-span-7 md:row-start-1">
               <div class="pl-6 mobile:pl-4 py-2">
@@ -551,13 +648,17 @@ const CONFIG = {
 
           <!-- #endregion SLIDE-06 -->
 
+          <!-- #region SLIDE-6.25 | Image · Amplified ROI | w-[50vw] | DESKTOP ONLY -->
+          <ImageSlide {...imgSlide["6.25"]} />
+          <!-- #endregion SLIDE-6.25 -->
+
           <!-- ═══════════════════════════════════════════════════════════
                SLIDE 6.5 | ROI Counter | DESKTOP WIDTH: w-[66vw]
                4.0x animated counter + ghost halos | DESKTOP ONLY + mobile variant
                ⚠ GSAP anchors to id="roi-section" — do not remove that id
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-6.5 | ROI Counter | w-[66vw] | DESKTOP ONLY + MOBILE VARIANT -->
-          <section id="roi-section" class="hidden md:flex md:items-center w-[75vw] h-full flex-shrink-0 border-r border-border/20 bg-primary/10 overflow-hidden relative group z-10">
+          <section id="roi-section" class="hidden md:flex md:items-center w-[75vw] h-full flex-shrink-0  bg-primary/10 md:bg-transparent relative group z-10">
             <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div class="roi-wave absolute w-[10vw] h-[10vw] rounded-full border border-primary/40"></div>
               <div class="roi-wave absolute w-[10vw] h-[10vw] rounded-full border border-primary/20"></div>
@@ -578,7 +679,7 @@ const CONFIG = {
           </section>
 
           <!-- Mobile ROI multiplier slide -->
-          <section class="md:hidden w-screen h-full flex-shrink-0 flex flex-col items-center justify-center bg-primary/10 border-r border-border/20 relative z-10">
+          <section class="md:hidden w-screen h-full flex-shrink-0 flex flex-col items-center justify-center bg-primary/10  relative z-10">
             <div class="relative flex items-center justify-center">
               <h3 class="absolute font-mono text-[32vw] leading-none text-primary/20 blur-[20px] font-bold tracking-tighter mix-blend-screen">4.0x</h3>
               <h3 class="absolute font-mono text-[28vw] leading-none text-primary/40 blur-[10px] font-bold tracking-tighter mix-blend-screen">4.0x</h3>
@@ -596,7 +697,7 @@ const CONFIG = {
                "Subconscious Trust." text panel | data-sidebar="7"
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-07 | Credibility Text | w-screen -->
-          <section data-sidebar="7" class="w-screen h-full flex-shrink-0 flex flex-col justify-center bg-foreground/90 overflow-hidden relative group z-10">
+          <section data-sidebar="7" class="w-screen h-full flex-shrink-0 flex flex-col justify-center bg-foreground/90 md:bg-transparent relative group z-10">
             <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
             <div data-sidebar-anchor class="flex flex-col justify-center mobile:pl-4 mobile:pr-4 relative z-10 md:col-start-4 md:col-span-8 md:row-start-1">
               <div class="w-full md:max-w-2xl border-l-2 border-accent pl-8 py-2">
@@ -622,6 +723,10 @@ const CONFIG = {
 
           <!-- #endregion SLIDE-07 -->
 
+          <!-- #region SLIDE-7.25 | Image · Subconscious Trust | w-[50vw] | DESKTOP ONLY -->
+          <ImageSlide {...imgSlide["7.25"]} />
+          <!-- #endregion SLIDE-7.25 -->
+
           <!-- ═══════════════════════════════════════════════════════════
                SLIDE 7.5 | Task Success Ring | DESKTOP WIDTH: w-screen
                25% SVG progress ring animation | data-sidebar="8"
@@ -629,7 +734,7 @@ const CONFIG = {
                ⚠ GSAP anchors to id="success-section" — do not remove that id
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-7.5 | Task Success Ring | w-screen | DESKTOP ONLY + MOBILE VARIANT -->
-          <section id="success-section" class="hidden md:flex md:items-center w-[75vw] h-full flex-shrink-0 bg-foreground/90 overflow-hidden relative group z-10">
+          <section id="success-section" class="hidden md:flex md:items-center w-[75vw] h-full flex-shrink-0 bg-foreground/90 md:bg-transparent relative group z-10">
             <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
             <div class="md:col-start-1 md:col-span-12 flex items-center justify-center">
             <div class="relative flex items-center justify-center w-[30vw] h-[30vw]">
@@ -651,7 +756,7 @@ const CONFIG = {
           </section>
 
           <!-- Mobile: 25% task success slide -->
-          <section class="md:hidden w-screen h-full flex-shrink-0 flex flex-col items-center justify-center bg-foreground/90 border-r border-border/20 relative z-10">
+          <section class="md:hidden w-screen h-full flex-shrink-0 flex flex-col items-center justify-center bg-foreground/90  relative z-10">
             <div class="relative flex items-center justify-center">
               <h3 class="absolute font-mono text-[32vw] leading-none text-accent/20 blur-[20px] font-bold tracking-tighter mix-blend-screen">25%</h3>
               <h3 class="absolute font-mono text-[28vw] leading-none text-accent/40 blur-[10px] font-bold tracking-tighter mix-blend-screen">25%</h3>
@@ -669,7 +774,7 @@ const CONFIG = {
                "Perceived as Innovators" | data-sidebar="9"
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-09 | Perception | w-screen -->
-          <section data-sidebar="9" class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center text-right mobile:pl-4 mobile:pr-4 relative border-r border-border/20 bg-primary/20 overflow-hidden group z-10 mobile:items-start mobile:text-right">
+          <section data-sidebar="9" class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center text-right mobile:pl-4 mobile:pr-4 relative  bg-primary/20 md:bg-transparent  group z-10 mobile:items-start mobile:text-right">
             <div class="absolute inset-0 radial-gradient-center opacity-20 pointer-events-none"></div>
             <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
             <div data-sidebar-anchor class="pl-8 md:pl-0 py-2 max-w-4xl relative z-10 mobile:border-l-2 mobile:border-accent md:col-start-5 md:col-span-7 md:row-start-1">
@@ -689,13 +794,17 @@ const CONFIG = {
 
           <!-- #endregion SLIDE-09 -->
 
+          <!-- #region SLIDE-9.25 | Image · Perceived As Innovators | w-[50vw] | DESKTOP ONLY -->
+          <ImageSlide {...imgSlide["9.25"]} />
+          <!-- #endregion SLIDE-9.25 -->
+
           <!-- ═══════════════════════════════════════════════════════════
                SLIDE 8.5 | SME Opportunity | DESKTOP WIDTH: w-[66vw]
                "An untapped opportunity for SMEs" | DESKTOP ONLY | no sidebar
                NOTE: numbered 8.5 but appears after slide 09 in DOM order
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-8.5 | SME Opportunity | w-[66vw] | DESKTOP ONLY -->
-          <section id="slide-sme" class="hidden md:flex md:items-center w-screen bg-primary/10 h-full flex-shrink-0 border-l border-border/20 overflow-hidden relative group z-10">
+          <section id="slide-sme" class="hidden md:flex md:items-center w-screen bg-primary/10 md:bg-transparent h-full flex-shrink-0 relative group z-10">
             <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
               <div class="flex flex-col items-center justify-center relative overflow-hidden pointer-events-none z-10 text-center md:col-start-3 md:col-span-8">
                  <div class="absolute inset-0 bg-gradient-glow opacity-10"></div>
@@ -715,7 +824,7 @@ const CONFIG = {
                "Seamless cultural Resonance." | data-sidebar="10"
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-10 | Culture | w-screen md:w-[66vw] -->
-          <section data-sidebar="10" class="relative w-screen h-full flex-shrink-0 flex flex-col justify-center group bg-background z-10 mobile:pl-0">
+          <section data-sidebar="10" class="relative w-screen h-full flex-shrink-0 flex flex-col justify-center group bg-background md:bg-transparent z-10 mobile:pl-0">
             <div class="mobile:hidden absolute -right-20 bottom-0 text-[35vw] font-mono font-bold text-muted/5 select-none pointer-events-none transition-transform duration-1000 group-hover:scale-105 z-0">00</div>
             <div class="md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
             <div data-sidebar-anchor class="relative z-10 pl-8 md:pl-0 py-2 md:col-start-4 md:col-span-6 md:row-start-1">
@@ -734,13 +843,17 @@ const CONFIG = {
 
           <!-- #endregion SLIDE-10 -->
 
+          <!-- #region SLIDE-10.5 | Image · Seamless Cultural Resonance | w-[50vw] | DESKTOP ONLY -->
+          <ImageSlide {...imgSlide["10.5"]} />
+          <!-- #endregion SLIDE-10.5 -->
+
           <!-- ═══════════════════════════════════════════════════════════
                SLIDE 11 | Asset Ownership | DESKTOP WIDTH: w-screen
                "Stop renting from the sea of sameness." | data-sidebar="11"
                Includes mobile-only 30% stat slide below
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-11 | Asset Ownership | w-screen | DESKTOP + MOBILE VARIANT -->
-          <section data-sidebar="11" class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center mobile:items-start text-left mobile:pl-4 mobile:pr-4 relative border-r border-border/20 bg-primary/5 overflow-hidden group z-10">
+          <section data-sidebar="11" class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center mobile:items-start text-left mobile:pl-4 mobile:pr-4 relative  bg-primary/5 md:bg-transparent  group z-10">
             <div class="md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
             <div data-sidebar-anchor class="pl-8 md:pl-0 py-2 z-10 mobile:border-l-2 mobile:border-accent md:col-start-4 md:col-span-8 md:row-start-1">
               <span class="text-eyebrow text-sm mb-8 block">[ Asset // Ownership ]</span>
@@ -755,7 +868,7 @@ const CONFIG = {
           </section>
 
           <!-- Mobile-only body text slide for "Stop Renting" -->
-          <section class="md:hidden w-screen h-full flex-shrink-0 flex flex-col justify-center px-4 bg-background border-r border-border/20 relative z-10 overflow-hidden">
+          <section class="md:hidden w-screen h-full flex-shrink-0 flex flex-col justify-center px-4 bg-background md:bg-transparent  relative z-10 ">
             <!-- Ghost number background -->
             <div class="absolute right-[-2vw] bottom-[-4vw] font-mono font-bold text-[55vw] leading-none text-muted/5 select-none pointer-events-none">30</div>
             <div class="border-l-2 border-accent pl-8 py-2 relative z-10">
@@ -774,12 +887,18 @@ const CONFIG = {
 
           <!-- #endregion SLIDE-11 -->
 
+          <!-- #region SLIDE-11.5 | Gradient transfer (primary/5 → accent) -->
+          <!-- No art yet — colour-transfer panel bridging SLIDE-11 (bg-primary/5) into SLIDE-12
+               (bg-accent). Swap for an image any time: <ImageSlide src="/images/returns/<name>.webp" /> -->
+          <ImageSlide {...imgSlide["11.5"]} />
+          <!-- #endregion SLIDE-11.5 -->
+
           <!-- ═══════════════════════════════════════════════════════════
                SLIDE 12 | Belief | DESKTOP WIDTH: w-[66vw] (mobile: w-screen)
                "Trust in the power of sound." | data-sidebar="12"
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-12 | Belief | w-screen md:w-[66vw] -->
-          <section data-sidebar="12" class="w-screen h-full flex-shrink-0 md:flex md:items-center border-r border-border/20 bg-accent overflow-hidden relative group z-10 mobile:pl-0">
+          <section data-sidebar="12" class="w-screen h-full flex-shrink-0 md:flex md:items-center  bg-accent relative group z-10 mobile:pl-0">
             <div class="md:container md:mx-auto md:pl-36 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
             <div data-sidebar-anchor class="flex flex-col justify-center mobile:pl-4 mobile:pr-4 relative z-10 md:col-start-3 md:col-span-8 md:row-start-1">
               <div class="border-l-2 border-accent pl-8 py-2">
@@ -798,12 +917,25 @@ const CONFIG = {
 
           <!-- #endregion SLIDE-12 -->
 
+          <!-- #region SLIDE-12.5 | Gradient transfer (accent → background) -->
+          <!-- No art yet — colour-transfer panel bridging SLIDE-12 (bg-accent) into SLIDE-13
+               (bg-background). Swap for an image any time: <ImageSlide src="/images/returns/<name>.webp" /> -->
+          <ImageSlide {...imgSlide["12.5"]} />
+          <!-- #endregion SLIDE-12.5 -->
+
           <!-- ═══════════════════════════════════════════════════════════
                SLIDE 13 | Execution | DESKTOP WIDTH: w-screen
                "Master the Signal." + CTA button | data-sidebar="13"
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-13 | Execution | w-screen -->
-          <section data-sidebar="13" class="w-screen h-full flex-shrink-0 flex flex-col items-end justify-center text-center mobile:pl-0 relative overflow-hidden group bg-background z-10 mobile:justify-start">
+          <section data-sidebar="13" class="w-screen h-full flex-shrink-0 flex flex-col items-end justify-center text-center mobile:pl-0 relative group bg-background md:bg-transparent z-10 mobile:justify-start">
+             <!-- Behind-text background image (master-the-signal) — sits at z-0 under the z-10 text.
+                  This is the "image behind text" pattern (vs a standalone <ImageSlide>): flow
+                  edge-mask + mix-blend-screen, positioned inside the text slide. -->
+             <div class="mobile:hidden absolute inset-y-0 left-0 z-0 mix-blend-screen pointer-events-none"
+                  style={`width:${BACKGROUNDS["13"].width};opacity:${BACKGROUNDS["13"].opacity / 100};-webkit-mask-image:linear-gradient(to right, transparent 0%, black 22%, black 78%, transparent 100%);mask-image:linear-gradient(to right, transparent 0%, black 22%, black 78%, transparent 100%);`}>
+               <img src="/images/returns/master-the-signal.webp" decoding="async" alt="" class="w-full h-full object-cover object-center" />
+             </div>
              <div class="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
                <div class="w-[60vw] h-[60vw] border border-accent rounded-full animate-ping [animation-duration:4s]"></div>
                <div class="absolute w-[30vw] h-[30vw] border border-primary rounded-full animate-ping [animation-duration:2s] delay-1000"></div>
@@ -835,7 +967,7 @@ const CONFIG = {
                Breathing room after last slide so sidebar animation completes
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region TRAILING-SPACER | w-[25vw] -->
-          <section class="w-[20vw] md:w-[25vw] h-full flex-shrink-0 bg-background z-10"></section>
+          <section class="w-[20vw] md:w-[25vw] h-full flex-shrink-0 bg-background md:bg-transparent z-10"></section>
           <!-- #endregion TRAILING-SPACER -->
 
         </div>
@@ -846,7 +978,7 @@ const CONFIG = {
     <div id="end-screen" class="h-svh flex flex-col items-center justify-center gap-8 bg-background relative overflow-hidden">
 
       <!-- Sidebar continuation — visually extends #sidebar-track into the end screen -->
-      <div class="absolute left-0 top-0 w-24 h-full z-50 pointer-events-none hidden md:flex flex-col items-center justify-center gap-8 border-r border-border/20 bg-background/80 backdrop-blur-md shadow-[20px_0_40px_-15px_rgba(0,0,0,0.5)]">
+      <div class="absolute left-0 top-0 w-24 h-full z-50 pointer-events-none hidden md:flex flex-col items-center justify-center gap-8  bg-background/80 backdrop-blur-md shadow-[20px_0_40px_-15px_rgba(0,0,0,0.5)]">
         <span class="font-mono text-muted-foreground text-[10px] tracking-widest rotate-180 [writing-mode:vertical-lr] uppercase">Initiate</span>
         <div class="h-48 w-[1px] bg-border/30 relative">
           <div id="end-indicator-line" class="absolute top-0 w-[3px] -left-[1px] bg-accent shadow-[0_0_15px_hsl(var(--accent))] origin-top scale-y-0"></div>
@@ -876,11 +1008,12 @@ const CONFIG = {
   {/* returns2.astro — Grid layout rebuild complete. All slides use CSS Grid fractional columns. Review with dom before merging back to returns.astro. */}
 </Layout>
 
-<script define:vars={{ sections, COUNTERS, HIGHLIGHTS, CONFIG }} is:inline>
+<script define:vars={{ sections, COUNTERS, HIGHLIGHTS, CONFIG, JOURNEY }} is:inline>
   window.__SECTIONS__ = sections;
   window.__COUNTERS__ = COUNTERS;
   window.__HIGHLIGHTS__ = HIGHLIGHTS;
   window.__CONFIG__ = CONFIG;
+  window.__JOURNEY__ = JOURNEY;
 </script>
 
 <script>
@@ -1097,10 +1230,8 @@ const CONFIG = {
     });
 
     // NOTE: the old "3-STEP STAGGERED FADE LOGIC" (hands → phone → book cross-fade across
-    // three separate images) lived here. Removed — SLIDE-0.5 now uses a single static photo
-    // (girl.phone.headphones.webp), so cross-fading opacity between what would now be three
-    // identical images accomplished nothing visually. See the SLIDE-0.5 section template for
-    // the replacement.
+    // three separate images) lived here. Removed. SLIDE-0.5 is now a dedicated image slide
+    // (your-brand-is-muted.webp) that fades in via the generalised ".img-slide-fade" loop above.
 
     // Train fade: starts as SLIDE-01 enters from the right; resolves when text anchor reaches centre
     const t01 = anim("01", "trainFade");
@@ -1119,6 +1250,74 @@ const CONFIG = {
           }
         }
       );
+    }
+
+    // ── IMAGE SLIDES — generalised scroll-driven reveals ─────────────────────
+    // Two reusable effects, applied by class to any dedicated image slide's
+    // wrapper. Add a new image slide by copying SLIDE-0.5's markup and giving the
+    // wrapper one of these classes — no per-slide GSAP needed:
+    //   .img-slide-fade   → opacity 0→1 (long flowing dissolve)
+    //   .img-slide-focus  → opacity 0→1 + blur(30px)→blur(0) (the tiger reveal)
+    // Both ramp relative to the image slide's own <section> as it enters from the
+    // right. Tune the ramp window here (vw multipliers off the slide's left edge).
+    const IMG_RAMP = { start: -0.9, end: -0.15 };
+    // ── IMAGE SLIDES — generalised scroll-driven reveals ─────────────────────
+    const imgSlideTrigger = (sec) => {
+      // Read custom timings from the HTML (passed down from the config), fallback to defaults
+      const startMult = sec.dataset.rampStart ? parseFloat(sec.dataset.rampStart) : -0.9;
+      const endMult = sec.dataset.rampEnd ? parseFloat(sec.dataset.rampEnd) : -0.15;
+      
+      return {
+        trigger: track,
+        start: () => `${getScrollPos(sec.offsetLeft + startMult * window.innerWidth)}px top`,
+        end: () => `${getScrollPos(sec.offsetLeft + endMult * window.innerWidth)}px top`,
+        scrub: true,
+        invalidateOnRefresh: true,
+      };
+    };
+
+    document.querySelectorAll(".img-slide-fade").forEach((layer) => {
+      const sec = layer.closest("section");
+      if (!sec) return;
+      gsap.fromTo(layer, { opacity: 0 }, { opacity: 1, ease: "none", scrollTrigger: imgSlideTrigger(sec) });
+    });
+
+    document.querySelectorAll(".img-slide-focus").forEach((layer) => {
+      const sec = layer.closest("section");
+      if (!sec) return;
+      gsap.fromTo(layer,
+        { opacity: 0, filter: "blur(30px)" },
+        { opacity: 1, filter: "blur(0px)", ease: "power2.out", scrollTrigger: imgSlideTrigger(sec) }
+      );
+    });
+
+    // ── BACKGROUND COLOUR JOURNEY (desktop only) ─────────────────────────────
+    // Drifts #journey-bg's colour through the JOURNEY checkpoints as the strip scrolls.
+    // Each checkpoint pins to a slide's offsetLeft, so it self-corrects to width changes.
+    const journeyBg = document.getElementById("journey-bg");
+    const journey = (window as any).__JOURNEY__ as Array<{ at: string; color: string }>;
+    if (journeyBg && journey?.length) {
+      gsap.set(journeyBg, { backgroundColor: journey[0].color });
+      for (let i = 0; i < journey.length - 1; i++) {
+        const a = journey[i], b = journey[i + 1];
+        const secA = document.querySelector(`[data-sidebar="${a.at}"]`) as HTMLElement | null;
+        const secB = document.querySelector(`[data-sidebar="${b.at}"]`) as HTMLElement | null;
+        if (!secA || !secB) continue;
+        gsap.fromTo(journeyBg,
+          { backgroundColor: a.color },
+          {
+            backgroundColor: b.color,
+            ease: "none",
+            scrollTrigger: {
+              trigger: track,
+              start: () => `${getScrollPos(secA.offsetLeft)}px top`,
+              end: () => `${getScrollPos(secB.offsetLeft)}px top`,
+              scrub: true,
+              invalidateOnRefresh: true,
+            },
+          }
+        );
+      }
     }
 
     if (dataPaths.length > 0) {

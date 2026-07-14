@@ -1,0 +1,85 @@
+---
+/**
+ * ImageSlide.astro
+ */
+import fs from 'node:fs';
+import path from 'node:path';
+
+const FADES: Record<string, string> = {
+  flow:        'linear-gradient(to right, transparent 0%, black 22%, black 78%, transparent 100%)',
+  'flow-long': 'linear-gradient(to right, transparent 0%, black 38%, black 62%, transparent 100%)',
+  'flow-xlong':'linear-gradient(to right, transparent 0%, black 46%, black 54%, transparent 100%)',
+  'in-left':   'linear-gradient(to right, transparent 0%, black 45%)',
+  'in-right':  'linear-gradient(to left, transparent 0%, black 45%)',
+  radial:      'radial-gradient(ellipse at center, black 30%, transparent 78%)',
+};
+
+interface Props {
+  src?: string;
+  gradient?: string;
+  effect?: 'fade' | 'focus';
+  width?: string;
+  imgWidth?: string;
+  imgX?: string;
+  objectPos?: string;
+  z?: number;
+  opacity?: number;
+  blend?: boolean;
+  fade?: keyof typeof FADES;
+  bare?: boolean;
+  label?: string;
+  alt?: string;
+  customMask?: string; // Taps into the new explicit config
+  ramp?: { start: number; end: number }; // Taps into the GSAP timings
+}
+
+const {
+  src,
+  gradient,
+  effect = 'fade',
+  width = '50vw',
+  imgWidth = '100%',
+  imgX = '0px',
+  objectPos = 'center',
+  z = 10,
+  opacity = 90,
+  blend = true,
+  fade = 'flow',
+  bare = false,
+  label = 'Image',
+  alt = '',
+  customMask,
+  ramp,
+} = Astro.props;
+
+const exists = src ? fs.existsSync(path.join(process.cwd(), 'public', src)) : false;
+
+// Use customMask if provided in returns2.astro, otherwise fallback to the preset
+const maskImage = customMask || FADES[fade] || FADES.flow;
+const maskStyle = `-webkit-mask-image:${maskImage};mask-image:${maskImage};`;
+const effectClass = effect === 'focus' ? 'img-slide-focus' : 'img-slide-fade';
+const layerStyle = `left:50%;width:${imgWidth};transform:translateX(-50%) translateX(${imgX});`;
+---
+
+<section
+  class:list={["hidden md:flex h-full flex-shrink-0 md:items-center relative overflow-visible", bare ? "bg-transparent" : "bg-background"]}
+  style={`width:${width};z-index:${z};`}
+  data-ramp-start={ramp?.start}
+  data-ramp-end={ramp?.end}
+>
+  {gradient ? (
+    <div class:list={["absolute inset-0 bg-gradient-to-r", gradient]}></div>
+  ) : src && exists ? (
+    <div class:list={[effectClass, "absolute inset-y-0 z-0 opacity-0"]} style={layerStyle}>
+      <div class:list={["absolute inset-0", blend && "mix-blend-screen"]} style={`opacity:${opacity / 100};${maskStyle}`}>
+        <img src={src} decoding="async" alt={alt} class="w-full h-full object-cover" style={`object-position:${objectPos};`} />
+      </div>
+    </div>
+  ) : (
+    <div class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-card/30 backdrop-blur-sm p-6 text-center">
+      <span class="font-mono text-[10px] tracking-[0.4em] uppercase text-accent/70">Image placeholder</span>
+      <span class="font-mono text-sm text-muted-foreground">{label}</span>
+      {src && <span class="font-mono text-sm text-muted-foreground/50 break-all">{src}</span>}
+    </div>
+  )}
+</section>
