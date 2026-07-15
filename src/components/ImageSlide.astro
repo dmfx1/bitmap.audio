@@ -14,6 +14,18 @@ const FADES: Record<string, string> = {
   radial:      'radial-gradient(ellipse at center, black 30%, transparent 78%)',
 };
 
+// Resolve a fade spec to a CSS mask gradient. Accepts either a preset name (sugar) or
+// an explicit { left, right } pair as fractions (0–0.5) of the slide width to fade in
+// from each edge. e.g. { left: 0.22, right: 0.22 } === the 'flow' preset.
+function fadeToMask(f: string | { left: number; right: number } | undefined): string {
+  if (f && typeof f === 'object') {
+    const L = Math.round((f.left ?? 0) * 100);
+    const R = Math.round(100 - (f.right ?? 0) * 100);
+    return `linear-gradient(to right, transparent 0%, black ${L}%, black ${R}%, transparent 100%)`;
+  }
+  return (typeof f === 'string' && FADES[f]) || FADES.flow;
+}
+
 interface Props {
   id?: string;
   src?: string;
@@ -26,7 +38,7 @@ interface Props {
   z?: number;
   opacity?: number;
   blend?: boolean;
-  fade?: keyof typeof FADES;
+  fade?: keyof typeof FADES | { left: number; right: number };
   bare?: boolean;
   label?: string;
   alt?: string;
@@ -56,8 +68,8 @@ const {
 
 const exists = src ? fs.existsSync(path.join(process.cwd(), 'public', src)) : false;
 
-// Use customMask if provided in returns2.astro, otherwise fallback to the preset
-const maskImage = customMask || FADES[fade] || FADES.flow;
+// Use customMask if provided in returns2.astro, otherwise resolve the fade (preset or {left,right})
+const maskImage = customMask || fadeToMask(fade);
 const maskStyle = `-webkit-mask-image:${maskImage};mask-image:${maskImage};`;
 const effectClass = effect === 'focus' ? 'img-slide-focus' : 'img-slide-fade';
 const layerStyle = `left:50%;width:${imgWidth};transform:translateX(-50%) translateX(${imgX});`;
@@ -71,7 +83,7 @@ const layerStyle = `left:50%;width:${imgWidth};transform:translateX(-50%) transl
   data-ramp-end={ramp?.end}
 >
   {gradient ? (
-    <div class:list={["absolute inset-0 bg-gradient-to-r", gradient]}></div>
+    <div class:list={["absolute inset-0 bg-gradient-to-r", gradient]} style={maskStyle}></div>
   ) : src && exists ? (
     <div class:list={[effectClass, "absolute inset-y-0 z-0 opacity-0"]} style={layerStyle}>
       <div class:list={["absolute inset-0", blend && "mix-blend-screen"]} style={`opacity:${opacity / 100};${maskStyle}`}>

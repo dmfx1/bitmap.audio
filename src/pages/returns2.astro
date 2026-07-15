@@ -56,55 +56,68 @@ type Slide = {
   label?: string;
   width?: string;
   anim?: Record<string, { start: number; end: number; scrub?: number; cardSpacing?: number }>;
+  content?: { col: [number, number]; align?: "start" | "center" | "end" };
   img?: string; gradient?: string; imgWidth?: string; imgX?: string; objectPos?: string;
-  z?: number; opacity?: number; blend?: boolean; fade?: string; effect?: string;
+  z?: number; opacity?: number; blend?: boolean; fade?: string | { left: number; right: number }; effect?: string;
   bare?: boolean; customMask?: string; ramp?: { start: number; end: number };
+  vivid?: boolean;
 };
 const SLIDES: Slide[] = [
-  { id: "00",   type: "text",  label: "Status",               width: "80vw"  },
-  { id: "0.5",  type: "image", img: "your-brand-is-muted", imgWidth: "100%", imgX: "-20vw", z: 0, blend: false, objectPos: "left", customMask: "linear-gradient(to right, transparent 0%, transparent 30%, black 60%, black 70%, transparent 100%)", ramp: { start: -1.5, end: 0 } },
-  { id: "01",   type: "text",  label: "Context",              width: "75vw"  },
-  { id: "1.5",  type: "image", img: "when-everyone-is-listening", fade: "flow-xlong" },
-  { id: "02",   type: "text",  label: "Architecture",         width: "110vw", anim: {
+  { id: "00",   type: "text",  label: "Status",               width: "80vw", content: { col: [2, 9] }  },
+  { id: "0.5",  type: "image", img: "your-brand-is-muted", imgWidth: "100%", imgX: "-20vw", z: 0, blend: false, objectPos: "left", customMask: "linear-gradient(to right, transparent 0%, transparent 30%, black 60%, black 70%, transparent 100%)", ramp: { start: -1.5, end: 0 }, vivid: true },
+  { id: "01",   type: "text",  label: "Context",              width: "75vw", content: { col: [1, 7] }  },
+  { id: "1.5",  type: "image", img: "when-everyone-is-listening", fade: "flow-xlong", vivid: true },
+  { id: "02",   type: "text",  label: "Architecture",         width: "110vw", content: { col: [2, 6] }, anim: {
       nodes: { start: -0.85, end: 0.5, scrub: 0.5 },
       paths: { start: -0.75, end: 0.3, scrub: 0.5 },
   }},
-  { id: "2.5",  type: "image", img: "sound-as-a-data-map", imgX: "-50vw", blend: false, objectPos: "left", customMask: "linear-gradient(to right, transparent 0%, transparent 50%, black 60%, black 70%, transparent 100%)" },
-  { id: "03",   type: "text",  label: "Neurology.Processing", width: "200vw" },
+  { id: "2.5",  type: "image", img: "sound-as-a-data-map", imgX: "-50vw", blend: false, objectPos: "left", customMask: "linear-gradient(to right, transparent 0%, transparent 50%, black 60%, black 70%, transparent 100%)", vivid: true },
+  { id: "03",   type: "text",  label: "Neurology.Processing", width: "200vw", content: { col: [3, 3] } },
   { id: "3.25", type: "image", img: "faster-than-sight", effect: "focus" },
   { id: "3.5",  type: "behind", img: "brain-processing-speed", width: "100%", opacity: 25 },
-  { id: "04",   type: "text",  label: "Neurology.Memory",     width: "100vw", anim: {
+  { id: "04",   type: "text",  label: "Neurology.Memory",     width: "100vw", content: { col: [3, 8] }, anim: {
       visualsFade: { start: -0.85, end: -0.2, scrub: 0.5 },
       soundGrow:   { start: -0.8,  end: -0.1, scrub: 0.5 },
       vibration:   { start: -0.5,  end:  1.0, scrub: 0.5 },
   }},
-  { id: "4.25", type: "image", img: "visuals-fade-sound-echoes" },
-  { id: "05",   type: "text",  label: "Metrics",              width: "150vw", anim: {
+  { id: "4.25", type: "image", img: "visuals-fade-sound-echoes", vivid: true },
+  { id: "05",   type: "text",  label: "Metrics",              width: "150vw", content: { col: [3, 9] }, anim: {
       pressureLine: { start: -0.4, end: -0.1, scrub: 0.5 },
       statCards:    { start: -0.5, end: -0.0, scrub: 0, cardSpacing: 300 },
   }},
-  { id: "5.5",  type: "image", img: "recall-under-pressure" },
-  { id: "06",   type: "text",  label: "Conversion",           width: "75vw",  anim: {
+  { id: "5.5",  type: "image", img: "recall-under-pressure", fade: { left: 0.45, right: 0.45 }, vivid: true },
+  { id: "06",   type: "text",  label: "Conversion",           width: "75vw", content: { col: [3, 7] },  anim: {
       roiGrow: { start: -0.8, end: 0.3, scrub: 1 },
   }},
-  { id: "6.25", type: "image", img: "amplified-roi" },
-  { id: "07",   type: "text",  label: "Credibility",          width: "75vw"  },
-  { id: "7.25", type: "image", img: "subconscious-trust" },
-  { id: "08",   type: "text",  label: "Perception",           width: "100vw" },
-  { id: "9.25", type: "image", img: "perceived-as-innovators" },
-  { id: "09",   type: "text",  label: "Culture",              width: "125vw" },
-  { id: "10.5", type: "image", img: "seamless-cultural-resonance" },
-  { id: "10",   type: "text",  label: "Asset.Ownership",      width: "125vw" },
-  { id: "11.5", type: "image", gradient: "from-primary/5 to-accent" },
-  { id: "11",   type: "text",  label: "Belief",               width: "75vw"  },
-  { id: "12.5", type: "image", gradient: "from-accent to-background" },
-  { id: "12",   type: "text",  label: "Execution",            width: "100vw" },
+  { id: "6.25", type: "image", img: "amplified-roi", vivid: true },
+  { id: "07",   type: "text",  label: "Credibility",          width: "75vw", content: { col: [4, 8] }  },
+  { id: "7.25", type: "image", img: "subconscious-trust", vivid: true },
+  { id: "08",   type: "text",  label: "Perception",           width: "100vw", content: { col: [5, 7] } },
+  { id: "9.25", type: "image", img: "perceived-as-innovators", vivid: true },
+  { id: "09",   type: "text",  label: "Culture",              width: "125vw", content: { col: [4, 6] } },
+  { id: "10.5", type: "image", img: "seamless-cultural-resonance", vivid: true },
+  { id: "10",   type: "text",  label: "Asset.Ownership",      width: "125vw", content: { col: [4, 8] } },
+  { id: "11.5", type: "image", gradient: "from-primary/5 to-accent", fade: { left: 0.35, right: 0.35 } },
+  { id: "11",   type: "text",  label: "Belief",               width: "75vw", content: { col: [3, 8] }  },
+  { id: "12.5", type: "image", gradient: "from-accent to-background", fade: { left: 0.35, right: 0.35 } },
+  { id: "12",   type: "text",  label: "Execution",            width: "100vw", content: { col: [1, 12] } },
   { id: "13",   type: "behind", img: "master-the-signal", width: "52vw", opacity: 55 },
 ];
 
 // Text slides only, in DOM order — feeds the sidebar map, the define:vars bridge, and the
 // GSAP anim()/width lookups (positional order matches the sorted data-sidebar list).
 const sections = SLIDES.filter((s) => s.type === "text");
+
+// Look up a slide by id, and build its inline desktop grid placement from config.
+// Tailwind can't JIT dynamic `md:col-start-N` classes, so text-slide columns are set
+// via inline `grid-column` (inert on mobile — the wrapper's parent is only a grid at md+).
+const slideById: Record<string, Slide> = Object.fromEntries(SLIDES.map((s) => [s.id, s]));
+const gridStyle = (id: string): string => {
+  const c = slideById[id]?.content;
+  if (!c) return "";
+  const [start, span] = c.col;
+  return `grid-column:${start} / span ${span};` + (c.align ? `justify-self:${c.align};` : "");
+};
 
 // Separate tunables for counter animations (not tied to a sidebar entry)
 const COUNTERS = {
@@ -142,6 +155,12 @@ const CONFIG = {
   // How many px short of full horizontal travel the strip parks.
   // Increase in increments of 100 until SLIDE-13 heading is centred when vertical scroll takes over.
   stripEndOffset: 0,
+
+  // AD6 vividness ramp: slides with `vivid: true` desaturate/dim off-centre and hit full
+  // colour as their anchor reaches viewport centre, then ease back down as they exit.
+  vividFrom: { saturate: 0.4, brightness: 0.85 }, // look when far from centre
+  vividTo:   { saturate: 1,   brightness: 1 },    // look at centre (full)
+  vividWindow: 0.9, // fraction of viewport width on EACH side of centre the ramp spans
 };
 
 // (Image slides, behind-backgrounds & their defaults now live in the SLIDES array above.)
@@ -158,6 +177,7 @@ const JOURNEY = [
   { at: "3",  color: "#11181A" }, // bg-card/30 (Neurology.Processing)
   { at: "4",  color: "#1E231C" }, // bg-accent/5 (Neurology.Memory)
   { at: "5",  color: "#111A1B" }, // bg-card/20 (Metrics)
+  { at: "5.5", color: "#52958E" }, // AD5 TEST — recall-under-pressure right-edge teal (brightened). Anchored to image via data-slide.
   { at: "6",  color: "#121C1C" }, // bg-background (Conversion)
   { at: "7",  color: "#DCDDDD" }, // bg-foreground/90 (Credibility)
   { at: "9",  color: "#384648" }, // bg-primary/20 (Perception)
@@ -195,6 +215,32 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
          slides. Hidden on mobile so the per-slide snap backgrounds are untouched. -->
     <div id="journey-bg" class="hidden md:block fixed inset-0 z-0 pointer-events-none" style="background-color:#111b1b;"></div>
 
+    <!-- DEV control — "Journey only": hides all slide text + imagery so only the background
+         journey is visible, for tuning the colour flow. Desktop only. Remove/comment out for production. -->
+    <label class="hidden md:flex fixed top-4 right-4 z-[100] items-center gap-2 px-3 py-1.5 rounded-full bg-background/80 backdrop-blur border border-border/40 text-[11px] font-mono uppercase tracking-wider text-muted-foreground cursor-pointer select-none">
+      <input type="checkbox" id="journey-only-switch" class="accent-accent cursor-pointer" />
+      Journey only
+    </label>
+    <style is:global>
+      /* Journey-only preview: fade the whole slide strip out so #journey-bg shows alone. */
+      #horizontal-strip { transition: opacity .35s ease; }
+      html.journey-only #horizontal-strip { opacity: 0; pointer-events: none; }
+    </style>
+    <script is:inline>
+      (function () {
+        function wire() {
+          var sw = document.getElementById('journey-only-switch');
+          if (!sw || sw.dataset.wired) return;
+          sw.dataset.wired = '1';
+          sw.addEventListener('change', function (e) {
+            document.documentElement.classList.toggle('journey-only', e.target.checked);
+          });
+        }
+        document.addEventListener('astro:page-load', wire);
+        wire();
+      })();
+    </script>
+
     <!-- Track height controls overall scroll speed: too fast/twitchy = increase,
          too sluggish = decrease. GSAP anim/counter timings are offsetLeft-relative
          so they self-correct to this value. -->
@@ -231,7 +277,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
             <div class="mobile:hidden absolute -right-20 bottom-0 text-[35vw] font-mono font-bold text-muted/5 select-none pointer-events-none transition-transform duration-1000 group-hover:scale-105 z-0">00</div>
             <!-- 12-col container: pl-24 clears the 96px sidebar; pr-6 matches nav right padding -->
             <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
-              <div data-sidebar-anchor class="relative z-10 pl-8 md:pl-0 py-2 md:col-start-2 md:col-span-9">
+              <div data-sidebar-anchor class="relative z-10 pl-8 md:pl-0 py-2" style={gridStyle("00")}>
                 <span class="text-eyebrow text-sm mb-8 mobile:mb-3 block">[ Status // Critical ]</span>
                 <h2 class="font-mono text-6xl mobile:text-5xl md:text-[8vw] leading-[0.9] tracking-tighter mb-12 mobile:mb-6 uppercase text-foreground">
                   Your brand<br/>is <span class="text-accent drop-shadow-[0_0_20px_hsl(var(--accent)/0.3)]">Muted.</span>
@@ -268,7 +314,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
             <!-- Text-only now — the "when-everyone-is-listening" image moved to its own image slide (SLIDE-1.5) below. -->
 
             <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
-              <div data-sidebar-anchor class="w-full flex justify-end mobile:justify-start mobile:px-4 relative z-10 md:col-start-1 md:col-span-7">
+              <div data-sidebar-anchor class="w-full flex justify-end mobile:justify-start mobile:px-4 relative z-10" style={gridStyle("01")}>
                   <div class="max-w-2xl border-l-2 border-accent pl-8 py-2 bg-background/20 backdrop-blur-sm relative z-10">
                       <span class="text-eyebrow text-sm mb-8 mobile:mb-3 block text-primary">[ Context // Always_On ]</span>
                       <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 mobile:mb-4 uppercase text-foreground">When everyone<br/><span class="text-primary drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">is listening.</span></h2>
@@ -376,7 +422,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
 
             <!-- Text — container/12-col, sits in front of SVG (z-10) -->
             <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full md:h-full">
-              <div data-sidebar-anchor class="hidden md:flex flex-col justify-center md:col-start-2 md:col-span-6 md:row-start-1 md:z-10">
+              <div data-sidebar-anchor class="hidden md:flex flex-col justify-center md:row-start-1 md:z-10" style={gridStyle("02")}>
                 <span class="text-eyebrow text-sm mb-8 block text-background">[ Architecture // Recall ]</span>
                 <h2 class="font-mono text-8xl leading-tight mb-8 uppercase text-foreground">Sound as a<br/><span class="text-accent drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">Data Map.</span></h2>
                 <p class="font-sans text-xl text-background/80 leading-relaxed">
@@ -402,7 +448,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
             <!-- Text-only now — the "faster-than-sight" image moved to its own image slide (SLIDE-3.25) below. -->
 
             <div class="md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
-              <div data-sidebar-anchor class="flex flex-col items-end mobile:items-start justify-center mobile:pl-4 mobile:pr-4 relative z-10 border-l border-border/20 bg-background/20 md:col-start-3 md:col-span-3">
+              <div data-sidebar-anchor class="flex flex-col items-end mobile:items-start justify-center mobile:pl-4 mobile:pr-4 relative z-10 border-l border-border/20 bg-background/20" style={gridStyle("03")}>
                 <div class="border-l-2 border-accent bg-background/20 ml-0 pl-8 py-2">
                   <span class="text-eyebrow text-sm mb-8 mobile:mb-3 block text-accent">[ Neurology // Processing_Speed ]</span>
                   <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 mobile:mb-4 uppercase">Faster than<br/><span class="text-accent">Sight.</span></h2>
@@ -457,7 +503,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
           <section data-sidebar="4" data-slide="04" class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center text-right mobile:pl-4 mobile:pr-4 relative bg-accent/5 md:bg-transparent group z-10 mobile:items-start mobile:text-right">
             <div class="absolute inset-0 radial-gradient-center opacity-20 pointer-events-none"></div>
             <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
-              <div data-sidebar-anchor class="pl-8 md:pl-0 py-2 max-w-4xl relative z-10 mobile:border-l-2 mobile:border-accent md:col-start-3 md:col-span-8">
+              <div data-sidebar-anchor class="pl-8 md:pl-0 py-2 max-w-4xl relative z-10 mobile:border-l-2 mobile:border-accent" style={gridStyle("04")}>
                 <span class="text-eyebrow text-accent text-sm mb-8 mobile:mb-3 block">[ Neurology // Echoic_Memory ]</span>
 
                 <h2 class="font-mono text-5xl mobile:text-5xl md:text-[6vw] leading-[1.1] tracking-tighter mb-8 mobile:mb-4 uppercase text-foreground">
@@ -505,7 +551,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
           <!-- #region SLIDE-05 | Metrics | DESKTOP + MOBILE VARIANTS -->
           <section id="metrics-section" data-sidebar="5" data-slide="05" class="w-screen h-full flex-shrink-0 hidden md:flex md:items-center relative  bg-card/20 md:bg-transparent group z-10">
             <div class="md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
-            <div data-sidebar-anchor class="w-full max-w-5xl border-l-2 border-accent pl-8 py-2 md:col-start-3 md:col-span-9 md:row-start-1">
+            <div data-sidebar-anchor class="w-full max-w-5xl border-l-2 border-accent pl-8 py-2 md:row-start-1" style={gridStyle("05")}>
               <span class="text-eyebrow text-sm mb-8 block">[ Metrics // Awareness ]</span>
               
               <h2 class="font-mono text-5xl md:text-7xl leading-[0.9] tracking-tighter mb-16 uppercase text-foreground relative inline-block">
@@ -592,7 +638,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
           <!-- #region SLIDE-06 | Conversion Text -->
           <section data-sidebar="6" data-slide="06" class="w-screen h-full flex-shrink-0 flex flex-col justify-center  bg-background md:bg-transparent relative z-10 mobile:pl-0">
             <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
-            <div data-sidebar-anchor class="flex flex-col justify-center mobile:pl-4 mobile:pr-4 relative z-10 md:col-start-3 md:col-span-7 md:row-start-1">
+            <div data-sidebar-anchor class="flex flex-col justify-center mobile:pl-4 mobile:pr-4 relative z-10 md:row-start-1" style={gridStyle("06")}>
               <div class="pl-6 mobile:pl-4 py-2">
                 <span class="text-eyebrow text-sm mb-8 mobile:mb-3 block">[ Capital // Conversion ]</span>
                 <h2 class="font-mono text-5xl mobile:text-5xl md:text-6xl leading-[1.1] mb-8 mobile:mb-4 uppercase flex flex-col items-start">
@@ -665,7 +711,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
           <!-- #region SLIDE-07 | Credibility Text -->
           <section data-sidebar="7" data-slide="07" class="w-screen h-full flex-shrink-0 flex flex-col justify-center bg-foreground/90 md:bg-transparent relative group z-10">
             <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
-            <div data-sidebar-anchor class="flex flex-col justify-center mobile:pl-4 mobile:pr-4 relative z-10 md:col-start-4 md:col-span-8 md:row-start-1">
+            <div data-sidebar-anchor class="flex flex-col justify-center mobile:pl-4 mobile:pr-4 relative z-10 md:row-start-1" style={gridStyle("07")}>
               <div class="w-full md:max-w-2xl border-l-2 border-accent pl-8 py-2">
                 <span class="text-eyebrow text-sm text-background/80 mb-8 mobile:mb-3 block">[ UX // Credibility ]</span>
                 <h2 class="font-mono text-5xl mobile:text-5xl md:text-6xl leading-[1.1] mb-8 mobile:mb-4 uppercase flex flex-col items-start">
@@ -743,7 +789,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
           <section data-sidebar="9" data-slide="08" class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center text-right mobile:pl-4 mobile:pr-4 relative  bg-primary/20 md:bg-transparent  group z-10 mobile:items-start mobile:text-right">
             <div class="absolute inset-0 radial-gradient-center opacity-20 pointer-events-none"></div>
             <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
-            <div data-sidebar-anchor class="pl-8 md:pl-0 py-2 max-w-4xl relative z-10 mobile:border-l-2 mobile:border-accent md:col-start-5 md:col-span-7 md:row-start-1">
+            <div data-sidebar-anchor class="pl-8 md:pl-0 py-2 max-w-4xl relative z-10 mobile:border-l-2 mobile:border-accent md:row-start-1" style={gridStyle("08")}>
               <span class="text-eyebrow text-sm text-accent mb-8 block">[ Perception // The Edge ]</span>
               
               <h2 class="font-mono text-5xl md:text-[6vw] leading-[1.1] tracking-tighter mb-8 uppercase text-foreground">
@@ -793,7 +839,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
           <section data-sidebar="10" data-slide="09" class="relative w-screen h-full flex-shrink-0 flex flex-col justify-center group bg-background md:bg-transparent z-10 mobile:pl-0">
             <div class="mobile:hidden absolute -right-20 bottom-0 text-[35vw] font-mono font-bold text-muted/5 select-none pointer-events-none transition-transform duration-1000 group-hover:scale-105 z-0">00</div>
             <div class="md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
-            <div data-sidebar-anchor class="relative z-10 pl-8 md:pl-0 py-2 md:col-start-4 md:col-span-6 md:row-start-1">
+            <div data-sidebar-anchor class="relative z-10 pl-8 md:pl-0 py-2 md:row-start-1" style={gridStyle("09")}>
               <span class="text-eyebrow text-sm mb-8 mobile:mb-3 block">[ Localisation // Borders ]</span>
               <h2 class="font-mono text-6xl mobile:text-5xl md:text-[6vw] leading-[0.9] tracking-tighter mb-12 mobile:mb-6 uppercase text-foreground">
                 Seamless<br/>cultural <span class="text-accent md:text-[8vw] drop-shadow-[0_0_20px_hsl(var(--accent)/0.3)]">Resonance.</span>
@@ -821,7 +867,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
           <!-- #region SLIDE-11 | Asset Ownership | DESKTOP + MOBILE VARIANT -->
           <section data-sidebar="11" data-slide="10" class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center mobile:items-start text-left mobile:pl-4 mobile:pr-4 relative  bg-primary/5 md:bg-transparent  group z-10">
             <div class="md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
-            <div data-sidebar-anchor class="pl-8 md:pl-0 py-2 z-10 mobile:border-l-2 mobile:border-accent md:col-start-4 md:col-span-8 md:row-start-1">
+            <div data-sidebar-anchor class="pl-8 md:pl-0 py-2 z-10 mobile:border-l-2 mobile:border-accent md:row-start-1" style={gridStyle("10")}>
               <span class="text-eyebrow text-sm mb-8 block">[ Asset // Ownership ]</span>
               <h2 class="font-mono text-5xl mobile:text-[11vw] md:text-[6vw] leading-[1.1] tracking-tighter mb-8 uppercase text-foreground">
                 Stop renting <br/>from the sea<br/>of <span class="text-accent">sameness.</span>
@@ -864,9 +910,9 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                "Trust in the power of sound." | data-sidebar="12"
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-12 | Belief -->
-          <section data-sidebar="12" data-slide="11" class="w-screen h-full flex-shrink-0 md:flex md:items-center  bg-accent relative group z-10 mobile:pl-0">
+          <section data-sidebar="12" data-slide="11" class="w-screen h-full flex-shrink-0 md:flex md:items-center  bg-accent md:bg-transparent relative group z-10 mobile:pl-0">
             <div class="md:container md:mx-auto md:pl-36 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
-            <div data-sidebar-anchor class="flex flex-col justify-center mobile:pl-4 mobile:pr-4 relative z-10 md:col-start-3 md:col-span-8 md:row-start-1">
+            <div data-sidebar-anchor class="flex flex-col justify-center mobile:pl-4 mobile:pr-4 relative z-10 md:row-start-1" style={gridStyle("11")}>
               <div class="border-l-2 border-accent pl-8 py-2">
                 <span class="text-eyebrow text-sm text-background mb-8 block">[ Belief // Power ]</span>
                 <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 uppercase">Tap into the <br/><span class="text-background text-8xl font-bold drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">subconscious</span></h2>
@@ -909,7 +955,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
 
             <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
               <!-- TODO: verify anchor against actual text position with dom — content is right-aligned (items-end) so sidebar may not track to the visual centre of the text -->
-              <div data-sidebar-anchor class="md:col-start-1 md:col-span-12 md:row-start-1 flex flex-col items-end justify-center">
+              <div data-sidebar-anchor class="md:row-start-1 flex flex-col items-end justify-center" style={gridStyle("12")}>
                 <div class="mobile:flex-1 mobile:flex mobile:flex-col mobile:justify-center mobile:w-full mobile:px-4">
                    <div class="relative z-10 flex flex-col items-end pl-8 md:pl-0 py-2 text-right mobile:border-l-2 mobile:border-accent mobile:items-start mobile:text-left">
                       <span class="text-eyebrow text-sm mb-8 block text-accent">[ Execution // Final_Phase ]</span>
@@ -1022,7 +1068,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
 
     if (!strip || !track) return;
 
-    const config = (window as any).__CONFIG__ as { stripEndOffset: number };
+    const config = (window as any).__CONFIG__ as { stripEndOffset: number; vividFrom: { saturate: number; brightness: number }; vividTo: { saturate: number; brightness: number }; vividWindow: number };
     const highlights = (window as any).__HIGHLIGHTS__;
 
     // Read config bridged from Astro frontmatter via window.__SECTIONS__ / window.__COUNTERS__
@@ -1219,8 +1265,13 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
       gsap.set(journeyBg, { backgroundColor: journey[0].color });
       for (let i = 0; i < journey.length - 1; i++) {
         const a = journey[i], b = journey[i + 1];
-        const secA = document.querySelector(`[data-sidebar="${a.at}"]`) as HTMLElement | null;
-        const secB = document.querySelector(`[data-sidebar="${b.at}"]`) as HTMLElement | null;
+        // Resolve a checkpoint id to a section: text slides use data-sidebar, image
+        // slides use data-slide (lets the journey pin a colour to an image slide).
+        const findSec = (id: string) =>
+          (document.querySelector(`[data-sidebar="${id}"]`) ||
+           document.querySelector(`[data-slide="${id}"]`)) as HTMLElement | null;
+        const secA = findSec(a.at);
+        const secB = findSec(b.at);
         if (!secA || !secB) continue;
         gsap.fromTo(journeyBg,
           { backgroundColor: a.color },
@@ -1238,6 +1289,33 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
         );
       }
     }
+
+    // ── AD6: Vividness ramp ─────────────────────────────────────────────────
+    // Slides flagged `vivid:true` desaturate/dim off-centre, reach full colour as their
+    // anchor hits viewport centre, then ease back down as they exit. Filter is applied to
+    // the <img> only (scoped repaint) — never the whole section. Desktop-only (this path).
+    const vividFrom = `saturate(${config.vividFrom.saturate}) brightness(${config.vividFrom.brightness})`;
+    const vividTo   = `saturate(${config.vividTo.saturate}) brightness(${config.vividTo.brightness})`;
+    const vividWin  = () => window.innerWidth * (config?.vividWindow ?? 0.9);
+    const slidesCfg = (window as any).__SLIDES__ as Array<{ id: string; vivid?: boolean }>;
+    slidesCfg?.filter((sl) => sl.vivid).forEach((sl) => {
+      const sec = strip.querySelector(`[data-slide="${sl.id}"]`) as HTMLElement | null;
+      const target = sec?.querySelector("img") as HTMLElement | null;
+      if (!sec || !target) return;
+      target.style.willChange = "filter";
+      gsap.set(target, { filter: vividFrom });
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: track,
+          start: () => `${getScrollPos(anchorCenter(sec) - vividWin())}px top`,
+          end:   () => `${getScrollPos(anchorCenter(sec) + vividWin())}px top`,
+          scrub: 0.5,
+          invalidateOnRefresh: true,
+        },
+      });
+      tl.fromTo(target, { filter: vividFrom }, { filter: vividTo, ease: "none" })
+        .to(target, { filter: vividFrom, ease: "none" });
+    });
 
     if (dataPaths.length > 0) {
 
