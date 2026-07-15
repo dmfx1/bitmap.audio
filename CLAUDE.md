@@ -478,7 +478,7 @@ Add `content: { col: [start, span], align?: "start" | "center" | "end" }` to tex
 
 ### AD4 — Step 4: Universal edge fades (kills hard edges)
 
-**STATUS (2026-07-15): DONE — awaiting dev-server verify.** `ImageSlide.astro` now resolves `fade` via `fadeToMask()` which accepts EITHER a preset name (sugar — byte-identical masks, no image regression) OR `{ left, right }` fractions (0–0.5) of slide width. The mask is now also applied to the gradient panels (previously unmasked, full-bleed hard edges). Gradient panels 11.5/12.5 given `fade: { left: 0.35, right: 0.35 }`. Belief section (data-sidebar="12"/data-slide="11") switched `bg-accent` → `bg-accent md:bg-transparent` so the JOURNEY `#FFA61A` at "12" carries the amber on desktop (mobile keeps opaque amber for snap). `Slide.fade` type broadened to `string | {left,right}`.
+**STATUS (2026-07-15): DONE — awaiting dev-server verify.** `ImageSlide.astro` now resolves `fade` via `fadeToMask()` which accepts EITHER a preset name (sugar — byte-identical masks, no image regression) OR `{ left, right }` fractions (0–0.5) of slide width. The mask is now also applied to gradient panels via `ImageSlide` (kept for any future gradient slides). NOTE (2026-07-15): the two gradient colour-transfer panels 11.5/12.5 were later REMOVED — they were a second colour source competing with the JOURNEY and bled accent across the Belief/Execution seams. They're now transparent spacer `<section>`s (`data-slide="11.5"/"12.5"`, `width:100vw`, `hidden md:flex`) so the journey's amber ramp shows through with no baked gradient. Colour there now comes solely from JOURNEY. Belief section (data-sidebar="12"/data-slide="11") switched `bg-accent` → `bg-accent md:bg-transparent` so the JOURNEY `#FFA61A` at "12" carries the amber on desktop (mobile keeps opaque amber for snap). `Slide.fade` type broadened to `string | {left,right}`.
 - ⚠️ DEVIATION: text-slide content wrappers are NOT masked (brief listed them). Reason: after the Belief fix, ALL text slides are `md:bg-transparent` on desktop → they have no hard edge to kill, and masking a text wrapper would fade the actual copy near its column edges (clips headings). Goal ("zero hard vertical edges") is met via image masks + gradient-panel masks + Belief. If dom wants text edge-fades regardless, `fade`/`gridStyle` plumbing can extend to `content` — quick follow-up.
 
 
@@ -500,6 +500,16 @@ Blend images into the journey two ways:
 - Live example currently in the file: `{ at: "5.5", color: "#52958E" }` (teal for `recall-under-pressure`) + a long `fade: { left: 0.45, right: 0.45 }` on that image. Adjust/remove as the image set changes.
 
 **Optional (not built):** a `bg: "#hex"` sugar on image slides that injects a manual checkpoint so the colour sits next to the image in SLIDES rather than in the separate JOURNEY array. Only worth doing if the manual JOURNEY list gets unwieldy.
+
+### ⚠️ GOTCHA — Image "free roam" & `content-visibility` (2026-07-15)
+
+Images can be shifted off their own slide (`imgX`, `imgWidth > 100%`) to overlap/roam over neighbouring slides, with the edge `fade` dissolving them onto the transparent slides + journey behind. This was BROKEN for a long time (shifted images hard-cut at their slide's left edge) and it wasted a whole session chasing z-index / masks / blend — none of which were the cause.
+
+**Root cause:** `global.css` has `section { content-visibility: auto }` (a perf optimisation that skips off-screen slides). `content-visibility: auto` applies implicit **`contain: paint`**, which clips each section's content to its own box REGARDLESS of `overflow: visible`. So every image was boxed to its slide and couldn't spill.
+
+**Fix (in `ImageSlide.astro`):** the `<section>` inline style includes `content-visibility:visible;` to override the global rule. Now image slides render unclipped and images roam. Tradeoff: those ~10 image sections always render (no off-screen skip); text slides keep the optimisation. Mobile unaffected (image slides are `hidden md:flex`). For roam to paint OVER a neighbour, the image slide also needs a higher `z` than the text slides — `IMG_DEFAULTS.z` is `30` (text is z-10/z-20); the sidebar stays on top at z-50.
+
+Debugging note: the only reliable way to inspect this page in Chrome is REAL wheel scrolling — `window.scrollTo`/`scrollTop` are JS-locked (GSAP normalizeScroll), so scripted scroll stays at 0.
 
 ### AD6 — Step 6: Vividness ramp (GSAP)
 

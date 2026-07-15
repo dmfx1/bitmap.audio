@@ -30,7 +30,9 @@ const IMG_DEFAULTS = {
   imgWidth: "100%",
   imgX: "0px",
   objectPos: "center",
-  z: 10,
+  z: 30,                            // above text slides (z-10/z-20) so shifted images roam OVER
+                                    // neighbours instead of tucking behind them. Sidebar (z-50)
+                                    // still sits on top. Lower this per-image to tuck one behind.
   opacity: 90,
   bare: true,                       // float on the journey background (no opaque slide bg)
   ramp: { start: -1.2, end: -0.1 }, // default GSAP scroll ramp (vw multipliers off left edge)
@@ -64,28 +66,33 @@ type Slide = {
 };
 const SLIDES: Slide[] = [
   { id: "00",   type: "text",  label: "Status",               width: "80vw", content: { col: [2, 9] }  },
-  { id: "0.5",  type: "image", img: "your-brand-is-muted", imgWidth: "100%", imgX: "-20vw", z: 0, blend: false, objectPos: "left", customMask: "linear-gradient(to right, transparent 0%, transparent 30%, black 60%, black 70%, transparent 100%)", ramp: { start: -1.5, end: 0 }, vivid: true },
+  { id: "0.5",  type: "image", img: "your-brand-is-muted", vivid: true, fade: { left: 0.7, right: 0.7 } },
   { id: "01",   type: "text",  label: "Context",              width: "75vw", content: { col: [1, 7] }  },
-  { id: "1.5",  type: "image", img: "when-everyone-is-listening", fade: "flow-xlong", vivid: true },
+  { id: "1.5",  type: "image", img: "when-everyone-is-listening", vivid: true, fade: 'flow-xlong', },
   { id: "02",   type: "text",  label: "Architecture",         width: "110vw", content: { col: [2, 6] }, anim: {
       nodes: { start: -0.85, end: 0.5, scrub: 0.5 },
       paths: { start: -0.75, end: 0.3, scrub: 0.5 },
   }},
-  { id: "2.5",  type: "image", img: "sound-as-a-data-map", imgX: "-50vw", blend: false, objectPos: "left", customMask: "linear-gradient(to right, transparent 0%, transparent 50%, black 60%, black 70%, transparent 100%)", vivid: true },
-  { id: "03",   type: "text",  label: "Neurology.Processing", width: "200vw", content: { col: [3, 3] } },
-  { id: "3.25", type: "image", img: "faster-than-sight", effect: "focus" },
-  { id: "3.5",  type: "behind", img: "brain-processing-speed", width: "100%", opacity: 25 },
-  { id: "04",   type: "text",  label: "Neurology.Memory",     width: "100vw", content: { col: [3, 8] }, anim: {
+  { id: "2.5",  type: "image", img: "sound-as-a-data-map", width: "100vw", vivid: true, imgX: "-40vw", blend: false, 
+    ramp: { start: -0.8, end: 0 },
+    fade: { left: 0.5, right: 0.5 } 
+  },  
+  { id: "03", type: "text", label: "Neurology.Processing", width: "120vw", content: { col: [3, 5] }},
+  { id: "3.1",  type: "text",  width: "100vw" },
+  { id: "3.25", type: "image", img: "faster-than-sight-2", width: "150vw", imgWidth: "120vw", imgX: "-50vw", z: 50, fade: { left: 0.2, right: 0.7 }, effect: "focus", 
+    ramp: { start: -1.5, end: -0.5 } },
+  { id: "04",   type: "text",  label: "Neurology.Memory",     width: "80vw", content: { col: [3, 8] }, anim: {
       visualsFade: { start: -0.85, end: -0.2, scrub: 0.5 },
       soundGrow:   { start: -0.8,  end: -0.1, scrub: 0.5 },
       vibration:   { start: -0.5,  end:  1.0, scrub: 0.5 },
   }},
-  { id: "4.25", type: "image", img: "visuals-fade-sound-echoes", vivid: true },
+  { id: "4.25", type: "image", img: "visuals-fade-sound-echoes", width:"100vw", imgWidth:"130vw", vivid: true, imgX: "-30vw",  fade: { left: 0.3, right: 0.4 }, ramp: { start: -1.2, end: -0.5 }},
+  { id: "4.5",  type: "behind", img: "brain-processing-speed", width: "150vw", opacity: 25 },
   { id: "05",   type: "text",  label: "Metrics",              width: "150vw", content: { col: [3, 9] }, anim: {
       pressureLine: { start: -0.4, end: -0.1, scrub: 0.5 },
       statCards:    { start: -0.5, end: -0.0, scrub: 0, cardSpacing: 300 },
   }},
-  { id: "5.5",  type: "image", img: "recall-under-pressure", fade: { left: 0.45, right: 0.45 }, vivid: true },
+  { id: "5.5",  type: "image", img: "recall-under-pressure", vivid: true },
   { id: "06",   type: "text",  label: "Conversion",           width: "75vw", content: { col: [3, 7] },  anim: {
       roiGrow: { start: -0.8, end: 0.3, scrub: 1 },
   }},
@@ -97,9 +104,7 @@ const SLIDES: Slide[] = [
   { id: "09",   type: "text",  label: "Culture",              width: "125vw", content: { col: [4, 6] } },
   { id: "10.5", type: "image", img: "seamless-cultural-resonance", vivid: true },
   { id: "10",   type: "text",  label: "Asset.Ownership",      width: "125vw", content: { col: [4, 8] } },
-  { id: "11.5", type: "image", gradient: "from-primary/5 to-accent", fade: { left: 0.35, right: 0.35 } },
   { id: "11",   type: "text",  label: "Belief",               width: "75vw", content: { col: [3, 8] }  },
-  { id: "12.5", type: "image", gradient: "from-accent to-background", fade: { left: 0.35, right: 0.35 } },
   { id: "12",   type: "text",  label: "Execution",            width: "100vw", content: { col: [1, 12] } },
   { id: "13",   type: "behind", img: "master-the-signal", width: "52vw", opacity: 55 },
 ];
@@ -158,7 +163,7 @@ const CONFIG = {
 
   // AD6 vividness ramp: slides with `vivid: true` desaturate/dim off-centre and hit full
   // colour as their anchor reaches viewport centre, then ease back down as they exit.
-  vividFrom: { saturate: 0.4, brightness: 0.85 }, // look when far from centre
+  vividFrom: { saturate: 0.2, brightness: 0.5 }, // look when far from centre
   vividTo:   { saturate: 1,   brightness: 1 },    // look at centre (full)
   vividWindow: 0.9, // fraction of viewport width on EACH side of centre the ramp spans
 };
@@ -172,19 +177,19 @@ const CONFIG = {
 // colour GSAP can tween (hex is safest). MOBILE is untouched — slides keep their own
 // backgrounds and snap.
 const JOURNEY = [
-  { at: "0",  color: "#121C1C" }, // bg-background (Status)
-  { at: "2",  color: "#ABC4CE" }, // bg-primary/80 (Architecture)
-  { at: "3",  color: "#11181A" }, // bg-card/30 (Neurology.Processing)
-  { at: "4",  color: "#1E231C" }, // bg-accent/5 (Neurology.Memory)
-  { at: "5",  color: "#111A1B" }, // bg-card/20 (Metrics)
-  { at: "5.5", color: "#52958E" }, // AD5 TEST — recall-under-pressure right-edge teal (brightened). Anchored to image via data-slide.
-  { at: "6",  color: "#121C1C" }, // bg-background (Conversion)
-  { at: "7",  color: "#DCDDDD" }, // bg-foreground/90 (Credibility)
-  { at: "9",  color: "#384648" }, // bg-primary/20 (Perception)
-  { at: "10", color: "#121C1C" }, // bg-background (Culture)
-  { at: "11", color: "#1C2727" }, // bg-primary/5 (Asset.Ownership)
-  { at: "12", color: "#FFA61A" }, // bg-accent (Belief)
-  { at: "13", color: "#121C1C" }, // bg-background (Execution)
+  { at: "0",  color: "#121C1C" }, // bg-background (Status) 121C1C
+  { at: "2",  color: "#ABC4CE" }, // bg-primary/80 (Architecture) ABC4CE
+  { at: "3",  color: "#11181A" }, // bg-card/30 (Neurology.Processing) 11181A
+  { at: "4",  color: "#1E231C" }, // bg-accent/5 (Neurology.Memory) 1E231C
+  { at: "5",  color: "#111A1B" }, // bg-card/20 (Metrics) 111A1B
+  { at: "5.5", color: "#1E231C" }, // AD5 TEST — recall-under-pressure right-edge teal (brightened). Anchored to image via data-slide. 1E231C
+  { at: "6",  color: "#121C1C" }, // bg-background (Conversion) 121C1C
+  { at: "7",  color: "#DCDDDD" }, // bg-foreground/90 (Credibility) DCDDDD
+  { at: "9",  color: "#384648" }, // bg-primary/20 (Perception) 384648
+  { at: "10", color: "#121C1C" }, // bg-background (Culture) 121C1C
+  { at: "11", color: "#1C2727" }, // bg-primary/5 (Asset.Ownership) 1C2727
+  { at: "12", color: "#FFA61A" }, // bg-accent (Belief) FFA61A
+  { at: "13", color: "#121C1C" }, // bg-background (Execution) 121C1C
 ];
 
 // Merge defaults + expand image paths → final <ImageSlide> props. (Don't edit below.)
@@ -462,6 +467,36 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
 
           <!-- #endregion SLIDE-03 -->
 
+          <section data-slide="3.1" class="hidden md:flex items-center justify-center relative bg-transparent z-10 pointer-events-none">
+            
+            <svg 
+              id="soundwave-rings"
+              viewBox="0 0 100 100" 
+              class="w-full h-full text-accent drop-shadow-[0_0_20px_hsl(var(--accent)/0.5)] overflow-visible" 
+              style="-webkit-mask-image: linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%); mask-image: linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%);"
+              fill="none" 
+              stroke="currentColor" 
+              stroke-width="1.5" 
+              preserveAspectRatio="xMidYMid slice"
+              aria-hidden="true"
+            >
+              <!-- 10 Full concentric circles. 
+                   Centered towards the right (cx="80") so they radiate from the Tiger.
+                   The linear-gradient mask ensures they fade out gracefully before hitting the hard slide edges. -->
+              <circle cx="80" cy="50" r="4" stroke-opacity="1" />
+              <circle cx="80" cy="50" r="10" stroke-opacity="0.9" />
+              <circle cx="80" cy="50" r="18" stroke-opacity="0.8" />
+              <circle cx="80" cy="50" r="28" stroke-opacity="0.6" />
+              <circle cx="80" cy="50" r="40" stroke-opacity="0.4" />
+              <circle cx="80" cy="50" r="54" stroke-opacity="0.25" />
+              <circle cx="80" cy="50" r="70" stroke-opacity="0.15" />
+              <circle cx="80" cy="50" r="88" stroke-opacity="0.08" />
+              <circle cx="80" cy="50" r="108" stroke-opacity="0.04" />
+              <circle cx="80" cy="50" r="130" stroke-opacity="0.02" />
+            </svg>
+
+          </section>
+
           <!-- ═══════════════════════════════════════════════════════════
                SLIDE 3.25 | Image · Faster Than Sight | DESKTOP ONLY
                Dedicated image slide after SLIDE-03. Uses .img-slide-focus →
@@ -471,29 +506,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
           <ImageSlide {...imgSlide["3.25"]} />
           <!-- #endregion SLIDE-3.25 -->
 
-          <!-- ═══════════════════════════════════════════════════════════
-               SLIDE 3.5 | Brain Speed Stat 
-               "8-10ms" stat interstitial | DESKTOP ONLY | no sidebar
-               ═══════════════════════════════════════════════════════════ -->
-          <!-- #region SLIDE-3.5 | Brain Speed Stat | DESKTOP ONLY -->
-          <section data-slide="3.5" class="hidden md:flex md:items-center w-[66vw] bg-primary/80 md:bg-transparent h-full flex-shrink-0 relative group z-10">
-            <!-- Behind-stat background image — radial edge-mask, no blend (light bg-primary/80). -->
-            <div class="mobile:hidden absolute inset-0 z-0 pointer-events-none"
-                 style={`opacity:${BACKGROUNDS["3.5"].opacity / 100};-webkit-mask-image:radial-gradient(ellipse at center, black 30%, transparent 78%);mask-image:radial-gradient(ellipse at center, black 30%, transparent 78%);`}>
-              <img src="/images/returns/brain-processing-speed.webp" decoding="async" alt="" class="w-full h-full object-cover object-center" />
-            </div>
-            <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
-              <div class="flex flex-col items-center justify-center relative overflow-hidden pointer-events-none z-10 text-center md:col-start-1 md:col-span-12">
-                 <div class="absolute inset-0 bg-gradient-glow opacity-10"></div>
-                 <h3 class="font-mono text-[12vw] leading-none text-foreground font-light tracking-tighter drop-shadow-md">
-                   8<span class="text-primary">-</span>10<span class="text-2xl tracking-tight text-foreground">ms</span>
-                 </h3>
-                 <span class="font-mono text-foreground tracking-[0.5em] uppercase mt-4 drop-shadow-md">Brain Processing Speed</span>
-              </div>
-            </div>
-          </section>
-
-          <!-- #endregion SLIDE-3.5 -->
+        
 
           <!-- ═══════════════════════════════════════════════════════════
                SLIDE 04 | Neurology — Echoic Memory 
@@ -529,16 +542,21 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                "20x" stat interstitial | DESKTOP ONLY | no sidebar
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-4.5 | Memory Retention Stat | DESKTOP ONLY -->
-          <section data-slide="4.5" class="hidden md:flex md:items-center w-[66vw] bg-foreground/80 md:bg-transparent h-full flex-shrink-0  relative group z-10">
-            <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
-              <div class="flex flex-col items-center justify-center relative overflow-hidden pointer-events-none z-10 text-center md:col-start-1 md:col-span-12">
-                 <div class="absolute inset-0 bg-gradient-glow opacity-10"></div>
-                 <h3 class="font-mono text-[12vw] leading-none text-foreground font-light tracking-tighter drop-shadow-md">
-                   20<span class="tracking-tight text-foreground">x</span>
-                 </h3>
-                 <span class="font-mono text-background/50 tracking-[0.5em] uppercase mt-4 drop-shadow-md">Longer Memory Retention</span>
-              </div>
+          <section data-slide="4.5" class="hidden md:flex w-[100vw] bg-foreground/80 md:bg-transparent h-full flex-shrink-0 relative group z-10">
+            
+            <div class="mobile:hidden absolute inset-0 z-0 pointer-events-none"
+                 style={`opacity:${BACKGROUNDS["4.5"].opacity / 100};-webkit-mask-image:radial-gradient(ellipse at 20% center, black 35%, transparent 78%);mask-image:radial-gradient(ellipse at 20% center, black 35%, transparent 78%);`}>
+              <img src="/images/returns/brain-processing-speed.webp" decoding="async" alt="" class="w-full h-full object-cover object-center" />
             </div>
+
+            <div class="w-full h-full flex flex-col items-start justify-center pl-8 md:pl-32 relative z-10 pointer-events-none text-left">
+               <div class="absolute inset-0 bg-gradient-glow opacity-10"></div>
+               <h3 class="font-mono text-[12vw] leading-none text-foreground font-light tracking-tighter drop-shadow-md">
+                 20<span class="tracking-tight text-foreground">x</span>
+               </h3>
+               <span class="font-mono text-background/50 tracking-[0.5em] uppercase mt-4 drop-shadow-md">Longer Memory Retention</span>
+            </div>
+
           </section>
 
           <!-- #endregion SLIDE-4.5 -->
@@ -899,10 +917,11 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
 
           <!-- #endregion SLIDE-11 -->
 
-          <!-- #region SLIDE-11.5 | Gradient transfer (primary/5 → accent) -->
-          <!-- No art yet — colour-transfer panel bridging SLIDE-11 (bg-primary/5) into SLIDE-12
-               (bg-accent). Swap for an image any time: <ImageSlide src="/images/returns/<name>.webp" /> -->
-          <ImageSlide {...imgSlide["11.5"]} />
+          <!-- #region SLIDE-11.5 | Transparent spacer — journey bg shows through.
+               Was a baked colour-transfer gradient; colour now comes solely from the JOURNEY
+               (no competing per-slide gradient). Width = how long the journey's amber ramp into
+               Belief takes. Drop in art any time: <ImageSlide id="11.5" src="/images/returns/<name>.webp" />. -->
+          <section data-slide="11.5" class="hidden md:flex h-full flex-shrink-0 bg-transparent" style="width:100vw;"></section>
           <!-- #endregion SLIDE-11.5 -->
 
           <!-- ═══════════════════════════════════════════════════════════
@@ -929,10 +948,11 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
 
           <!-- #endregion SLIDE-12 -->
 
-          <!-- #region SLIDE-12.5 | Gradient transfer (accent → background) -->
-          <!-- No art yet — colour-transfer panel bridging SLIDE-12 (bg-accent) into SLIDE-13
-               (bg-background). Swap for an image any time: <ImageSlide src="/images/returns/<name>.webp" /> -->
-          <ImageSlide {...imgSlide["12.5"]} />
+          <!-- #region SLIDE-12.5 | Transparent spacer — journey bg shows through.
+               Was a baked colour-transfer gradient; colour now comes solely from the JOURNEY
+               (no competing per-slide gradient). Width = how long the journey's amber ramp out of
+               Belief takes. Drop in art any time: <ImageSlide id="12.5" src="/images/returns/<name>.webp" />. -->
+          <section data-slide="12.5" class="hidden md:flex h-full flex-shrink-0 bg-transparent" style="width:100vw;"></section>
           <!-- #endregion SLIDE-12.5 -->
 
           <!-- ═══════════════════════════════════════════════════════════
@@ -1228,7 +1248,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
     //   .img-slide-focus  → opacity 0→1 + blur(30px)→blur(0) reveal
     // Ramp timing comes from IMG_DEFAULTS.ramp / per-slide ramp overrides
     // (bridged via data-ramp-start / data-ramp-end attributes on each section).
-    const imgSlideTrigger = (sec) => {
+    const imgSlideTrigger = (sec: HTMLElement) => {
       const startMult = sec.dataset.rampStart ? parseFloat(sec.dataset.rampStart) : -0.9;
       const endMult = sec.dataset.rampEnd ? parseFloat(sec.dataset.rampEnd) : -0.15;
       
@@ -1242,13 +1262,13 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
     };
 
     document.querySelectorAll(".img-slide-fade").forEach((layer) => {
-      const sec = layer.closest("section");
+      const sec = layer.closest("section") as HTMLElement | null;
       if (!sec) return;
       gsap.fromTo(layer, { opacity: 0 }, { opacity: 1, ease: "none", scrollTrigger: imgSlideTrigger(sec) });
     });
 
     document.querySelectorAll(".img-slide-focus").forEach((layer) => {
-      const sec = layer.closest("section");
+      const sec = layer.closest("section") as HTMLElement | null;
       if (!sec) return;
       gsap.fromTo(layer,
         { opacity: 0, filter: "blur(30px)" },
@@ -1316,6 +1336,8 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
       tl.fromTo(target, { filter: vividFrom }, { filter: vividTo, ease: "none" })
         .to(target, { filter: vividFrom, ease: "none" });
     });
+
+    
 
     if (dataPaths.length > 0) {
 
@@ -1650,6 +1672,29 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
       });
     }
 
+    // ── SOUNDWAVES FADE OUT ─────────────────────────────────────────────────
+    // The Tiger's ramp finishes at -0.5 (it is fully established).
+    // We start fading the rings out exactly there, finishing as the tiger hits 0.
+    const soundwaveRings = document.getElementById("soundwave-rings");
+    const slide3_25 = document.querySelector('[data-slide="3.25"]') as HTMLElement | null;
+
+    if (soundwaveRings && slide3_25) {
+      gsap.fromTo(soundwaveRings,
+        { opacity: 1 },
+        {
+          opacity: 0,
+          ease: "none",
+          scrollTrigger: {
+            trigger: track,
+            start: () => `${getScrollPos(slide3_25.offsetLeft - 1.2 * window.innerWidth)}px top`,
+            end: () => `${getScrollPos(slide3_25.offsetLeft -0.7 * window.innerWidth)}px top`,
+            scrub: true,
+            invalidateOnRefresh: true,
+          }
+        }
+      );
+    }
+
     // WORD HIGHLIGHTS — shift specific words from muted → accent as their slide enters
     if (highlights) {
       const animateWords = (
@@ -1701,6 +1746,11 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
 </script>
 
 <style is:global>
+  /* Flip the "visuals-fade-sound-echoes" image horizontally */
+  [data-slide="4.25"] img {
+    transform: scaleX(-1);
+  }
+  
   html.is-mobile-snap {
     scroll-snap-type: y mandatory;
   }
