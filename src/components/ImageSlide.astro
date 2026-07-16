@@ -19,9 +19,24 @@ const FADES: Record<string, string> = {
 // from each edge. e.g. { left: 0.22, right: 0.22 } === the 'flow' preset.
 function fadeToMask(f: string | { left: number; right: number } | undefined): string {
   if (f && typeof f === 'object') {
-    const L = Math.round((f.left ?? 0) * 100);
-    const R = Math.round(100 - (f.right ?? 0) * 100);
-    return `linear-gradient(to right, transparent 0%, black ${L}%, black ${R}%, transparent 100%)`;
+    const p = (n: number) => +n.toFixed(1);
+    const L = (f.left ?? 0) * 100;          // left fade zone: 0% → L%
+    const R = 100 - (f.right ?? 0) * 100;   // right fade zone: R% → 100%
+    // Guard: if left + right > 1 the fade zones overlap. Instead of out-of-order gradient
+    // stops (which render as a hard seam), make a single smooth peak at the crossover.
+    if (L >= R) {
+      const m = (L + R) / 2;
+      return `linear-gradient(to right, transparent 0%, rgba(0,0,0,0.15) ${p(m * 0.5)}%, rgba(0,0,0,0.85) ${p(m)}%, rgba(0,0,0,0.15) ${p(m + (100 - m) * 0.5)}%, transparent 100%)`;
+    }
+    // Eased "buttery" falloff — holds fairly opaque, then tails off gently (kept high enough
+    // that long fades don't wash the image out too much).
+    const left = L > 0
+      ? `transparent 0%, rgba(0,0,0,0.3) ${p(L * 0.35)}%, rgba(0,0,0,0.75) ${p(L * 0.7)}%, black ${p(L)}%`
+      : `black 0%`;
+    const right = R < 100
+      ? `black ${p(R)}%, rgba(0,0,0,0.75) ${p(R + (100 - R) * 0.35)}%, rgba(0,0,0,0.3) ${p(R + (100 - R) * 0.7)}%, transparent 100%`
+      : `black 100%`;
+    return `linear-gradient(to right, ${left}, ${right})`;
   }
   return (typeof f === 'string' && FADES[f]) || FADES.flow;
 }
@@ -81,6 +96,7 @@ const layerStyle = `left:50%;width:${imgWidth};transform:translateX(-50%) transl
   style={`width:${width};z-index:${z};content-visibility:visible;`}
   data-ramp-start={ramp?.start}
   data-ramp-end={ramp?.end}
+  data-img-x={imgX}
 >
   {gradient ? (
     <div class:list={["absolute inset-0 bg-gradient-to-r", gradient]} style={maskStyle}></div>
