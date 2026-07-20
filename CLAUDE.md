@@ -519,6 +519,25 @@ Cause: the strip tween had `scrub: 1`. A numeric scrub makes the strip *lag* the
 
 **Coupling:** the Belief/Subconscious blur-in tween must use the SAME scrub as the strip. It's keyed to the slide reaching viewport centre, so if the strip is 1:1 and the blur lags, the text resolves *after* it has passed centre. Both are now `scrub: true`. Change them together, never one alone.
 
+### ⚠️ MOBILE — returns2 scrolls an INNER container, not the document (2026-07-20)
+
+Supersedes the old "`html` is the snap scroller" setup. **Mobile only** — everything is scoped to `html.is-mobile-snap`, which is added solely when `innerWidth < 768`. Desktop is untouched.
+
+Symptoms this fixed: (a) the top of the next slide peeking below the current one, (b) the snap overshooting when swiping back up, worst nearest the top.
+
+Cause: with `html` as the scroller, scrolling up re-shows the mobile address bar, which shrinks `dvh`. Every `100dvh` section shrinks simultaneously, the scroll height above the user collapses, and the browser re-snaps to compensate. It compounds the further up you go.
+
+Fix: `#scroll-track > .sticky` is now the scroll container (`height:100svh; overflow-y:auto; scroll-snap-type:y mandatory; overscroll-behavior-y:contain`), `html`/`body` are `overflow:hidden`, and sections are `100svh`. Because the document never scrolls, the browser chrome never retracts, so `svh` IS the true viewport for the whole session.
+
+**Rules:**
+- **Never use `dvh` anywhere in the mobile snap path.** A dynamic height on the container or the sections reintroduces the exact reflow this removes. `svh`/`lvh` are static; `dvh` is not.
+- Sections must be `100svh`, **not `100%`** — `#horizontal-strip` is `height:auto`, so a percentage collapses.
+- `scroll-snap-type` belongs on the container ONLY. Leaving it on `html` too makes two scrollers fight.
+- Full-bleed mobile background images use `absolute inset-0`, never `w-[100vw] h-[100vh]` — plain `vh` is the large viewport and overflows a `svh` section by one address-bar height.
+- `#end-screen` lives outside `#scroll-track`, so the mobile branch **moves it into the scroller** (idempotent) or it becomes unreachable. Desktop leaves it in normal flow.
+
+Cleared as safe before the change: no scroll listener on this page reads document scroll — `Layout.astro`'s glow targets `.mobile-viewport-active` (zero on returns2), GridBackground's rain layers don't exist here (gated off for returns pages), and the mobile branch early-returns before any GSAP.
+
 ### ⚠️ GOTCHA — Image "free roam" & `content-visibility` (2026-07-15)
 
 Images can be shifted off their own slide (`imgX`, `imgWidth > 100%`) to overlap/roam over neighbouring slides, with the edge `fade` dissolving them onto the transparent slides + journey behind. This was BROKEN for a long time (shifted images hard-cut at their slide's left edge) and it wasted a whole session chasing z-index / masks / blend — none of which were the cause.
