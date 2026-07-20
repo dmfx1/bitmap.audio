@@ -43,7 +43,7 @@ const Navigation = ({ currentPath }: { currentPath: string }) => {
               <BitmapIcon char="b" className="w-4 h-4 text-primary-foreground" />
             </div>
             
-            <span className="font-mono font-light text-foreground group-hover:text-primary transition-colors">
+            <span className="font-mono text-xl font-light text-foreground group-hover:text-primary transition-colors">
               bitmap<span className="text-accent font-bold">.audio</span>
             </span>
           </a>
@@ -103,7 +103,7 @@ const Navigation = ({ currentPath }: { currentPath: string }) => {
                   <a href="/returns2" className={cn(
                     "font-mono text-base uppercase tracking-wider link-underline transition-colors",
                     isActive("/returns") ? "text-primary hover:text-accent" : "text-muted-foreground hover:text-accent"
-                  )}>Why</a>
+                  )}>Why?</a>
                 </NavigationMenuItem>
                 
               </NavigationMenuList>
@@ -130,9 +130,8 @@ const Navigation = ({ currentPath }: { currentPath: string }) => {
             <div className="flex flex-col gap-1 pt-6 pb-24">
               <a href="/home" className="font-mono text-base uppercase tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">Home</a>
               <a href="/about" className="font-mono text-base uppercase tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">About</a>
-              <a href="/returns" className="font-mono text-base uppercase tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">ROI</a>
-              <a href="/faq" className="font-mono text-base uppercase tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">FAQ</a>
-              <div className="pt-2 border-t border-border">
+              <a href="/returns2" className="font-mono text-base uppercase tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">Why?</a>
+              <div className="pt-2 pb-2 border-t border-b border-border">
                 <button
                   className="w-full flex items-center justify-between font-mono text-base uppercase tracking-wider text-accent min-h-[44px]"
                   onClick={() => setIsSolutionsOpen(!isSolutionsOpen)}
@@ -148,6 +147,7 @@ const Navigation = ({ currentPath }: { currentPath: string }) => {
                   </div>
                 )}
               </div>
+              <a href="/faq" className="font-mono text-base uppercase tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">FAQ</a>
             </div>
 
             {/* CONTACT — pinned to bottom of viewport, full width, thumb-reachable */}

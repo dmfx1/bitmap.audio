@@ -202,7 +202,7 @@ const JOURNEY = [
   { at: "7",  color: "#DCDDDD", offset: -0.5 }, // bg-foreground/90 (Credibility) DCDDDD
   { at: "9",  color: "#384648" }, // bg-primary/20 (Perception) 384648
   { at: "10", color: "#121C1C" }, // bg-background (Culture) 121C1C
-  { at: "11", color: "#1C2727" }, // bg-primary/5 (Asset.Ownership) 1C2727
+  { at: "11", color: "#141414" }, // bg-primary/5 (Asset.Ownership) 1C2727
   { at: "12", color: "#FFA61A", offset: 0.5 }, // bg-accent (Belief) FFA61A
   { at: "13", color: "#121C1C", offset: -0.7 }, // bg-background (Execution) 121C1C
 ];
@@ -223,10 +223,14 @@ const imgSlide: Record<string, any> = Object.fromEntries(
 // opaque at the left/right edge, which paints as a hard vertical line. `closest-side` pins the
 // radii to the box half-width/half-height, so 100% IS the edge and the fade completes before it.
 // Many stops with a long low-alpha tail = the buttery falloff (a 2-stop ramp reads as an edge).
+// Tuned gentle: the fully-opaque core runs to 45% (was 24%) and the ramp stays high-alpha well
+// past the midpoint, so far more of the brain is legible. The tail is compressed into the last
+// ~15% instead of spread over 70% — still enough stops to avoid a visible edge.
 const BRAIN_MASK =
   "radial-gradient(ellipse closest-side at center, " +
-  "black 0%, black 24%, rgba(0,0,0,0.85) 40%, rgba(0,0,0,0.55) 55%, " +
-  "rgba(0,0,0,0.28) 68%, rgba(0,0,0,0.12) 80%, rgba(0,0,0,0.04) 90%, transparent 97%)";
+  "black 0%, black 45%, rgba(0,0,0,0.94) 58%, rgba(0,0,0,0.82) 68%, " +
+  "rgba(0,0,0,0.62) 77%, rgba(0,0,0,0.38) 85%, rgba(0,0,0,0.18) 91%, " +
+  "rgba(0,0,0,0.06) 96%, transparent 100%)";
 
 // Behind-text background images, keyed by the DOM region id they sit behind.
 const BACKGROUNDS: Record<string, any> = Object.fromEntries(
@@ -300,15 +304,19 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
           <!-- #region SLIDE-00 | Status -->
           <section data-sidebar="0" data-slide="00" class="relative h-full flex-shrink-0 flex flex-col justify-center items-center pl-4 pr-4 group bg-background md:bg-transparent z-10 mobile:pl-0">
             <!-- Mobile background image — woman reading, bottom-right -->
-            <div class="md:hidden absolute bottom-0 right-0 w-[75vw] h-[70vh] pointer-events-none z-0">
+            <!-- inset-0, NOT w-[100vw] h-[100vh]. The section is sized in `dvh`; `vh` is the LARGE
+                 viewport (browser chrome retracted), so a 100vh child is taller than its 100dvh
+                 parent by exactly one address-bar height. inset-0 pins the image to whatever the
+                 section actually is, so full-bleed stays full-bleed as the chrome shows/hides. -->
+            <div class="md:hidden absolute inset-0 pointer-events-none z-0">
               <img src="/images/returns/your-brand-is-muted.webp" decoding="async" alt=""
-                   class="w-full h-full object-contain object-right-bottom opacity-40" />
+                   class="w-full h-full object-cover opacity-25" />
             </div>
             <!-- 12-col container: pl-24 clears the 96px sidebar; pr-6 matches nav right padding -->
             <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
               <div data-sidebar-anchor class="relative z-10 pl-8 md:pl-0 py-2" style={gridStyle("00")}>
                 <span class="text-eyebrow text-sm mb-8 mobile:mb-3 block">[ Status // Critical ]</span>
-                <h2 class="font-mono text-6xl mobile:text-5xl md:text-[8vw] leading-[0.9] tracking-tighter mb-12 mobile:mb-6 uppercase text-foreground">
+                <h2 class="font-mono text-6xl mobile:text-6xl md:text-[8vw] leading-[0.9] tracking-tighter mb-12 mobile:mb-6 uppercase text-foreground">
                   Your brand<br/>is <span class="text-accent drop-shadow-[0_0_20px_hsl(var(--accent)/0.3)]">Muted.</span>
                 </h2>
                 <div class="w-full max-w-2xl bg-background/60 p-6 border-l-2 border-accent">
@@ -338,6 +346,16 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-01 | Context -->
           <section data-sidebar="1" data-slide="01" class="w-screen h-full flex-shrink-0 flex items-center relative group bg-background md:bg-transparent z-20">
+
+            <!-- Mobile background image — woman reading, bottom-right -->
+            <!-- inset-0, NOT w-[100vw] h-[100vh]. The section is sized in `dvh`; `vh` is the LARGE
+                 viewport (browser chrome retracted), so a 100vh child is taller than its 100dvh
+                 parent by exactly one address-bar height. inset-0 pins the image to whatever the
+                 section actually is, so full-bleed stays full-bleed as the chrome shows/hides. -->
+            <div class="md:hidden absolute inset-0 pointer-events-none z-0">
+              <img src="/images/returns/when-everyone-is-listening.webp" decoding="async" alt=""
+                   class="w-full h-full object-cover opacity-25" />
+            </div>
 
             <!-- Text-only now — the "when-everyone-is-listening" image moved to its own image slide (SLIDE-1.5) below. -->
 
@@ -582,7 +600,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
               <img src="/images/returns/brain-processing-speed.webp" decoding="async" alt="" class="w-full h-full object-cover object-center" />
             </div>
 
-            <div class="w-full h-full flex flex-col items-center justify-center relative z-10 pointer-events-none text-center">
+            <div class="w-full h-full flex flex-col items-center justify-center ml-32 relative z-10 pointer-events-none text-center">
                <div class="absolute inset-0 bg-gradient-glow opacity-10"></div>
                <h3 class="font-mono text-[12vw] leading-none text-foreground font-light tracking-tighter drop-shadow-md">
                  <span id="mem-counter">0</span><span class="tracking-tight text-foreground">x</span>

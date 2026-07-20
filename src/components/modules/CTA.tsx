@@ -25,7 +25,7 @@ export default function CTA({
       </h2>
 
       {/* SUBTEXT: Technical Muted */}
-      <p className="relative z-10 text-body-muted text-lg max-w-xl mb-12">
+      <p className="relative z-10 text-body-muted text-xl max-w-xl mb-12">
         {description}
       </p>
 
