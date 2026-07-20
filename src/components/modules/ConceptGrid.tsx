@@ -6,6 +6,7 @@ import {
   BitmapMail, BitmapMap, BitmapArrow, BitmapChevron, BitmapNode, BitmapTick,
   BitmapMobileApps, BitmapWebApplications, BitmapHardwareProducts,
   BitmapVirtualReality, BitmapAugmentedReality, BitmapPhysicalSpace, BitmapGenerativeAudio,
+  BitmapSonicBranding, BitmapUiUxSound, BitmapExperientialAudio,
 } from '../ui/icons';
 
 const ICON_MAP: Record<string, React.ElementType> = {
@@ -22,6 +23,11 @@ const ICON_MAP: Record<string, React.ElementType> = {
   ar: BitmapAugmentedReality,
   space: BitmapPhysicalSpace,
   generative: BitmapGenerativeAudio,
+  // ServicePillars icons — shared with the "Three pillars of sonic design"
+  // grid on /home so the landing cards read as the same three services.
+  'sonic-branding': BitmapSonicBranding,
+  'uiux-sound': BitmapUiUxSound,
+  'experiential-audio': BitmapExperientialAudio,
 };
 
 export interface Concept {
@@ -30,6 +36,9 @@ export interface Concept {
   subtitle?: string; 
   desc: string;
   icon?: string;
+  /** Optional icon rendered inside the top-right corner bracket. When unset the
+   *  bracket renders empty (its border still animates to accent on active). */
+  cornerIcon?: string;
   /** Slug into src/data/videos.ts — preferred way to attach a video. */
   videoSlug?: string;
   framerateId?: string;
@@ -216,6 +225,7 @@ function ProjectCard({
   const [isHovered, setIsHovered] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const Icon = item.icon ? ICON_MAP[item.icon] : null;
+  const CornerIcon = item.cornerIcon ? ICON_MAP[item.cornerIcon] : null;
 
   const scrambledTitle = useBinaryScramble(item.title, isScanning, 40);
   const scrambledDesc = useBinaryScramble(item.desc, isScanning, 60);
@@ -249,20 +259,19 @@ function ProjectCard({
           shouldBePlaying ? "border-accent md:scale-[1.02] z-50 shadow-2xl" : "border-muted-foreground z-10 scale-100"
         )}
       >
-        {/* --- THE CORNER ACCENT: ICON SWAP --- */}
-        <div className={cn(
-          "absolute top-1 right-1 w-8 h-8 transition-all duration-500 flex items-center justify-center",
-          "border-t-2 border-r-2",
-          shouldBePlaying ? "border-accent" : "border-muted-foreground/20"
-        )}>
-          <div className="flex items-center justify-center w-full h-full ">
-            {shouldBePlaying ? (
-              <BitmapNode className="w-6 h-6 text-accent" />
-            ) : (
-              <BitmapNode className="w-2 h-2 text-muted-foreground opacity-30" />
-            )}
+        {/* --- CORNER ICON (no bracket) --- */}
+        {CornerIcon && (
+          <div className="absolute top-3 right-3 flex items-center justify-center">
+            <CornerIcon
+              className={cn(
+                "transition-all duration-500",
+                shouldBePlaying
+                  ? "w-8 h-8 text-accent drop-shadow-[0_0_8px_hsl(var(--accent)/0.5)]"
+                  : "w-7 h-7 text-primary"
+              )}
+            />
           </div>
-        </div>
+        )}
 
         {/* Video Preview — mobile fades continuously with scroll proximity (mirrors the
             Values.tsx/ServicePillars.tsx fix: a discrete opacity swap can't keep up with

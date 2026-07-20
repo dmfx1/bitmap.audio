@@ -93,3 +93,49 @@ re-anchored to the spacer as `{ at: "6.5", color: "#121C1C" }`.
 1. Paste the two SLIDES entries back between `5.5` and `07`.
 2. Paste the markup back in place of the blank spacer (`<section data-slide="6.5" ... bg-transparent ...>`), and delete that spacer.
 3. Change the JOURNEY checkpoint `{ at: "6.5", color: "#121C1C" }` back to `{ at: "6", color: "#121C1C" }`.
+
+---
+
+# Removed: 25% Task Success ring (SLIDE-7.5) — 2026-07-16
+
+Removed the "25% Task Success Increase" progress-ring slide entirely (it was its own
+section, desktop + mobile variant). `COUNTERS.success` is left in the config but is now
+unused, and the guarded GSAP block (`if (successCounter && successSection && successRing)`)
+self-skips with the markup gone. Paste the markup back between SLIDE-7.25 and SLIDE-09 to restore.
+
+```html
+          <!-- #region SLIDE-7.5 | Task Success Ring | DESKTOP ONLY + MOBILE VARIANT -->
+          <section id="success-section" data-slide="7.5" class="hidden md:flex md:items-center w-[75vw] h-full flex-shrink-0 bg-foreground/90 md:bg-transparent relative group z-10">
+            <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
+            <div class="md:col-start-1 md:col-span-12 flex items-center justify-center">
+            <div class="relative flex items-center justify-center w-[30vw] h-[30vw]">
+              <svg class="absolute inset-0 w-full h-full -rotate-90 pointer-events-none" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="2" fill="transparent" class="text-foreground/10" />
+                <circle id="success-ring" cx="50" cy="50" r="45" stroke="currentColor" stroke-width="2" fill="transparent"
+                         stroke-dasharray="282.7" stroke-dashoffset="282.7"
+                         class="text-accent" stroke-linecap="square" />
+              </svg>
+              <div class="text-center relative z-10">
+                <h3 class="font-mono text-[12vw] leading-none text-accent font-bold tracking-tighter drop-shadow-[0_0_30px_hsl(var(--accent)/0.5)]">
+                  <span id="task-success-counter">0</span><span class="text-[4vw] ml-1 text-muted-foreground">%</span>
+                </h3>
+                <span class="font-mono text-background/60 text-base tracking-[0.2em] uppercase block">Task Success Increase</span>
+              </div>
+            </div><!-- /w-[30vw] ring wrapper -->
+            </div><!-- /col-span-12 centering div -->
+            </div><!-- /container -->
+          </section>
+
+          <!-- Mobile: 25% task success slide -->
+          <section class="md:hidden w-screen h-full flex-shrink-0 flex flex-col items-center justify-center bg-foreground/90  relative z-10">
+            <div class="relative flex items-center justify-center">
+              <h3 class="absolute font-mono text-[32vw] leading-none text-accent/20 blur-[20px] font-bold tracking-tighter mix-blend-screen">25%</h3>
+              <h3 class="absolute font-mono text-[28vw] leading-none text-accent/40 blur-[10px] font-bold tracking-tighter mix-blend-screen">25%</h3>
+              <h3 class="relative z-10 font-mono text-[24vw] leading-none text-accent font-bold tracking-tighter drop-shadow-[0_0_30px_hsl(var(--accent)/0.5)]">
+                25<span class="text-[12vw] text-background/60 ml-1">%</span>
+              </h3>
+            </div>
+            <span class="font-mono text-background/60 tracking-[0.5em] uppercase text-xs mt-8">Task Success Increase</span>
+          </section>
+          <!-- #endregion SLIDE-7.5 -->
+```

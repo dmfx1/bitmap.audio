@@ -501,6 +501,24 @@ Blend images into the journey two ways:
 
 **Optional (not built):** a `bg: "#hex"` sugar on image slides that injects a manual checkpoint so the colour sits next to the image in SLIDES rather than in the separate JOURNEY array. Only worth doing if the manual JOURNEY list gets unwieldy.
 
+### ⚠️ GOTCHA — Function-based tween values need `invalidateOnRefresh` (2026-07-20)
+
+Symptom: on a fresh reload, scrolling to the end left SLIDE-13 ("Master the Signal") parked half off-screen — then after a pause or some erratic scrolling it would suddenly snap to the correct framing.
+
+Cause: the main strip tween used a function value, `x: () => -(strip.scrollWidth - innerWidth - endOffset())`, but its ScrollTrigger was missing `invalidateOnRefresh: true`. GSAP evaluates function-based values **once at setup and caches them**. At that moment `strip.scrollWidth` is not final — sections carry `content-visibility: auto` so off-screen ones aren't laid out, and fonts/images are still settling. The strip locked to a too-short travel distance; the eventual auto-refresh (on `load` / resize) recomputed start/end and produced the visible snap.
+
+Rule: **any tween with a function-based value driven by a measurement must set `invalidateOnRefresh: true`.** Every other trigger in `returns2.astro` already had it. A `document.fonts.ready → ScrollTrigger.refresh()` also runs after init to settle metrics after font swap.
+
+Related: `CONFIG.stripEndOffset` is now a **fraction of viewport width**, not px — a px offset framed the final slide differently on every display size.
+
+### ⚠️ GOTCHA — The strip's `scrub` must be `true`, and the blur-in must match it (2026-07-20)
+
+Symptom: heavy stutter at the horizontal→vertical handover at the end of the track, and again scrolling back into the horizontal.
+
+Cause: the strip tween had `scrub: 1`. A numeric scrub makes the strip *lag* the scroll and ease toward its target. At the end of the track the page hands over to normal vertical scroll while the strip is still catching up — the two disagree, which reads as stutter, and reversing direction restarts the catch-up. `scrub: true` locks the strip 1:1 to scroll position, so the handover is seamless both ways. (`scrub: 1` had originally been chosen to smooth discrete mouse-wheel steps — the wrong layer to fix that at. Smooth the INPUT via `ScrollTrigger.normalizeScroll` if wheel steppiness needs solving; do not reintroduce lag on the strip.)
+
+**Coupling:** the Belief/Subconscious blur-in tween must use the SAME scrub as the strip. It's keyed to the slide reaching viewport centre, so if the strip is 1:1 and the blur lags, the text resolves *after* it has passed centre. Both are now `scrub: true`. Change them together, never one alone.
+
 ### ⚠️ GOTCHA — Image "free roam" & `content-visibility` (2026-07-15)
 
 Images can be shifted off their own slide (`imgX`, `imgWidth > 100%`) to overlap/roam over neighbouring slides, with the edge `fade` dissolving them onto the transparent slides + journey behind. This was BROKEN for a long time (shifted images hard-cut at their slide's left edge) and it wasted a whole session chasing z-index / masks / blend — none of which were the cause.

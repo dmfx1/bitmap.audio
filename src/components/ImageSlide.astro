@@ -5,40 +5,41 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const FADES: Record<string, string> = {
-  flow:        'linear-gradient(to right, transparent 0%, black 22%, black 78%, transparent 100%)',
-  'flow-long': 'linear-gradient(to right, transparent 0%, black 38%, black 62%, transparent 100%)',
-  'flow-xlong':'linear-gradient(to right, transparent 0%, black 46%, black 54%, transparent 100%)',
-  'in-left':   'linear-gradient(to right, transparent 0%, black 45%)',
-  'in-right':  'linear-gradient(to left, transparent 0%, black 45%)',
-  radial:      'radial-gradient(ellipse at center, black 30%, transparent 78%)',
+// Presets are pure sugar for { left, right } fractions — they resolve through the SAME eased
+// ("buttery") builder as explicit pairs, so every fade gets the soft falloff. `radial` is the
+// one exception: it can't be expressed as left/right, so it stays a literal mask.
+const RADIAL_MASK = 'radial-gradient(ellipse at center, black 30%, transparent 78%)';
+const FADES: Record<string, { left: number; right: number }> = {
+  flow:         { left: 0.22, right: 0.22 },
+  'flow-long':  { left: 0.38, right: 0.38 },
+  'flow-xlong': { left: 0.46, right: 0.46 },
+  'in-left':    { left: 0.45, right: 0 },
+  'in-right':   { left: 0, right: 0.45 },
 };
 
-// Resolve a fade spec to a CSS mask gradient. Accepts either a preset name (sugar) or
-// an explicit { left, right } pair as fractions (0–0.5) of the slide width to fade in
-// from each edge. e.g. { left: 0.22, right: 0.22 } === the 'flow' preset.
+// Resolve a fade spec (preset name OR { left, right } fractions of the slide width) to a CSS
+// mask gradient with an eased falloff.
 function fadeToMask(f: string | { left: number; right: number } | undefined): string {
-  if (f && typeof f === 'object') {
-    const p = (n: number) => +n.toFixed(1);
-    const L = (f.left ?? 0) * 100;          // left fade zone: 0% → L%
-    const R = 100 - (f.right ?? 0) * 100;   // right fade zone: R% → 100%
-    // Guard: if left + right > 1 the fade zones overlap. Instead of out-of-order gradient
-    // stops (which render as a hard seam), make a single smooth peak at the crossover.
-    if (L >= R) {
-      const m = (L + R) / 2;
-      return `linear-gradient(to right, transparent 0%, rgba(0,0,0,0.15) ${p(m * 0.5)}%, rgba(0,0,0,0.85) ${p(m)}%, rgba(0,0,0,0.15) ${p(m + (100 - m) * 0.5)}%, transparent 100%)`;
-    }
-    // Eased "buttery" falloff — holds fairly opaque, then tails off gently (kept high enough
-    // that long fades don't wash the image out too much).
-    const left = L > 0
-      ? `transparent 0%, rgba(0,0,0,0.3) ${p(L * 0.35)}%, rgba(0,0,0,0.75) ${p(L * 0.7)}%, black ${p(L)}%`
-      : `black 0%`;
-    const right = R < 100
-      ? `black ${p(R)}%, rgba(0,0,0,0.75) ${p(R + (100 - R) * 0.35)}%, rgba(0,0,0,0.3) ${p(R + (100 - R) * 0.7)}%, transparent 100%`
-      : `black 100%`;
-    return `linear-gradient(to right, ${left}, ${right})`;
+  if (f === 'radial') return RADIAL_MASK;
+  const pair = (typeof f === 'string' ? FADES[f] : f) ?? FADES.flow;
+  const p = (n: number) => +n.toFixed(1);
+  const L = (pair.left ?? 0) * 100;          // left fade zone: 0% → L%
+  const R = 100 - (pair.right ?? 0) * 100;   // right fade zone: R% → 100%
+  // Guard: if left + right > 1 the fade zones overlap. Instead of out-of-order gradient
+  // stops (which render as a hard seam), make a single smooth peak at the crossover.
+  if (L >= R) {
+    const m = (L + R) / 2;
+    return `linear-gradient(to right, transparent 0%, rgba(0,0,0,0.15) ${p(m * 0.5)}%, rgba(0,0,0,0.85) ${p(m)}%, rgba(0,0,0,0.15) ${p(m + (100 - m) * 0.5)}%, transparent 100%)`;
   }
-  return (typeof f === 'string' && FADES[f]) || FADES.flow;
+  // Eased "buttery" falloff — holds fairly opaque, then tails off gently (kept high enough
+  // that long fades don't wash the image out too much).
+  const left = L > 0
+    ? `transparent 0%, rgba(0,0,0,0.3) ${p(L * 0.35)}%, rgba(0,0,0,0.75) ${p(L * 0.7)}%, black ${p(L)}%`
+    : `black 0%`;
+  const right = R < 100
+    ? `black ${p(R)}%, rgba(0,0,0,0.75) ${p(R + (100 - R) * 0.35)}%, rgba(0,0,0,0.3) ${p(R + (100 - R) * 0.7)}%, transparent 100%`
+    : `black 100%`;
+  return `linear-gradient(to right, ${left}, ${right})`;
 }
 
 interface Props {
@@ -53,7 +54,7 @@ interface Props {
   z?: number;
   opacity?: number;
   blend?: boolean;
-  fade?: keyof typeof FADES | { left: number; right: number };
+  fade?: keyof typeof FADES | 'radial' | { left: number; right: number };
   bare?: boolean;
   label?: string;
   alt?: string;

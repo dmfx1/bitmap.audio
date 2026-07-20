@@ -63,19 +63,26 @@ type Slide = {
   z?: number; opacity?: number; blend?: boolean; fade?: string | { left: number; right: number }; effect?: string;
   bare?: boolean; customMask?: string; ramp?: { start: number; end: number };
   vivid?: boolean;
+// type:"behind" only — symmetric dissolve as the slide crosses centre.
+  //   window — how far out the ramp starts, in viewport widths, EACH side of centre
+  //   hold   — fraction of that span held fully sharp in the middle (0.6 = 60%). Keep this
+  //            high: too low and the image is blurry for the whole time it's on screen.
+  //   blur   — px blur it fades up from and back into
+  // Requires data-behind-layer on the image wrapper in the markup.
+  reveal?: { window?: number; hold?: number; blur?: number };
 };
 const SLIDES: Slide[] = [
   { id: "00",   type: "text",  label: "Status",               width: "80vw", content: { col: [2, 9] }  },
-  { id: "0.5",  type: "image", img: "your-brand-is-muted", vivid: true, fade: { left: 0.7, right: 0.7 } },
+  { id: "0.5",  type: "image", img: "your-brand-is-muted", vivid: true, fade: { left: 0.35, right: 0.65 } },
   { id: "01",   type: "text",  label: "Context",              width: "75vw", content: { col: [1, 7] }  },
-  { id: "1.5",  type: "image", img: "when-everyone-is-listening", vivid: true, fade: 'flow-xlong', },
+  { id: "1.5",  type: "image", img: "when-everyone-is-listening", vivid: true, fade: { left: 0.5, right: 0.5 }, },
   { id: "02",   type: "text",  label: "Architecture",         width: "110vw", content: { col: [2, 6] }, anim: {
       nodes: { start: -0.85, end: 0.5, scrub: 0.5 },
       paths: { start: -0.75, end: 0.3, scrub: 0.5 },
   }},
-  { id: "2.5",  type: "image", img: "sound-as-a-data-map", width: "100vw", vivid: true, imgX: "-40vw", blend: false, 
+  { id: "2.5",  type: "image", img: "sound-as-a-data-map", width: "150vw", imgWidth: "150vw", vivid: true, imgX: "-40vw", blend: false, 
     ramp: { start: -0.8, end: 0 },
-    fade: { left: 0.5, right: 0.5 } 
+    fade: { left: 0.5, right: 0.3 } 
   },  
   { id: "03", type: "text", label: "Neurology.Processing", width: "120vw", content: { col: [3, 5] }},
   { id: "3.1",  type: "text",  width: "100vw" },
@@ -87,23 +94,24 @@ const SLIDES: Slide[] = [
       vibration:   { start: -0.5,  end:  1.0, scrub: 0.5 },
   }},
   { id: "4.25", type: "image", img: "visuals-fade-sound-echoes", width:"100vw", imgWidth:"130vw", vivid: true, z: 5, imgX: "-30vw",  fade: { left: 0.3, right: 0.4 }, ramp: { start: -1.2, end: -0.5 }},
-  { id: "4.5", type: "behind", img: "brain-processing-speed", opacity: 25 },
+  { id: "4.5", type: "behind", img: "brain-processing-speed", opacity: 100, z: 50, vivid: true,
+      reveal: { window: 1.5, hold: 0.65, blur: 25 } },
   { id: "05",   type: "text",  label: "Metrics",              width: "150vw", content: { col: [3, 9] }, anim: {
       pressureLine: { start: -0.4, end: -0.1, scrub: 0.5 },
       statCards:    { start: -0.5, end: -0.0, scrub: 0, cardSpacing: 300 },
   }},
   { id: "5.5",  type: "image", img: "recall-under-pressure", vivid: true, imgX: "-75vw", imgWidth: "125vw", z: 5, ramp: { start: -1.7, end: -1.2 }, fade: { left: 0.2, right: 0.5 } },
   { id: "07",   type: "text",  label: "Credibility",          width: "75vw", content: { col: [4, 8] }  },
-  { id: "7.25", type: "image", img: "subconscious-trust-2", vivid: true, imgWidth: "100vw", imgX: "-20vw", z: 5, fade: { left: 0.5, right: 0.3 } },
+  { id: "7.25", type: "image", img: "subconscious-trust-2", vivid: true, imgWidth: "100vw", imgX: "-20vw", z: 5, fade: { left: 0.3, right: 0.5 } },
   { id: "08",   type: "text",  label: "Perception",           width: "100vw", content: { col: [5, 7] } },
-  { id: "9.25", type: "image", img: "perceived-as-innovators", vivid: true, imgX: "-35vw", imgWidth: "120vw", z: 5, fade: { left: 0.3, right: 0.3 }, ramp: { start: -0.7, end: -0.2 } },
+  { id: "9.25", type: "image", img: "perceived-as-innovators", vivid: true, imgX: "-35vw", imgWidth: "120vw", z: 5, fade: { left: 0.3, right: 0.5 }, ramp: { start: -0.7, end: -0.2 } },
   { id: "09",   type: "text",  label: "Culture",              width: "125vw", content: { col: [4, 6] } },
   { id: "10.5", type: "image", img: "seamless-cultural-resonance", vivid: true, imgX: "-80vw", imgWidth: "80vw", z: 5, fade: { left: 0.5, right: 0.3 }, ramp: { start: -0.5, end: -0 } },
   { id: "10",   type: "text",  label: "Asset.Ownership",      width: "125vw", content: { col: [4, 8] } },
-  { id: "10.75", type: "image", img: "sea-of-sameness-2", vivid: true, imgX: "-70vw", imgWidth: "120vw", z: 5, fade: { left: 0.5, right: 0.3 }, ramp: { start: -1, end: -0 } },
+  { id: "10.75", type: "image", img: "sea-of-sameness-2", vivid: true, imgX: "-70vw", imgWidth: "120vw", z: 5, fade: { left: 0.5, right: 0.5 }, ramp: { start: -1, end: -0 } },
   { id: "11",   type: "text",  label: "Belief",               width: "75vw", content: { col: [3, 8] }  },
   { id: "12",   type: "text",  label: "Execution",            width: "100vw", content: { col: [1, 12] } },
-  { id: "13",   type: "behind", img: "master-the-signal", width: "52vw", opacity: 55 },
+  { id: "13",   type: "behind", img: "master-the-signal", width: "75vw", opacity: 55 },
 ];
 
 // Text slides only, in DOM order — feeds the sidebar map, the define:vars bridge, and the
@@ -160,9 +168,12 @@ const HIGHLIGHTS = {
 
 // Global config — tune values that affect the overall scroll experience.
 const CONFIG = {
-  // How many px short of full horizontal travel the strip parks.
-  // Increase in increments of 100 until SLIDE-13 heading is centred when vertical scroll takes over.
-  stripEndOffset: 0,
+  // How short of full horizontal travel the strip parks, as a FRACTION OF VIEWPORT WIDTH
+  // (0.2 = a fifth of the screen). Viewport-relative, so it lands the same on a 1400px laptop
+  // and a 2560px monitor — do NOT put a px value here.
+  // Increase in steps of 0.05 until the SLIDE-13 heading is framed as you want it when the
+  // vertical scroll takes over.
+  stripEndOffset: 0.3,
 
   // AD6 vividness ramp: slides with `vivid: true` desaturate/dim off-centre and hit full
   // colour as their anchor reaches viewport centre, then ease back down as they exit.
@@ -182,17 +193,18 @@ const CONFIG = {
 const JOURNEY = [
   { at: "0",  color: "#121C1C" }, // bg-background (Status) 121C1C
   { at: "2",  color: "#ABC4CE" }, // bg-primary/80 (Architecture) ABC4CE
-  { at: "3",  color: "#11181A" }, // bg-card/30 (Neurology.Processing) 11181A
+  { at: "3",  color: "#11181A", offset: -0.7 }, // bg-card/30 (Neurology.Processing) 11181A
   { at: "4",  color: "#1E231C" }, // bg-accent/5 (Neurology.Memory) 1E231C
+  { at: "4.5", color: "#CDE0DD", offset: 2 }, // Muted abyss teal behind the 20x brain graphic
   { at: "5",  color: "#111A1B" }, // bg-card/20 (Metrics) 111A1B
   { at: "5.5", color: "#1E231C" }, // AD5 TEST — recall-under-pressure right-edge teal (brightened). Anchored to image via data-slide. 1E231C
   { at: "6.5", color: "#121C1C" }, // anchored to the blank spacer (ROI removed) — long dark→white ramp into Credibility
-  { at: "7",  color: "#DCDDDD" }, // bg-foreground/90 (Credibility) DCDDDD
+  { at: "7",  color: "#DCDDDD", offset: -0.5 }, // bg-foreground/90 (Credibility) DCDDDD
   { at: "9",  color: "#384648" }, // bg-primary/20 (Perception) 384648
   { at: "10", color: "#121C1C" }, // bg-background (Culture) 121C1C
   { at: "11", color: "#1C2727" }, // bg-primary/5 (Asset.Ownership) 1C2727
-  { at: "12", color: "#FFA61A" }, // bg-accent (Belief) FFA61A
-  { at: "13", color: "#121C1C" }, // bg-background (Execution) 121C1C
+  { at: "12", color: "#FFA61A", offset: 0.5 }, // bg-accent (Belief) FFA61A
+  { at: "13", color: "#121C1C", offset: -0.7 }, // bg-background (Execution) 121C1C
 ];
 
 // Merge defaults + expand image paths → final <ImageSlide> props. (Don't edit below.)
@@ -205,6 +217,17 @@ const imgSlide: Record<string, any> = Object.fromEntries(
     return [id, p];
   })
 );
+// SLIDE-4.5 brain mask. `closest-side` is load-bearing — WITHOUT it the ellipse defaults to
+// `farthest-corner`, whose horizontal radius (~106vw in a 150vw box) extends well past the div's
+// own edge at 75vw. The gradient then never reaches transparent inside the box: it's still ~14%
+// opaque at the left/right edge, which paints as a hard vertical line. `closest-side` pins the
+// radii to the box half-width/half-height, so 100% IS the edge and the fade completes before it.
+// Many stops with a long low-alpha tail = the buttery falloff (a 2-stop ramp reads as an edge).
+const BRAIN_MASK =
+  "radial-gradient(ellipse closest-side at center, " +
+  "black 0%, black 24%, rgba(0,0,0,0.85) 40%, rgba(0,0,0,0.55) 55%, " +
+  "rgba(0,0,0,0.28) 68%, rgba(0,0,0,0.12) 80%, rgba(0,0,0,0.04) 90%, transparent 97%)";
+
 // Behind-text background images, keyed by the DOM region id they sit behind.
 const BACKGROUNDS: Record<string, any> = Object.fromEntries(
   SLIDES.filter((s) => s.type === "behind").map((s) => [s.id, { width: (s as any).width, opacity: (s as any).opacity }])
@@ -542,10 +565,20 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                "20x" stat interstitial | DESKTOP ONLY | no sidebar
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-4.5 | Memory Retention Stat | DESKTOP ONLY -->
-          <section data-slide="4.5" class="hidden md:flex bg-foreground/80 md:bg-transparent h-full flex-shrink-0 relative group z-10" style="width:300vw;">
+          <!-- content-visibility:visible overrides the global `section { content-visibility: auto }`.
+               That rule implies `contain: paint`, which clips this section AND isolates it as a
+               compositing group — so the mix-blend-screen brain below blends against a clipped
+               backdrop and cuts off at a hard vertical line instead of dissolving into the
+               journey colour. Same root cause as the image free-roam bug (see CLAUDE.md). -->
+          <section data-slide="4.5" class="hidden md:flex bg-foreground/80 md:bg-transparent h-full flex-shrink-0 relative group z-10" style="width:300vw;content-visibility:visible;">
             
-            <div class="mobile:hidden absolute inset-y-0 left-1/2 -translate-x-1/2 z-0 pointer-events-none"
-                 style={`width:150vw;opacity:${BACKGROUNDS["4.5"].opacity / 100};-webkit-mask-image:radial-gradient(ellipse at center, black 35%, transparent 78%);mask-image:radial-gradient(ellipse at center, black 35%, transparent 78%);`}>
+<!-- Same blend recipe as the SLIDE-13 behind image: mix-blend-screen so the image's
+                 dark areas drop out and the journey colour shows through (instead of an opaque
+                 rectangle sitting on top of it), plus an EASED multi-stop mask. The old mask was
+                 a 2-stop radial (black 35% → transparent 78%) — a straight linear falloff, which
+                 reads as an edge. The rgba intermediates below round it off. -->
+            <div data-behind-layer class="mobile:hidden absolute inset-y-0 left-1/2 -translate-x-1/2 z-0 mix-blend-screen pointer-events-none"
+                 style={`width:150vw;opacity:${BACKGROUNDS["4.5"].opacity / 100};-webkit-mask-image:${BRAIN_MASK};mask-image:${BRAIN_MASK};`}>
               <img src="/images/returns/brain-processing-speed.webp" decoding="async" alt="" class="w-full h-full object-cover object-center" />
             </div>
 
@@ -673,7 +706,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                   </span>
                   <span class="md:text-8xl leading-none font-bold text-background/80 mt-2">Trust.</span>
                 </h2>
-                <p class="font-sans text-xl mobile:text-xl text-muted-foreground leading-relaxed mb-8 mobile:mb-4">
+                <p class="font-sans text-2xl mobile:text-xl text-background/80 leading-relaxed mb-8 mobile:mb-4">
                   Sound implies physical reality, making digital interactions feel safer. In high-stakes systems, auditory UX cues increase task success rates by 25%.
                 </p>
                 <div class="pl-6 mt-4 bg-background/80 backdrop-blur-sm p-4 mobile:hidden">
@@ -692,49 +725,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
           <ImageSlide {...imgSlide["7.25"]} />
           <!-- #endregion SLIDE-7.25 -->
 
-          <!-- ═══════════════════════════════════════════════════════════
-               SLIDE 7.5 | Task Success Ring 
-               25% SVG progress ring animation | data-sidebar="8"
-               DESKTOP ONLY + mobile variant below
-               ⚠ GSAP anchors to id="success-section" — do not remove that id
-               ═══════════════════════════════════════════════════════════ -->
-          <!-- #region SLIDE-7.5 | Task Success Ring | DESKTOP ONLY + MOBILE VARIANT -->
-          <section id="success-section" data-slide="7.5" class="hidden md:flex md:items-center w-[75vw] h-full flex-shrink-0 bg-foreground/90 md:bg-transparent relative group z-10">
-            <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
-            <div class="md:col-start-1 md:col-span-12 flex items-center justify-center">
-            <div class="relative flex items-center justify-center w-[30vw] h-[30vw]">
-              <svg class="absolute inset-0 w-full h-full -rotate-90 pointer-events-none" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="2" fill="transparent" class="text-foreground/10" />
-                <circle id="success-ring" cx="50" cy="50" r="45" stroke="currentColor" stroke-width="2" fill="transparent"
-                         stroke-dasharray="282.7" stroke-dashoffset="282.7"
-                         class="text-accent" stroke-linecap="square" />
-              </svg>
-              <div class="text-center relative z-10">
-                <h3 class="font-mono text-[12vw] leading-none text-accent font-bold tracking-tighter drop-shadow-[0_0_30px_hsl(var(--accent)/0.5)]">
-                  <span id="task-success-counter">0</span><span class="text-[4vw] ml-1 text-muted-foreground">%</span>
-                </h3>
-                <span class="font-mono text-background/60 text-base tracking-[0.2em] uppercase block">Task Success Increase</span>
-              </div>
-            </div><!-- /w-[30vw] ring wrapper -->
-            </div><!-- /col-span-12 centering div -->
-            </div><!-- /container -->
-          </section>
-
-          <!-- Mobile: 25% task success slide -->
-          <section class="md:hidden w-screen h-full flex-shrink-0 flex flex-col items-center justify-center bg-foreground/90  relative z-10">
-            <div class="relative flex items-center justify-center">
-              <h3 class="absolute font-mono text-[32vw] leading-none text-accent/20 blur-[20px] font-bold tracking-tighter mix-blend-screen">25%</h3>
-              <h3 class="absolute font-mono text-[28vw] leading-none text-accent/40 blur-[10px] font-bold tracking-tighter mix-blend-screen">25%</h3>
-              <h3 class="relative z-10 font-mono text-[24vw] leading-none text-accent font-bold tracking-tighter drop-shadow-[0_0_30px_hsl(var(--accent)/0.5)]">
-                25<span class="text-[12vw] text-background/60 ml-1">%</span>
-              </h3>
-            </div>
-            <span class="font-mono text-background/60 tracking-[0.5em] uppercase text-xs mt-8">Task Success Increase</span>
-          </section>
-
-          <!-- #endregion SLIDE-7.5 -->
-
-          <!-- ═══════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════
                SLIDE 09 | Perception 
                "Perceived as Innovators" | data-sidebar="9"
                ═══════════════════════════════════════════════════════════ -->
@@ -750,7 +741,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                 <span id="" class="text-accent inline-block origin-right">Innovators</span>
               </h2>
               
-              <p class="font-sans text-2xl mobile:text-xl text-muted-foreground leading-relaxed">
+              <p class="font-sans text-2xl mobile:text-xl p-4 bg-background/20 text-muted-foreground leading-relaxed">
                 Consumers inherently view brands that utilise strategic sound as more forward-thinking. Data shows that 60% of consumers believe brands that use sound in their communications are more innovative.
               </p>
             </div>
@@ -906,12 +897,12 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                "Master the Signal." + CTA button | data-sidebar="13"
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-13 | Execution -->
-          <section data-sidebar="13" data-slide="12" class="w-screen h-full flex-shrink-0 flex flex-col items-end justify-center text-center mobile:pl-0 relative group bg-background md:bg-transparent z-10 mobile:justify-start">
+          <section data-sidebar="13" data-slide="12" class="w-screen h-full flex-shrink-0 flex flex-col items-end justify-center text-center mobile:pl-0 relative group bg-background md:bg-transparent z-10 mobile:justify-start" style="content-visibility:visible;">
              <!-- Behind-text background image (master-the-signal) — sits at z-0 under the z-10 text.
                   This is the "image behind text" pattern (vs a standalone <ImageSlide>): flow
                   edge-mask + mix-blend-screen, positioned inside the text slide. -->
-             <div class="mobile:hidden absolute inset-y-0 left-0 z-0 mix-blend-screen pointer-events-none"
-                  style={`width:${BACKGROUNDS["13"].width};opacity:${BACKGROUNDS["13"].opacity / 100};-webkit-mask-image:linear-gradient(to right, transparent 0%, black 22%, black 78%, transparent 100%);mask-image:linear-gradient(to right, transparent 0%, black 22%, black 78%, transparent 100%);`}>
+             <div class="mobile:hidden absolute inset-y-0 z-0 mix-blend-screen pointer-events-none"
+                  style={`left:-25vw;width:${BACKGROUNDS["13"].width};opacity:${BACKGROUNDS["13"].opacity / 100};-webkit-mask-image:linear-gradient(to right, transparent 0%, rgba(0,0,0,0.3) 14%, rgba(0,0,0,0.75) 28%, black 40%, black 80%, rgba(0,0,0,0.75) 87%, rgba(0,0,0,0.3) 94%, transparent 100%);mask-image:linear-gradient(to right, transparent 0%, rgba(0,0,0,0.3) 14%, rgba(0,0,0,0.75) 28%, black 40%, black 80%, rgba(0,0,0,0.75) 87%, rgba(0,0,0,0.3) 94%, transparent 100%);`}>
                <img src="/images/returns/master-the-signal.webp" decoding="async" alt="" class="w-full h-full object-cover object-center" />
              </div>
              <!-- Bottom fade — dissolves the image into the (dark) background before its hard bottom
@@ -1089,10 +1080,14 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
       return;
     }
 
+    // stripEndOffset is a FRACTION of viewport width (not px), so the strip parks at the
+    // same visual point on a 1400px laptop and a 2560px monitor. Evaluated live, never cached.
+    const endOffset = () => (config?.stripEndOffset ?? 0) * window.innerWidth;
+
     // Converts a horizontal strip position to an absolute vertical scroll position.
     // Accounts for stripEndOffset so the strip parks short of full travel when configured.
     const getScrollPos = (horizontalPos: number) => {
-      const totalHorizontal = strip.scrollWidth - window.innerWidth - (config?.stripEndOffset ?? 0);
+      const totalHorizontal = strip.scrollWidth - window.innerWidth - endOffset();
       const totalVertical = track.offsetHeight - window.innerHeight;
       return (horizontalPos / totalHorizontal) * totalVertical;
     };
@@ -1112,22 +1107,39 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
     const t06r = anim("06", "roiGrow");
 
     gsap.to(strip, {
-      x: () => -(strip.scrollWidth - window.innerWidth - (config?.stripEndOffset ?? 0)),
+      x: () => -(strip.scrollWidth - window.innerWidth - endOffset()),
       ease: "none",
       scrollTrigger: {
         trigger: track,
         start: "top top",
         end: "bottom bottom",
-        scrub: 1, // smooths discrete mouse-wheel steps; 0.5 = snappier, higher = smoother wheel
+        // MUST be `true`, not a number. A numeric scrub makes the strip lag the scroll, so at the
+        // horizontal→vertical handover the strip is still catching up after the page has moved on —
+        // that disagreement is the stutter, and reversing direction restarts it. `true` locks the
+        // strip 1:1 to scroll position, so the handover is seamless in both directions.
+        // Tradeoff: no input smoothing, so a notched mouse wheel reads as discrete steps.
+        // If that needs solving, smooth the INPUT (ScrollTrigger.normalizeScroll), not the strip.
+        scrub: true,
+        // CRITICAL: without this, the function-based `x` above is evaluated ONCE at setup and
+        // cached. strip.scrollWidth isn't final at that moment (content-visibility:auto sections
+        // aren't laid out, images/fonts still loading), so the strip parks short of full travel
+        // and the last slide sits half off-screen until some later refresh snaps it into place.
+        invalidateOnRefresh: true,
       }
     });
+
+    // Re-measure once webfonts have settled. Font swap changes text metrics, which changes
+    // strip.scrollWidth; this runs async (after init completes) so every trigger already exists.
+    if (document.fonts?.ready) {
+      document.fonts.ready.then(() => ScrollTrigger.refresh());
+    }
 
     // Measure where each sidebar section actually centers horizontally,
     // then resize asides and set indicator triggers to match those real positions.
     const sidebarEl = document.getElementById('sidebar-track') as HTMLElement;
     const sidebarAsides = sidebarEl ? (Array.from(sidebarEl.querySelectorAll('aside')) as HTMLElement[]) : [];
 
-    const totalH = strip.scrollWidth - window.innerWidth - (config?.stripEndOffset ?? 0);
+    const totalH = strip.scrollWidth - window.innerWidth - endOffset();
     const totalV = track.offsetHeight - window.innerHeight;
 
     // Match each sidebar aside to ITS OWN slide by data-slide (robust to gaps / added slides),
@@ -1272,6 +1284,9 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
           {
             backgroundColor: b.color,
             ease: "none",
+            // Without this, every fromTo paints its `from` colour at creation time and the LAST
+            // segment (amber) wins until ScrollTrigger recomputes — causing an amber flash on refresh.
+            immediateRender: false,
             scrollTrigger: {
               trigger: track,
               // `offset` (vw) shifts a checkpoint's trigger point: negative = colour arrives
@@ -1293,7 +1308,10 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
     const vividFrom = `saturate(${config.vividFrom.saturate}) brightness(${config.vividFrom.brightness})`;
     const vividTo   = `saturate(${config.vividTo.saturate}) brightness(${config.vividTo.brightness})`;
     const vividWin  = () => window.innerWidth * (config?.vividWindow ?? 0.9);
-    const slidesCfg = (window as any).__SLIDES__ as Array<{ id: string; vivid?: boolean; imgX?: string }>;
+    const slidesCfg = (window as any).__SLIDES__ as Array<{
+id: string; type?: string; vivid?: boolean; imgX?: string; opacity?: number;
+      reveal?: { window?: number; hold?: number; blur?: number };
+}>;
     slidesCfg?.filter((sl) => sl.vivid).forEach((sl) => {
       const sec = strip.querySelector(`[data-slide="${sl.id}"]`) as HTMLElement | null;
       const target = sec?.querySelector("img") as HTMLElement | null;
@@ -1312,10 +1330,47 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
       });
       tl.fromTo(target, { filter: vividFrom }, { filter: vividTo, ease: "none" })
         .to(target, { filter: vividFrom, ease: "none" });
+});
+
+    // ── BEHIND IMAGES — symmetric dissolve ───────────────────────────────────
+    // type:"behind" images live inside a text slide, so they can't use .img-slide-fade
+    // (that ramps one-way off the section's LEFT edge — wrong for an image centred in a
+    // 300vw slide). This ramps opacity + blur UP as the slide approaches centre and back
+    // DOWN as it leaves, so the image emerges from the journey colour and dissolves back
+    // into it. Tuned per slide via `reveal: { window, blur }`.
+    slidesCfg
+      ?.filter((sl) => sl.type === "behind" && sl.reveal)
+      .forEach((sl) => {
+        const sec = strip.querySelector(`[data-slide="${sl.id}"]`) as HTMLElement | null;
+        const layer = sec?.querySelector("[data-behind-layer]") as HTMLElement | null;
+        if (!sec || !layer) return;
+        const win = () => window.innerWidth * (sl.reveal?.window ?? 1.2);
+        const soft = { opacity: 0, filter: `blur(${sl.reveal?.blur ?? 30}px)` };
+        const full = { opacity: (sl.opacity ?? 100) / 100, filter: "blur(0px)" };
+        // `hold` = the fraction of the span the image sits FULLY sharp. Without it the
+        // timeline is a triangle — sharp for one instant at dead centre and blurry the whole
+        // time it's actually on screen. The remainder is split evenly between the two edges.
+        const hold = sl.reveal?.hold ?? 0.6;
+        const edge = Math.max(0, (1 - hold) / 2);
+        layer.style.willChange = "opacity, filter";
+        gsap.set(layer, soft);
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: track,
+            start: () => `${getScrollPos(anchorCenter(sec) - win())}px top`,
+            end:   () => `${getScrollPos(anchorCenter(sec) + win())}px top`,
+            scrub: 0.5,
+            invalidateOnRefresh: true,
+          },
+        });
+        tl.fromTo(layer, soft, { ...full, ease: "none", duration: edge })
+          .to(layer, { ...full, ease: "none", duration: hold })
+          .to(layer, { ...soft, ease: "none", duration: edge });
     });
 
-    // ── Blur-in text ("coming from the subconscious") — tagged [data-blur-in] blocks blur +
-    // fade, sharpest and fullest at viewport centre, hazy + faint as they approach and leave.
+    // ── Blur-in text ("coming from the subconscious") — tagged [data-blur-in] blocks start
+    // hazy + faint and resolve to full focus as they reach viewport centre. Blur-IN only:
+    // once focused they stay focused (the trigger self-kills so reverse scroll can't rewind it).
     document.querySelectorAll('[data-blur-in]').forEach((node) => {
       const target = node as HTMLElement;
       const sec = target.closest('[data-slide]') as HTMLElement | null;
@@ -1328,13 +1383,19 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
       // Blur/fade in only — reaches full focus as it hits centre, then stays sharp (no re-blur).
       gsap.fromTo(target, dull,
         {
-          ...sharp, ease: 'power2.out',
+          // ease MUST be "none" on a scrubbed tween — scroll position is the playhead, so any
+          // easing curve front-loads the change and reads as a jolt. Linear = 1:1 with scroll.
+          ...sharp, ease: 'none',
           scrollTrigger: {
             trigger: track,
             start: () => `${getScrollPos(anchorCenter(sec) - win())}px top`,
             end:   () => `${getScrollPos(anchorCenter(sec))}px top`,
-            scrub: 0.5,
+            scrub: true, // MUST match the strip's scrub, or the blur resolves after the text
+                         // has already passed centre. Change both together, never one alone.
             invalidateOnRefresh: true,
+            // Lock it once focused — kill the trigger on the way out so scrolling back
+            // can't rewind the scrub and re-blur the text.
+            onLeave: (self) => { self.kill(); gsap.set(target, sharp); },
           },
         }
       );

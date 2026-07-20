@@ -69,6 +69,24 @@ fade: { left: 0.45, right: 0.45 }   // custom: fraction (0–0.5) of the slide t
 
 Presets: `flow` (0.22), `flow-long` (0.38), `flow-xlong` (0.46), `in-left`, `in-right`, `radial`.
 
+### `reveal` — for `type: "behind"` images only
+
+Behind images sit inside a text slide, so they use `reveal` instead of `fade`. It dissolves them out of the background colour as the slide crosses centre, and back into it on the way out:
+
+```ts
+reveal: { window: 1.5, hold: 0.65, blur: 25 }
+```
+
+| Field | What it does |
+|---|---|
+| `window` | How far out the dissolve starts, in screen-widths each side of centre |
+| `hold` | Fraction of that span the image sits **fully sharp** (0.65 = 65%) |
+| `blur` | How blurry it is at its softest |
+
+**`hold` is the one that matters.** Set it too low and the image is blurry the entire time it's on screen — it only snaps into focus for a split second at dead centre. Keep it at `0.6`+ and just widen `window` if you want a longer, lazier dissolve.
+
+Needs `data-behind-layer` on the image wrapper in the markup.
+
 ---
 
 ## 3. `JOURNEY` — the background colour flow
@@ -96,13 +114,15 @@ You don't need an image on every slide — the colour drift alone looks good.
 ## 4. `CONFIG` — global settings
 
 ```ts
-stripEndOffset: 0,                                // fine-tune where the strip stops
+stripEndOffset: 0.22,                             // where the strip stops, as a FRACTION of screen width
 vividFrom: { saturate: 0.4, brightness: 0.85 },   // how dull an off-centre "vivid" image looks
 vividTo:   { saturate: 1,   brightness: 1 },       // full colour at centre
 vividWindow: 0.9,                                  // how far from centre the ramp runs
 ```
 
 Lower `vividFrom` numbers = more dramatic "come alive" effect. If scrolling feels heavy, raise them toward 1 or reduce how many slides have `vivid: true`.
+
+**`stripEndOffset` is a fraction, not pixels.** `0.22` means the strip parks 22% of a screen-width short of full travel, so the final slide is framed identically on every display size. Tune in steps of `0.05`. Never put a px value here — that's device-dependent and was the old behaviour.
 
 ---
 

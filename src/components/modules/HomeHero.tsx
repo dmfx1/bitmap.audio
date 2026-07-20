@@ -12,6 +12,7 @@ const projects: Concept[] = [
   {
     id: 1,
     title: 'SONIC BRANDING',
+    cornerIcon: 'sonic-branding',
     desc: 'Sonic branding for digital infrastructure.',
     videoSlug: 'sonic-branding',
     previewVideo: '/video/regency_silent.mp4'
@@ -19,6 +20,7 @@ const projects: Concept[] = [
   {
     id: 2,
     title: 'USER EXPERIENCE',
+    cornerIcon: 'uiux-sound',
     desc: 'UI/UX sound for digital interfaces + apps.',
     videoSlug: 'user-experience',
     previewVideo: '/video/seon_silent.mp4'
@@ -26,6 +28,7 @@ const projects: Concept[] = [
   {
     id: 3,
     title: 'IMMERSIVE AUDIO',
+    cornerIcon: 'experiential-audio',
     desc: 'Spatial audio for immersive environments.',
     videoSlug: 'immersive-audio',
     previewVideo: '/video/matchroom_silent.mp4'
