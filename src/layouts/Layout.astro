@@ -6,12 +6,16 @@ import { SoundProvider } from '../context/SoundContext.tsx';
 import Navigation from '../components/Navigation.tsx';
 import Footer from '../components/Footer.astro';
 import GridBackground from '../components/GridBackground.astro';
+import { resolvePageName } from '../config/brandMotion';
 
 const { title, description = "", canonical = "" } = Astro.props;
 const currentPath = Astro.url.pathname;
+const pageName = resolvePageName(currentPath);
 const isLandingPage = currentPath === "/" || currentPath === "/index.html";
 const isReturnsPage = currentPath === "/returns" || currentPath === "/returns/" || currentPath === "/returns2" || currentPath === "/returns2/";
-const isFullBleed = isLandingPage || isReturnsPage;
+// v2 redesign POC — full-bleed, no edge binary rain, nav brand hidden (CornerMark takes over)
+const isV2Page = currentPath === "/about-v2" || currentPath === "/about-v2/";
+const isFullBleed = isLandingPage || isReturnsPage || isV2Page;
 const siteUrl = "https://bitmap.audio";
 const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
 
@@ -67,10 +71,23 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
     <SoundProvider client:load>
       <TooltipProvider client:load>
         
-        <GridBackground showRain={!isLandingPage && !isReturnsPage} showGrid={!isLandingPage} />
-        
-        { !isLandingPage && <Navigation currentPath={currentPath} client:load /> }
-        
+        {/* v2: binary rain backdrop instead of the bitmap grid (trial on about-v2;
+            at rollout, scope rain to hero sections rather than the whole page). */}
+        <GridBackground
+          showRain={isV2Page ? true : (!isLandingPage && !isReturnsPage)}
+          showGrid={isV2Page ? false : !isLandingPage}
+        />
+
+        { !isLandingPage && <Navigation currentPath={currentPath} pageName={pageName} client:load /> }
+
+        {/* v2: solid cap over the very top so NOTHING shows through the nav bar at
+            the top of the page (scrollY 0). Sits below the nav (z-50) + brand (z-60)
+            and above the rain. Fades out on scroll, so once you start scrolling
+            content is free to show through the nav. */}
+        {isV2Page && (
+          <div id="nav-top-cover" class="fixed top-0 left-0 right-0 h-48 z-40 pointer-events-none bg-gradient-to-b from-background from-[70%] to-transparent"></div>
+        )}
+
         <div class="relative flex flex-col min-h-svh">
           <main class="flex-1 flex flex-col items-center"> 
             {isFullBleed ? (
@@ -164,6 +181,21 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
 
         updateGlow();
       }
+    </script>
+
+    {/* Fade the nav top-cover out as the page scrolls: solid at the very top
+        (nothing shows through the nav), gone by ~160px (content shows through). */}
+    <script is:inline>
+      (function () {
+        const cover = document.getElementById('nav-top-cover');
+        if (!cover) return;
+        const update = () => {
+          const o = Math.max(0, 1 - window.scrollY / 160);
+          cover.style.opacity = o.toFixed(3);
+        };
+        window.addEventListener('scroll', () => window.requestAnimationFrame(update), { passive: true });
+        update();
+      })();
     </script>
   </body>
 </html>

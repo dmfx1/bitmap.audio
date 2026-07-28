@@ -19,7 +19,19 @@ const { showRain = true, showGrid = true } = Astro.props;
       <div id="layer-near" class="binary-layer layer-near"></div>
     </div>
   )}
-  
+
+  {/* Layer 1.6: Centre light-wash — a LIGHTEN-ONLY bloom sitting OVER the rain, so
+      the "light" cast from the middle blows out the glyphs there (harder to read in
+      the centre, crisp at the edges) while only ADDING brightness — never darkening,
+      so the vignette glow is preserved/reinforced. Viewport-fixed, so the rain
+      scrolls through it. Tune the alpha stops (centre strength) + radius. */}
+  {showRain && (
+    <div
+      class="absolute inset-0 pointer-events-none"
+      style="mix-blend-mode: screen; background: radial-gradient(circle at 50% 40%, hsl(var(--primary) / 0.20) 0%, hsl(var(--primary) / 0.08) 24%, transparent 48%);"
+    ></div>
+  )}
+
   {/* Layer 2: The Fog */}
   <div 
     class="absolute inset-0 bg-gradient-to-b from-transparent via-background/20 to-background transition-opacity duration-1000"

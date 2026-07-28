@@ -17,7 +17,7 @@
     /* ========================================================================
       LAYER 1: THE CANVAS (Surfaces)
     ======================================================================== */
-    --background: 180 20% 9%;       /* PAGE BACKGROUND (The Void) previous was 200 10% 10% */
+    --background: 180 10% 12%;       /* PAGE BACKGROUND (The Void) previous was 200 10% 10% / new change so before was 180 20% 9% */
     --foreground: 0 0% 95%;         /* MAIN TEXT */
 
     --card: 220 20% 7%;             /* CARDS */
@@ -45,7 +45,7 @@
       linear-gradient(hsl(var(--grid-color)) var(--grid-thickness), transparent var(--grid-thickness)),
       linear-gradient(90deg, hsl(var(--grid-color)) var(--grid-thickness), transparent var(--grid-thickness));
 
-    --pattern-binary-rain: url("data:image/svg+xml,%3Csvg width='600' height='800' viewBox='0 0 600 800' xmlns='http://www.w3.org/2000/svg'%3E%3Cstyle%3E text { font-family: monospace; font-weight: bold; fill: white; opacity: 0.3; } .heart { fill: white; opacity: 0.4; } %3C/style%3E%3C!-- STREAM 1 (Far Left): Binary --%3E%3Ctext x='20' y='50'%3E1%3C/text%3E%3Ctext x='20' y='70'%3E0%3C/text%3E%3Ctext x='20' y='200'%3E1%3C/text%3E%3Ctext x='20' y='220'%3E0%3C/text%3E%3Ctext x='20' y='600'%3E0%3C/text%3E%3C!-- STREAM 2 (Left): Heart --%3E%3Cg transform='translate(120, 150)' class='heart'%3E%3Crect x='3' y='4' width='3' height='3'/%3E%3Crect x='10' y='4' width='3' height='3'/%3E%3Crect x='2' y='6' width='12' height='3'/%3E%3Crect x='4' y='9' width='8' height='2'/%3E%3Crect x='6' y='11' width='4' height='2'/%3E%3Crect x='7' y='13' width='2' height='1'/%3E%3C/g%3E%3Ctext x='127' y='400'%3E1%3C/text%3E%3C!-- STREAM 3 (Mid-Left): Binary Burst --%3E%3Ctext x='240' y='80'%3E0%3C/text%3E%3Ctext x='240' y='100'%3E1%3C/text%3E%3Ctext x='240' y='120'%3E1%3C/text%3E%3Ctext x='240' y='550'%3E0%3C/text%3E%3Ctext x='240' y='570'%3E1%3C/text%3E%3C!-- STREAM 4 (Mid-Right): Heart Low --%3E%3Ctext x='360' y='300'%3E1%3C/text%3E%3Cg transform='translate(352, 650)' class='heart'%3E%3Crect x='3' y='4' width='3' height='3'/%3E%3Crect x='10' y='4' width='3' height='3'/%3E%3Crect x='2' y='6' width='12' height='3'/%3E%3Crect x='4' y='9' width='8' height='2'/%3E%3Crect x='6' y='11' width='4' height='2'/%3E%3Crect x='7' y='13' width='2' height='1'/%3E%3C/g%3E%3C!-- STREAM 5 (Right): High Heart --%3E%3Cg transform='translate(480, 50)' class='heart'%3E%3Crect x='3' y='4' width='3' height='3'/%3E%3Crect x='10' y='4' width='3' height='3'/%3E%3Crect x='2' y='6' width='12' height='3'/%3E%3Crect x='4' y='9' width='8' height='2'/%3E%3Crect x='6' y='11' width='4' height='2'/%3E%3Crect x='7' y='13' width='2' height='1'/%3E%3C/g%3E%3Ctext x='487' y='350'%3E0%3C/text%3E%3C!-- STREAM 6 (Far Right): Binary --%3E%3Ctext x='560' y='500'%3E1%3C/text%3E%3Ctext x='560' y='520'%3E0%3C/text%3E%3Ctext x='560' y='750'%3E1%3C/text%3E%3C/svg%3E");
+    --pattern-binary-rain: url("data:image/svg+xml,%3Csvg width='600' height='800' viewBox='0 0 600 800' xmlns='http://www.w3.org/2000/svg'%3E%3Cstyle%3E text { font-family: monospace; font-weight: bold; fill: white; opacity: 0.2; } .heart { fill: white; opacity: 0.4; } %3C/style%3E%3C!-- STREAM 1 (Far Left): Binary --%3E%3Ctext x='20' y='50'%3E1%3C/text%3E%3Ctext x='20' y='70'%3E0%3C/text%3E%3Ctext x='20' y='200'%3E1%3C/text%3E%3Ctext x='20' y='220'%3E0%3C/text%3E%3Ctext x='20' y='600'%3E0%3C/text%3E%3C!-- STREAM 2 (Left): Heart --%3E%3Cg transform='translate(120, 150)' class='heart'%3E%3Crect x='3' y='4' width='3' height='3'/%3E%3Crect x='10' y='4' width='3' height='3'/%3E%3Crect x='2' y='6' width='12' height='3'/%3E%3Crect x='4' y='9' width='8' height='2'/%3E%3Crect x='6' y='11' width='4' height='2'/%3E%3Crect x='7' y='13' width='2' height='1'/%3E%3C/g%3E%3Ctext x='127' y='400'%3E1%3C/text%3E%3C!-- STREAM 3 (Mid-Left): Binary Burst --%3E%3Ctext x='240' y='80'%3E0%3C/text%3E%3Ctext x='240' y='100'%3E1%3C/text%3E%3Ctext x='240' y='120'%3E1%3C/text%3E%3Ctext x='240' y='550'%3E0%3C/text%3E%3Ctext x='240' y='570'%3E1%3C/text%3E%3C!-- STREAM 4 (Mid-Right): Heart Low --%3E%3Ctext x='360' y='300'%3E1%3C/text%3E%3Cg transform='translate(352, 650)' class='heart'%3E%3Crect x='3' y='4' width='3' height='3'/%3E%3Crect x='10' y='4' width='3' height='3'/%3E%3Crect x='2' y='6' width='12' height='3'/%3E%3Crect x='4' y='9' width='8' height='2'/%3E%3Crect x='6' y='11' width='4' height='2'/%3E%3Crect x='7' y='13' width='2' height='1'/%3E%3C/g%3E%3C!-- STREAM 5 (Right): High Heart --%3E%3Cg transform='translate(480, 50)' class='heart'%3E%3Crect x='3' y='4' width='3' height='3'/%3E%3Crect x='10' y='4' width='3' height='3'/%3E%3Crect x='2' y='6' width='12' height='3'/%3E%3Crect x='4' y='9' width='8' height='2'/%3E%3Crect x='6' y='11' width='4' height='2'/%3E%3Crect x='7' y='13' width='2' height='1'/%3E%3C/g%3E%3Ctext x='487' y='350'%3E0%3C/text%3E%3C!-- STREAM 6 (Far Right): Binary --%3E%3Ctext x='560' y='500'%3E1%3C/text%3E%3Ctext x='560' y='520'%3E0%3C/text%3E%3Ctext x='560' y='750'%3E1%3C/text%3E%3C/svg%3E");
 
     /* DEFAULT GRID CONFIG */
     --grid-pattern: var(--pattern-solid);
@@ -94,9 +94,9 @@
     --animation-speed: 3s;
 
     /* THE FIX: Lower fog/vignette so the grid isn't hidden */
-    --glow-strength: 0.5;
-    --fog-strength: 0.6;           /* REDUCED FROM 1 */
-    --vignette-strength: 0.6;      /* REDUCED FROM 1 */
+    --glow-strength: 0.25;
+    --fog-strength: 0.75;           /* REDUCED FROM 1 */
+    --vignette-strength: 0.75;      /* REDUCED FROM 1 */
 
     --gradient-glow: linear-gradient(135deg, hsl(185 100% 50% / 0.2), hsl(200 100% 60% / 0.1));
   }
@@ -228,6 +228,14 @@ a, button, [role="button"] {
     pointer-events: none;
     z-index: 1;
     overflow: hidden;
+    /* PARTIAL centre dim — the rain is knocked back (not removed) in the middle so
+       it's harder to read there, full-strength at the edges. NB the alpha does NOT
+       go to 0 (that left an empty dark hole); ~0.22 keeps faint rain + the light
+       wash/glow, so the centre stays lit. Anchored to this viewport-fixed
+       container, so the rain layers scroll through it.
+       Tune: centre alpha (0.22 = how much rain remains) and the 55% radius. */
+    -webkit-mask-image: radial-gradient(circle at 50% 40%, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.22) 12%, rgba(0,0,0,1) 55%);
+    mask-image: radial-gradient(circle at 50% 40%, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.22) 12%, rgba(0,0,0,1) 55%);
   }
 
   /* 2. LAYERS (Shared Styles) */
@@ -330,7 +338,7 @@ a, button, [role="button"] {
   }
 
   .heading-hero {
-    @apply font-mono text-5xl md:text-6xl font-light leading-[1.05] tracking-tight text-foreground;
+    @apply font-mono text-5xl md:text-8xl font-light leading-[1.05] tracking-tight text-foreground;
   }
 
   .heading-section {
