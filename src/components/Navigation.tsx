@@ -250,7 +250,7 @@ const Navigation = ({ currentPath, pageName = BRAND_NAME }: { currentPath: strin
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>
-                  <a href="/about-v2" className={cn(
+                  <a href="/about-v2?intro=1" className={cn(
                     "font-mono text-base uppercase tracking-wider link-underline transition-colors",
                     isActive("/about") ? "text-primary hover:text-accent" : "text-muted-foreground hover:text-accent"
                   )}>About</a>
