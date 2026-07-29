@@ -17,7 +17,7 @@
     /* ========================================================================
       LAYER 1: THE CANVAS (Surfaces)
     ======================================================================== */
-    --background: 180 10% 12%;       /* PAGE BACKGROUND (The Void) previous was 200 10% 10% / new change so before was 180 20% 9% */
+    --background: 180 10% 20%;       /* PAGE BACKGROUND (The Void) previous was 200 10% 10% / new change so before was 180 20% 9% */
     --foreground: 0 0% 95%;         /* MAIN TEXT */
 
     --card: 220 20% 7%;             /* CARDS */
@@ -714,3 +714,42 @@ a, button, [role="button"] {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
+
+/* Bitmap "assemble" reveal for the b mark — deliberately NON-smooth: it snaps
+   between discrete scale/opacity states (steps easing) so it reads digital/glitchy,
+   like a cousin of the scramble effect, rather than a smooth grow. Duration is
+   passed in via --bitmap-in-dur. */
+@keyframes bitmapIn {
+  0%   { transform: scale(0);    opacity: 0; }
+  16%  { transform: scale(0.5);  opacity: 1; }
+  28%  { transform: scale(0.2);  opacity: 0.3; }
+  44%  { transform: scale(0.8);  opacity: 1; }
+  58%  { transform: scale(0.45); opacity: 0.55; }
+  72%  { transform: scale(1);    opacity: 1; }
+  82%  { transform: scale(0.85); opacity: 0.35; }
+  100% { transform: scale(1);    opacity: 1; }
+}
+
+.animate-bitmap-in {
+  animation: bitmapIn var(--bitmap-in-dur, 650ms) steps(1, end) both;
+  transform-origin: left center;
+}
+
+/* Opacity-only twin of bitmapIn — SAME percentages + opacity values + timing, but
+   NO scale. Used on the wordmark (about us) so it flickers in/out together with the
+   b, without changing size. Keep the opacity stops in sync with bitmapIn above. */
+@keyframes bitmapInOpacity {
+  0%   { opacity: 0; }
+  16%  { opacity: 1; }
+  28%  { opacity: 0.3; }
+  44%  { opacity: 1; }
+  58%  { opacity: 0.55; }
+  72%  { opacity: 1; }
+  82%  { opacity: 0.35; }
+  100% { opacity: 1; }
+}
+
+.animate-bitmap-in-opacity {
+  animation: bitmapInOpacity var(--bitmap-in-dur, 650ms) steps(1, end) both;
+}
+

@@ -156,30 +156,53 @@ const BrandLockup = ({ pageName }: { pageName: string }) => {
         onMouseEnter={() => setCurrent(HOME_NAME)}
         onMouseLeave={() => setCurrent(pageName)}
       >
-        {/* The b tile — grows into place (scale) during the slide. NO inner padding
-            so it aligns flush to the site left padding. Size = --brandH. */}
+        {/* The b mark (SVG, white b + amber underline — no tile). It "assembles" in
+            with a stepped, glitchy bitmap reveal during the slide (keyframe `bitmapIn`,
+            steps easing) instead of a smooth grow. Default SVG normally, invert SVG on
+            hover. */}
         <span
-          className="flex items-center justify-center shrink-0 bg-foreground hover:bg-accent border border-background shadow-sm"
+          className={`relative flex items-center justify-center shrink-0 ${
+            firstVisit && bGrown ? 'animate-bitmap-in' : ''
+          }`}
           style={{
             height: 'var(--brandH)',
             width: 'var(--brandH)',
-            transform: bGrown ? 'scale(1)' : 'scale(0)',
             transformOrigin: 'left center',
-            transition: `transform ${BRAND_MOTION.travelMs}ms cubic-bezier(0.65,0,0.35,1), background-color 200ms ease`,
+            // Reveal duration for the bitmap-in animation (matches the text slide).
+            ...(firstVisit && bGrown ? { ['--bitmap-in-dur' as any]: `${BRAND_MOTION.travelMs}ms` } : {}),
+            // Hidden until the reveal fires (first visit only).
+            ...(firstVisit && !bGrown ? { transform: 'scale(0)', opacity: 0 } : {}),
           }}
         >
-          <img src="/favicon/logo-b.png" alt="" className="w-full h-full object-contain" loading="eager" />
+          <img
+            src="/images/brand/logo-b.svg"
+            alt=""
+            className="w-full h-full object-contain transition-opacity duration-200 group-hover:opacity-0"
+            loading="eager"
+          />
+          <img
+            src="/images/brand/logo-b-invert.svg"
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 w-full h-full object-contain opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+            loading="eager"
+          />
         </span>
 
         {/* Wordmark — same size (--brandH) and level as the b. Fades in on load.
             This is the element the intro flies. Hidden on mobile. */}
         <span
           ref={wordRef}
-          className="hidden md:block font-mono font-light tracking-tight text-foreground whitespace-nowrap leading-none transition-opacity"
+          className={`hidden md:block font-mono font-light tracking-tight text-foreground whitespace-nowrap leading-none transition-opacity ${
+            firstVisit && bGrown ? 'animate-bitmap-in-opacity' : ''
+          }`}
           style={{
             fontSize: 'var(--brandH)',
-            opacity: visible ? 1 : 0,
-            transitionDuration: `${BRAND_MOTION.fadeInMs}ms`,
+            // During the reveal, the opacity flicker (synced to the b) owns opacity.
+            // Otherwise, the normal load fade-in.
+            ...(firstVisit && bGrown
+              ? { ['--bitmap-in-dur' as any]: `${BRAND_MOTION.travelMs}ms` }
+              : { opacity: visible ? 1 : 0, transitionDuration: `${BRAND_MOTION.fadeInMs}ms` }),
           }}
         >
           {display}
