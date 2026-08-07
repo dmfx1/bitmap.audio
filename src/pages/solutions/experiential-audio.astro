@@ -1,29 +1,13 @@
 ---
 /* src/pages/solutions/immersive-audio.astro */
-import { getImage } from 'astro:assets';
 import Layout from '../../layouts/Layout.astro';
+import Solaris from '../../components/Solaris.astro';
 import Section from '../../components/Section.astro';
 import ImmersiveHero from '../../components/modules/solutions/ImmersiveHero.tsx';
 import ImmersiveAnalysis from '../../components/modules/solutions/ImmersiveAnalysis.tsx';
 import ConceptGrid from '../../components/modules/ConceptGrid.tsx';
 import DeliverablesGrid from '../../components/modules/solutions/DeliverablesGrid.tsx';
 import CTA from '../../components/modules/CTA.tsx';
-import heroImmersive from '../../assets/images/hero-immersive-audio-13.png';
-import deliverablesBg from '../../assets/images/deliverables-bg-01.png';
-
-const heroImage = await getImage({
-  src: heroImmersive,
-  format: 'webp',
-  width: 1400,
-  quality: 85,
-});
-
-const deliverablesBgImage = await getImage({
-  src: deliverablesBg,
-  format: 'webp',
-  width: 1200,
-  quality: 80,
-});
 
 // DEFINING THE DATA SET FOR THIS PAGE
 const immersiveAudioApplications = [
@@ -90,19 +74,23 @@ const immersiveDeliverables = [
     })}</script>
   </Fragment>
   {/* Hero: sticks at top of container, content scrolls over it */}
-  <div class="md:sticky top-12 md:top-0 z-[1] min-h-svh md:min-h-0 md:h-[75vh]">
-    <div class="h-full pt-16 pb-8">
-      <ImmersiveHero client:load imageSrc={heroImage.src} />
+  <div id="hero-sticky" class="md:sticky top-0 z-[1] min-h-svh">
+    <div class="h-full">
+      <ImmersiveHero client:load />
     </div>
   </div>
 
+  <div class="hero-runway" aria-hidden="true"></div>
+
   {/* Content: scrolls over the sticky hero — sections are frosted glass so hero colours bleed through */}
-  <div class="relative z-10">
+  <Solaris />
+
+  <div class="relative z-10 theme-oat">
     <Section id="analysis" delay="0.5s" className="!bg-background/50 backdrop-blur-xl" grainBg>
       <ImmersiveAnalysis client:visible />
     </Section>
 
-    <Section id="applications" invert delay="0.8s" className="!bg-background/50 backdrop-blur-xl" bgSrc={deliverablesBgImage.src} bgFade="down">
+    <Section id="applications" invert delay="0.8s" className="!bg-background/50 backdrop-blur-xl">
       <ConceptGrid
         client:visible
         eyebrow="Applications"
@@ -113,7 +101,7 @@ const immersiveDeliverables = [
       />
     </Section>
 
-    <Section id="deliverables" delay="1.2s" className="!bg-background/50 backdrop-blur-xl" bgSrc={deliverablesBgImage.src} bgFade="up">
+    <Section id="deliverables" delay="1.2s" className="!bg-background/50 backdrop-blur-xl">
       <DeliverablesGrid
         client:visible
         items={immersiveDeliverables}

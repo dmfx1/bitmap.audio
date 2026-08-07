@@ -6,6 +6,8 @@ bitmap.audio is a sonic branding agency and experiential audio service website. 
 
 **Do not simplify, genericize, or "clean up" animations without explicit instruction. The complexity is the feature.**
 
+> **🎛️ Motion tuning knobs:** every scroll/intro timing value (intro, header squish, hero pull, runway, hero-copy width, etc.) and the file it lives in is documented in **`MOTION-CHEATSHEET.md`**. Reach for that when adjusting the "feel."
+
 ---
 
 ## ⚠️ Critical Rules — Read Before Making Any Change

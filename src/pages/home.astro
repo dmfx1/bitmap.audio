@@ -1,29 +1,12 @@
 ---
 /* src/pages/home.astro */
-import { getImage } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
+import Solaris from '../components/Solaris.astro';
 import Section from '../components/Section.astro';
 import Hero from '../components/modules/Hero.tsx';
 import ServicePillars from '../components/modules/ServicePillars';
 import Philosophy from '../components/modules/Philosophy.tsx';
 import CTA from '../components/modules/CTA.tsx';
-import heroDataMeetsEmotion from '../assets/images/hero-data-meets-emotion-07.png';
-import homePhilosophyBg from '../assets/images/home-our-philosophy-bg-06.png';
-
-// Optimise hero image at build time — Astro generates WebP + correct dimensions
-const heroImage = await getImage({
-  src: heroDataMeetsEmotion,
-  format: 'webp',
-  width: 1200,
-  quality: 85,
-});
-
-const philosophyBgImage = await getImage({
-  src: homePhilosophyBg,
-  format: 'webp',
-  width: 1200,
-  quality: 85,
-});
 ---
 
 <Layout
@@ -31,19 +14,23 @@ const philosophyBgImage = await getImage({
   description="bitmap.audio designs sonic brand systems, UI/UX sound, and experiential spatial audio for digital products and forward-thinking brands."
 >
   {/* Hero: sticks at top of container, content scrolls over it */}
-  <div class="md:sticky top-0 z-[1] min-h-svh md:min-h-[90vh]">
-    <div class="pt-16 pb-0 md:pb-8">
-      <Hero client:load imageSrc={heroImage.src} />
+  <div id="hero-sticky" class="md:sticky top-0 z-[1] min-h-svh">
+    <div class="h-full">
+      <Hero client:load />
     </div>
   </div>
 
+  <div class="hero-runway" aria-hidden="true"></div>
+
   {/* Content: scrolls over the sticky hero — sections are frosted glass so hero colours bleed through */}
-  <div class="relative z-10">
+  <Solaris />
+
+  <div class="relative z-10 theme-oat">
     <Section id="services" delay="0.2s" className="!bg-background/50 backdrop-blur-xl" grainBg>
       <ServicePillars client:visible />
     </Section>
 
-    <Section id="philosophy" invert delay="0.3s" className="!bg-background/50 backdrop-blur-xl" bgSrc={philosophyBgImage.src}>
+    <Section id="philosophy" invert delay="0.3s" className="!bg-background/50 backdrop-blur-xl">
       <Philosophy client:visible />
     </Section>
 

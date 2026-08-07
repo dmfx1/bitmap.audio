@@ -22,7 +22,9 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
 ---
 
 <!doctype html>
-<html lang="en" class="dark">
+<!-- data-smooth="off" on the returns pages: they own their own GSAP normalizeScroll,
+     so global Lenis must not attach there (see src/lib/smooth-scroll.ts). -->
+<html lang="en" class="dark" data-smooth={isReturnsPage ? "off" : "on"}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -73,19 +75,36 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
         
         {/* v2: binary rain backdrop instead of the bitmap grid (trial on about-v2;
             at rollout, scope rain to hero sections rather than the whole page). */}
+        {/* Bitmap grid removed site-wide (only the returns pages keep it, since
+            those are left untouched). Rain stays. */}
         <GridBackground
           showRain={isV2Page ? true : (!isLandingPage && !isReturnsPage)}
-          showGrid={isV2Page ? false : !isLandingPage}
+          showGrid={isReturnsPage}
         />
 
         { !isLandingPage && <Navigation currentPath={currentPath} pageName={pageName} client:load /> }
 
-        {/* v2: solid cap over the very top so NOTHING shows through the nav bar at
-            the top of the page (scrollY 0). Sits below the nav (z-50) + brand (z-60)
-            and above the rain. Fades out on scroll, so once you start scrolling
-            content is free to show through the nav. */}
-        {isV2Page && (
+        {/* Solid cap over the very top so NOTHING shows through the nav bar at the
+            top of the page (scrollY 0) — the binary rain is hidden behind it. Sits
+            below the nav (z-50) + brand (z-60), above the rain. Fades out on scroll,
+            so content shows through the nav once you start scrolling. Site-wide
+            (except landing/returns). */}
+        {!isLandingPage && !isReturnsPage && (
           <div id="nav-top-cover" class="fixed top-0 left-0 right-0 h-48 z-40 pointer-events-none bg-gradient-to-b from-background from-[70%] to-transparent"></div>
+        )}
+
+        {/* HEADER BAR — the "squish then normalise" surface. Transparent at the very top
+            (brand floats over the hero); as you scroll it fades in as a SOLID bar and the
+            brand + nav squish into it, locking into a compact sticky header. Its bottom
+            border sits on the page-title baseline (calc gutter + brandH). Background is
+            hsl(var(--background)) so it ADAPTS to the section theme (dark hero -> beige
+            body once the Phase-4 colour handoff lands). Below nav/brand, above content. */}
+        {!isLandingPage && !isReturnsPage && (
+          <div
+            id="header-bar"
+            class="fixed top-0 left-0 right-0 z-30 pointer-events-none"
+            style="height: calc(var(--page-gutter) + var(--brandH, 6.5rem)); background: hsl(var(--background) / 0.5); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); opacity: var(--header-solid, 0);"
+          ></div>
         )}
 
         <div class="relative flex flex-col min-h-svh">
@@ -98,10 +117,15 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
                 {!isLandingPage && !isReturnsPage && <Footer />}
               </>
             ) : (
-              <div class="w-full max-w-[1400px] bg-background/95 min-h-svh shadow-2xl relative z-10">
-                <slot />
+              /* Unified: every page is full-bleed at this level; width + gutters are
+                 owned by .container-page inside each Section (single source of truth).
+                 (Retired the old max-w-[1400px] card frame.) */
+              <>
+                <div class="w-full flex-1 flex flex-col">
+                  <slot />
+                </div>
                 <Footer />
-              </div>
+              </>
             )}
           </main>
         </div>
@@ -196,6 +220,54 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
         window.addEventListener('scroll', () => window.requestAnimationFrame(update), { passive: true });
         update();
       })();
+    </script>
+
+    {/* Header squish-then-normalise. On scroll the brand + nav gently squish (--nav-scale)
+        AND a solid header bar fades in (--header-solid), locking into a compact sticky bar.
+        Both use smoothstep. Kept gentle (MIN 0.86) so it's not too dramatic. */}
+    <script is:inline>
+      (function () {
+        const root = document.documentElement;
+        /* Brand squishes MORE (BRAND_MIN) than the nav (NAV_MIN) — a combo of the two.
+           HEADER_START: px of scroll BEFORE the header reacts, so the hero TEXT starts
+           pulling first and the header/nav only squish after — stops it feeling like the
+           page is just scrolling down. SQUISH_DIST/SOLID_DIST run AFTER that offset. */
+        const BRAND_MIN = 0.72, NAV_MIN = 0.86, HEADER_START = 220, SQUISH_DIST = 800, SOLID_DIST = 160;
+        const smooth = (x) => x * x * (3 - 2 * x);
+        const prog = (y, dist) => smooth(Math.max(0, Math.min(1, (y - HEADER_START) / dist)));
+
+        // Heights used to raise the nav so its TOP meets the title TOP when squished.
+        let brandH = 104, panelH = 66;
+        const remeasure = () => {
+          const b = document.querySelector('a[aria-label="Home"]');
+          const pn = document.querySelector('nav .backdrop-blur-md.border');
+          if (b && b.offsetHeight) brandH = b.offsetHeight;
+          if (pn && pn.offsetHeight) panelH = pn.offsetHeight;
+        };
+        window.addEventListener('load', remeasure);
+        window.addEventListener('resize', remeasure, { passive: true });
+        remeasure();
+
+        const update = () => {
+          const y = window.scrollY;
+          const p = prog(y, SQUISH_DIST);   // 0 until HEADER_START, then squishes
+          const navScale = 1 - p * (1 - NAV_MIN);
+          // Brand + nav shrink toward their own corners (origins set in Navigation).
+          root.style.setProperty('--brand-scale', (1 - p * (1 - BRAND_MIN)).toFixed(3));
+          root.style.setProperty('--nav-scale', navScale.toFixed(3));
+          // Nav-lift: bottom-aligned at full (p=0) -> top meets the title top when squished (p=1).
+          root.style.setProperty('--nav-lift', (-(brandH - panelH) * navScale * p).toFixed(1) + 'px');
+          root.style.setProperty('--header-solid', prog(y, SOLID_DIST).toFixed(3));
+        };
+        window.addEventListener('scroll', () => window.requestAnimationFrame(update), { passive: true });
+        update();
+      })();
+    </script>
+
+    {/* Global smooth-scroll foundation: Lenis + GSAP/ScrollTrigger (bundled module).
+        Gated off on returns pages via <html data-smooth="off">. See src/lib/smooth-scroll.ts. */}
+    <script>
+      import '../lib/smooth-scroll';
     </script>
   </body>
 </html>

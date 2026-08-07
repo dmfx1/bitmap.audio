@@ -1,0 +1,23 @@
+---
+/* src/components/Solaris.astro
+ *
+ * The SOLARIS beam — the seam between the dark hero and the beige content world.
+ * All styling (height, gradient stops, glow, text colour) lives in the --solaris-*
+ * tokens in global.css — edit there, not here. Make the beam bigger via --solaris-height.
+ *
+ * Optional `text` prop renders a page-dependent label centred on the beam (becomes
+ * visible once the beam is tall enough). Sits at z-10 so it leads the beige world up
+ * over the dark hero on scroll.
+ *
+ *   <Solaris />                       // plain beam
+ *   <Solaris text="THE WORK" />       // beam with a page label
+ */
+interface Props {
+  text?: string;
+  class?: string;
+}
+const { text, class: className = "" } = Astro.props;
+---
+<div class:list={["solaris relative z-10", className]} aria-hidden={!text}>
+  {text && <span class="solaris-text container-page">{text}</span>}
+</div>

@@ -12,7 +12,7 @@ import {
 } from "./ui/navigation-menu";
 import { cn } from "@/lib/utils";
 import { useScrambleTransition } from "../hooks/use-scramble-transition";
-import { BRAND_NAME, BRAND_MOTION } from "../config/brandMotion";
+import { BRAND_NAME, BRAND_MOTION, scrambleInMsFor } from "../config/brandMotion";
 
 const solutions = [
   { name: "Sonic Branding", href: "/solutions/sonic-branding", description: "Brand identity through sound" },
@@ -32,146 +32,227 @@ function signalIntroDone() {
 }
 
 /**
- * Brand lockup: the big `b` tile + the scrambling wordmark, living IN the nav
- * (top-left). The b is instantiated in the corner immediately on load.
+ * Brand lockup: the persistent `b` mark + scrambling page-name wordmark, living IN
+ * the nav (top-left) as the FINAL resting state, plus the Phase-1 entry intro.
  *
- * INTRO (first page load of a session only): a full-screen curtain hides
- * everything (page, rain, the b and the nav controls). Only the wordmark shows —
- * it starts at the FAR LEFT (site padding edge) as "bitmap.audio", scrambles to
- * the page name, then slides right to its resting slot. The INSTANT it arrives,
- * the b, the nav controls and the binary rain all appear together and the curtain
- * clears; the typewriter follows. Because the animated element IS the real nav
- * wordmark, it lands at EXACTLY the right position + size — seamless, no duplicate
- * text. On later loads it just shows the page name (no intro).
+ * INTRO (every load while we tune it — see brandMotion + MOTION-PLAN §3):
+ *   1. A centred stage shows the `b` on the LEFT and `bitmap.audio` on the RIGHT
+ *      (full-width, aligned to the page gutters). bitmap.audio scrambles IN.
+ *   2. Hold, then the WHOLE stage LIFTS upward to the top bar as one unit — the b
+ *      travels to top-left, bitmap.audio to top-right (reads as the page moving up).
+ *   3. On arrival the real nav `b` glitch-grows in (`animate-bitmap-in`) and the
+ *      centre b hands off to it; the binary rain begins.
+ *   4. The top-right `bitmap.audio` CRT-powers-off — squeezes vertically to a bright
+ *      line, then snaps to nothing (on-brand glitch). The nav controls fade into the
+ *      vacated top-right, and the page-name scrambles IN beside the b (top-left).
+ *   5. intro-complete fires → the hero starts.
  *
- * Hovering scrambles the wordmark to the mark's DESTINATION ("home"), since it
- * links to the Home page. All timing lives in src/config/brandMotion.ts.
+ * Hovering scrambles the resting wordmark to the mark's DESTINATION ("home"), since
+ * it links to the Home page. All timing lives in src/config/brandMotion.ts.
  */
 const BrandLockup = ({ pageName }: { pageName: string }) => {
-  const hasPageName = pageName !== BRAND_NAME;
+  // Intro plays on EVERY page load (each nav click is a full reload). To go back
+  // to once-per-session, restore: typeof window === 'undefined' ? true : !sessionStorage.getItem(SEEN_KEY)
+  const firstVisit = true;
 
-  // First visit of the session plays the intro; later loads don't.
-  // Append ?intro=1 to the URL to force a replay while reviewing.
-  const forced =
-    typeof window !== "undefined" && new URLSearchParams(window.location.search).has("intro");
-  const firstVisit =
-    typeof window === "undefined" ? true : forced || !sessionStorage.getItem(SEEN_KEY);
+  // Resting nav wordmark: starts EMPTY on first visit, scrambles to the page name at
+  // the end of the intro; on later loads it just shows the page name.
+  const [current, setCurrent] = useState(firstVisit ? "" : pageName);
+  const [bGrown, setBGrown] = useState(!firstVisit);            // nav b grows/flickers in
+  const [wordVisible, setWordVisible] = useState(!firstVisit);  // nav wordmark opacity
 
-  const [current, setCurrent] = useState(firstVisit ? BRAND_NAME : pageName);
-  const [visible, setVisible] = useState(false);
-  const [bGrown, setBGrown] = useState(!firstVisit); // b grows into place during the slide
+  // Centre intro stage.
+  const [centerVisible, setCenterVisible] = useState(false);    // stage opacity
+  const [centerBHidden, setCenterBHidden] = useState(false);    // centre b fades at handoff
+  const [centerTarget, setCenterTarget] = useState("");         // scrambles IN to bitmap.audio
+  const stageRef = useRef<HTMLDivElement | null>(null);         // the lifted container
+  const wordRef = useRef<HTMLSpanElement | null>(null);         // bitmap.audio (CRT target)
 
-  const lockRef = useRef<HTMLAnchorElement | null>(null);
-  const wordRef = useRef<HTMLSpanElement | null>(null);
+  // bitmap.audio scrambles IN at the centre (empty -> BRAND_NAME).
+  const centerDisplay = useScrambleTransition(centerTarget, {
+    outMs: 0,
+    inMs: BRAND_MOTION.scrambleInMs,
+    flickerMs: BRAND_MOTION.flickerMs,
+  });
 
   useEffect(() => {
-    const rId = requestAnimationFrame(() => setVisible(true));
-
     if (!firstVisit) {
       signalIntroDone();
-      return () => cancelAnimationFrame(rId);
+      return;
     }
     sessionStorage.setItem(SEEN_KEY, "1");
 
-    // Binary rain starts hidden; it fades in gradually AFTER the b/nav appear.
+    // Binary rain starts hidden; it fades in gradually once the top brand assembles.
     const rain = document.querySelector<HTMLElement>(".binary-waterfall");
     if (rain) gsap.set(rain, { opacity: 0 });
+    const startRain = () => {
+      if (rain) gsap.to(rain, { opacity: 1, duration: BRAND_MOTION.rainFadeMs / 1000, ease: "power1.inOut" });
+    };
+    const revealControls = () => window.dispatchEvent(new CustomEvent("brand-arrived"));
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    // Establish "bitmap.audio", then scramble to the page name mid-intro.
-    let scrambleId: number | undefined;
-    if (hasPageName) {
-      scrambleId = window.setTimeout(() => setCurrent(pageName), BRAND_MOTION.brandHoldMs);
+    if (reduced) {
+      setBGrown(true);
+      setWordVisible(true);
+      setCurrent(pageName);
+      startRain();
+      revealControls();
+      signalIntroDone();
+      return;
     }
 
-    // On arrival: the nav appears and the binary rain begins its slow, subtle
-    // fade-in (continues through the typewriter). The b has already grown into
-    // place during the slide.
-    const reveal = () => {
-      window.dispatchEvent(new CustomEvent("brand-arrived"));
-      if (rain) {
-        gsap.to(rain, {
-          opacity: 1,
-          duration: BRAND_MOTION.rainFadeMs / 1000,
-          ease: "power1.inOut",
-        });
-      }
-    };
-    const finish = () => signalIntroDone();
+    const { introHoldMs, liftMs, crtMs, scrambleInMs, fadeInMs } = BRAND_MOTION;
 
-    const word = wordRef.current;
-    const lock = lockRef.current;
-    let tl: gsap.core.Timeline | undefined;
+    // Stage begins centred (top:50%, -50% Y) and hidden; scramble bitmap.audio IN.
+    if (stageRef.current) gsap.set(stageRef.current, { top: "50%", yPercent: -50 });
+    const raf = requestAnimationFrame(() => {
+      setCenterVisible(true);
+      setCenterTarget(BRAND_NAME);
+    });
 
-    const holdS =
-      (BRAND_MOTION.brandHoldMs + BRAND_MOTION.scrambleOutMs + BRAND_MOTION.scrambleInMs) / 1000;
+    const tl = gsap.timeline({ delay: fadeInMs / 1000 });
 
-    if (word && lock && !reduced && word.offsetParent !== null) {
-      // Start the wordmark at the FAR LEFT (the site padding edge = the lock's left,
-      // where the b will sit), then slide it right to its resting slot beside the b.
-      const dx = lock.getBoundingClientRect().left - word.getBoundingClientRect().left;
-      gsap.set(word, { x: dx, transformOrigin: "left center" });
+    // 1/2. Hold on bitmap.audio at centre.
+    tl.to({}, { duration: introHoldMs / 1000 });
 
-      tl = gsap.timeline({ onComplete: finish });
-      tl.to({}, { duration: holdS }) // establish "bitmap.audio" + scramble to page name
-        .call(() => setBGrown(true)) // b grows into place...
-        .to(word, { x: 0, duration: BRAND_MOTION.travelMs / 1000, ease: "power3.inOut" }) // ...as the text slides right
-        .call(reveal) // arrival -> nav appears + rain begins fading in
-        .to({}, { duration: BRAND_MOTION.revealMs / 1000 }) // brief beat, then typewriter
-        .set(word, { clearProps: "transform" });
-    } else {
-      // Mobile / reduced motion: no slide (wordmark hidden). Hold, then reveal.
-      tl = gsap.timeline({ onComplete: finish });
-      tl.to({}, { duration: reduced ? 0.4 : holdS })
-        .call(() => setBGrown(true))
-        .call(reveal)
-        .to({}, { duration: BRAND_MOTION.revealMs / 1000 });
-    }
+    // 2. LIFT the whole stage to the top bar (b → top-left, wordmark → top-right).
+    tl.to(stageRef.current, { top: "2rem", yPercent: 0, duration: liftMs / 1000, ease: "power3.inOut" });
+
+    // 3. Arrive: nav b glitch-grows in, centre b hands off (fades), rain begins.
+    tl.add(() => {
+      setBGrown(true);
+      setCenterBHidden(true);
+      startRain();
+    });
+
+    // 4. CRT power-off the bitmap.audio wordmark: squeeze to a bright line at the
+    //    wordmark's vertical centre (where the nav sits), then snap.
+    tl.to(wordRef.current, {
+      scaleY: 0.03,
+      filter: "brightness(2.4)",
+      transformOrigin: "center center",
+      duration: (crtMs * 0.55) / 1000,
+      ease: "power2.in",
+    }, ">")
+      .to(wordRef.current, {
+        scaleX: 0,
+        opacity: 0,
+        duration: (crtMs * 0.45) / 1000,
+        ease: "power2.in",
+      }, ">");
+
+    // 4b. Nav controls fade into the vacated top-right; page name scrambles in by the b.
+    tl.add(() => {
+      revealControls();
+      setCenterVisible(false);
+      setWordVisible(true);
+      setCurrent(pageName);
+    });
+
+    // 5. Done → hero, once the page-name scramble resolves.
+    tl.add(() => signalIntroDone(), `+=${(scrambleInMs + 150) / 1000}`);
 
     return () => {
-      cancelAnimationFrame(rId);
-      if (scrambleId) window.clearTimeout(scrambleId);
-      if (tl) tl.kill();
+      cancelAnimationFrame(raf);
+      tl.kill();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const display = useScrambleTransition(current, {
     outMs: BRAND_MOTION.scrambleOutMs,
-    inMs: BRAND_MOTION.scrambleInMs,
+    // Adaptive: shorter page titles resolve a little slower so they don't flash by.
+    // (Scrambling IN from empty auto-skips the OUT phase — see use-scramble-transition.)
+    inMs: scrambleInMsFor((current || pageName).length),
+    flickerMs: BRAND_MOTION.flickerMs,
   });
 
   return (
     <>
+      {/* CENTRE intro STAGE — b on the LEFT, bitmap.audio on the RIGHT, full-width and
+          gutter-aligned. Lifts to the top bar as one unit (GSAP on stageRef), then the
+          b hands off to the nav b and bitmap.audio CRT-powers-off. Sits over the live
+          page (no opaque curtain, so the vignette/rain shows through). */}
+      {firstVisit && (
+        <div
+          ref={stageRef}
+          aria-hidden="true"
+          className="fixed inset-x-0 z-[70] pointer-events-none transition-opacity duration-300"
+          /* NOTE: `top` is owned entirely by GSAP (set to 50% then animated to 2rem),
+             so it is NOT set here — a React inline `top` would be re-applied on every
+             re-render and clobber GSAP's docked position, snapping the b back to centre. */
+          style={{
+            opacity: centerVisible ? 1 : 0,
+            ['--brandH' as any]: 'clamp(3rem, 6vw, 6.5rem)',
+          }}
+        >
+          <div className="container-page flex items-center justify-between gap-6">
+            {/* b — LEFT. Glitch-assembles in (bitmapIn) at the SAME moment bitmap.audio
+                scrambles in, so the b only does its stepped reveal ONCE (here) — it then
+                stays full-size through the lift + dock (no second glitch at the top). */}
+            <img
+              src="/images/brand/logo-b.svg"
+              alt=""
+              className={`object-contain shrink-0 ${
+                centerVisible && !centerBHidden ? 'animate-bitmap-in' : ''
+              }`}
+              style={{
+                height: 'var(--brandH)',
+                width: 'var(--brandH)',
+                opacity: centerBHidden ? 0 : 1,
+                ['--bitmap-in-dur' as any]: `${BRAND_MOTION.scrambleInMs}ms`,
+              }}
+            />
+            {/* bitmap.audio — RIGHT (desktop only; mobile header has no wordmark). */}
+            <span
+              ref={wordRef}
+              /* leading-none matches the nav wordmark so this span's line-box == the b's
+                 height; otherwise its taller line-box inflates the flex row and items-center
+                 pushes the b down ~26px, so the centre b wouldn't land on the nav b. */
+              className="hidden md:inline-block font-mono font-light tracking-tight leading-none text-foreground whitespace-nowrap will-change-transform"
+              style={{ fontSize: 'clamp(2rem, 6vw, 6.5rem)' }}
+            >
+              {centerDisplay || BRAND_NAME}
+              <span className="text-accent opacity-70">_</span>
+            </span>
+          </div>
+        </div>
+      )}
+
       <a
-        ref={lockRef}
         href={HOME_HREF}
         aria-label="Home"
-        className="group fixed left-4 md:left-8 lg:left-12 top-3 z-[60] mix-blend-difference flex items-center gap-4 select-none"
-        /* ONE control for both the b tile size AND the wordmark size, so they are
-           always identical in size and vertical level. Fluid via clamp() -> scales
-           cleanly on any device. Tune the clamp here. */
-        style={{ ['--brandH' as any]: 'clamp(3rem, 6vw, 6.5rem)' }}
+        className="group fixed top-8 z-[60] flex items-center gap-8 select-none"
+        /* --brandH: one control for both b + wordmark size. left: aligned to the
+           .container-page content edge. transform: the scroll "squash" (--nav-scale). */
+        style={{
+          ['--brandH' as any]: 'clamp(3rem, 6vw, 6.5rem)',
+          left: 'var(--page-gutter)',
+          /* Brand squishes MORE than the nav (--brand-scale, its own knob). top-left origin:
+             it shrinks toward the top-left corner, keeping the SAME distance from the top and
+             left as at full size (rather than shrinking down toward the bottom-left). */
+          transform: 'scale(var(--brand-scale, 1))',
+          transformOrigin: 'top left',
+          /* No transform transition: the squish is scroll-linked and Lenis already
+             smooths scroll — a transition here would lag the squish behind the scroll. */
+        }}
         onMouseEnter={() => setCurrent(HOME_NAME)}
         onMouseLeave={() => setCurrent(pageName)}
       >
-        {/* The b mark (SVG, white b + amber underline — no tile). It "assembles" in
-            with a stepped, glitchy bitmap reveal during the slide (keyframe `bitmapIn`,
-            steps easing) instead of a smooth grow. Default SVG normally, invert SVG on
-            hover. */}
+        {/* The b mark (SVG, white b + amber underline). The glitchy bitmapIn reveal now
+            happens ONCE on the centre b at the start; here the resting b simply CROSS-FADES
+            in as the lifted centre b hands off (same size + position → seamless, no second
+            glitch). Default SVG normally, invert SVG on hover. */}
         <span
-          className={`relative flex items-center justify-center shrink-0 ${
-            firstVisit && bGrown ? 'animate-bitmap-in' : ''
-          }`}
+          className="relative flex items-center justify-center shrink-0"
+          /* No opacity transition: the resting b swaps in INSTANTLY (single frame) as the
+             lifted centre b hides at the exact same spot — no crossfade dip, so the b just
+             appears to already be where it belongs. */
           style={{
             height: 'var(--brandH)',
             width: 'var(--brandH)',
             transformOrigin: 'left center',
-            // Reveal duration for the bitmap-in animation (matches the text slide).
-            ...(firstVisit && bGrown ? { ['--bitmap-in-dur' as any]: `${BRAND_MOTION.travelMs}ms` } : {}),
-            // Hidden until the reveal fires (first visit only).
-            ...(firstVisit && !bGrown ? { transform: 'scale(0)', opacity: 0 } : {}),
+            opacity: firstVisit && !bGrown ? 0 : 1,
           }}
         >
           <img
@@ -189,20 +270,14 @@ const BrandLockup = ({ pageName }: { pageName: string }) => {
           />
         </span>
 
-        {/* Wordmark — same size (--brandH) and level as the b. Fades in on load.
-            This is the element the intro flies. Hidden on mobile. */}
+        {/* Wordmark (page title) — scrambles IN beside the b at the end of the intro.
+            Same size (--brandH) + level as the b. Hidden on mobile. */}
         <span
-          ref={wordRef}
-          className={`hidden md:block font-mono font-light tracking-tight text-foreground whitespace-nowrap leading-none transition-opacity ${
-            firstVisit && bGrown ? 'animate-bitmap-in-opacity' : ''
-          }`}
+          className="hidden md:block font-mono font-light tracking-tight text-foreground whitespace-nowrap leading-none transition-opacity"
           style={{
             fontSize: 'var(--brandH)',
-            // During the reveal, the opacity flicker (synced to the b) owns opacity.
-            // Otherwise, the normal load fade-in.
-            ...(firstVisit && bGrown
-              ? { ['--bitmap-in-dur' as any]: `${BRAND_MOTION.travelMs}ms` }
-              : { opacity: visible ? 1 : 0, transitionDuration: `${BRAND_MOTION.fadeInMs}ms` }),
+            opacity: wordVisible ? 1 : 0,
+            transitionDuration: `${BRAND_MOTION.fadeInMs}ms`,
           }}
         >
           {display}
@@ -222,11 +297,8 @@ const Navigation = ({ currentPath, pageName = BRAND_NAME }: { currentPath: strin
   const isActive = (path: string) => currentPath === path;
 
   // The nav controls are hidden during the intro and appear the instant the brand
-  // wordmark arrives (BrandLockup dispatches "brand-arrived").
-  const forced =
-    typeof window !== "undefined" && new URLSearchParams(window.location.search).has("intro");
-  const firstVisit =
-    typeof window === "undefined" ? true : forced || !sessionStorage.getItem(SEEN_KEY);
+  // wordmark arrives (BrandLockup dispatches "brand-arrived"). Intro plays every load.
+  const firstVisit = true;
   const [controlsVisible, setControlsVisible] = useState(!firstVisit);
   useEffect(() => {
     if (!firstVisit) return;
@@ -241,77 +313,75 @@ const Navigation = ({ currentPath, pageName = BRAND_NAME }: { currentPath: strin
 
   return (
     <>
-      {/* BRAND LOCKUP lives OUTSIDE the <nav> so it's NOT trapped in the nav's
-          z-50 stacking context — that's what lets its mix-blend-difference invert
-          against the actual page behind it (rain / sections), keeping it legible
-          over anything. It's a fixed top-left element. */}
+      {/* BRAND LOCKUP is a fixed top-left element rendered OUTSIDE the <nav> so the
+          oversized b can overhang below the bar and be positioned independently. */}
       <BrandLockup pageName={pageName} />
 
-      <nav className="fixed top-0 left-0 right-0 z-50 pb-8">
-        {/* Consistent site padding; transparent bar (no bg/border anymore). */}
-        <div className="relative w-full px-4 md:px-8 lg:px-12">
+      <nav className="fixed top-8 left-0 right-0 z-50">
+        {/* Nav content uses the same .container-page as sections, so the controls
+            align with page content (incl. centring on ultra-wide). Top edge = top-8
+            (p-8) to match the brand + the page gutter. */}
+        <div className="relative container-page">
 
-          {/* Right-aligned controls row — hidden during the intro; fades in on arrival. */}
+          {/* Right-aligned controls row — hidden during the intro; fades in on arrival.
+              Also squashes with the brand on scroll (scale via --nav-scale). */}
         <div
-          className="relative z-50 flex items-center justify-end min-h-[5rem] md:min-h-[6rem] pt-3 transition-opacity"
+          className="relative z-50 flex items-end justify-end"
+          /* items-end + min-height --brandH: bottom-align the controls box with the
+             BOTTOM of the page-title lettering (same --brandH as the brand), so the
+             nav reads as emerging from the CRT line where bitmap.audio powers off. */
           style={{
+            minHeight: 'var(--brandH)',
             opacity: controlsVisible ? 1 : 0,
-            transitionDuration: `${BRAND_MOTION.revealMs}ms`,
+            /* Nav squishes LESS than the brand (--nav-scale), from its top-right corner (right
+               distance preserved). --nav-lift raises it as it shrinks so its TOP meets the title
+               TOP (the gutter line) when fully squished, while staying bottom-aligned at full. */
+            transform: 'translateY(var(--nav-lift, 0px)) scale(var(--nav-scale, 1))',
+            transformOrigin: 'top right',
+            /* Only the intro opacity fade transitions; the squish transform is scroll-linked
+               (no transition) so it tracks the scroll tightly instead of lagging. */
+            transition: `opacity ${BRAND_MOTION.revealMs}ms ease`,
             pointerEvents: controlsVisible ? undefined : "none",
           }}
         >
 
           {/* DESKTOP NAV — items grouped in their own bg panel (square edges, bitmap-style) */}
-          <div className="hidden md:flex items-center gap-6 backdrop-blur-md border border-border/10 rounded-none px-6 py-2.5">
+          <div className="hidden md:flex items-center gap-6 backdrop-blur-md border border-border/10 rounded-none p-4">
             <NavigationMenu>
               <NavigationMenuList className="gap-6">
-                <NavigationMenuItem>
-                  <a href="/home" className={cn(
-                    "font-mono text-base uppercase tracking-wider link-underline transition-colors",
-                    isActive("/home") ? "text-primary hover:text-accent" : "text-muted-foreground hover:text-accent"
-                  )}>Home</a>
-                </NavigationMenuItem>
 
                 <NavigationMenuItem>
                   <a href="/about-v2?intro=1" className={cn(
                     "font-mono text-base uppercase tracking-wider link-underline transition-colors",
-                    isActive("/about") ? "text-primary hover:text-accent" : "text-muted-foreground hover:text-accent"
+                    isActive("/about") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
                   )}>About</a>
                 </NavigationMenuItem>
 
-                <NavigationMenuItem className="relative">
-                  <NavigationMenuTrigger className={cn(
-                    "bg-transparent p-0 h-auto font-mono text-base uppercase tracking-wider transition-colors rounded-none",
-                    "hover:bg-transparent hover:text-accent focus:bg-transparent focus:text-accent data-[state=open]:text-accent",
-                    currentPath.startsWith("/solutions") ? "text-primary" : "text-muted-foreground"
-                  )}>
-                    Solutions
-                  </NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <div className="w-64 bg-background/85 shadow-xl flex flex-col rounded-none">
-                      {solutions.map((s) => (
-                        <a
-                          key={s.href}
-                          href={s.href}
-                          className="group block px-4 py-3 hover:bg-secondary transition-colors border-b border-border"
-                        >
-                          <span className="block font-mono text-base text-foreground group-hover:text-accent transition-colors">
-                            {s.name}
-                          </span>
-                          <span className="block text-[12px] uppercase tracking-tight text-muted-foreground mt-1">
-                            {s.description}
-                          </span>
-                          <div className="h-px w-0 bg-accent transition-all group-hover:w-full mt-2" />
-                        </a>
-                      ))}
-                    </div>
-                  </NavigationMenuContent>
+                <NavigationMenuItem>
+                  <a href="/solutions/sonic-branding?intro=1" className={cn(
+                    "font-mono text-base uppercase tracking-wider link-underline transition-colors",
+                    isActive("/about") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
+                  )}>Branding</a>
+                </NavigationMenuItem>
+
+                <NavigationMenuItem>
+                  <a href="/solutions/uiux-sound?intro=1" className={cn(
+                    "font-mono text-base uppercase tracking-wider link-underline transition-colors",
+                    isActive("/about") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
+                  )}>UI/UX</a>
+                </NavigationMenuItem>
+
+                <NavigationMenuItem>
+                  <a href="/solutions/experiential-audio?intro=1" className={cn(
+                    "font-mono text-base uppercase tracking-wider link-underline transition-colors",
+                    isActive("/about") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
+                  )}>Experience</a>
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>
                   <a href="/returns2" className={cn(
                     "font-mono text-base uppercase tracking-wider link-underline transition-colors",
-                    isActive("/returns") ? "text-primary hover:text-accent" : "text-muted-foreground hover:text-accent"
+                    isActive("/returns") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
                   )}>Why?</a>
                 </NavigationMenuItem>
               </NavigationMenuList>
@@ -322,14 +392,7 @@ const Navigation = ({ currentPath, pageName = BRAND_NAME }: { currentPath: strin
             </Button>
           </div>
 
-          {/* DESKTOP HAMBURGER — opens the full overlay menu (afternow-style) */}
-          <button
-            aria-label="Open menu"
-            className="hidden md:flex items-center justify-center h-12 w-12 ml-4 bg-background/70 backdrop-blur-md border border-border/10 rounded-none text-foreground hover:text-accent transition-colors"
-            onClick={() => setIsDesktopOpen(true)}
-          >
-            <Menu className="w-6 h-6" />
-          </button>
+          
 
           {/* MOBILE TOGGLE — sits in its own tile so it reads on the transparent bar */}
           <button
@@ -344,58 +407,7 @@ const Navigation = ({ currentPath, pageName = BRAND_NAME }: { currentPath: strin
           </button>
         </div>
 
-        {/* DESKTOP OVERLAY MENU — full-screen, expanded detail (afternow-style) */}
-        {isDesktopOpen && (
-          <div className="hidden md:flex fixed inset-0 z-[80] bg-background/97 backdrop-blur-2xl flex-col animate-fade-in">
-            <div className="flex items-center justify-end w-full px-8 lg:px-12 pt-3">
-              <button
-                aria-label="Close menu"
-                className="flex items-center justify-center h-12 w-12 border border-border/10 rounded-none text-foreground hover:text-accent transition-colors"
-                onClick={() => setIsDesktopOpen(false)}
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-
-            <div className="flex-1 w-full max-w-6xl mx-auto px-8 lg:px-12 flex flex-col justify-center gap-10">
-              <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-12 items-start">
-                {/* Primary links */}
-                <div className="flex flex-col gap-3">
-                  {[
-                    { name: "Home", href: "/home" },
-                    { name: "About", href: "/about" },
-                    { name: "Why?", href: "/returns2" },
-                    { name: "FAQ", href: "/faq" },
-                    { name: "Contact", href: "/contact" },
-                  ].map((l) => (
-                    <a
-                      key={l.href}
-                      href={l.href}
-                      className="font-mono text-5xl lg:text-6xl uppercase tracking-tight text-foreground hover:text-accent transition-colors w-fit"
-                    >
-                      {l.name}
-                    </a>
-                  ))}
-                </div>
-
-                {/* Solutions detail column */}
-                <div className="flex flex-col gap-4 min-w-[18rem]">
-                  <p className="font-mono text-sm tracking-[0.4em] uppercase text-accent">[ Solutions ]</p>
-                  {solutions.map((s) => (
-                    <a key={s.href} href={s.href} className="group block">
-                      <span className="block font-mono text-xl text-foreground group-hover:text-accent transition-colors">
-                        {s.name}
-                      </span>
-                      <span className="block text-[13px] uppercase tracking-tight text-muted-foreground mt-1">
-                        {s.description}
-                      </span>
-                    </a>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        
 
         {/* MOBILE MENU */}
         {isMobileOpen && (

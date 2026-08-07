@@ -11,13 +11,114 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── LENIS SMOOTH SCROLL (see src/lib/smooth-scroll.ts) ───────────────────────
+   Lenis adds these classes to <html> when active. Required base rules so the
+   virtual scroll behaves. Inert on the returns pages (data-smooth="off" → Lenis
+   never attaches, so these classes are never added there). */
+html.lenis,
+html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
+.lenis.lenis-smooth iframe { pointer-events: none; }
+
+/* ── SINGLE SOURCE OF TRUTH FOR PAGE SPACING ──────────────────────────────────
+   One gutter, used by every section, the nav, and the heroes — the SAME distance
+   from the left, right AND top edges (p-8 = 32px), for even, flush spacing.
+   Full-bleed (no max-width cap), so the side gutters never grow on wide screens.
+   Change --page-gutter here and it updates the whole site. */
+:root {
+  --page-gutter: 2rem;   /* 32px = p-8, everywhere */
+  /* Brand mark + page-title lettering size. Shared by the brand lockup AND the nav
+     controls (which bottom-align to this height), so the nav box bottom lines up with
+     the bottom of the title lettering. Keep in sync with the brand's inline --brandH. */
+  --brandH: clamp(3rem, 6vw, 6.5rem);
+  /* One knob for how wide hero copy (title + body) is allowed to run, site-wide. */
+  --hero-copy-max: 64rem;
+  /* Scroll runway after each sticky hero — how long the hero holds (pull plays) before
+     the next section rises over it. Roughly match HERO_SQUISH.end in use-hero-squish. */
+  --hero-runway: 85svh;
+}
+
+@layer components {
+  /* Shared width restriction for hero copy — apply to the title + body wrappers so
+     every hero constrains its text identically. Change --hero-copy-max, not per h/p. */
+  .hero-copy { max-width: var(--hero-copy-max); }
+
+  /* Hero pull layers: the subtitle (title) always stacks ABOVE the blurb (body), so as
+     they converge into the glare on scroll the title stays on top. Site-wide. */
+  [data-hero-pull="title"] { position: relative; z-index: 2; }
+  [data-hero-pull="sub"]   { position: relative; z-index: 1; }
+
+  /* Scroll RUNWAY placed between a sticky hero and the content below it. It adds empty
+     scroll distance so the hero stays pinned and its pull animation plays out fully
+     BEFORE the next section rises up to cover it (the afternow "hold, then release").
+     Desktop only — on mobile the hero isn't sticky, so no runway. Tune --hero-runway. */
+  .hero-runway { height: 0; }
+}
+@media (min-width: 768px) {
+  .hero-runway { height: var(--hero-runway, 85svh); }
+}
+
+/* ── LIGHT "COOL OAT" THEME — the beige world for post-hero content ────────────
+   Maps the shadcn HSL tokens to the --content-* tokens (edit those in :root), so any
+   component inside turns beige automatically. Opaque so it covers the dark hero. */
+.theme-oat {
+  --background: var(--content-background);
+  --foreground: var(--content-foreground);
+  --card: var(--content-card);
+  --card-foreground: var(--content-foreground);
+  --popover: var(--content-card);
+  --popover-foreground: var(--content-foreground);
+  --border: var(--content-border);
+  --input: var(--content-border);
+  --grid-color: var(--content-border);
+  --secondary: var(--content-muted);
+  --secondary-foreground: var(--content-foreground);
+  --muted: var(--content-muted);
+  --muted-foreground: var(--content-muted-foreground);
+  --primary: var(--content-primary);
+  --primary-foreground: 0 0% 98%;
+  --accent: var(--content-accent);
+  --accent-foreground: 0 0% 100%;
+  --ring: var(--content-accent);
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+/* The SOLARIS beam — the seam between the dark hero and the beige world. Fully driven
+   by the --solaris-* tokens in :root (height, gradient stops, glow). Centres an optional
+   label (see Solaris.astro) when the beam is made tall enough. */
+.solaris {
+  display: flex;
+  align-items: center;
+  height: var(--solaris-height);
+  background: linear-gradient(90deg, var(--solaris-from) 0%, var(--solaris-mid) 55%, var(--solaris-to) 100%);
+  box-shadow: var(--solaris-glow);
+}
+.solaris-text {
+  font-family: var(--font-mono);
+  color: hsl(var(--solaris-text));
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  font-weight: 600;
+  line-height: 1;
+}
+
+@layer components {
+  .container-page {
+    width: 100%;
+    padding-inline: var(--page-gutter);
+  }
+}
+
 
 @layer base {
   :root {
     /* ========================================================================
       LAYER 1: THE CANVAS (Surfaces)
     ======================================================================== */
-    --background: 180 10% 20%;       /* PAGE BACKGROUND (The Void) previous was 200 10% 10% / new change so before was 180 20% 9% */
+    --background: 180 10% 12%;       /* PAGE BACKGROUND (The Void) previous was 200 10% 10% / new change so before was 180 20% 9% */
     --foreground: 0 0% 95%;         /* MAIN TEXT */
 
     --card: 220 20% 7%;             /* CARDS */
@@ -36,6 +137,27 @@
     --grid-color: 180 15% 15%;      /* LIGHTER THAN BEFORE (Was 12%) TO POP */
     --input: 220 15% 12%;
     --ring: 35 100% 55%;
+
+    /* ========================================================================
+      LAYER 5: THE CONTENT WORLD (light "Cool Oat" beige) + SOLARIS BEAM
+      Named tokens so the beige palette AND the divider are editable in one place.
+    ======================================================================== */
+    --content-background: 48 20% 90%;    /* Cool Oat #ECEAE0 — post-hero sections */
+    --content-foreground: 48 10% 13%;    /* warm near-black text */
+    --content-card: 48 26% 94%;
+    --content-border: 42 12% 76%;
+    --content-muted: 44 16% 85%;
+    --content-muted-foreground: 42 8% 38%;
+    --content-primary: 195 45% 30%;      /* deep teal (light-cyan is invisible on cream) */
+    --content-accent: 28 90% 45%;        /* deepened orange for contrast on cream */
+
+    /* SOLARIS beam — the dark→beige seam divider. Make it BIGGER via --solaris-height. */
+    --solaris-height: 96px;
+    --solaris-from: #FF9E1A;             /* brand orange (left) */
+    --solaris-mid: #FFC24A;
+    --solaris-to: #FFEEB8;               /* hot / near-white (right) */
+    --solaris-glow: 0 0 24px rgba(255, 180, 60, 0.5);
+    --solaris-text: 180 10% 12%;         /* text colour when a label sits on the beam */
 
     /* PATTERN DICTIONARY */
     --grid-size: 20px;
@@ -733,23 +855,5 @@ a, button, [role="button"] {
 .animate-bitmap-in {
   animation: bitmapIn var(--bitmap-in-dur, 650ms) steps(1, end) both;
   transform-origin: left center;
-}
-
-/* Opacity-only twin of bitmapIn — SAME percentages + opacity values + timing, but
-   NO scale. Used on the wordmark (about us) so it flickers in/out together with the
-   b, without changing size. Keep the opacity stops in sync with bitmapIn above. */
-@keyframes bitmapInOpacity {
-  0%   { opacity: 0; }
-  16%  { opacity: 1; }
-  28%  { opacity: 0.3; }
-  44%  { opacity: 1; }
-  58%  { opacity: 0.55; }
-  72%  { opacity: 1; }
-  82%  { opacity: 0.35; }
-  100% { opacity: 1; }
-}
-
-.animate-bitmap-in-opacity {
-  animation: bitmapInOpacity var(--bitmap-in-dur, 650ms) steps(1, end) both;
 }
 

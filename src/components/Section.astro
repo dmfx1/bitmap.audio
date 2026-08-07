@@ -42,8 +42,10 @@ const {
 <section
   id={id}
   class:list={[
-    "relative flex justify-center w-full transition-colors duration-700 ease-in-out",
-    !noPadding && "py-16 md:py-48",
+    "relative flex justify-center w-full transition-colors duration-700 ease-in-out ",
+    /* Vertical padding uses the SAME gutter var as the horizontal edges, so content
+       sits p-8 (32px) from every section edge, consistently, site-wide. */
+    !noPadding && "py-[var(--page-gutter)]",
     hasBorder && "border-t-2 border-border",
     animate && "reveal-on-scroll opacity-0 translate-y-6",
     invert ? "section-inverted z-20 shadow-2xl" : "bg-background text-foreground z-10",
@@ -120,10 +122,15 @@ const {
       render output. */}
   {grainBg && <GrainGradientBg client:idle />}
 
+  {/* Content container — the single source of truth for side gutters + max width.
+       - default:      .container-page (capped at --page-max, centred, gutters)
+       - isFullWidth:  full-bleed but STILL keeps the same gutters (wide sections)
+       - noPadding:    true edge-to-edge (e.g. the client-terminal grid) */}
   <div class:list={[
-    "w-full relative z-10", 
-    !noPadding && "px-4 md:px-8 lg:px-12",
-    !isFullWidth && "max-w-7xl mx-auto"
+    "relative z-10",
+    !isFullWidth && !noPadding && "container-page",
+    isFullWidth && !noPadding && "w-full px-4 md:px-8 lg:px-12",
+    noPadding && "w-full",
   ]}>
     <slot />
   </div>

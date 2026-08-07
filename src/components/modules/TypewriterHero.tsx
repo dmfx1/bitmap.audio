@@ -1,5 +1,6 @@
 /* src/components/modules/TypewriterHero.tsx */
 import React, { useState, useEffect, useRef } from 'react';
+import { BRAND_MOTION } from '../../config/brandMotion';
 
 interface TypewriterProps {
   text: string;
@@ -21,6 +22,18 @@ export default function TypewriterHero({
   const lastUpdate = useRef(0);
   const hasStarted = useRef(false);
 
+  // Glitchy 0/1 cursor WHILE typing; reverts to the solid Solaris line once done.
+  const [done, setDone] = useState(false);
+  const [cursorChar, setCursorChar] = useState('1');
+  useEffect(() => {
+    if (done) return;
+    const id = window.setInterval(
+      () => setCursorChar(Math.random() < 0.5 ? '0' : '1'),
+      BRAND_MOTION.flickerMs
+    );
+    return () => window.clearInterval(id);
+  }, [done]);
+
   useEffect(() => {
     let rafId: number;
     const type = (time: number) => {
@@ -36,8 +49,9 @@ export default function TypewriterHero({
       }
       if (index.current <= fullText.length) {
         rafId = requestAnimationFrame(type);
-      } else if (onComplete) {
-        onComplete();
+      } else {
+        setDone(true);
+        if (onComplete) onComplete();
       }
     };
     rafId = requestAnimationFrame(type);
@@ -83,7 +97,11 @@ export default function TypewriterHero({
   return (
     <h1 className={className || "heading-hero mb-8 leading-tight font-medium min-h-[2.2em] md:min-h-[2.4em]"}>
       {renderText()}
-      <span className="inline-block w-[0.5ch] h-[0.9em] bg-accent brightness-125 ml-1 animate-pulse align-middle" />
+      {done ? (
+        <span className="inline-block w-[0.5ch] h-[0.9em] bg-accent brightness-125 ml-1 animate-pulse align-middle" />
+      ) : (
+        <span className="text-accent brightness-125 ml-1" aria-hidden="true">{cursorChar}</span>
+      )}
     </h1>
   );
 }

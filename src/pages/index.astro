@@ -1,16 +1,19 @@
 ---
-/* src/pages/index.astro */
-import Layout from '../layouts/Layout.astro';
-import HomeHero from '../components/modules/HomeHero.tsx';
-
-// ── HERO IMAGE ──────────────────────────────────────────────────────────────
-// Change this one line to swap the background image.
-const heroSrc = '/images/home-hero-cube-transparent_2.png';
-// ────────────────────────────────────────────────────────────────────────────
+/* src/pages/index.astro
+ * The old splash landing has been archived to src/_archive/pages/index-landing.astro.
+ * "/" now redirects straight to the homepage. */
 ---
-
-<Layout title="bitmap.audio | Sonic Infrastructure" hideHeader={true}>
-  <section class="flex-1 flex flex-col items-center justify-center text-center mx-auto relative min-h-screen px-6 overflow-hidden">
-    <HomeHero client:load imageSrc={heroSrc} />
-  </section>
-</Layout>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="refresh" content="0; url=/home" />
+    <link rel="canonical" href="/home" />
+    <meta name="robots" content="noindex" />
+    <title>bitmap.audio</title>
+    <script is:inline>window.location.replace('/home');</script>
+  </head>
+  <body>
+    <a href="/home">Continue to bitmap.audio →</a>
+  </body>
+</html>

@@ -1,7 +1,7 @@
 ---
 /* src/pages/about.astro */
-import { getImage } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
+import Solaris from '../components/Solaris.astro';
 import Section from '../components/Section.astro';
 import AboutIntro from '../components/modules/AboutIntro.tsx';
 import Founders from '../components/modules/Founders.tsx';
@@ -9,22 +9,6 @@ import AboutPhilosophy from '../components/modules/AboutPhilosophy.tsx';
 import Values from '../components/modules/Values.tsx';
 import Clients from '../components/modules/Clients.tsx';
 import CTA from '../components/modules/CTA.tsx';
-import heroAboutTwoMinds from '../assets/images/hero-about-two-minds-03.png';
-import philosophyBg from '../assets/images/about-bitmap-philosophy-bg-01.png';
-
-const heroImage = await getImage({
-  src: heroAboutTwoMinds,
-  format: 'webp',
-  width: 1200,
-  quality: 85,
-});
-
-const philosophyBgImage = await getImage({
-  src: philosophyBg,
-  format: 'webp',
-  width: 1200,
-  quality: 80,
-});
 ---
 
 <Layout
@@ -32,19 +16,23 @@ const philosophyBgImage = await getImage({
   description="bitmap.audio is a sonic branding and immersive audio agency founded by Dom Storrs-Fox and Nick Granville-Fall. We design sound identities for digital brands."
 >
   {/* Hero: sticks at top of container, content scrolls over it */}
-  <div class="md:sticky top-12 md:top-0 z-[1] min-h-svh md:min-h-0 md:h-[90vh]">
-    <div class="pt-20 pb-8">
-      <AboutIntro client:load imageSrc={heroImage.src} />
+  <div id="hero-sticky" class="md:sticky top-0 z-[1] min-h-svh">
+    <div class="h-full">
+      <AboutIntro client:load />
     </div>
   </div>
 
+  <div class="hero-runway" aria-hidden="true"></div>
+
   {/* Content: scrolls over the sticky hero */}
-  <div class="relative z-10">
+  <Solaris />
+
+  <div class="relative z-10 theme-oat">
     <Section id="founders" delay="0.2s" className="!bg-background/50 backdrop-blur-xl">
       <Founders client:visible />
     </Section>
 
-    <Section id="philosophy" invert delay="0.3s" className="!bg-background/50 backdrop-blur-xl" bgSrc={philosophyBgImage.src}>
+    <Section id="philosophy" invert delay="0.3s" className="!bg-background/50 backdrop-blur-xl">
       <AboutPhilosophy client:visible />
     </Section>
 

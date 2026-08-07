@@ -1,19 +1,10 @@
 ---
 /* src/pages/faq.astro */
-import { getImage } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
 import Section from '../components/Section.astro';
 import FAQContent from '../components/modules/FAQContent.tsx';
 import CTA from '../components/modules/CTA.tsx';
 import { BitmapQuestion } from '../components/ui/icons';
-import heroFaq from '../assets/images/hero-faq-10.png';
-
-const heroImage = await getImage({
-  src: heroFaq,
-  format: 'webp',
-  width: 1400,
-  quality: 85,
-});
 ---
 
 <Layout
@@ -60,7 +51,7 @@ const heroImage = await getImage({
       ]
     })}</script>
   </Fragment>
-  <Section id="faq-hero" delay="0.1s" className="pt-8 pb-12 md:py-52 min-h-[40vh] flex items-start md:items-end" bgSrc={heroImage.src} bgSide="right" bgWidth="65%">
+  <Section id="faq-hero" delay="0.1s" className="min-h-svh flex items-center">
     <div class="absolute right-4 top-4 pointer-events-none select-none" aria-hidden="true">
       <BitmapQuestion className="w-32 h-32 text-primary/10 rotate-12" />
     </div>

@@ -1,28 +1,12 @@
 ---
 /* src/pages/solutions/sonic-branding.astro */
-import { getImage } from 'astro:assets';
 import Layout from '../../layouts/Layout.astro';
+import Solaris from '../../components/Solaris.astro';
 import Section from '../../components/Section.astro';
 import SonicHero from '../../components/modules/solutions/SonicHero.tsx';
 import SonicAnalysis from '../../components/modules/solutions/SonicAnalysis.tsx';
 import DeliverablesGrid from '../../components/modules/solutions/DeliverablesGrid.tsx';
 import CTA from '../../components/modules/CTA.tsx';
-import heroSonic from '../../assets/images/hero-sonic-branding-transparent-03.png';
-import deliverablesBg from '../../assets/images/deliverables-bg-01.png';
-
-const heroImage = await getImage({
-  src: heroSonic,
-  format: 'webp',
-  width: 1400,
-  quality: 85,
-});
-
-const deliverablesBgImage = await getImage({
-  src: deliverablesBg,
-  format: 'webp',
-  width: 1200,
-  quality: 80,
-});
 
 const sonicDeliverables = [
   "Sonic Audit & Brand Analysis",
@@ -55,19 +39,23 @@ const sonicDeliverables = [
     })}</script>
   </Fragment>
   {/* Hero: sticks at top of container, content scrolls over it */}
-  <div class="md:sticky top-12 md:top-0 z-[1] min-h-svh md:min-h-0 md:h-[75vh]">
-    <div class="h-full pt-16 pb-8">
-      <SonicHero client:load imageSrc={heroImage.src} />
+  <div id="hero-sticky" class="md:sticky top-0 z-[1] min-h-svh">
+    <div class="h-full">
+      <SonicHero client:load />
     </div>
   </div>
 
+  <div class="hero-runway" aria-hidden="true"></div>
+
   {/* Content: scrolls over the sticky hero — sections are frosted glass so hero colours bleed through */}
-  <div class="relative z-10">
+  <Solaris />
+
+  <div class="relative z-10 theme-oat">
     <Section id="analysis" delay="0.5s" className="!bg-background/50 backdrop-blur-xl" grainBg>
       <SonicAnalysis client:visible />
     </Section>
 
-    <Section id="deliverables" invert delay="1.2s" className="!bg-background/50 backdrop-blur-xl" bgSrc={deliverablesBgImage.src} bgFade="up">
+    <Section id="deliverables" invert delay="1.2s" className="!bg-background/50 backdrop-blur-xl">
       <DeliverablesGrid
         client:visible
         items={sonicDeliverables}

@@ -17,6 +17,7 @@
  */
 import Layout from '../layouts/Layout.astro';
 import Section from '../components/Section.astro';
+import Solaris from '../components/Solaris.astro';
 import AboutHeroV2 from '../components/modules/AboutHeroV2.tsx';
 import Founders from '../components/modules/Founders.tsx';
 import AboutPhilosophy from '../components/modules/AboutPhilosophy.tsx';
@@ -35,25 +36,34 @@ import CTA from '../components/modules/CTA.tsx';
       construction. All timing is in src/config/brandMotion.ts. */}
 
   {/* Hero: fills the viewport and sticks; blurred sections scroll up over it.
-      AboutHeroV2 is flex-1 + justify-end so its text ends at the bottom. */}
-  <div class="md:sticky top-0 z-[1] min-h-svh flex flex-col">
+      AboutHeroV2 is flex-1 + justify-end so its text ends at the bottom.
+      #hero-sticky is the (unanimated) ScrollTrigger anchor for the hero squish. */}
+  <div id="hero-sticky" class="md:sticky top-0 z-[1] min-h-svh flex flex-col">
     <AboutHeroV2 client:load />
   </div>
 
-  {/* Content: glass panels scroll over the sticky hero.
-      Each Section is full bleed (isFullWidth removes the centred max-w-7xl). */}
-  <div class="relative z-10">
-    <Section id="founders" delay="0.2s" isFullWidth={true} className="!bg-background/50 backdrop-blur-2xl">
+  {/* Scroll runway: the hero holds + its pull plays out over this distance before the
+      content below rises to cover it (afternow "hold, then release"). Desktop only. */}
+  <div class="hero-runway" aria-hidden="true"></div>
+
+  {/* Solaris beam — the seam that leads the beige world up over the dark hero.
+      Styling + size live in the --solaris-* tokens (global.css). Add text via <Solaris text="…" />. */}
+  <Solaris />
+
+  {/* Content: the beige "Cool Oat" world. theme-oat overrides the HSL tokens + is opaque,
+      so every section turns beige and covers the dark hero as it scrolls up. */}
+  <div class="relative z-10 theme-oat">
+    <Section id="founders" delay="0.2s" className="!bg-background/50 backdrop-blur-2xl">
       {/* NOTE: Founders still renders founder headshots — real photos, not AI.
           Flagged for a decision on whether "remove all imagery" includes these. */}
       <Founders client:visible />
     </Section>
 
-    <Section id="philosophy" invert delay="0.3s" isFullWidth={true} className="!bg-background/50 backdrop-blur-xl">
+    <Section id="philosophy" invert delay="0.3s" className="!bg-background/50 backdrop-blur-xl">
       <AboutPhilosophy client:visible />
     </Section>
 
-    <Section id="Values" delay="0.4s" isFullWidth={true} className="!bg-background/50 backdrop-blur-xl" grainBg>
+    <Section id="Values" delay="0.4s" className="!bg-background/50 backdrop-blur-xl" grainBg>
       <Values client:visible />
     </Section>
 
@@ -66,7 +76,7 @@ import CTA from '../components/modules/CTA.tsx';
       hasBorder={true}
       className="!bg-background-blur/50 backdrop-blur-xl pb-8"
     >
-      <div class="w-full max-w-7xl mx-auto px-4 md:px-8 lg:px-12 mb-8 pt-8">
+      <div class="container-page mb-8 pt-8">
         <p class="text-base font-mono tracking-[0.5em] uppercase text-accent">
           [ CLIENT_TERMINAL ]
         </p>
@@ -74,7 +84,7 @@ import CTA from '../components/modules/CTA.tsx';
       <Clients client:visible />
     </Section>
 
-    <Section id="cta" delay="0.6s" isFullWidth={true} className="!bg-background/50 backdrop-blur-xl" grainBg>
+    <Section id="cta" delay="0.6s" className="!bg-background/50 backdrop-blur-xl" grainBg>
       <CTA
         client:visible
         title="Define your brand's audio identity"
