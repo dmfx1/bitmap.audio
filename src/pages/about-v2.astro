@@ -42,23 +42,22 @@ import CTA from '../components/modules/CTA.tsx';
     <AboutHeroV2 client:load />
   </div>
 
-  {/* Scroll runway: the hero holds + its pull plays out over this distance before the
-      content below rises to cover it (afternow "hold, then release"). Desktop only. */}
-  <div class="hero-runway" aria-hidden="true"></div>
+  {/* HORIZONTAL SCROLL (trial, About only): the founders panel slides in from the RIGHT
+      over the dark hero, led by the vertical solaris beam, with the binary rain frozen
+      (GSAP <script> at the bottom). Replaces the vertical rise here. */}
+  <div id="peel" class="relative z-10">
+    <div class="peel-pin">
+      <div id="peel-reveal" class="theme-oat">
+        <div id="peel-beam" aria-hidden="true"></div>
+        <Section id="founders" delay="0s" className="min-h-svh flex flex-col justify-center">
+          <Founders client:visible />
+        </Section>
+      </div>
+    </div>
+  </div>
 
-  {/* Solaris beam — the seam that leads the beige world up over the dark hero.
-      Styling + size live in the --solaris-* tokens (global.css). Add text via <Solaris text="…" />. */}
-  <Solaris />
-
-  {/* Content: the beige "Cool Oat" world. theme-oat overrides the HSL tokens + is opaque,
-      so every section turns beige and covers the dark hero as it scrolls up. */}
+  {/* Content: the beige "Cool Oat" world — the rest of the sections after the peel. */}
   <div class="relative z-10 theme-oat">
-    <Section id="founders" delay="0.2s" className="!bg-background/50 backdrop-blur-2xl">
-      {/* NOTE: Founders still renders founder headshots — real photos, not AI.
-          Flagged for a decision on whether "remove all imagery" includes these. */}
-      <Founders client:visible />
-    </Section>
-
     <Section id="philosophy" invert delay="0.3s" className="!bg-background/50 backdrop-blur-xl">
       <AboutPhilosophy client:visible />
     </Section>
@@ -93,4 +92,48 @@ import CTA from '../components/modules/CTA.tsx';
       />
     </Section>
   </div>
+
+  {/* HORIZONTAL SCROLL driver (About trial). Pins the stage and scrubs --peel 0%→100%,
+      sliding the founders panel in from the right (the vertical solaris beam leads it), and
+      freezes the binary rain while pinned so the dark hero behind stays static.
+      Desktop only; reduced-motion just shows the founders. Tune: end (scroll length),
+      --solaris-height (beam thickness), --solaris-* (beam colours). */}
+  <script>
+    import { gsap } from 'gsap';
+    import { ScrollTrigger } from 'gsap/ScrollTrigger';
+    gsap.registerPlugin(ScrollTrigger);
+
+    function initPeel() {
+      const peel = document.getElementById('peel');
+      const pin = document.querySelector('.peel-pin');
+      if (!peel || !pin || peel.dataset.peelInit === '1') return;
+      const desktop = window.matchMedia('(min-width: 768px)').matches;
+      if (!desktop) return; // mobile: CSS shows the founders as a normal section
+      peel.dataset.peelInit = '1';
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        pin.style.setProperty('--peel', '100%'); // no animation — just reveal
+        return;
+      }
+      gsap.fromTo(pin, { '--peel': '0%' }, {
+        '--peel': '100%',
+        ease: 'none',
+        scrollTrigger: {
+          trigger: peel,
+          start: 'top top',
+          end: '+=120%',
+          scrub: true,
+          pin: pin,
+          pinSpacing: true,
+          invalidateOnRefresh: true,
+          onToggle: (self) => {
+            document.documentElement.dataset.rainFrozen = self.isActive ? '1' : '0';
+          },
+        },
+      });
+    }
+
+    document.addEventListener('astro:page-load', initPeel);
+    if (document.readyState === 'complete') initPeel();
+    else window.addEventListener('load', initPeel);
+  </script>
 </Layout>

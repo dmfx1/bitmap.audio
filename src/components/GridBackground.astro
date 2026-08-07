@@ -54,18 +54,29 @@ const { showRain = true, showGrid = true } = Astro.props;
 <script>
   const deepLayer = document.getElementById('layer-deep');
   const nearLayer = document.getElementById('layer-near');
+  const root = document.documentElement;
+
+  // FREEZE support: while <html data-rain-frozen="1"> (set during the About peel), the
+  // rain holds still — so the dark sheet reads as being peeled back, not scrolling. On
+  // unfreeze, `accum` absorbs the scroll that happened while frozen, so it resumes with
+  // no jump.
+  let accum = 0;
+  let frozen = false;
+  let freezeStart = 0;
+
+  const apply = () => {
+    const s = window.scrollY - accum;
+    // heights match the .layer-deep / .layer-near background-size (400 / 800)
+    if (deepLayer) deepLayer.style.transform = `translateY(${(s * 0.1) % 400}px)`;
+    if (nearLayer) nearLayer.style.transform = `translateY(${(s * 0.3) % 800}px)`;
+  };
 
   const handleScroll = () => {
-    const scrolled = window.scrollY;
-
-    if (deepLayer) {
-      // 400 matches the background-size height of .layer-deep (300px 400px)
-      deepLayer.style.transform = `translateY(${(scrolled * 0.1) % 400}px)`;
-    }
-    if (nearLayer) {
-      // 800 matches the background-size height of .layer-near (600px 800px)
-      nearLayer.style.transform = `translateY(${(scrolled * 0.3) % 800}px)`;
-    }
+    const wantFrozen = root.dataset.rainFrozen === '1';
+    if (wantFrozen && !frozen) { frozen = true; freezeStart = window.scrollY; }
+    else if (!wantFrozen && frozen) { accum += window.scrollY - freezeStart; frozen = false; }
+    if (frozen) return; // hold position
+    apply();
   };
 
   window.addEventListener('scroll', () => {

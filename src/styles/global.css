@@ -105,6 +105,34 @@ html.lenis body { height: auto; }
   line-height: 1;
 }
 
+/* ── ABOUT HORIZONTAL SCROLL (trial) — the founders SLIDE IN FROM THE RIGHT over the
+   (frozen-rain) dark hero, led by a vertical solaris beam. --peel (0%→100%, GSAP-scrubbed
+   on .peel-pin) drives the horizontal travel. Clean cover — no mask. Beam thickness =
+   --solaris-height; its gradient runs the LENGTH of the beam (top → bottom). */
+/* Mobile / default: off — founders render as a normal beige section. */
+#peel-beam { display: none; }
+
+@media (min-width: 768px) {
+  .peel-pin { position: relative; min-height: 100svh; overflow: hidden; }
+  #peel-reveal {
+    position: absolute;
+    inset: 0;
+    background-color: hsl(var(--background)); /* opaque beige (inherits theme-oat) */
+    transform: translateX(calc(100% - var(--peel, 0%))); /* off-right → in place */
+    will-change: transform;
+  }
+  #peel-beam {
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(-1 * var(--solaris-height)); /* rides the leading (left) edge of the panel */
+    width: var(--solaris-height);
+    background: linear-gradient(to bottom, var(--solaris-from) 0%, var(--solaris-mid) 55%, var(--solaris-to) 100%);
+    box-shadow: var(--solaris-glow);
+  }
+}
+
 @layer components {
   .container-page {
     width: 100%;
