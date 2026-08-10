@@ -105,6 +105,43 @@ html.lenis body { height: auto; }
   line-height: 1;
 }
 
+/* ── SCROLL SCENES (see src/lib/scene.ts) — pinned scrub on desktop, autoplay on mobile.
+   The stage holds the animated layers and fills the viewport while pinned. */
+/* content-visibility:visible overrides the global `section { content-visibility: auto }`.
+   That rule gives an off-screen section a PLACEHOLDER height (contain-intrinsic-size: 400px)
+   instead of its real pinned height (~5 viewports), so ScrollTrigger measures the pin's
+   start/end against the wrong page geometry — the lock lands late and the timeline scrubs
+   before the stage is centred. Keeping the scene always-laid-out fixes the measurement.
+   (Same root cause as the returns2 image-slide / free-roam bug — see CLAUDE.md.) */
+.scene {
+  position: relative;
+  content-visibility: visible;
+  /* The viewport-tall stage supplies its own rise: it scrolls up from the bottom into centre
+     before the pin engages (start:'center center'), then unpins and scrolls away — both are
+     ordinary scroll, no gaps. --scene-lead defaults to 0 (no empty beige void); add a per-scene
+     lead inline only for breathing room, e.g. style="--scene-lead: 20svh". */
+  padding-top: var(--scene-lead, 0svh);
+  /* BUILD-OUT tail: pinning a viewport-tall stage always leaves ~1 viewport of trailing after
+     the scrub (the small centred content sits in an otherwise empty stage). Pull the NEXT
+     section up into that empty tail so it doesn't read as dead space. The scene's exit lift+fade
+     (scene.ts) clears the content BEFORE this overlap region, so the next section only ever
+     covers empty background. Tune per scene inline: style="--scene-tail: 40svh". */
+  margin-bottom: calc(-1 * var(--scene-tail, 55svh));
+}
+/* about-v2 measurement fix: keep the founders peel laid out at its real height. The global
+   `section { content-visibility: auto; contain-intrinsic-size: 1px 400px }` collapses #founders
+   to a 400px placeholder while off-screen, so the PhilosophyScene pin below it is measured ~½
+   viewport too high and engages while the founders are still sliding in (the "snap"). Keeping it
+   laid out makes the scene's pin start/end measure correctly. (Same class as the returns2 bug.) */
+#peel, #founders { content-visibility: visible; }
+.scene-stage {
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
 /* ── ABOUT HORIZONTAL SCROLL (trial) — the founders SLIDE IN FROM THE RIGHT over the
    (frozen-rain) dark hero, led by a vertical solaris beam. --peel (0%→100%, GSAP-scrubbed
    on .peel-pin) drives the horizontal travel. Clean cover — no mask. Beam thickness =

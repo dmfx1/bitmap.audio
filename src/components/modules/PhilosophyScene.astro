@@ -1,0 +1,351 @@
+---
+/* src/components/modules/PhilosophyScene.astro
+ *
+ * THE PHILOSOPHY SCENE — a scroll-locked bitmap story on the reusable Scene framework
+ * (src/lib/scene.ts). One SVG canvas (viewBox 0 0 1200 1000 → resize-proof maths) holds 9
+ * <rect> bits (1 primary + 8 sub). NO connecting lines. ALL movement is "bitmappy" — stepped
+ * teleport / flicker, never smooth flying — echoing the nav's bitmapIn + CRT power-off.
+ *
+ *   1 PIXELATE REVEAL  the primary bit flickers in BIG (bitmapIn-style stepped scale/opacity).
+ *   2 LINE-UP          8 bits flicker in across a horizontal line-up (random bitmap order); the
+ *                      centre bit stays a bit bigger.
+ *   3 MAP TOGETHER     the bits teleport (stepped) from the line-up into a tight 3×3 grid.
+ *   4 MASTER ASSET     all 9 morph to accent with a glow pulse (the cohesive master).
+ *   5 MODULAR STEMS    the centre master shrinks + goes dark (still visible); the 8 stems grow,
+ *                      stay accent, ring the centre and do a stepped "macarena" orbit around it.
+ *   6 TOTAL CONTROL    the stems lock back into the accent grid with an EXTRA-big glow, then the
+ *                      whole grid CRT-powers-off ("TV out") like the nav wordmark.
+ *
+ * PALETTE — on-brand (src/styles/global.css :root); GSAP can't tween hsl(var(--x)), so hex:
+ *   void #1B2222 (--background) · bit #333F3E (unlit / recessed) · accent #FF9E1A (--accent /
+ *   Solaris). Keeps the beige→Void→beige JOURNEY: enters from beige, plays on the Void, and the
+ *   TV-out resolves back to beige for a seamless exit.
+ *
+ * Everything tunable lives in CONFIG at the top of the <script>.
+ */
+---
+<section data-scene="bitmap-philosophy" data-scroll="6" class="scene">
+  <div class="scene-stage">
+    <div class="phil-inner" data-scene-content>
+      <svg id="sound-canvas" class="sound-canvas" viewBox="0 0 1200 1000"
+           preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+        <g id="bit-group">
+          <g id="sub-group"></g>
+        </g>
+      </svg>
+      <div class="scene-caps">
+        <p class="scene-cap">Think of sound like pixels.</p>
+        <p class="scene-cap">We translate individual traits of your brand's personality into distinct audio "bits".</p>
+        <p class="scene-cap">Then map them together into a unified sonic identity.</p>
+        <p class="scene-cap">Master Asset — a complete, cohesive sound for your brand.</p>
+        <p class="scene-cap">Modular Stems — individual elements pulled from the master, ready for every touchpoint.</p>
+        <p class="scene-cap">Total Control — complete consistency in how your brand sounds, wherever it appears.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Fill the pinned stage and CENTRE the canvas in the viewport; captions overlay at the
+     bottom (typography overlay) so the bit sits at true centre, not pushed up by the copy. */
+  .phil-inner {
+    position: relative;
+    width: 100%;
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* Big, bold, wide canvas (viewBox 1200×1000 gives room for the line-up). Scales to fit. */
+  .sound-canvas {
+    width: clamp(360px, 88vmin, 900px);
+    aspect-ratio: 1.2 / 1;
+    overflow: visible;
+  }
+
+  .scene-caps {
+    position: absolute;
+    left: 50%;
+    bottom: clamp(2.5rem, 9vh, 6rem);
+    transform: translateX(-50%);
+    width: min(92vw, 50rem);
+    min-height: 4.6em;
+    text-align: center;
+  }
+  .scene-cap {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: clamp(1.05rem, 2vw, 1.5rem);
+    line-height: 1.5;
+    letter-spacing: 0.02em;
+    color: #ff9e1a; /* accent — legible on both the beige entry and the Void */
+  }
+</style>
+
+<script>
+  import { registerScene } from '../../lib/scene';
+  import { gsap } from 'gsap';
+
+  /* ─────────────────────────────────────────────────────────────────────────────
+     CONFIG — author the whole scene from here. Colours are on-brand hex (see header).
+     ───────────────────────────────────────────────────────────────────────────── */
+  const CONFIG = {
+    colors: {
+      void: '#1B2222',       // brand --background "The Void" (dark bg finishing point)
+      beige: '#ECEAE0',      // journey light start (theme-oat) — entry
+      inkOnLight: '#241F1A', // block on the light bg (≈ --content-foreground) — Stage 1
+      foreground: '#F2F2F2', // block on the Void (≈ --foreground) — white bits, Stage 2→3
+      bit: '#333F3E',        // dim / recessed (Stage 5 master)
+      accent: '#FF9E1A',     // brand --accent / Solaris (Stage 4+)
+      glow: 'rgba(255, 158, 26, 0.65)',
+    },
+    // viewBox geometry (units); viewBox is 1200×1000 so centre is (600,500)
+    tile: 100,
+    heroScale: 2.8,      // Stage 1: the hero bit is BIG (≥2× the old size)
+    revealSteps: 6,      // Stage 1: discrete steps the hero grows up through
+    lineupCentral: 1.3,  // Stage 2: centre of the line-up is a bit bigger
+    gridGap: 20,
+    lineupGap: 30,       // Stage 2: EQUAL edge-to-edge gap between every line-up block (fits canvas)
+    orbitRadius: 320,    // Stage 5: ring radius for the stems (more space from the centre)
+    orbitSub: 1.6,       // Stage 5: stems grow BIGGER on the explode
+    orbitMain: 0.8,      // Stage 5: master recedes (dark) but a bit bigger than before
+    orbitSpins: 720,     // Stage 5: total orbit rotation (deg); 90°-multiple steps keep bits square
+    orbitSteps: 8,       // Stage 5: number of bitmappy hops in the orbit
+    tetherWidth: 11,     // Stage 5: thick "electric" branch stroke (viewBox units)
+    finalScale: 1.15,    // Stage 6: the reformed grid is slightly bigger still
+    moveSteps: 7,        // "bitmappy" teleport granularity for position moves
+    mapSeg: 0.4,         // Stage 3: duration of each L-path segment (snake)
+    mapCascade: 0.09,    // Stage 3: stagger between blocks (snake cascade)
+    glowPulse: 30,       // Stage 4 glow blur (px)
+    glowBig: 64,         // Stage 6 EXTRA-big glow blur (px)
+    hold: 0.85,
+  };
+
+  // Grid cell each sub-bit maps to (pinwheel): left line-up blocks fan UP the left + across the
+  // top; right blocks down the right + across the bottom, so the Stage-3 snake sweeps in.
+  //   idx: 0(slot0) 1(slot1) 2(slot2) 3(slot3) | 4(slot5) 5(slot6) 6(slot7) 7(slot8)
+  const SUB_CELLS: Array<[number, number]> = [
+    [2, 0], [1, 0], [0, 0], [0, 1],   // left line-up → top-right, top-mid, top-left, mid-left
+    [2, 1], [2, 2], [1, 2], [0, 2],   // right line-up → mid-right, bot-right, bot-mid, bot-left
+  ];
+  // Line-up slots the 8 sub-bits occupy (slot 4 = centre = master).
+  const SLOTS = [0, 1, 2, 3, 5, 6, 7, 8];
+
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  const reduced = () =>
+    typeof window !== 'undefined' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  registerScene('bitmap-philosophy', (tl, stage) => {
+    const bitGroup = stage.querySelector<SVGGElement>('#bit-group');
+    const subGroup = stage.querySelector<SVGGElement>('#sub-group');
+    const caps = stage.querySelectorAll<HTMLElement>('.scene-cap');
+    if (!bitGroup || !subGroup || !caps.length) return;
+
+    const { tile, colors } = CONFIG;
+    const H = tile / 2;
+    const CX = 600, CY = 500;                 // viewBox centre
+    const GP = tile + CONFIG.gridGap;         // grid pitch
+    const moveEase = 'steps(' + CONFIG.moveSteps + ')';
+
+    // position helpers (all in viewBox units)
+    const toXY = (cx: number, cy: number) => ({ x: cx - H, y: cy - H });
+    const gridCell = (col: number, row: number): [number, number] => [CX - GP + col * GP, CY - GP + row * GP];
+    // Line-up centres with EQUAL edge-to-edge gaps, even though slot 4 (the centre) is bigger:
+    // we lay the row out by width + constant gap, then centre the whole row on CX.
+    const lineupScale = (slot: number) => (slot === 4 ? CONFIG.lineupCentral : 1);
+    const lineupCenters: number[] = (() => {
+      const w = Array.from({ length: 9 }, (_, s) => tile * lineupScale(s));
+      const total = w.reduce((a, b) => a + b, 0) + 8 * CONFIG.lineupGap;
+      const centers: number[] = [];
+      let x = CX - total / 2;
+      for (let s = 0; s < 9; s++) { centers[s] = x + w[s] / 2; x += w[s] + CONFIG.lineupGap; }
+      return centers;
+    })();
+    const lineupPos = (i: number): [number, number] => [lineupCenters[SLOTS[i]], CY];
+    const ringPos = (i: number): [number, number] => {
+      const a = (i * Math.PI) / 4;
+      return [CX + Math.cos(a) * CONFIG.orbitRadius, CY + Math.sin(a) * CONFIG.orbitRadius];
+    };
+    const subGrid = SUB_CELLS.map(([c, r]) => gridCell(c, r));
+    // The FINAL grid (Stage 6) uses a bigger pitch so the larger (finalScale) blocks keep the
+    // SAME edge gap as the earlier grids — consistent gaps across every grid.
+    const pitchFinal = tile * CONFIG.finalScale + CONFIG.gridGap;
+    const subGridFinal = SUB_CELLS.map(([c, r]) => [CX - pitchFinal + c * pitchFinal, CY - pitchFinal + r * pitchFinal] as [number, number]);
+
+    // ── build bits: mainBit (in #bit-group) + 8 subs (in #sub-group, so we can orbit them) ──
+    const mkRect = (id?: string) => {
+      const rc = document.createElementNS(SVG_NS, 'rect');
+      if (id) rc.setAttribute('id', id);
+      rc.setAttribute('class', id ? 'bit main-bit' : 'bit sub-bit');
+      rc.setAttribute('width', String(tile));
+      rc.setAttribute('height', String(tile));
+      rc.setAttribute('fill', colors.inkOnLight);
+      rc.setAttribute('shape-rendering', 'crispEdges');
+      return rc;
+    };
+    const mainBit = mkRect('main-bit');
+    bitGroup.insertBefore(mainBit, subGroup); // master behind the stems
+    const subBits: SVGRectElement[] = SUB_CELLS.map(() => {
+      const rc = mkRect();
+      subGroup.appendChild(rc);
+      return rc;
+    });
+
+    // Electric branches (Stage 5): thick glowing lines from the centre to each stem, INSIDE
+    // #sub-group so they orbit with the stems. Rendered behind the rects; start collapsed at
+    // the centre and grow outward when the stems explode.
+    const tetherG = document.createElementNS(SVG_NS, 'g');
+    subGroup.insertBefore(tetherG, subGroup.firstChild);
+    const tethers: SVGLineElement[] = subBits.map(() => {
+      const ln = document.createElementNS(SVG_NS, 'line');
+      ln.setAttribute('x1', String(CX)); ln.setAttribute('y1', String(CY));
+      ln.setAttribute('x2', String(CX)); ln.setAttribute('y2', String(CY));
+      ln.setAttribute('stroke', colors.foreground);
+      ln.setAttribute('stroke-width', String(CONFIG.tetherWidth));
+      ln.setAttribute('stroke-linecap', 'round');
+      tetherG.appendChild(ln);
+      return ln;
+    });
+
+    // ── "bitmappy" flicker-in (mirrors the nav's bitmapIn keyframes: snaps through states) ──
+    const bitmapAppear = (target: any, finalScale: number, pos: string, dur = 0.6, stagger = 0) =>
+      tl.to(target, {
+        keyframes: {
+          opacity: [0, 1, 0.3, 1, 0.55, 1],
+          scale: [finalScale * 0.2, finalScale * 0.6, finalScale * 0.25, finalScale * 0.85, finalScale * 0.5, finalScale],
+          easeEach: 'steps(1)',
+        },
+        duration: dur,
+        ease: 'none',
+        ...(stagger ? { stagger: { each: stagger, from: 'random' } } : {}),
+      }, pos);
+
+    // ── initial (resting) state — shown during the lead-in rise on beige ──
+    gsap.set(stage, { backgroundColor: colors.beige });
+    gsap.set(bitGroup, { filter: 'drop-shadow(0 0 0px ' + colors.glow + ')' });
+    gsap.set(subGroup, { rotation: 0, svgOrigin: CX + ' ' + CY });
+    gsap.set(tetherG, { opacity: 0, filter: 'drop-shadow(0 0 8px rgba(242, 242, 242, 0.45))' });
+    // transformOrigin 50% 50% = scale/rotate each rect around its OWN centre (GSAP resolves this
+    // against the rect's bounding box) — without it GSAP scales from the top-left corner, which
+    // drifts the grown bit down-right of centre.
+    gsap.set([mainBit, ...subBits], { transformOrigin: '50% 50%' });
+    gsap.set(mainBit, { ...toXY(CX, CY), scale: 0, opacity: 0, fill: colors.inkOnLight });
+    subBits.forEach((b, i) => gsap.set(b, { ...toXY(lineupPos(i)[0], lineupPos(i)[1]), scale: 0, opacity: 0, fill: colors.inkOnLight }));
+    gsap.set(caps, { opacity: 0 });
+    gsap.set(caps[0], { opacity: 1 }); // caption 1 visible at rest (rides up during lead-in)
+
+    /* ── caption cross-fade helper ── */
+    const toCap = (n: number) => {
+      if (n > 0) tl.to(caps[n - 1], { opacity: 0, duration: 0.3 });
+      tl.to(caps[n], { opacity: 1, duration: 0.4 }, n > 0 ? '<' : '>');
+    };
+
+    /* ── STAGE 1 — PIXELATE REVEAL: the hero bit GROWS in big, staggered up in discrete steps
+          (stepped scale) as you scroll — the clean "grew in" reveal from the earlier version. ── */
+    tl.to(mainBit, { opacity: 1, scale: CONFIG.heroScale, duration: 0.8, ease: 'steps(' + CONFIG.revealSteps + ')' }, '>');
+    tl.to({}, { duration: CONFIG.hold });
+
+    /* ── STAGE 2 — LINE-UP + LIGHTS FLICKER: blocks switch to white (foreground); the WHOLE
+          background strobes light↔dark ("lights flicking on/off") and settles on the Void; the
+          8 bits flicker in across an equal-gap line-up (random bitmap order). ── */
+    toCap(1);
+    tl.to([mainBit, ...subBits], { fill: colors.foreground, duration: 0.1 }, '<');
+    tl.to(mainBit, { ...toXY(lineupCenters[4], CY), scale: CONFIG.lineupCentral, duration: 0.5, ease: moveEase }, '<');
+    bitmapAppear(subBits, 1, '<', 0.5, 0.06);
+    tl.to(stage, {
+      keyframes: {
+        backgroundColor: [colors.beige, colors.void, colors.beige, colors.void, colors.beige, colors.void, colors.beige, colors.void, colors.void],
+        easeEach: 'steps(1)',
+      },
+      duration: 0.9,
+      ease: 'none',
+    }, '<');
+    tl.to({}, { duration: CONFIG.hold });
+
+    /* ── STAGE 3 — MAP TOGETHER (SNAKE): the bits jolt into the 3×3 along axis-aligned L-paths —
+          the LEFT line steps UP then RIGHT, the RIGHT line steps LEFT then DOWN — cascading like
+          the old Snake game. Everything stepped (bitmappy). ── */
+    toCap(2);
+    tl.addLabel('map');
+    const { mapSeg, mapCascade } = CONFIG;
+    tl.to(mainBit, { ...toXY(CX, CY), scale: 1, duration: mapSeg, ease: moveEase }, 'map');
+    const leftOrder = [3, 2, 1, 0];   // inner→outer left  — sweep UP then RIGHT
+    const rightOrder = [4, 5, 6, 7];  // inner→outer right — sweep LEFT then DOWN
+    leftOrder.forEach((idx, k) => {
+      const [gx, gy] = subGrid[idx];
+      const t = k * mapCascade;
+      tl.to(subBits[idx], { y: gy - H, duration: mapSeg, ease: moveEase }, 'map+=' + t);                     // up
+      tl.to(subBits[idx], { x: gx - H, scale: 1, duration: mapSeg, ease: moveEase }, 'map+=' + (t + mapSeg));// then right
+    });
+    rightOrder.forEach((idx, k) => {
+      const [gx, gy] = subGrid[idx];
+      const t = k * mapCascade;
+      tl.to(subBits[idx], { x: gx - H, duration: mapSeg, ease: moveEase }, 'map+=' + t);                     // left
+      tl.to(subBits[idx], { y: gy - H, scale: 1, duration: mapSeg, ease: moveEase }, 'map+=' + (t + mapSeg));// then down
+    });
+    tl.to({}, { duration: CONFIG.hold });
+
+    /* ── STAGE 4 — MASTER ASSET: all 9 morph to accent with a glow pulse. ── */
+    toCap(3);
+    tl.to([mainBit, ...subBits], { fill: colors.accent, duration: 0.5 }, '<');
+    tl.to(bitGroup, { scale: 1.08, svgOrigin: CX + ' ' + CY, duration: 0.35, yoyo: true, repeat: 1 }, '<');
+    tl.to(bitGroup, { filter: 'drop-shadow(0 0 ' + CONFIG.glowPulse + 'px ' + colors.glow + ')', duration: 0.35, yoyo: true, repeat: 1 }, '<');
+    tl.to({}, { duration: CONFIG.hold });
+
+    /* ── STAGE 5 — MODULAR STEMS (bitmappy explode + electric branches): the stems jolt OUT to a
+          wide ring (bigger), the master recedes dark + a touch bigger; thick electric branches
+          grow from the centre to each stem; then a stepped pinwheel orbit (branches flicker). ── */
+    toCap(4);
+    tl.addLabel('stems');
+    tl.to(mainBit, { scale: CONFIG.orbitMain, fill: colors.foreground, duration: 0.55, ease: moveEase }, 'stems');
+    subBits.forEach((b, i) =>
+      tl.to(b, { ...toXY(ringPos(i)[0], ringPos(i)[1]), scale: CONFIG.orbitSub, duration: 0.6, ease: moveEase }, 'stems+=' + i * CONFIG.mapCascade)
+    );
+    // thick electric branches grow from the centre out to each stem (after the explode)
+    tl.addLabel('branches', 'stems+=' + (0.6 + subBits.length * CONFIG.mapCascade));
+    tl.to(tetherG, { opacity: 1, duration: 0.2 }, 'branches');
+    tethers.forEach((ln, i) =>
+      tl.to(ln, { attr: { x2: ringPos(i)[0], y2: ringPos(i)[1] }, duration: 0.4, ease: moveEase }, 'branches')
+    );
+    tl.to({}, { duration: CONFIG.hold });
+    // pinwheel orbit — stepped hops (90° multiples keep the squares axis-aligned)
+    tl.to(subGroup, { rotation: CONFIG.orbitSpins, svgOrigin: CX + ' ' + CY, duration: 1.4, ease: 'steps(' + CONFIG.orbitSteps + ')' }, '>');
+    tl.to({}, { duration: CONFIG.hold });
+
+    /* ── STAGE 6 — TOTAL CONTROL: the electric branches RETRACT into the centre and hide, then the
+          block grid reappears — SLIGHTLY BIGGER and back to FOREGROUND white (not accent) — with an
+          extra-big glow, then the whole grid CRT-powers-off ("TV out") like the nav wordmark. ── */
+    toCap(5);
+    // retract the branches back into the centre, then hide
+    tl.addLabel('retract');
+    tethers.forEach((ln) =>
+      tl.to(ln, { attr: { x2: CX, y2: CY }, duration: 0.4, ease: moveEase }, 'retract')
+    );
+    tl.to(tetherG, { opacity: 0, duration: 0.2 }, '>');
+    // reform the grid — SLIGHTLY BIGGER, foreground white, via a stepped snake / pinwheel: each
+    // stem jolts IN along an axis-aligned L-path (X then Y), cascaded around the ring.
+    tl.addLabel('reform');
+    tl.to(mainBit, { ...toXY(CX, CY), scale: CONFIG.finalScale, fill: colors.foreground, duration: CONFIG.mapSeg, ease: moveEase }, 'reform');
+    subBits.forEach((b, i) => {
+      const [gx, gy] = subGridFinal[i];
+      const t = i * CONFIG.mapCascade;
+      tl.to(b, { x: gx - H, fill: colors.foreground, duration: CONFIG.mapSeg, ease: moveEase }, 'reform+=' + t);                                  // step X in
+      tl.to(b, { y: gy - H, scale: CONFIG.finalScale, duration: CONFIG.mapSeg, ease: moveEase }, 'reform+=' + (t + CONFIG.mapSeg));                // then step Y in
+    });
+    tl.to(bitGroup, { filter: 'drop-shadow(0 0 ' + CONFIG.glowBig + 'px ' + colors.glow + ')', duration: 0.4, yoyo: true, repeat: 1 }, '>');
+    tl.to({}, { duration: CONFIG.hold });
+
+    if (!reduced()) {
+      // TV OUT — squeeze to a bright horizontal line, then snap to nothing (nav CRT power-off).
+      tl.to(caps[5], { opacity: 0, duration: 0.2 }, '>');
+      tl.to(bitGroup, { scaleY: 0.02, filter: 'brightness(2.6)', svgOrigin: CX + ' ' + CY, duration: 0.3, ease: 'power2.in' }, '<');
+      tl.to(bitGroup, { scaleX: 0, opacity: 0, duration: 0.22, ease: 'power2.in' }, '>');
+    }
+
+    /* ── JOURNEY OUT: return to the beige world so the exit is seamless into the next section. ── */
+    tl.to(stage, { backgroundColor: colors.beige, duration: 0.6 }, '>');
+  });
+</script>

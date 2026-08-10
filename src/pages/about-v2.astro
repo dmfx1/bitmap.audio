@@ -18,9 +18,10 @@
 import Layout from '../layouts/Layout.astro';
 import Section from '../components/Section.astro';
 import Solaris from '../components/Solaris.astro';
+import PhilosophyScene from '../components/modules/PhilosophyScene.astro';
 import AboutHeroV2 from '../components/modules/AboutHeroV2.tsx';
 import Founders from '../components/modules/Founders.tsx';
-import AboutPhilosophy from '../components/modules/AboutPhilosophy.tsx';
+// import AboutPhilosophy from '../components/modules/AboutPhilosophy.tsx'; // HIDDEN — kept for reference while the PhilosophyScene replaces it
 import Values from '../components/modules/Values.tsx';
 import Clients from '../components/modules/Clients.tsx';
 import CTA from '../components/modules/CTA.tsx';
@@ -58,9 +59,16 @@ import CTA from '../components/modules/CTA.tsx';
 
   {/* Content: the beige "Cool Oat" world — the rest of the sections after the peel. */}
   <div class="relative z-10 theme-oat">
+    {/* HIDDEN — original AboutPhilosophy kept for reference; the PhilosophyScene below replaces it.
+        Re-enable by uncommenting this block AND its import at the top of the file.
     <Section id="philosophy" invert delay="0.3s" className="!bg-background/50 backdrop-blur-xl">
       <AboutPhilosophy client:visible />
     </Section>
+    */}
+
+    {/* The bitmap-pixel scroll SCENE (reusable Scene framework). */}
+    <PhilosophyScene />
+
 
     <Section id="Values" delay="0.4s" className="!bg-background/50 backdrop-blur-xl" grainBg>
       <Values client:visible />

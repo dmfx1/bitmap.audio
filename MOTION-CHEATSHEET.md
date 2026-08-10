@@ -130,6 +130,26 @@ Applied via the `.hero-copy` class on the title/body wrappers — change the var
 
 ---
 
+## 6c. About horizontal scroll (trial)
+
+The founders slide in from the right, led by the vertical solaris beam, over the frozen-rain
+dark hero. About-only for now.
+
+| Knob | Where | What it does |
+|---|---|---|
+| `end: '+=120%'` | `about-v2.astro` → the horizontal-scroll `<script>` | How long the horizontal scroll lasts (bigger = slower / more travel) |
+| `start: 'top top'` | same `<script>` (ScrollTrigger) | When the horizontal begins |
+| **lead-in** | delete/keep the `.hero-runway` div on the page | Runway present = ~1 viewport of hold before the horizontal; removed = starts right after the hero pull (current state on About) |
+| `--solaris-height` | `:root` (global.css) | Beam thickness (96px) |
+| `--solaris-from/-mid/-to` | `:root` | Beam gradient (runs the length of the beam) |
+| rain freeze | automatic | `data-rain-frozen` toggles on `<html>` while the scroll is pinned (see `GridBackground.astro`) |
+
+> To make the horizontal start *sooner*: it already follows the hero pull immediately (runway
+> removed). To start it *during* the pull (scroll 0), the founders would need to overlay the
+> hero rather than be the next section — a small restructure, not yet done.
+
+---
+
 ## 7. Global spacing / foundation
 
 **File:** `src/styles/global.css`
