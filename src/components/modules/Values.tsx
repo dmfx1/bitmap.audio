@@ -6,7 +6,7 @@ const values = [
   {
     id: "01",
     title: "Precision",
-    desc: "Every frequency is intentional. We engineer our smallest data points with precision to ensure the collective experience is fresh and engaging."
+    desc: "Every frequency is intentional."
   },
   {
     id: "02",

@@ -33,6 +33,11 @@ html.lenis body { height: auto; }
      controls (which bottom-align to this height), so the nav box bottom lines up with
      the bottom of the title lettering. Keep in sync with the brand's inline --brandH. */
   --brandH: clamp(3rem, 6vw, 6.5rem);
+  /* NAV / HEADER BAR height (responsive — tracks --brandH). Use this ANYWHERE content is centred
+     in a full-viewport section so it isn't pushed above the optical centre by the sticky header.
+     KEEP CONSISTENT: scene stages, peel panels, and any full-screen centred div should offset by
+     ~half of this. */
+  --header-h: calc(var(--page-gutter) + var(--brandH));
   /* One knob for how wide hero copy (title + body) is allowed to run, site-wide. */
   --hero-copy-max: 64rem;
   /* Scroll runway after each sticky hero — how long the hero holds (pull plays) before
@@ -126,7 +131,7 @@ html.lenis body { height: auto; }
      section up into that empty tail so it doesn't read as dead space. The scene's exit lift+fade
      (scene.ts) clears the content BEFORE this overlap region, so the next section only ever
      covers empty background. Tune per scene inline: style="--scene-tail: 40svh". */
-  margin-bottom: calc(-1 * var(--scene-tail, 55svh));
+  margin-bottom: calc(-1 * var(--scene-tail, 100svh));
 }
 /* about-v2 measurement fix: keep the founders peel laid out at its real height. The global
    `section { content-visibility: auto; contain-intrinsic-size: 1px 400px }` collapses #founders

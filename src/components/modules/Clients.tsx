@@ -58,8 +58,8 @@ function ClientWord({ text, isActive }: { text: string, isActive: boolean }) {
             inline transition-all duration-300
             ${isActive 
                 // Slightly smaller text on mobile to accommodate long names
-                ? 'text-primary text-glow font-bold mx-1 text-xs md:text-base tracking-widest z-10' 
-                : 'text-muted-foreground/30 font-light tracking-normal text-[10px] md:text-xs z-0'}
+                ? 'text-primary text-glow font-bold mx-1 text-sm md:text-lg tracking-widest z-10'
+                : 'text-muted-foreground/30 font-light tracking-normal text-[11px] md:text-sm z-0'}
         `}>
             {displayText}
         </span>
@@ -81,7 +81,7 @@ export default function Clients() {
     
     // Dynamic Layout: 3 columns on mobile, 7 on desktop
     const COLUMNS = isMobile ? 3 : 7;
-    const CLIENTS_PER_COL = isMobile ? 6 : 5; 
+    const CLIENTS_PER_COL = isMobile ? 6 : 8; // more rows to fill the taller (full-viewport) terminal
 
     // We now just build EMPTY slots. No names attached!
     const columnsData = useMemo(() => {
@@ -123,8 +123,8 @@ export default function Clients() {
                 kept = kept.slice(dropCount);
                 
                 // 2. Adaptive Clutter Control
-                const minActive = isMobile ? 3 : 6;
-                const maxActive = isMobile ? 5 : 9;
+                const minActive = isMobile ? 3 : 9;
+                const maxActive = isMobile ? 5 : 14;
                 const targetCount = minActive + Math.floor(Math.random() * (maxActive - minActive + 1)); 
                 
                 if (kept.length > targetCount) kept = kept.slice(0, targetCount);
@@ -166,11 +166,11 @@ export default function Clients() {
     return (
         <div className="w-full relative overflow-hidden">
             {/* Added dynamic grid-cols-3 for mobile and responsive height h-[30vh] */}
-            <div className="w-full grid grid-cols-3 md:grid-cols-7 gap-0 h-[30vh] md:h-[40vh] border-y border-border/20 bg-background">
+            <div className="w-full grid grid-cols-3 md:grid-cols-7 gap-0 h-[56vh] md:h-[68vh] border-y border-border/20 bg-background">
                 {columnsData.map((col, colIndex) => (
                     <div 
                         key={`col-${colIndex}`} 
-                        className="flex flex-col gap-0 overflow-hidden text-left font-mono text-[10px] md:text-xs leading-none break-all whitespace-pre-wrap border-r border-border/10 last:border-r-0"
+                        className="flex flex-col gap-0 overflow-hidden text-left font-mono text-[11px] md:text-sm leading-none break-all whitespace-pre-wrap border-r border-border/10 last:border-r-0"
                     >
                         {col.slots.map(slotData => {
                             // Check if this physical slot is currently active

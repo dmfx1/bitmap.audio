@@ -21,8 +21,10 @@ import Solaris from '../components/Solaris.astro';
 import PhilosophyScene from '../components/modules/PhilosophyScene.astro';
 import AboutHeroV2 from '../components/modules/AboutHeroV2.tsx';
 import Founders from '../components/modules/Founders.tsx';
+import FocusColumns from '../components/modules/FocusColumns.astro';
+import SlideInRight from '../components/SlideInRight.astro';
 // import AboutPhilosophy from '../components/modules/AboutPhilosophy.tsx'; // HIDDEN — kept for reference while the PhilosophyScene replaces it
-import Values from '../components/modules/Values.tsx';
+// import Values from '../components/modules/Values.tsx'; // replaced by <FocusColumns/> below
 import Clients from '../components/modules/Clients.tsx';
 import CTA from '../components/modules/CTA.tsx';
 ---
@@ -70,26 +72,38 @@ import CTA from '../components/modules/CTA.tsx';
     <PhilosophyScene />
 
 
-    <Section id="Values" delay="0.4s" className="!bg-background/50 backdrop-blur-xl" grainBg>
-      <Values client:visible />
-    </Section>
+    {/* Our Values — reusable "focus columns" scroll scene (replaces the old <Values/> cycle). */}
+    <FocusColumns
+      heading="Our Values"
+      columns={[
+        { id: "01", title: "Precision", desc: "Sound should feel deliberate and every frequency intentional." },
+        { id: "02", title: "Empathy", desc: "Sound should feel intuitive, not intrusive and systems should be collaborative." },
+        { id: "03", title: "Innovation", desc: "Sonunds should remain adaptable and allow scope for future development." },
+      ]}
+    />
 
-    {/* THE FULL BLEED CLIENT TERMINAL */}
-    <Section
-      id="clients"
-      delay="0.5s"
-      isFullWidth={true}
-      noPadding={true}
-      hasBorder={true}
-      className="!bg-background-blur/50 backdrop-blur-xl pb-8"
-    >
-      <div class="container-page mb-8 pt-8">
-        <p class="text-base font-mono tracking-[0.5em] uppercase text-accent">
-          [ CLIENT_TERMINAL ]
-        </p>
-      </div>
-      <Clients client:visible />
-    </Section>
+    {/* THE FULL BLEED CLIENT TERMINAL — slides in FROM THE RIGHT (founders-peel idea, reusable
+        <SlideInRight/>), led by a vertical solaris beam, straight as Values scrolls away. */}
+    <SlideInRight id="clients-peel">
+      <Section
+        id="clients"
+        delay="0.5s"
+        isFullWidth={true}
+        noPadding={true}
+        hasBorder={true}
+        className="!bg-background-blur/50 backdrop-blur-xl pb-8"
+      >
+        <div class="container-page mb-8 pt-8">
+          <p class="text-base font-mono tracking-[0.5em] uppercase text-accent">
+            [ CLIENT_TERMINAL ]
+          </p>
+        </div>
+        {/* Side gutters like the founders panel; the grid fills the rest vertically. */}
+        <div class="px-4 md:px-12 lg:px-24">
+          <Clients client:visible />
+        </div>
+      </Section>
+    </SlideInRight>
 
     <Section id="cta" delay="0.6s" className="!bg-background/50 backdrop-blur-xl" grainBg>
       <CTA

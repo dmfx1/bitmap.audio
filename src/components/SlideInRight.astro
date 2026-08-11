@@ -1,0 +1,101 @@
+---
+/* src/components/SlideInRight.astro
+ *
+ * REUSABLE "slide in from the right" panel — the founders-peel idea, generalised. On desktop it
+ * pins full-screen and scrubs an opaque beige panel in FROM THE RIGHT, led by a vertical solaris
+ * beam on its leading edge. Mobile / reduced-motion: the content just renders as a normal section
+ * (no pin). Put a <Section/> (or anything ~1 viewport tall) inside.
+ *
+ *   <SlideInRight id="clients-peel">
+ *     <Section id="clients" …>…</Section>
+ *   </SlideInRight>
+ *
+ * Knobs: `travel` = how much scroll the slide-in takes (bigger = slower). The solaris beam is
+ * styled entirely by the --solaris-* tokens in global.css (same beam as the founders peel).
+ */
+interface Props { id: string; travel?: string; }
+const { id, travel = '220%' } = Astro.props;
+---
+<div id={id} class="slide-right relative z-10" data-travel={travel}>
+  <div class="slide-right-pin">
+    <div class="slide-right-panel theme-oat">
+      <div class="slide-right-beam" aria-hidden="true"></div>
+      <div class="slide-right-content"><slot /></div>
+    </div>
+  </div>
+</div>
+
+<style is:global>
+  /* Mobile / default: no pin — content flows as a normal section; beam hidden. */
+  .slide-right-beam { display: none; }
+
+  @media (min-width: 768px) {
+    /* No negative tail here: after the panel slides in + holds, the pin releases and the terminal
+       just scrolls away NORMALLY into the next section (no snap). (A tail-pull would drag the
+       semi-transparent CTA up over it and the terminal would show through — the "double-up".) */
+    .slide-right-pin { position: relative; min-height: 100svh; overflow: hidden; }
+    .slide-right-panel {
+      position: absolute;
+      inset: 0;
+      background-color: hsl(var(--background)); /* opaque beige (inherits theme-oat) */
+      transform: translateX(calc(100% - var(--slide, 0%))); /* off-right → in place */
+      will-change: transform;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      /* offset for the sticky header bar so the content sits at the optical centre (responsive). */
+      padding-top: var(--header-h);
+    }
+    .slide-right-content { width: 100%; }
+    .slide-right-beam {
+      display: block;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: calc(-1 * var(--solaris-height)); /* rides the leading (left) edge of the panel */
+      width: var(--solaris-height);
+      background: linear-gradient(to bottom, var(--solaris-from) 0%, var(--solaris-mid) 55%, var(--solaris-to) 100%);
+      box-shadow: var(--solaris-glow);
+      z-index: 5;
+    }
+  }
+</style>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  gsap.registerPlugin(ScrollTrigger);
+
+  function initSlideRight() {
+    document.querySelectorAll<HTMLElement>('.slide-right').forEach((el) => {
+      if (el.dataset.slideInit === '1') return;
+      const pin = el.querySelector<HTMLElement>('.slide-right-pin');
+      if (!pin) return;
+      if (!window.matchMedia('(min-width: 768px)').matches) return; // mobile: normal section
+      el.dataset.slideInit = '1';
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        pin.style.setProperty('--slide', '100%'); // no animation — just reveal in place
+        return;
+      }
+      const t = gsap.timeline({
+        scrollTrigger: {
+          trigger: el,
+          start: 'top top',
+          end: '+=' + (el.dataset.travel || '220%'),
+          scrub: true,
+          pin: pin,
+          pinSpacing: true,
+          invalidateOnRefresh: true,
+        },
+      });
+      // slide in from the right, then HOLD it in place (locked, no scroll) before the next
+      // section covers it — so there's a clear moment to read the panel.
+      t.fromTo(pin, { '--slide': '0%' }, { '--slide': '100%', ease: 'none', duration: 1 });
+      t.to({}, { duration: 0.8 });
+    });
+  }
+
+  document.addEventListener('astro:page-load', initSlideRight);
+  if (document.readyState === 'complete') initSlideRight();
+  else window.addEventListener('load', initSlideRight);
+</script>
