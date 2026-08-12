@@ -42,7 +42,10 @@ html.lenis body { height: auto; }
   --hero-copy-max: 64rem;
   /* Scroll runway after each sticky hero — how long the hero holds (pull plays) before
      the next section rises over it. Roughly match HERO_SQUISH.end in use-hero-squish. */
-  --hero-runway: 85svh;
+  --hero-runway: 45svh;
+  /* Transparent runway at the FOOT of the page so the fixed binary rain shows below the
+     footer — the bottom half of the "sandwich" (rain top + bottom, content between). */
+  --page-bottom-runway: 40svh;
 }
 
 @layer components {
@@ -60,6 +63,10 @@ html.lenis body { height: auto; }
      BEFORE the next section rises up to cover it (the afternow "hold, then release").
      Desktop only — on mobile the hero isn't sticky, so no runway. Tune --hero-runway. */
   .hero-runway { height: 0; }
+
+  /* Transparent spacer below the footer — reveals the fixed binary rain at the very bottom
+     of the page (the "sandwich" bottom). Transparent so the fixed GridBackground shows. */
+  .page-bottom-runway { height: var(--page-bottom-runway, 40svh); background: transparent; }
 }
 @media (min-width: 768px) {
   .hero-runway { height: var(--hero-runway, 85svh); }
@@ -132,6 +139,28 @@ html.lenis body { height: auto; }
      (scene.ts) clears the content BEFORE this overlap region, so the next section only ever
      covers empty background. Tune per scene inline: style="--scene-tail: 40svh". */
   margin-bottom: calc(-1 * var(--scene-tail, 100svh));
+}
+
+/* FRAMEWORK: a normal (vertical) section that follows a pinned .scene. Wrap it in .scene-follow
+   to pull it UP over the scene's blank pinned trailing — margin-top on a normal block is reliable,
+   whereas the scene's own margin-bottom fights the ScrollTrigger pin-spacer and can leave dead
+   space. Put a <Solaris/> bar first inside it as the "entering a normal section" marker. Desktop
+   only (mobile has no pin). Tune per use with --scene-follow-pull. */
+@media (min-width: 768px) {
+  .scene-follow { margin-top: calc(-1 * var(--scene-follow-pull, 100svh)); }
+}
+
+/* FRAMEWORK: a normal section that enters UNDER a <Solaris/> bar. Fills the viewport and centres
+   its content, but offset down by the sticky header + the solaris bar so the content reads at the
+   optical centre (not jammed up right under the bar). Universal — wrap any such section's body. */
+.solaris-section {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: calc(var(--header-h) + var(--solaris-height, 96px));
+  padding-bottom: var(--solaris-height, 96px);
+  box-sizing: border-box;
 }
 /* about-v2 measurement fix: keep the founders peel laid out at its real height. The global
    `section { content-visibility: auto; contain-intrinsic-size: 1px 400px }` collapses #founders

@@ -1,35 +1,29 @@
 ---
 /* src/components/modules/FocusColumns.astro
  *
- * REUSABLE "focus columns" scroll scene (built on src/lib/scene.ts). The section pins full-screen;
- * the heading scrambles in top-centre; then continued scroll brings each column into focus IN TURN
- * — the focused column grows in place while the others dull — before the section releases.
+ * REUSABLE "focus columns" scroll section — STICKY + SCRUB (not a ScrollTrigger pin). The stage is
+ * CSS `position: sticky` inside a tall section, so it FREEZES when you scroll to it (like the hero),
+ * holds through the focus cycle, then releases — with NO pin-spacer, so there's no trailing dead
+ * space and the next section can be pulled straight up OVER the frozen stage (founders-over-hero).
  *
- * Reusable anywhere on the site: pass a `heading` and an array of `{ id, title, desc }`. The
- * `data-scene="focus-columns"` builder is SHARED (registered once), so every instance across the
- * site runs from the same script — a new "focus" section is just this component with new props.
+ * The heading scrambles IN on the way down and OUT on the way back up. Each column comes into focus
+ * in turn (grows + its number/title go solaris accent) while the others dull.
  *
  * Props:
  *   heading  — the scrambling top-centre label (e.g. "Our Values")
- *   columns  — [{ id, title, desc }, …] (any count; the cycle adapts)
- *   lead     — optional per-instance lead-in runway (default 30svh)
+ *   columns  — [{ id, title, desc }, …] (any count; the cycle + scroll length adapt)
+ *
+ * Self-contained: does NOT use the src/lib/scene.ts pin framework.
  */
 interface Column { id: string; title: string; desc: string; }
-interface Props { heading: string; columns: Column[]; lead?: string; }
-// lead = empty runway BEFORE the pin. Default 0: the stage's own entry (it rises from the bottom
-// into centre) is the scroll-in — extra lead padding just adds dead space. Pass a value only to
-// separate this scene from busy preceding content.
-const { heading, columns, lead = '0svh' } = Astro.props;
+interface Props { heading: string; columns: Column[]; }
+const { heading, columns } = Astro.props;
+// The section is this many viewports tall; sticky-range (= scrub length) is one less than this.
+const focusVh = columns.length + 1;
 ---
-<section
-  data-scene="focus-columns"
-  data-scroll={columns.length + 1}
-  data-scene-hold
-  class="scene focus-scene"
-  style={`--scene-lead: ${lead}`}
->
-  <div class="scene-stage">
-    <div class="focus-inner" data-scene-content>
+<section class="focus-scene" style={`--focus-vh: ${focusVh}`}>
+  <div class="focus-sticky">
+    <div class="focus-inner">
       <h2
         class="focus-heading font-mono tracking-[0.5em] uppercase text-accent text-base md:text-2xl"
         data-focus-heading
@@ -50,9 +44,28 @@ const { heading, columns, lead = '0svh' } = Astro.props;
 </section>
 
 <style>
-  /* Opaque beige so the (dark, sticky) hero behind the beige world doesn't show through. In the
-     theme-oat context --background resolves to the Cool-Oat beige. */
-  .focus-scene .scene-stage { background-color: hsl(var(--background)); }
+  /* Desktop: a tall scroll region; the stage sticks through it (freezes), then releases — no pin,
+     so no trailing dead space. Opaque beige so the dark sticky hero behind doesn't show through. */
+  .focus-scene {
+    position: relative;
+    height: calc(var(--focus-vh, 4) * 100svh);
+    background-color: hsl(var(--background));
+  }
+  .focus-sticky {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    overflow: hidden;
+    background-color: hsl(var(--background));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* Mobile: no sticky/scrub — just a normal full-height section. */
+  @media (max-width: 767px) {
+    .focus-scene { height: auto; }
+    .focus-sticky { position: static; height: auto; min-height: 100svh; }
+  }
 
   .focus-inner {
     position: relative;
@@ -64,21 +77,19 @@ const { heading, columns, lead = '0svh' } = Astro.props;
   }
   .focus-heading {
     position: absolute;
-    top: 25svh;            /* a quarter down the viewport at lock */
+    top: 25svh;            /* a quarter down the viewport */
     left: 50%;
     transform: translateX(-50%);
     white-space: nowrap;
   }
   .focus-cols {
-    /* wider spread, with a suitable gutter either side */
     width: min(90vw, 82rem);
     display: flex;
     flex-direction: column;
     gap: 6rem;
-    /* nudge DOWN so the sticky header bar doesn't make the (viewport-)centred content read high:
-       the true optical centre sits below the header, so shift by ~half its height. Tunable. */
+    /* nudge DOWN by ~half the (responsive) header bar so the centred content isn't read high. */
     position: relative;
-    top: var(--scene-inset, calc(var(--header-h) / 2)); /* half the (responsive) header bar */
+    top: var(--scene-inset, calc(var(--header-h) / 2));
   }
   @media (min-width: 768px) {
     .focus-cols { flex-direction: row; gap: clamp(2rem, 6vw, 5rem); }
@@ -96,72 +107,94 @@ const { heading, columns, lead = '0svh' } = Astro.props;
 </style>
 
 <script>
-  import { registerScene } from '../../lib/scene';
   import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
   import { scrambleIn } from '../../lib/scene-kit';
+
+  gsap.registerPlugin(ScrollTrigger);
 
   const CONFIG = {
     focusScale: 1.18,  // the focused column grows in place
     dull: 0.28,        // the other columns' opacity while not in focus
     focusDur: 0.5,     // grow / settle duration
+    holdStart: 1.0,    // settle (stuck, columns equal) BEFORE any highlighting begins
     hold: 0.9,         // dwell on each focused column
-    holdEnd: 2.2,      // freeze the final frame (pinned) while the next section slides over it
+    holdEnd: 1.2,      // brief pause on the resolved frame before it releases
     scrambleMs: 800,   // heading scramble-in duration
-    colsDelay: 0.45,   // columns fade in this long AFTER the heading starts scrambling
     accent: '#FF9E1A', // active column's number + title (solaris)
     ink: '#241F1A',    // inactive number + title (beige-world foreground)
   };
 
-  registerScene('focus-columns', (tl, stage) => {
-    const heading = stage.querySelector<HTMLElement>('[data-focus-heading]');
-    const cols = Array.from(stage.querySelectorAll<HTMLElement>('[data-focus-col]'));
-    if (!cols.length) return;
+  function initFocus() {
+    document.querySelectorAll<HTMLElement>('.focus-scene').forEach((section) => {
+      if (section.dataset.focusInit === '1') return;
+      section.dataset.focusInit = '1';
 
-    gsap.set(cols, { transformOrigin: '50% 50%', opacity: 0, scale: 1 }); // hidden until the heading lands
-    // the number + title of each column — these turn solaris accent when the column is in focus
-    const hi = cols.map((c) => c.querySelectorAll<HTMLElement>('.focus-id, .focus-title'));
-    hi.forEach((h) => gsap.set(h, { color: CONFIG.ink }));
+      const heading = section.querySelector<HTMLElement>('[data-focus-heading]');
+      const cols = Array.from(section.querySelectorAll<HTMLElement>('[data-focus-col]'));
+      if (!cols.length) return;
 
-    // On enter: the HEADING scrambles in first; the columns fade in a beat later. Independent of
-    // the scrub, so it plays once as the section arrives.
-    if (heading) {
-      const text = heading.dataset.text || heading.textContent || '';
-      gsap.set(heading, { opacity: 0 });
-      const io = new IntersectionObserver((entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) {
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const desktop = window.matchMedia('(min-width: 768px)').matches;
+
+      // All columns start DULL (so they don't read as normal body copy on the way in); the focus
+      // cycle then lifts one at a time.
+      gsap.set(cols, { transformOrigin: '50% 50%', opacity: CONFIG.dull, scale: 1 });
+      const hi = cols.map((c) => c.querySelectorAll<HTMLElement>('.focus-id, .focus-title'));
+      hi.forEach((h) => gsap.set(h, { color: CONFIG.ink }));
+
+      // Title scrambles IN on scroll-down (onEnter) and hides on scroll-back-up (onLeaveBack) —
+      // reliable now the section is sticky, not pinned.
+      if (heading) {
+        const text = heading.dataset.text || heading.textContent || '';
+        gsap.set(heading, { opacity: 0 });
+        ScrollTrigger.create({
+          trigger: section,
+          start: 'top 80%',
+          onEnter: () => {
             gsap.to(heading, { opacity: 1, duration: 0.3 });
             scrambleIn(heading, text, { duration: CONFIG.scrambleMs });
-            gsap.to(cols, { opacity: 1, duration: 0.5, delay: CONFIG.colsDelay, stagger: 0.08, ease: 'power2.out' });
-            io.disconnect();
+          },
+          onLeaveBack: () => { gsap.set(heading, { opacity: 0 }); },
+        });
+      }
+
+      // Focus timeline — each column takes focus in turn (grows + accent), others dull.
+      const tl = gsap.timeline({ paused: true });
+      tl.to({}, { duration: CONFIG.holdStart }); // settle once stuck, before any highlighting
+      cols.forEach((col, i) => {
+        tl.addLabel('focus' + i);
+        tl.to(col, { scale: CONFIG.focusScale, opacity: 1, duration: CONFIG.focusDur, ease: 'power2.out' }, 'focus' + i);
+        tl.to(hi[i], { color: CONFIG.accent, duration: CONFIG.focusDur }, 'focus' + i);
+        cols.forEach((other, j) => {
+          if (j !== i) {
+            tl.to(other, { scale: 1, opacity: CONFIG.dull, duration: CONFIG.focusDur, ease: 'power2.out' }, 'focus' + i);
+            tl.to(hi[j], { color: CONFIG.ink, duration: CONFIG.focusDur }, 'focus' + i);
           }
         });
-      }, { threshold: 0.4 });
-      io.observe(stage);
-    } else {
-      gsap.set(cols, { opacity: 1 }); // no heading → just show the columns
-    }
-
-    // scrubbed focus cycle — each column grows to focus in turn (its number + title go accent);
-    // the others dull, shrink back and return to ink.
-    cols.forEach((col, i) => {
-      tl.addLabel('focus' + i);
-      tl.to(col, { scale: CONFIG.focusScale, opacity: 1, duration: CONFIG.focusDur, ease: 'power2.out' }, 'focus' + i);
-      tl.to(hi[i], { color: CONFIG.accent, duration: CONFIG.focusDur }, 'focus' + i);
-      cols.forEach((other, j) => {
-        if (j !== i) {
-          tl.to(other, { scale: 1, opacity: CONFIG.dull, duration: CONFIG.focusDur, ease: 'power2.out' }, 'focus' + i);
-          tl.to(hi[j], { color: CONFIG.ink, duration: CONFIG.focusDur }, 'focus' + i);
-        }
+        tl.to({}, { duration: CONFIG.hold });
       });
-      tl.to({}, { duration: CONFIG.hold });
+      // End with the LAST column still highlighted (others dull) — no reset. It just holds this
+      // frame, then the sticky section releases and scrolls on.
+      tl.to({}, { duration: CONFIG.holdEnd });
+
+      // Mobile / reduced-motion: no scrub — just show the resolved frame.
+      if (reduced || !desktop) { tl.progress(1); return; }
+
+      // Scrub the focus timeline across the STICKY range (start = section pinned at top, end =
+      // section bottom reaches viewport bottom = sticky about to release). No pin — sticky freezes.
+      ScrollTrigger.create({
+        trigger: section,
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 0.75,
+        animation: tl,
+        invalidateOnRefresh: true,
+      });
     });
-    // resolve — all columns back to equal + full (and ink)
-    tl.to(cols, { scale: 1, opacity: 1, duration: CONFIG.focusDur }, '>');
-    hi.forEach((h) => tl.to(h, { color: CONFIG.ink, duration: CONFIG.focusDur }, '<'));
-    // HOLD the final frame, FROZEN + pinned (data-scene-hold keeps it from fading). The next
-    // section (the client-terminal peel) slides over the top of this held frame — the founders
-    // effect. Tune the freeze length with holdEnd / the section's data-scroll.
-    tl.to({}, { duration: CONFIG.holdEnd });
-  });
+  }
+
+  document.addEventListener('astro:page-load', initFocus);
+  if (document.readyState === 'complete') initFocus();
+  else window.addEventListener('load', initFocus);
 </script>

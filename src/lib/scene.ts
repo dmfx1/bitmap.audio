@@ -125,10 +125,7 @@ function initScenes(): void {
       const content =
         stage.querySelector<HTMLElement>('[data-scene-content]') ||
         (stage.firstElementChild as HTMLElement | null);
-      // A scene marked data-scene-hold KEEPS its final frame (no fade) so the NEXT section can
-      // slide OVER the top of it — the founders-peel-over-sticky-hero effect. Otherwise the content
-      // lifts + fades so the blank trailing scrolls away cleanly.
-      if (content && section.dataset.sceneHold !== '1') {
+      if (content) {
         tl.to(content, { yPercent: -30, opacity: 0, duration: 0.6, ease: 'power1.in' });
       }
 

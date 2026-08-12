@@ -1,0 +1,29 @@
+---
+/* src/components/StickySection.astro
+ *
+ * Wrap any section so it momentarily STICKS at the top of the viewport when it arrives, then
+ * releases — a brief pause as the section reaches the top, before scroll continues. Pure CSS
+ * (position: sticky), no JS. Desktop only (mobile scrolls normally).
+ *
+ *   <StickySection stickLength="35svh">
+ *     <Solaris />
+ *     <Section id="clients" …>…</Section>
+ *   </StickySection>
+ *
+ * stickLength = how much scroll the pause lasts (bigger = longer hold at the top).
+ */
+interface Props { stickLength?: string; class?: string; }
+const { stickLength = '35svh', class: className = '' } = Astro.props;
+---
+<div class:list={['sticky-hold', className]} style={`--stick-length: ${stickLength}`}>
+  <div class="sticky-inner"><slot /></div>
+</div>
+
+<style is:global>
+  @media (min-width: 768px) {
+    /* The extra bottom room is the stick range: the inner content sticks at top:0 for this long,
+       then the container's bottom catches up and it releases. */
+    .sticky-hold { padding-bottom: var(--stick-length, 35svh); }
+    .sticky-inner { position: sticky; top: 0; }
+  }
+</style>

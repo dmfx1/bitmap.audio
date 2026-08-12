@@ -414,6 +414,18 @@ Mobile hamburger menu current behaviour (do not revert):
 - `DeliverablesGrid.tsx` — Staggered card swipe-in animation + mobile viewport-triggered pulse-glow
 - Global — Padding and spacing consistency pass across all pages for mobile
 
+### Backlog / circle back later
+
+- **Momentary "sticky-pause" per section** (about-v2 idea, deferred 2026-08-12): dom wants each
+  section to briefly PAUSE at the top of the viewport as it arrives, ideally a `stickLength=x`
+  prop. First attempt was a CSS `position: sticky` wrapper (`src/components/StickySection.astro`,
+  still in the tree but UNUSED) — it failed because the global `section { content-visibility: auto }`
+  rule collapses the wrapped section's measured height, so the sticky never engages and the
+  `stickLength` padding just becomes dead blank space. Correct approach when revisited: a short
+  ScrollTrigger **pin** (`end: '+=<stickLength>'`, `pinSpacing:true`) with a `content-visibility:
+  visible` override on the pinned section (same fix as ImageSlide). Architecture is "good enough"
+  for now per dom — do NOT re-attempt without being asked.
+
 ---
 
 ## File Locations

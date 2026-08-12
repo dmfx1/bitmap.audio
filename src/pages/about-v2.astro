@@ -22,7 +22,6 @@ import PhilosophyScene from '../components/modules/PhilosophyScene.astro';
 import AboutHeroV2 from '../components/modules/AboutHeroV2.tsx';
 import Founders from '../components/modules/Founders.tsx';
 import FocusColumns from '../components/modules/FocusColumns.astro';
-import SlideInRight from '../components/SlideInRight.astro';
 // import AboutPhilosophy from '../components/modules/AboutPhilosophy.tsx'; // HIDDEN — kept for reference while the PhilosophyScene replaces it
 // import Values from '../components/modules/Values.tsx'; // replaced by <FocusColumns/> below
 import Clients from '../components/modules/Clients.tsx';
@@ -45,67 +44,66 @@ import CTA from '../components/modules/CTA.tsx';
     <AboutHeroV2 client:load />
   </div>
 
-  {/* HORIZONTAL SCROLL (trial, About only): the founders panel slides in from the RIGHT
-      over the dark hero, led by the vertical solaris beam, with the binary rain frozen
-      (GSAP <script> at the bottom). Replaces the vertical rise here. */}
-  <div id="peel" class="relative z-10">
-    <div class="peel-pin">
-      <div id="peel-reveal" class="theme-oat">
-        <div id="peel-beam" aria-hidden="true"></div>
-        <Section id="founders" delay="0s" className="min-h-svh flex flex-col justify-center">
-          <Founders client:visible />
-        </Section>
-      </div>
-    </div>
-  </div>
+  {/* Hero runway — the sticky hero HOLDS while its copy recedes into the void + the binary-rain
+      parallax reads, BEFORE the beige world scrolls up over it. Transparent + TOP-LEVEL (a sibling
+      of the hero, NOT inside theme-oat) so the hero shows through. Tune with --hero-runway. */}
+  <div class="hero-runway" aria-hidden="true"></div>
 
-  {/* Content: the beige "Cool Oat" world — the rest of the sections after the peel. */}
+  {/* The founders' solaris bar comes over the hero first (top-level). */}
+  <Solaris />
+
+  {/* Beige "Cool Oat" world — scrolls up OVER the sticky hero. No horizontal peel — all vertical. */}
   <div class="relative z-10 theme-oat">
-    {/* HIDDEN — original AboutPhilosophy kept for reference; the PhilosophyScene below replaces it.
-        Re-enable by uncommenting this block AND its import at the top of the file.
-    <Section id="philosophy" invert delay="0.3s" className="!bg-background/50 backdrop-blur-xl">
-      <AboutPhilosophy client:visible />
+    {/* Founders — first section over the hero. */}
+    <Section id="founders" delay="0s" className="min-h-svh flex flex-col justify-center !bg-background">
+      <Founders client:visible />
     </Section>
-    */}
 
-    {/* The bitmap-pixel scroll SCENE (reusable Scene framework). */}
+    {/* The bitmap-pixel scroll SCENE (scene.ts pin). */}
     <PhilosophyScene />
 
+    {/* Our Values — STICKY focus columns, pulled up over philosophy's END (after its TV-out has
+        fully finished — tune --scene-follow-pull: bigger = covers sooner, smaller = TV-out gets
+        more room / a touch more beige first), led by a solaris bar. */}
+    <div class="scene-follow" style="--scene-follow-pull: 40svh">
+      <Solaris />
+      <FocusColumns
+        heading="Our Values"
+        columns={[
+          { id: "01", title: "Precision", desc: "Sound should feel deliberate and every frequency intentional." },
+          { id: "02", title: "Empathy", desc: "Sound should feel intuitive, not intrusive and systems should be collaborative." },
+          { id: "03", title: "Innovation", desc: "Sonunds should remain adaptable and allow scope for future development." },
+        ]}
+      />
+    </div>
 
-    {/* Our Values — reusable "focus columns" scroll scene (replaces the old <Values/> cycle). */}
-    <FocusColumns
-      heading="Our Values"
-      columns={[
-        { id: "01", title: "Precision", desc: "Sound should feel deliberate and every frequency intentional." },
-        { id: "02", title: "Empathy", desc: "Sound should feel intuitive, not intrusive and systems should be collaborative." },
-        { id: "03", title: "Innovation", desc: "Sonunds should remain adaptable and allow scope for future development." },
-      ]}
-    />
-
-    {/* THE FULL BLEED CLIENT TERMINAL — slides in FROM THE RIGHT (founders-peel idea, reusable
-        <SlideInRight/>), led by a vertical solaris beam, straight as Values scrolls away. */}
-    <SlideInRight id="clients-peel">
-      <Section
-        id="clients"
-        delay="0.5s"
-        isFullWidth={true}
-        noPadding={true}
-        hasBorder={true}
-        className="!bg-background-blur/50 backdrop-blur-xl pb-8"
-      >
-        <div class="container-page mb-8 pt-8">
+    {/* Client terminal — led by a solaris bar. */}
+    <Solaris />
+    <Section
+      id="clients"
+      delay="0.5s"
+      isFullWidth={true}
+      noPadding={true}
+      hasBorder={true}
+      className="!bg-background-blur/50 backdrop-blur-xl pb-8"
+    >
+      {/* .solaris-section centres the terminal in the viewport, offset below the header + solaris
+          bar (universal pattern for normal sections entering under a bar). */}
+      <div class="solaris-section">
+        <div class="container-page mb-8">
           <p class="text-base font-mono tracking-[0.5em] uppercase text-accent">
             [ CLIENT_TERMINAL ]
           </p>
         </div>
-        {/* Side gutters like the founders panel; the grid fills the rest vertically. */}
+        {/* Side gutters; the grid fills the rest. */}
         <div class="px-4 md:px-12 lg:px-24">
           <Clients client:visible />
         </div>
-      </Section>
-    </SlideInRight>
+      </div>
+    </Section>
 
-    <Section id="cta" delay="0.6s" className="!bg-background/50 backdrop-blur-xl" grainBg>
+    <Solaris />
+    <Section id="cta" delay="0.6s" className="!bg-background/50 backdrop-blur-xl min-h-[80svh] items-center" grainBg>
       <CTA
         client:visible
         title="Define your brand's audio identity"
@@ -115,47 +113,27 @@ import CTA from '../components/modules/CTA.tsx';
     </Section>
   </div>
 
-  {/* HORIZONTAL SCROLL driver (About trial). Pins the stage and scrubs --peel 0%→100%,
-      sliding the founders panel in from the right (the vertical solaris beam leads it), and
-      freezes the binary rain while pinned so the dark hero behind stays static.
-      Desktop only; reduced-motion just shows the founders. Tune: end (scroll length),
-      --solaris-height (beam thickness), --solaris-* (beam colours). */}
+  {/* Rain freeze: once the beige world starts covering the sticky hero, stop the binary rain so the
+      hero reads as a static backdrop as sections scroll over it. Unfreeze when scrolled back up. */}
   <script>
     import { gsap } from 'gsap';
     import { ScrollTrigger } from 'gsap/ScrollTrigger';
     gsap.registerPlugin(ScrollTrigger);
 
-    function initPeel() {
-      const peel = document.getElementById('peel');
-      const pin = document.querySelector('.peel-pin');
-      if (!peel || !pin || peel.dataset.peelInit === '1') return;
-      const desktop = window.matchMedia('(min-width: 768px)').matches;
-      if (!desktop) return; // mobile: CSS shows the founders as a normal section
-      peel.dataset.peelInit = '1';
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        pin.style.setProperty('--peel', '100%'); // no animation — just reveal
-        return;
-      }
-      gsap.fromTo(pin, { '--peel': '0%' }, {
-        '--peel': '100%',
-        ease: 'none',
-        scrollTrigger: {
-          trigger: peel,
-          start: 'top top',
-          end: '+=120%',
-          scrub: true,
-          pin: pin,
-          pinSpacing: true,
-          invalidateOnRefresh: true,
-          onToggle: (self) => {
-            document.documentElement.dataset.rainFrozen = self.isActive ? '1' : '0';
-          },
-        },
+    function initRainFreeze() {
+      const founders = document.getElementById('founders');
+      if (!founders || founders.dataset.rainInit === '1') return;
+      founders.dataset.rainInit = '1';
+      ScrollTrigger.create({
+        trigger: founders,
+        start: 'top bottom', // founders begins coming over the hero
+        onEnter: () => { document.documentElement.dataset.rainFrozen = '1'; },
+        onLeaveBack: () => { document.documentElement.dataset.rainFrozen = '0'; },
       });
     }
 
-    document.addEventListener('astro:page-load', initPeel);
-    if (document.readyState === 'complete') initPeel();
-    else window.addEventListener('load', initPeel);
+    document.addEventListener('astro:page-load', initRainFreeze);
+    if (document.readyState === 'complete') initRainFreeze();
+    else window.addEventListener('load', initRainFreeze);
   </script>
 </Layout>

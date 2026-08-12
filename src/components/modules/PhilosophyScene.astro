@@ -24,9 +24,15 @@
  * Everything tunable lives in CONFIG at the top of the <script>.
  */
 ---
-<section data-scene="bitmap-philosophy" data-scroll="6" class="scene" style="--scene-tail: 100svh;">
+<section data-scene="bitmap-philosophy" data-scroll="6" class="scene" style="--scene-tail: 0svh; --scene-lead: 0svh;">
   <div class="scene-stage">
     <div class="phil-inner" data-scene-content>
+      <h2
+          class="phil-heading font-mono tracking-[0.5em] uppercase text-accent text-base md:text-2xl"
+          data-phil-heading
+          data-text="Our Philosophy"
+        >Our Philosophy
+      </h2>
       <svg id="sound-canvas" class="sound-canvas" viewBox="0 0 1200 1000"
            preserveAspectRatio="xMidYMid meet" aria-hidden="true">
         <g id="bit-group">
@@ -34,18 +40,26 @@
         </g>
       </svg>
       <div class="scene-caps">
-        <p class="scene-cap">Think of sound like pixels.</p>
+        <p class="scene-cap ">Think of your sound like the pixels in an image.</p>
         <p class="scene-cap">We translate individual traits of your brand's personality into distinct audio "bits".</p>
         <p class="scene-cap">Then map them together into a unified sonic identity.</p>
-        <p class="scene-cap">Master Asset — a complete, cohesive sound for your brand.</p>
-        <p class="scene-cap">Modular Stems — individual elements pulled from the master, ready for every touchpoint.</p>
-        <p class="scene-cap">Total Control — complete consistency in how your brand sounds, wherever it appears.</p>
+        <p class="scene-cap">The master asset provides you with a complete, cohesive sound for your brand.</p>
+        <p class="scene-cap">Modular stems then give you individual elements pulled from the master, ready for every touchpoint.</p>
+        <p class="scene-cap">The result is complete consistency in how your brand sounds, wherever it appears.</p>
       </div>
     </div>
   </div>
 </section>
 
 <style>
+  .phil-heading {
+    position: absolute;
+    top: 15svh; /* Keeps it high up and out of the way of the graphics */
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    z-index: 10;
+  }
   /* Fill the pinned stage and CENTRE the canvas in the viewport; captions overlay at the
      bottom (typography overlay) so the bit sits at true centre, not pushed up by the copy. */
   .phil-inner {
@@ -64,24 +78,31 @@
   }
 
   .scene-caps {
-    position: absolute;
-    left: 50%;
-    bottom: clamp(2.5rem, 9vh, 6rem);
-    transform: translateX(-50%);
-    width: min(92vw, 50rem);
-    min-height: 4.6em;
-    text-align: center;
-  }
-  .scene-cap {
-    position: absolute;
-    inset: 0;
-    margin: 0;
-    font-family: var(--font-mono);
-    font-size: clamp(1.05rem, 2vw, 1.5rem);
-    line-height: 1.5;
-    letter-spacing: 0.02em;
-    color: #ff9e1a; /* accent — legible on both the beige entry and the Void */
-  }
+  position: absolute;
+  left: 50%;
+  /* Increased the min, preferred, and max values for more bottom spacing */
+  bottom: clamp(4rem, 12vh, 8rem); 
+  transform: translateX(-50%);
+  /* Increased the viewport width percentage and the maximum rem width */
+  width: min(96vw, 60rem); 
+  min-height: 4.6em; /* This will automatically scale up because it uses 'em' */
+  text-align: center;
+  /* Blend mode goes here on the wrapper */
+  color: #ffffff; 
+  mix-blend-mode: difference;
+}
+
+.scene-cap {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  font-family: var(--font-mono);
+  /* Significantly increased the font size limits */
+  font-size: clamp(1.5rem, 3vw, 2.5rem); 
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+  /* Remove any color or blend modes from here */
+}
 </style>
 
 <script>
@@ -145,6 +166,7 @@
     const subGroup = stage.querySelector<SVGGElement>('#sub-group');
     const caps = stage.querySelectorAll<HTMLElement>('.scene-cap');
     if (!bitGroup || !subGroup || !caps.length) return;
+    const philInner = stage.querySelector<HTMLElement>('.phil-inner');
 
     const { tile, colors } = CONFIG;
     const H = tile / 2;
@@ -220,7 +242,7 @@
       kitBitmapAppear(tl, target, finalScale, pos, { duration: dur, stagger });
 
     // ── initial (resting) state — shown during the lead-in rise on beige ──
-    gsap.set(stage, { backgroundColor: colors.beige });
+    gsap.set(philInner, { backgroundColor: colors.beige });
     gsap.set(bitGroup, { filter: glow(0, colors.glow) });
     gsap.set(subGroup, { rotation: 0, svgOrigin: CX + ' ' + CY });
     gsap.set(tetherG, { opacity: 0, filter: glow(8, 'rgba(242, 242, 242, 0.45)') });
@@ -249,7 +271,7 @@
     tl.to([mainBit, ...subBits], { fill: colors.foreground, duration: 0.1 }, '<');
     tl.to(mainBit, { ...toXY(lineupCenters[4], CY), scale: CONFIG.lineupCentral, duration: 0.5, ease: moveEase }, '<');
     bitmapAppear(subBits, 1, '<', 0.5, 0.06);
-    tl.to(stage, {
+    tl.to(philInner, {
       keyframes: {
         backgroundColor: [colors.beige, colors.void, colors.beige, colors.void, colors.beige, colors.void, colors.beige, colors.void, colors.void],
         easeEach: 'steps(1)',
@@ -370,7 +392,8 @@
       tvOut(tl, bitGroup, CX, CY, '<');
     }
 
-    /* ── JOURNEY OUT: return to the beige world so the exit is seamless into the next section. ── */
-    tl.to(stage, { backgroundColor: colors.beige, duration: 0.6 }, '>');
+    /* END: leave the stage DARK (the "TV" is off) — the next section's solaris bar just comes over
+       the void, so there's no beige dead space. Hold the black a beat so the TV-out clearly lands. */
+    tl.to({}, { duration: 1.6 });
   });
 </script>

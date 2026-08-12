@@ -17,15 +17,15 @@ export default function CTA({
   href = "/contact"
 }: CTAProps) {
   return (
-    <div className="relative w-full flex flex-col items-center text-center">
+    <div className="relative w-full flex flex-col items-center text-center py-12 md:py-20">
 
       {/* HEADER: Solaris Amber Pulse */}
-      <h2 className="relative z-10 text-3xl md:text-4xl max-w-xl font-mono text-accent animate-pulse mb-8 tracking-tight">
+      <h2 className="relative z-10 text-4xl md:text-6xl max-w-3xl font-mono text-accent animate-pulse mb-10 tracking-tight leading-[1.1]">
         {title}
       </h2>
 
       {/* SUBTEXT: Technical Muted */}
-      <p className="relative z-10 text-body-muted text-xl max-w-xl mb-12">
+      <p className="relative z-10 text-body-muted text-xl md:text-2xl max-w-2xl mb-14 leading-relaxed">
         {description}
       </p>
 

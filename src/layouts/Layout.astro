@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { SoundProvider } from '../context/SoundContext.tsx';
 import Navigation from '../components/Navigation.tsx';
 import Footer from '../components/Footer.astro';
+import Solaris from '../components/Solaris.astro';
 import GridBackground from '../components/GridBackground.astro';
 import { resolvePageName } from '../config/brandMotion';
 
@@ -114,17 +115,29 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
                 <div class="w-full flex-1 flex flex-col">
                   <slot />
                 </div>
-                {!isLandingPage && !isReturnsPage && <Footer />}
+                {!isLandingPage && !isReturnsPage && (
+                  <div class="w-full relative z-20">
+                    <Footer />
+                  </div>
+                )}
+                {/* Bottom "sandwich" — a transparent runway so the fixed binary rain shows at the
+                    foot of the page, mirroring the hero at the top. Tune with --page-bottom-runway. */}
+                <div class="page-bottom-runway w-full" aria-hidden="true"></div>
               </>
             ) : (
-              /* Unified: every page is full-bleed at this level; width + gutters are
-                 owned by .container-page inside each Section (single source of truth).
-                 (Retired the old max-w-[1400px] card frame.) */
               <>
                 <div class="w-full flex-1 flex flex-col">
                   <slot />
                 </div>
-                <Footer />
+                
+                <div class="w-full relative z-20">
+                  <Solaris />
+                  <Footer />
+                </div>
+
+                {/* Bottom "sandwich" — transparent runway so the fixed binary rain shows at the
+                    foot of the page (see --page-bottom-runway). */}
+                <div class="page-bottom-runway w-full" aria-hidden="true"></div>
               </>
             )}
           </main>
