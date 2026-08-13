@@ -1,0 +1,63 @@
+---
+/* src/components/FocusScroll.astro
+ *
+ * REUSABLE "lock then scrub" scaffold — the section STICKS in place (locks) as it reaches the
+ * top, then ordinary scroll drives a focus cycle through its items while it's frozen, then it
+ * releases (same lock feel as the Values focus-columns, generalised for site-wide reuse).
+ *
+ * It only provides the LOCK + scroll runway. The slotted content owns its own design and reads
+ * the active item from `useScrollFocus` (which detects this [data-focus-scroll] ancestor and maps
+ * the locked scroll range → active index). So any design drops in unchanged.
+ *
+ *   <FocusScroll count={3} class="!bg-background/50 backdrop-blur-xl border-t-2 border-border">
+ *     <ServicePillars client:visible />
+ *   </FocusScroll>
+ *
+ *   count     — how many focus items (sets the scroll length + the index range)
+ *   vhPer     — viewports of scroll per item while locked (smaller = snappier). Default 0.55.
+ *   tailVh    — EXTRA viewports of locked scroll AFTER the last item takes focus, so it lingers
+ *               before the section releases. Default 0 (no extra hold).
+ *   barOffset — true when a .section-bar-hold Solaris bar sits above: shifts the locked content
+ *               DOWN so it stays vertically centred BELOW the header + bar (not behind them).
+ *
+ * Desktop only: on mobile it collapses to a normal, non-sticky block (mobile drives its own
+ * highlight from viewport position), so nothing locks and there's no extra scroll.
+ */
+interface Props { count: number; vhPer?: number; tailVh?: number; barOffset?: boolean; class?: string; id?: string; }
+const { count, vhPer = 0.55, tailVh = 0, barOffset = false, class: className = '', id } = Astro.props;
+const cycleVh = count * vhPer;               // scroll spent cycling through the items
+const focusVh = 1 + cycleVh + tailVh;        // +1 viewport lock height, + the tail hold
+// Fraction of the LOCKED range spent cycling (the rest holds the last item). The hook maps
+// scroll to index over this fraction, then clamps — so the last item stays put through the tail.
+const cycleFraction = cycleVh / (cycleVh + tailVh || 1);
+---
+<div class="focus-scroll" style={`--focus-vh:${focusVh}`} data-focus-scroll data-focus-cycle={cycleFraction} id={id}>
+  <div class:list={['focus-scroll-sticky', barOffset && 'focus-scroll-sticky--bar-offset', className]}>
+    <slot />
+  </div>
+</div>
+
+<style>
+  /* Tall outer = the scroll runway; the sticky inner locks for (focus-vh − 1) viewports. */
+  .focus-scroll { position: relative; height: calc(var(--focus-vh, 3) * 100svh); }
+  .focus-scroll-sticky {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  /* When a .section-bar-hold bar sits above, centre the content in the space BELOW the header +
+     bar (padding pushes the flex-centre down), so it isn't read behind the bar. */
+  .focus-scroll-sticky--bar-offset {
+    padding-top: calc(var(--header-h) + var(--solaris-height, 96px));
+  }
+  /* Mobile: no lock — a normal block in flow (mobile highlight is viewport-driven). */
+  @media (max-width: 767px) {
+    .focus-scroll { height: auto; }
+    .focus-scroll-sticky { position: static; height: auto; overflow: visible; }
+    .focus-scroll-sticky--bar-offset { padding-top: 0; }
+  }
+</style>

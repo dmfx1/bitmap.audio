@@ -51,13 +51,19 @@ function signalIntroDone() {
  * it links to the Home page. All timing lives in src/config/brandMotion.ts.
  */
 const BrandLockup = ({ pageName }: { pageName: string }) => {
-  // Intro plays on EVERY page load (each nav click is a full reload). To go back
-  // to once-per-session, restore: typeof window === 'undefined' ? true : !sessionStorage.getItem(SEEN_KEY)
-  const firstVisit = true;
+  // The full entry intro plays ONCE PER SESSION (or when ?intro=1 forces a replay). The decision
+  // is made before paint by the head script in Layout.astro, which sets html.intro-play; we read
+  // that single flag here so the nav intro and the body fade stay in lockstep. On every other
+  // navigation the flag is off → firstVisit is false → the !firstVisit branch below signals the
+  // intro done immediately, so the resting nav + hero show with no animation. (SEEN_KEY is written
+  // just below when the intro plays, so the next load in the session skips it.)
+  const firstVisit =
+    typeof document !== 'undefined' &&
+    document.documentElement.classList.contains('intro-play');
 
   // Resting nav wordmark: starts EMPTY on first visit, scrambles to the page name at
   // the end of the intro; on later loads it just shows the page name.
-  const [current, setCurrent] = useState(firstVisit ? "" : pageName);
+  const [current, setCurrent] = useState("");
   const [bGrown, setBGrown] = useState(!firstVisit);            // nav b grows/flickers in
   const [wordVisible, setWordVisible] = useState(!firstVisit);  // nav wordmark opacity
 
@@ -77,8 +83,12 @@ const BrandLockup = ({ pageName }: { pageName: string }) => {
 
   useEffect(() => {
     if (!firstVisit) {
-      signalIntroDone();
-      return;
+      // No logo intro on later pages — the nav is already at rest. Scramble the page-title
+      // wordmark (top-left) IN first, THEN signal the hero, so the title resolves before the
+      // hero's own title + description follow.
+      setCurrent(pageName);
+      const done = window.setTimeout(signalIntroDone, scrambleInMsFor(pageName.length) + 200);
+      return () => window.clearTimeout(done);
     }
     sessionStorage.setItem(SEEN_KEY, "1");
 
@@ -296,9 +306,12 @@ const Navigation = ({ currentPath, pageName = BRAND_NAME }: { currentPath: strin
   );
   const isActive = (path: string) => currentPath === path;
 
-  // The nav controls are hidden during the intro and appear the instant the brand
-  // wordmark arrives (BrandLockup dispatches "brand-arrived"). Intro plays every load.
-  const firstVisit = true;
+  // The nav controls are hidden ONLY during the first-visit intro (they fade in when the brand
+  // wordmark arrives). On every other page load there is no intro → firstVisit is false → the
+  // controls exist immediately. Same html.intro-play flag as BrandLockup, so they stay in sync.
+  const firstVisit =
+    typeof document !== 'undefined' &&
+    document.documentElement.classList.contains('intro-play');
   const [controlsVisible, setControlsVisible] = useState(!firstVisit);
   useEffect(() => {
     if (!firstVisit) return;
@@ -351,28 +364,28 @@ const Navigation = ({ currentPath, pageName = BRAND_NAME }: { currentPath: strin
               <NavigationMenuList className="gap-6">
 
                 <NavigationMenuItem>
-                  <a href="/about-v2?intro=1" className={cn(
+                  <a href="/about-v2" className={cn(
                     "font-mono text-base uppercase tracking-wider link-underline transition-colors",
                     isActive("/about") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
                   )}>About</a>
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>
-                  <a href="/solutions/sonic-branding?intro=1" className={cn(
+                  <a href="/solutions/sonic-branding" className={cn(
                     "font-mono text-base uppercase tracking-wider link-underline transition-colors",
                     isActive("/about") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
                   )}>Branding</a>
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>
-                  <a href="/solutions/uiux-sound?intro=1" className={cn(
+                  <a href="/solutions/uiux-sound" className={cn(
                     "font-mono text-base uppercase tracking-wider link-underline transition-colors",
                     isActive("/about") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
                   )}>UI/UX</a>
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>
-                  <a href="/solutions/experiential-audio?intro=1" className={cn(
+                  <a href="/solutions/experiential-audio" className={cn(
                     "font-mono text-base uppercase tracking-wider link-underline transition-colors",
                     isActive("/about") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
                   )}>Experience</a>
@@ -416,22 +429,10 @@ const Navigation = ({ currentPath, pageName = BRAND_NAME }: { currentPath: strin
               <a href="/home" className="font-mono text-base uppercase tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">Home</a>
               <a href="/about" className="font-mono text-base uppercase tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">About</a>
               <a href="/returns2" className="font-mono text-base uppercase tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">Why?</a>
-              <div className="pt-2 pb-2 border-t border-b border-border">
-                <button
-                  className="w-full flex items-center justify-between font-mono text-base uppercase tracking-wider text-accent min-h-[44px]"
-                  onClick={() => setIsSolutionsOpen(!isSolutionsOpen)}
-                >
-                  Solutions
-                  <ChevronDown className={cn("w-4 h-4 transition-transform duration-200", isSolutionsOpen && "rotate-180")} />
-                </button>
-                {isSolutionsOpen && (
-                  <div className="mt-1 flex flex-col gap-1 pl-4">
-                    {solutions.map((s) => (
-                      <a key={s.href} href={s.href} className="font-mono text-base text-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">{s.name}</a>
-                    ))}
-                  </div>
-                )}
-              </div>
+              {/* Solutions dropdown removed — Branding / UI/UX / Experience are flat items now. */}
+              <a href="/solutions/sonic-branding" className="font-mono text-base uppercase tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">Branding</a>
+              <a href="/solutions/uiux-sound" className="font-mono text-base uppercase tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">UI/UX</a>
+              <a href="/solutions/experiential-audio" className="font-mono text-base uppercase tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">Experience</a>
               <a href="/faq" className="font-mono text-base uppercase tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">FAQ</a>
             </div>
 

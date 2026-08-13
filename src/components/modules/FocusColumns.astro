@@ -16,12 +16,16 @@
  * Self-contained: does NOT use the src/lib/scene.ts pin framework.
  */
 interface Column { id: string; title: string; desc: string; }
-interface Props { heading: string; columns: Column[]; }
-const { heading, columns } = Astro.props;
+interface Props { heading: string; columns: Column[]; pinnedBar?: boolean; }
+// pinnedBar (TRIAL): the section name lives on a sticky Solaris bar pinned under the header
+// instead of a floating heading — so hide the heading here and re-centre the columns below the bar.
+const { heading, columns, pinnedBar = false } = Astro.props;
 // The section is this many viewports tall; sticky-range (= scrub length) is one less than this.
-const focusVh = columns.length + 1;
+// ~0.5 viewport of scroll per column keeps it SNAPPY (was columns.length + 1 = a full viewport
+// each, which felt like too much scroll for the movement). Tune the 0.5 multiplier for feel.
+const focusVh = columns.length * 0.5 + 1;
 ---
-<section class="focus-scene" style={`--focus-vh: ${focusVh}`}>
+<section class:list={["focus-scene", pinnedBar && "focus-scene--pinned"]} style={`--focus-vh: ${focusVh}`}>
   <div class="focus-sticky">
     <div class="focus-inner">
       <h2
@@ -104,6 +108,14 @@ const focusVh = columns.length + 1;
     will-change: transform, opacity;
   }
   .focus-desc { max-width: 20rem; }
+
+  /* pinnedBar: the section name is carried by a SEPARATE sticky Solaris bar (see .section-bar-hold
+     in global.css) that arrives under the header first, then releases in sync with the columns. So
+     here we just drop the floating heading and re-centre the columns below the header + bar. */
+  .focus-scene--pinned .focus-heading { display: none; }
+  .focus-scene--pinned .focus-cols {
+    top: calc((var(--header-h) + var(--solaris-height, 96px)) / 2);
+  }
 </style>
 
 <script>
@@ -116,10 +128,10 @@ const focusVh = columns.length + 1;
   const CONFIG = {
     focusScale: 1.18,  // the focused column grows in place
     dull: 0.28,        // the other columns' opacity while not in focus
-    focusDur: 0.5,     // grow / settle duration
-    holdStart: 1.0,    // settle (stuck, columns equal) BEFORE any highlighting begins
-    hold: 0.9,         // dwell on each focused column
-    holdEnd: 1.2,      // brief pause on the resolved frame before it releases
+    focusDur: 0.4,     // grow / settle duration (quicker = snappier)
+    holdStart: 0.4,    // short settle before the first highlight (was 1.0 — trimmed for snap)
+    hold: 0.5,         // dwell on each focused column (was 0.9)
+    holdEnd: 0.6,      // brief pause on the resolved frame before it releases (was 1.2)
     scrambleMs: 800,   // heading scramble-in duration
     accent: '#FF9E1A', // active column's number + title (solaris)
     ink: '#241F1A',    // inactive number + title (beige-world foreground)
@@ -137,11 +149,13 @@ const focusVh = columns.length + 1;
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       const desktop = window.matchMedia('(min-width: 768px)').matches;
 
-      // All columns start DULL (so they don't read as normal body copy on the way in); the focus
-      // cycle then lifts one at a time.
+      // The FIRST column starts already INITIATED (in focus); the others start dull. The scroll
+      // cycle then advances focus down the line. Framework behaviour — keys off [data-focus-col],
+      // so this holds for ANY design/content passed in (Values, home-page pillars, etc.).
       gsap.set(cols, { transformOrigin: '50% 50%', opacity: CONFIG.dull, scale: 1 });
+      gsap.set(cols[0], { opacity: 1, scale: CONFIG.focusScale });
       const hi = cols.map((c) => c.querySelectorAll<HTMLElement>('.focus-id, .focus-title'));
-      hi.forEach((h) => gsap.set(h, { color: CONFIG.ink }));
+      hi.forEach((h, i) => gsap.set(h, { color: i === 0 ? CONFIG.accent : CONFIG.ink }));
 
       // Title scrambles IN on scroll-down (onEnter) and hides on scroll-back-up (onLeaveBack) —
       // reliable now the section is sticky, not pinned.

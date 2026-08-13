@@ -18,6 +18,6 @@ interface Props {
 }
 const { text, class: className = "" } = Astro.props;
 ---
-<div class:list={["solaris relative z-10", className]} aria-hidden={!text}>
+<div class:list={["solaris relative z-10 text-center", className]} aria-hidden={!text}>
   {text && <span class="solaris-text container-page">{text}</span>}
 </div>

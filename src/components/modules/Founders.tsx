@@ -79,7 +79,7 @@ export default function Founders() {
               >{f.role}</p>
               <div className="h-px w-8 bg-foreground/50 mb-8 group-hover:w-full transition-all duration-700" />
               <p
-                className="text-foreground font-mono text-lg mb-12 md:mb-0 leading-relaxed max-w-[90%] group-hover:text-foreground transition-colors"
+                className="text-foreground font-mono text-2xl mb-12 md:mb-0 leading-relaxed max-w-[90%] group-hover:text-foreground transition-colors"
                 style={{ textShadow: '0 0 15px hsl(var(--background)), 0 0 15px hsl(var(--background))' }}
               >{f.bio}</p>
             </div>

@@ -70,6 +70,27 @@ html.lenis body { height: auto; }
 }
 @media (min-width: 768px) {
   .hero-runway { height: var(--hero-runway, 85svh); }
+
+  /* Sticky "section bar hold" — wrap a <Solaris text> in this so the bar STICKS just under the
+     header the moment the section arrives (bar first), THEN releases IN SYNC with a locked
+     section's content (columns/pillars) instead of lingering. How: the hold is a transparent,
+     click-through sticky box sized to the locked viewport (100svh − header), with the bar at its
+     top; the negative margin-bottom cancels its flow height so it overlaps the locked content
+     rather than pushing it down. Its full height makes it release at the same scroll point as the
+     100svh lock. Desktop only (mobile shows a normal bar). */
+  .section-bar-hold {
+    position: sticky;
+    top: var(--header-h);
+    height: calc(100svh - var(--header-h));
+    pointer-events: none;
+    z-index: 20;
+  }
+  /* The locked content that FOLLOWS a .section-bar-hold pulls up under it (negative margin-top)
+     so the tall hold overlaps the content instead of pushing it down — WITHOUT cancelling the
+     hold's height, so the bar releases in sync with the content (not late). */
+  .section-bar-hold + * {
+    margin-top: calc(var(--header-h) - 100svh);
+  }
 }
 
 /* ── LIGHT "COOL OAT" THEME — the beige world for post-hero content ────────────
@@ -96,6 +117,12 @@ html.lenis body { height: auto; }
   --ring: var(--content-accent);
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
+
+  /* Cursor dot goes DARK on the light beige world (root stays a light dot on the dark hero).
+     Re-apply cursor here so it picks up this local override (same trick as .section-inverted).
+     --cursor-link is untouched, so links keep their bitmap arrow. */
+  --cursor-dot: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 16 16'%3E%3Crect fill='%23241F1A' x='6' y='6' width='4' height='4'/%3E%3C/svg%3E") 8 8, auto;
+  cursor: var(--cursor-dot);
 }
 
 /* The SOLARIS beam — the seam between the dark hero and the beige world. Fully driven
@@ -107,6 +134,16 @@ html.lenis body { height: auto; }
   height: var(--solaris-height);
   background: linear-gradient(90deg, var(--solaris-from) 0%, var(--solaris-mid) 55%, var(--solaris-to) 100%);
   box-shadow: var(--solaris-glow);
+}
+/* GHOST variant — for a bar sitting over a DARK background (e.g. the philosophy pixel scene):
+   the beam goes transparent and the label turns accent, so it reads on the void instead of a
+   bright bar. Add via the Solaris `class` prop: <Solaris text="…" class="solaris--ghost" />. */
+.solaris--ghost {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.solaris--ghost .solaris-text {
+  color: hsl(var(--accent)) !important;
 }
 .solaris-text {
   font-family: var(--font-mono);
@@ -911,6 +948,13 @@ a, button, [role="button"] {
 }
 
 /* --- SLICK FADE TRANSITIONS --- */
+/* Page-load intro fade — ONLY when the landing splash passed ?intro=1 (html.intro-play set by
+   the head script). Every other page load is instant, no animation. `both` fill starts the body
+   at the keyframe's opacity:0, so there's no flash before it fades in. */
+html.intro-play body {
+  animation: slickFadeIn 400ms ease-out both;
+}
+
 .animate-page-in {
   animation: slickFadeIn 400ms ease-out forwards;
 }

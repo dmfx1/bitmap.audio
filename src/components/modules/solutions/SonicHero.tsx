@@ -1,5 +1,4 @@
 import React, { useRef, useState } from 'react';
-import { ChevronLeft } from 'lucide-react';
 import ScrambleHeading from '../ScrambleHeading';
 import { useHeroSquish } from '../../../hooks/use-hero-squish';
 import { useIntroGate } from '../../../hooks/use-intro-gate';
@@ -15,11 +14,6 @@ export default function SonicHero() {
       <div className="container-page relative z-10">
         {started && (
           <>
-            <a href="/home" className="group inline-flex items-center text-lg pb-4 md:pb-0 font-mono tracking-widest text-primary/60 hover:text-primary transition-colors mb-4 md:mb-12">
-              <ChevronLeft className="w-3 h-3 mr-1 group-hover:-translate-x-1 transition-transform" />
-              RTN:HOME
-            </a>
-
             <p className="text-eyebrow text-accent text-base font-bold animate-fade-in mb-4">
               Solutions <span className="opacity-50">/</span> Sonic Branding
             </p>

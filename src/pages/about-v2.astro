@@ -22,6 +22,7 @@ import PhilosophyScene from '../components/modules/PhilosophyScene.astro';
 import AboutHeroV2 from '../components/modules/AboutHeroV2.tsx';
 import Founders from '../components/modules/Founders.tsx';
 import FocusColumns from '../components/modules/FocusColumns.astro';
+import FocusScroll from '../components/FocusScroll.astro';
 // import AboutPhilosophy from '../components/modules/AboutPhilosophy.tsx'; // HIDDEN — kept for reference while the PhilosophyScene replaces it
 // import Values from '../components/modules/Values.tsx'; // replaced by <FocusColumns/> below
 import Clients from '../components/modules/Clients.tsx';
@@ -49,26 +50,42 @@ import CTA from '../components/modules/CTA.tsx';
       of the hero, NOT inside theme-oat) so the hero shows through. Tune with --hero-runway. */}
   <div class="hero-runway" aria-hidden="true"></div>
 
-  {/* The founders' solaris bar comes over the hero first (top-level). */}
-  <Solaris />
-
   {/* Beige "Cool Oat" world — scrolls up OVER the sticky hero. No horizontal peel — all vertical. */}
   <div class="relative z-10 theme-oat">
-    {/* Founders — first section over the hero. */}
-    <Section id="founders" delay="0s" className="min-h-svh flex flex-col justify-center !bg-background">
-      <Founders client:visible />
-    </Section>
+    {/* Founders — first section over the hero. Bar sticks under the header, founders lock in
+        below it, then release together (section-bar-hold + FocusScroll, same as Values). */}
+    <div class="relative">
+      <div class="section-bar-hold"><Solaris text="Who we are" /></div>
+      <FocusScroll count={1} barOffset id="founders" class="!bg-background">
+        <Founders client:visible />
+      </FocusScroll>
+    </div>
 
-    {/* The bitmap-pixel scroll SCENE (scene.ts pin). */}
-    <PhilosophyScene />
+    {/* Philosophy — bar sticks under the header while the pixel scene plays. NOTE: the scene is a
+        GSAP-pinned scene, so this uses a PLAIN sticky bar (not the full-height .section-bar-hold,
+        which needs an overlap margin on its sibling and would risk the scene's pin). Trade-off:
+        the bar can linger briefly at the very end (the short-bar behaviour). A scene-integrated
+        bar — pinned WITH the stage in scene.ts — is the clean fix, as a careful follow-up. */}
+    <div class="relative">
+      {/* Plain sticky bar (scene untouched). A JS pass (below) slides it up in sync with the scene
+          so it doesn't linger, AND flips it to the ghost variant (transparent + accent) only once
+          the stage background actually goes dark — solaris orange while the scene is still beige. */}
+      <div id="phil-bar" class="sticky top-[var(--header-h)] z-20"><Solaris text="Our Philosophy" /></div>
+      {/* The bitmap-pixel scroll SCENE (scene.ts pin) — untouched. */}
+      <PhilosophyScene />
+    </div>
 
     {/* Our Values — STICKY focus columns, pulled up over philosophy's END (after its TV-out has
         fully finished — tune --scene-follow-pull: bigger = covers sooner, smaller = TV-out gets
         more room / a touch more beige first), led by a solaris bar. */}
     <div class="scene-follow" style="--scene-follow-pull: 40svh">
-      <Solaris />
+      {/* The Solaris bar arrives under the header FIRST (as before), but sits in a full-height
+          .section-bar-hold so it releases in SYNC with the columns instead of lingering. pinnedBar
+          drops the floating heading and re-centres the columns below the header + bar. */}
+      <div class="section-bar-hold"><Solaris text="Our Values" /></div>
       <FocusColumns
         heading="Our Values"
+        pinnedBar
         columns={[
           { id: "01", title: "Precision", desc: "Sound should feel deliberate and every frequency intentional." },
           { id: "02", title: "Empathy", desc: "Sound should feel intuitive, not intrusive and systems should be collaborative." },
@@ -77,40 +94,32 @@ import CTA from '../components/modules/CTA.tsx';
       />
     </div>
 
-    {/* Client terminal — led by a solaris bar. */}
-    <Solaris />
-    <Section
-      id="clients"
-      delay="0.5s"
-      isFullWidth={true}
-      noPadding={true}
-      hasBorder={true}
-      className="!bg-background-blur/50 backdrop-blur-xl pb-8"
-    >
-      {/* .solaris-section centres the terminal in the viewport, offset below the header + solaris
-          bar (universal pattern for normal sections entering under a bar). */}
-      <div class="solaris-section">
-        <div class="container-page mb-8">
-          <p class="text-base font-mono tracking-[0.5em] uppercase text-accent">
-            [ CLIENT_TERMINAL ]
-          </p>
-        </div>
+    {/* Clients — bar sticks under the header, the terminal locks in below it, then they release
+        together. The old [ CLIENT_TERMINAL ] label is now carried by the Solaris bar. */}
+    <div class="relative">
+      <div class="section-bar-hold"><Solaris text="Client Terminal" /></div>
+      <FocusScroll count={1} barOffset id="clients" class="!bg-background-blur/50 backdrop-blur-xl">
         {/* Side gutters; the grid fills the rest. */}
-        <div class="px-4 md:px-12 lg:px-24">
+        <div class="px-4 md:px-12 lg:px-24 w-full">
           <Clients client:visible />
         </div>
-      </div>
-    </Section>
+      </FocusScroll>
+    </div>
 
-    <Solaris />
-    <Section id="cta" delay="0.6s" className="!bg-background/50 backdrop-blur-xl min-h-[80svh] items-center" grainBg>
-      <CTA
-        client:visible
-        title="Define your brand's audio identity"
-        description="Let's explore how a sonic brand can strengthen your identity and deepen audience connection."
-        buttonText="START YOUR SONIC BRAND"
-      />
-    </Section>
+    {/* CTA — bar sticks under the header, the CTA locks in below it, then they release together. */}
+    <div class="relative">
+      <div class="section-bar-hold"><Solaris text="Get In Touch" /></div>
+      <FocusScroll count={1} barOffset id="cta" class="!bg-background/50 backdrop-blur-xl">
+        <div class="container-page w-full">
+          <CTA
+            client:visible
+            title="Define your brand's audio identity"
+            description="Let's explore how a sonic brand can strengthen your identity and deepen audience connection."
+            buttonText="START YOUR SONIC BRAND"
+          />
+        </div>
+      </FocusScroll>
+    </div>
   </div>
 
   {/* Rain freeze: once the beige world starts covering the sticky hero, stop the binary rain so the
@@ -132,8 +141,47 @@ import CTA from '../components/modules/CTA.tsx';
       });
     }
 
-    document.addEventListener('astro:page-load', initRainFreeze);
-    if (document.readyState === 'complete') initRainFreeze();
-    else window.addEventListener('load', initRainFreeze);
+    // Slide the philosophy bar UP in sync with the pinned scene so it doesn't linger. The scene is
+    // GSAP-pinned (CSS-sticky hold can't sync to that), so this drives the bar off the scene's own
+    // scroll extent instead. Desktop only.
+    function initPhilBarSync() {
+      const bar = document.getElementById('phil-bar');
+      const scene = document.querySelector('[data-scene="bitmap-philosophy"]');
+      const stage = scene && scene.querySelector('.scene-stage');
+      const solaris = bar && bar.querySelector('.solaris');
+      if (!bar || !scene || bar.dataset.syncInit === '1') return;
+      bar.dataset.syncInit = '1';
+      if (!window.matchMedia('(min-width: 768px)').matches) return;
+      let raf = 0;
+      const update = () => {
+        raf = 0;
+        // The scene section (incl. its pin-spacer) spans the scene's whole scroll extent. While the
+        // scene fills/pins, its bottom sits below the viewport → shift 0 (bar stuck under header).
+        // Once its bottom rises above the viewport bottom (scene ready to scroll up), the bar slides
+        // up in lockstep so it LEAVES with the scene.
+        const rect = scene.getBoundingClientRect();
+        const shift = Math.min(0, rect.bottom - window.innerHeight);
+        bar.style.transform = 'translateY(' + shift + 'px)';
+        // Flip to the ghost variant (transparent + accent) only once the stage bg actually goes
+        // DARK; keep the solaris orange bar while the scene is still on the beige world.
+        if (stage && solaris) {
+          const m = getComputedStyle(stage).backgroundColor.match(/\d+/g);
+          if (m) {
+            const lum = 0.299 * +m[0] + 0.587 * +m[1] + 0.114 * +m[2];
+            solaris.classList.toggle('solaris--ghost', lum < 90);
+          }
+        }
+      };
+      const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll, { passive: true });
+      update();
+    }
+
+    function initAboutV2() { initRainFreeze(); initPhilBarSync(); }
+
+    document.addEventListener('astro:page-load', initAboutV2);
+    if (document.readyState === 'complete') initAboutV2();
+    else window.addEventListener('load', initAboutV2);
   </script>
 </Layout>

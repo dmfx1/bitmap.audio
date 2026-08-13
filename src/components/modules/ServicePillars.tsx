@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useMobileCenterIndex } from '@/hooks/use-mobile-center-index';
+import { useScrollFocus } from '@/hooks/use-scroll-focus';
 import { BitmapSonicBranding, BitmapUiUxSound, BitmapExperientialAudio } from '../ui/icons';
 
 const services = [
@@ -39,6 +40,11 @@ export default function ServicePillars() {
   // runs in the background on mobile — scrolling is the interaction.
   const { isMobile, centerIndex, intensities } = useMobileCenterIndex(containerRef, '[data-mobile-center-item]');
 
+  // Desktop: which pillar is in focus is driven by SCROLL position (reusable useScrollFocus —
+  // the same "scroll cycles the highlight" idea as the Values focus columns, applied to this
+  // design). Replaces the old autoplay timer. Mobile keeps its viewport-centre driver above.
+  const scrollIndex = useScrollFocus(containerRef, services.length, !isMobile);
+
   // --- INTERSECTION OBSERVER ---
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -57,30 +63,7 @@ export default function ServicePillars() {
     return () => observer.disconnect();
   }, []);
 
-  // --- SEQUENTIAL AUTOPLAY LOGIC (Desktop only — mobile is viewport-driven, no timer) ---
-  useEffect(() => {
-    if (isMobile) return;
-    // NEW: If autoplayActive is false, we instantly return and kill the interval
-    if (!internalScan || services.length === 0 || !autoplayActive) return;
-
-    let interval: NodeJS.Timeout;
-
-    const startDelay = setTimeout(() => {
-      setActiveAutoIndex(0);
-
-      interval = setInterval(() => {
-        setActiveAutoIndex((current) => {
-          if (current === null || current >= services.length - 1) return 0;
-          return current + 1;
-        });
-      }, 4500);
-    }, 450);
-
-    return () => {
-      clearTimeout(startDelay);
-      if (interval) clearInterval(interval);
-    };
-  }, [internalScan, autoplayActive, isMobile]); // Added isMobile to dependencies
+  // Desktop focus is now scroll-driven (scrollIndex above) — no autoplay timer.
 
   // REPLACE your old handleUserInteraction with these two functions
   const handleUserInteraction = () => {
@@ -121,7 +104,7 @@ export default function ServicePillars() {
           <ServiceCard
             key={i}
             service={s}
-            forcePlay={activeAutoIndex === i}
+            forcePlay={scrollIndex === i}
             isMobile={isMobile}
             isCentered={centerIndex === i}
             intensity={intensities[i] ?? (i === centerIndex ? 1 : 0)}
@@ -176,8 +159,8 @@ function ServiceCard({
         !isMobile && "bg-background/40 backdrop-blur-sm",
         isMobile && "backdrop-blur-sm",
         isActive
-          ? cn("border-accent shadow-[0_0_30px_hsl(var(--primary)/0.1)] z-20", !isMobile && "bg-background/80 scale-[1.02]")
-          : cn("border-border/20 z-10", !isMobile && "scale-100")
+          ? cn("border-accent shadow-[0_0_40px_hsl(var(--accent)/0.2)] z-20", !isMobile && "bg-background/80 scale-[1.06] opacity-100")
+          : cn("border-border/20 z-10", !isMobile && "scale-95 opacity-60")
       )}
     >
       {/* ICON */}
@@ -192,8 +175,8 @@ function ServiceCard({
       
       {/* TEXT */}
       <h3 className={cn(
-        "font-mono text-xl font-medium mb-4 tracking-tight transition-colors duration-300",
-        isActive ? "text-accent" : "text-foreground"
+        "font-mono text-xl mb-4 tracking-tight transition-all duration-300",
+        isActive ? "text-accent font-bold" : "text-foreground font-medium"
       )}>
         {service.title}
       </h3>

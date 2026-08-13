@@ -29,6 +29,19 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    {/* Entry intro (nav curtain + body fade) plays ONCE PER SESSION — the first page load of a
+        session — and can be force-replayed with ?intro=1. Sets html.intro-play before paint so
+        BOTH the body fade (CSS) and the nav intro (Navigation.tsx reads this class) gate off ONE
+        flag. Every later navigation within the session has the flag off, so no per-load animation.
+        Navigation sets sessionStorage bitmap_intro_seen when the intro plays. */}
+    <script is:inline>
+      (function () {
+        var replay = new URLSearchParams(location.search).has('intro');
+        var seen = false;
+        try { seen = !!sessionStorage.getItem('bitmap_intro_seen'); } catch (e) {}
+        if (replay || !seen) document.documentElement.classList.add('intro-play');
+      })();
+    </script>
     <meta name="robots" content="index, follow" />
     {description && <meta name="description" content={description} />}
     <link rel="canonical" href={resolvedCanonical} />
@@ -70,7 +83,7 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
     <slot name="head" />
   </head>
   
-  <body class="bg-background text-foreground antialiased selection:bg-primary/30 opacity-0 animate-page-in">
+  <body class="bg-background text-foreground antialiased selection:bg-primary/30">
     <SoundProvider client:load>
       <TooltipProvider client:load>
         
@@ -185,14 +198,10 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
           const targetPath = link.getAttribute('href');
           if (targetPath === window.location.pathname) return;
 
+          // No exit animation on internal navigation — the intro fade only plays on first
+          // visit (?intro=1). Navigate immediately, no fade-out.
           e.preventDefault();
-          document.body.classList.remove('animate-page-in');
-          document.body.classList.add('animate-page-out');
-          
-          // Exactly 150ms to match the signalFadeOut animation
-          setTimeout(() => {
-            window.location.href = targetPath;
-          }, 150);
+          window.location.href = targetPath;
         });
       });
     </script>
