@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import Solaris from '../components/Solaris.astro';
 import Section from '../components/Section.astro';
+import FocusScroll from '../components/FocusScroll.astro';
 import ContactHero from '../components/modules/ContactHero.tsx';
 import ConceptGrid from '../components/modules/ConceptGrid.tsx';
 import SocialsGrid from '@/components/modules/SocialsGrid';
@@ -29,27 +30,31 @@ const contactCards = [
   title="Contact bitmap.audio | Start Your Sonic Brand"
   description="Get in touch with bitmap.audio to discuss sonic branding, UI/UX sound design, or immersive audio projects. Email us at root@bitmap.audio."
 >
-  <div id="hero-sticky" class="md:sticky top-0 z-[1] min-h-svh">
-    <div class="h-full">
-      <ContactHero client:load />
-    </div>
+  <div id="hero-sticky" class="md:sticky top-0 z-[1] min-h-svh flex flex-col">
+    <ContactHero client:load />
   </div>
 
   <div class="hero-runway" aria-hidden="true"></div>
 
-  <Solaris />
-
+  {/* Each section: bar sticks under the header, content locks in centred below it, then release
+      together (same pattern as about-v2 / home). */}
   <div class="relative z-10 theme-oat">
-    <Section id="details" invert delay="0.5s" className="!bg-background/50 backdrop-blur-xl" grainBg>
-      <ConceptGrid
-        client:visible
-        items={contactCards}
-        mobileGlow={true}
-      />
-    </Section>
+    <div class="relative">
+      <div class="section-bar-hold"><Solaris text="Get In Touch" /></div>
+      <FocusScroll count={1} barOffset id="details" class="!bg-background/50 backdrop-blur-xl">
+        <div class="container-page w-full">
+          <ConceptGrid client:visible items={contactCards} mobileGlow={true} />
+        </div>
+      </FocusScroll>
+    </div>
 
-    <Section id="socials" delay="1.2s" className="!bg-background/80 backdrop-blur-xl min-h-[500px]">
-      <SocialsGrid client:idle />
-    </Section>
+    <div class="relative">
+      <div class="section-bar-hold"><Solaris text="Connect" /></div>
+      <FocusScroll count={1} barOffset id="socials" class="!bg-background/80 backdrop-blur-xl">
+        <div class="container-page w-full">
+          <SocialsGrid client:idle />
+        </div>
+      </FocusScroll>
+    </div>
   </div>
 </Layout>

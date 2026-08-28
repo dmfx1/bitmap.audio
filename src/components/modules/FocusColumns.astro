@@ -20,10 +20,10 @@ interface Props { heading: string; columns: Column[]; pinnedBar?: boolean; }
 // pinnedBar (TRIAL): the section name lives on a sticky Solaris bar pinned under the header
 // instead of a floating heading — so hide the heading here and re-centre the columns below the bar.
 const { heading, columns, pinnedBar = false } = Astro.props;
-// The section is this many viewports tall; sticky-range (= scrub length) is one less than this.
-// ~0.5 viewport of scroll per column keeps it SNAPPY (was columns.length + 1 = a full viewport
-// each, which felt like too much scroll for the movement). Tune the 0.5 multiplier for feel.
-const focusVh = columns.length * 0.5 + 1;
+// The focus now cycles on a TIMER (not scroll), so the section only needs a BRIEF sticky lock (it
+// freezes for ~0.6 viewport while the columns autoplay), then releases. Fixed height (not per
+// column) since scroll no longer drives the cycle.
+const focusVh = 1.6;
 ---
 <section class:list={["focus-scene", pinnedBar && "focus-scene--pinned"]} style={`--focus-vh: ${focusVh}`}>
   <div class="focus-sticky">
@@ -40,6 +40,8 @@ const focusVh = columns.length * 0.5 + 1;
             <span class="focus-id font-mono text-5xl md:text-6xl font-light">{c.id}</span>
             <h3 class="focus-title font-mono text-xl md:text-2xl tracking-tight">{c.title}</h3>
             <p class="focus-desc font-mono text-base">{c.desc}</p>
+            {/* per-column bitmap progress bar — pixels light up with the autoplay timer */}
+            <div class="focus-progress bitmap-progress" data-focus-progress></div>
           </div>
         ))}
       </div>
@@ -108,6 +110,9 @@ const focusVh = columns.length * 0.5 + 1;
     will-change: transform, opacity;
   }
   .focus-desc { max-width: 20rem; }
+  /* Per-column progress bar — the pixel look lives in the shared .bitmap-progress (global.css);
+     here we just position it under the column. */
+  .focus-progress { margin-top: 0.75rem; }
 
   /* pinnedBar: the section name is carried by a SEPARATE sticky Solaris bar (see .section-bar-hold
      in global.css) that arrives under the header first, then releases in sync with the columns. So
@@ -128,13 +133,17 @@ const focusVh = columns.length * 0.5 + 1;
   const CONFIG = {
     focusScale: 1.18,  // the focused column grows in place
     dull: 0.28,        // the other columns' opacity while not in focus
-    focusDur: 0.4,     // grow / settle duration (quicker = snappier)
-    holdStart: 0.4,    // short settle before the first highlight (was 1.0 — trimmed for snap)
-    hold: 0.5,         // dwell on each focused column (was 0.9)
-    holdEnd: 0.6,      // brief pause on the resolved frame before it releases (was 1.2)
+    focusDur: 0.4,     // grow / settle tween duration
+    intervalMs: 4500,  // time each column holds focus before the loop advances
     scrambleMs: 800,   // heading scramble-in duration
-    accent: '#FF9E1A', // active column's number + title (solaris)
-    ink: '#241F1A',    // inactive number + title (beige-world foreground)
+  };
+
+  // Colours come from the CSS token map — NO hard-coded hex. GSAP can't tween var(), so resolve
+  // the token off the element (picks up the theme, e.g. beige world) to an hsl() string.
+  const readToken = (name: string, el: Element): string => {
+    const raw = getComputedStyle(el).getPropertyValue(name).trim();
+    if (!raw) return '';
+    return /^#|^rgb|^hsl/.test(raw) ? raw : `hsl(${raw.split(/\s+/).join(', ')})`;
   };
 
   function initFocus() {
@@ -145,20 +154,33 @@ const focusVh = columns.length * 0.5 + 1;
       const heading = section.querySelector<HTMLElement>('[data-focus-heading]');
       const cols = Array.from(section.querySelectorAll<HTMLElement>('[data-focus-col]'));
       if (!cols.length) return;
+      const hi = cols.map((c) => c.querySelectorAll<HTMLElement>('.focus-id, .focus-title'));
+      const bars = cols.map((c) => c.querySelector<HTMLElement>('[data-focus-progress]'));
 
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      const desktop = window.matchMedia('(min-width: 768px)').matches;
 
-      // The FIRST column starts already INITIATED (in focus); the others start dull. The scroll
-      // cycle then advances focus down the line. Framework behaviour — keys off [data-focus-col],
-      // so this holds for ANY design/content passed in (Values, home-page pillars, etc.).
-      gsap.set(cols, { transformOrigin: '50% 50%', opacity: CONFIG.dull, scale: 1 });
-      gsap.set(cols[0], { opacity: 1, scale: CONFIG.focusScale });
-      const hi = cols.map((c) => c.querySelectorAll<HTMLElement>('.focus-id, .focus-title'));
-      hi.forEach((h, i) => gsap.set(h, { color: i === 0 ? CONFIG.accent : CONFIG.ink }));
+      // Resolve colours from the token map (bright --accent for the active column; the theme's
+      // foreground for the dulled ones) — no hard-coded hex.
+      const accent = readToken('--accent', section);
+      const ink = readToken('--content-foreground', section) || readToken('--foreground', section);
 
-      // Title scrambles IN on scroll-down (onEnter) and hides on scroll-back-up (onLeaveBack) —
-      // reliable now the section is sticky, not pinned.
+      gsap.set(cols, { transformOrigin: '50% 50%' });
+
+      // Apply the focus state (grow + accent) to column `active`, dulling the rest.
+      const applyFocus = (active: number) => {
+        cols.forEach((col, i) => {
+          gsap.to(col, { scale: i === active ? CONFIG.focusScale : 1, opacity: i === active ? 1 : CONFIG.dull, duration: CONFIG.focusDur, ease: 'power2.out' });
+          gsap.to(hi[i], { color: i === active ? accent : ink, duration: CONFIG.focusDur });
+        });
+      };
+      const setBar = (idx: number, p: number) => {
+        bars.forEach((b, i) => { if (b) b.style.setProperty('--progress', String(i === idx ? p : 0)); });
+      };
+
+      applyFocus(0);
+      setBar(0, 0);
+
+      // Heading scramble IN on enter / hide on leave-back (unchanged).
       if (heading) {
         const text = heading.dataset.text || heading.textContent || '';
         gsap.set(heading, { opacity: 0 });
@@ -173,37 +195,46 @@ const focusVh = columns.length * 0.5 + 1;
         });
       }
 
-      // Focus timeline — each column takes focus in turn (grows + accent), others dull.
-      const tl = gsap.timeline({ paused: true });
-      tl.to({}, { duration: CONFIG.holdStart }); // settle once stuck, before any highlighting
+      // Reduced motion: show the first column focused, no loop.
+      if (reduced) { applyFocus(0); setBar(0, 1); return; }
+
+      // ── TIMED LOOP + hover (same as the React useTimedFocus hook): ONE persistent rAF + an
+      //    elapsed accumulator, so scroll (on/off screen) and hover PAUSE/RESUME the fill instead
+      //    of restarting it mid-way (that was the "fills halfway" bug). ────────────────────────
+      let active = 0;
+      let hover: number | null = null;
+      let onScreen = false;
+      let elapsed = 0;
+      let last: number | undefined;
+
+      const step = (t: number) => {
+        const dt = last === undefined ? 0 : t - last;
+        last = t;
+        if (hover !== null) {
+          elapsed = 0;              // paused on hover, bar full on the hovered column
+          setBar(hover, 1);
+        } else if (onScreen) {
+          elapsed += dt;            // only accrue while on screen → off-screen pauses
+          const p = Math.min(1, elapsed / CONFIG.intervalMs);
+          setBar(active, p);
+          if (p >= 1) { active = (active + 1) % cols.length; applyFocus(active); elapsed = 0; }
+        }
+        requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+
+      // Hover takes precedence over the loop.
       cols.forEach((col, i) => {
-        tl.addLabel('focus' + i);
-        tl.to(col, { scale: CONFIG.focusScale, opacity: 1, duration: CONFIG.focusDur, ease: 'power2.out' }, 'focus' + i);
-        tl.to(hi[i], { color: CONFIG.accent, duration: CONFIG.focusDur }, 'focus' + i);
-        cols.forEach((other, j) => {
-          if (j !== i) {
-            tl.to(other, { scale: 1, opacity: CONFIG.dull, duration: CONFIG.focusDur, ease: 'power2.out' }, 'focus' + i);
-            tl.to(hi[j], { color: CONFIG.ink, duration: CONFIG.focusDur }, 'focus' + i);
-          }
-        });
-        tl.to({}, { duration: CONFIG.hold });
+        col.addEventListener('mouseenter', () => { hover = i; applyFocus(i); });
+        col.addEventListener('mouseleave', () => { hover = null; applyFocus(active); });
       });
-      // End with the LAST column still highlighted (others dull) — no reset. It just holds this
-      // frame, then the sticky section releases and scrolls on.
-      tl.to({}, { duration: CONFIG.holdEnd });
 
-      // Mobile / reduced-motion: no scrub — just show the resolved frame.
-      if (reduced || !desktop) { tl.progress(1); return; }
-
-      // Scrub the focus timeline across the STICKY range (start = section pinned at top, end =
-      // section bottom reaches viewport bottom = sticky about to release). No pin — sticky freezes.
+      // Accrue the timer only while the section is on screen.
       ScrollTrigger.create({
         trigger: section,
-        start: 'top top',
-        end: 'bottom bottom',
-        scrub: 0.75,
-        animation: tl,
-        invalidateOnRefresh: true,
+        start: 'top 75%',
+        end: 'bottom 25%',
+        onToggle: (self: ScrollTrigger) => { onScreen = self.isActive; },
       });
     });
   }

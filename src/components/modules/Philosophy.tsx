@@ -10,19 +10,23 @@ export default function Philosophy() {
 
   const updateText = () => {
     if (!sectionRef.current) return;
-    const rect = sectionRef.current.getBoundingClientRect();
-    const viewportHeight = window.innerHeight;
-
-    // --- INSERT CODE HERE (Number 3.) ---
-    // startTrigger: When the section is 85% down the screen, start typing.
-    const startTrigger = viewportHeight * 0.75; 
-    
-    // endTrigger: When the section hits 45% (near the middle), be 100% finished.
-    // This provides the 'smooth' finish you're looking for.
-    const endTrigger = viewportHeight * 0.45;   
-    
-    const progress = Math.min(Math.max((startTrigger - rect.top) / (startTrigger - endTrigger), 0), 1);
-    // ------------------------------------
+    const vh = window.innerHeight;
+    const desktop = window.matchMedia('(min-width: 768px)').matches;
+    // Prefer the FocusScroll LOCK: nothing types until the section is locked in place (its top
+    // reaches 0) — you just see the pulsing cursor — then the quote types out across the locked
+    // scroll range. Off desktop / with no lock, fall back to typing as it passes through view.
+    const scroller = sectionRef.current.closest('[data-focus-scroll]') as HTMLElement | null;
+    let progress = 0;
+    if (scroller && desktop) {
+      const rect = scroller.getBoundingClientRect();
+      const range = rect.height - vh;
+      progress = range > 0 ? Math.min(Math.max(-rect.top / range, 0), 1) : 0;
+    } else {
+      const rect = sectionRef.current.getBoundingClientRect();
+      const startTrigger = vh * 0.75;
+      const endTrigger = vh * 0.45;
+      progress = Math.min(Math.max((startTrigger - rect.top) / (startTrigger - endTrigger), 0), 1);
+    }
 
     const charCount = Math.floor(fullQuote.length * progress);
     setVisibleText(fullQuote.slice(0, charCount));
@@ -43,8 +47,8 @@ export default function Philosophy() {
   return (
     <div ref={sectionRef} className="flex flex-col items-center text-center">
       
-      <div className="max-w-4xl min-h-[160px] md:min-h-[200px]">
-        <h2 className="text-2xl md:text-4xl lg:text-5xl font-mono text-foreground/60 text-justify md:text-center leading-tight">
+      <div className="max-w-7xl min-h-[160px] md:min-h-[200px]">
+        <h2 className="text-2xl md:text-4xl lg:text-7xl font-mono font-bold text-foreground/60 text-justify md:text-center">
           {visibleText}
           <span className="inline-block w-[0.5ch] h-[0.9em] bg-accent brightness-125 ml-2 animate-pulse align-middle" />
         </h2>

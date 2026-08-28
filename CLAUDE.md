@@ -407,6 +407,7 @@ Mobile hamburger menu current behaviour (do not revert):
 
 ## Current Active Work
 
+- **`about-v3.astro` — Scene-stage prototype (the CURRENT About direction).** Hero/header stays locked; sections are stacked full-screen layers cross-faded/revealed by a scrubbed timeline (no content translation). See section **AE** for full spec, gotchas, and the `T = {}` timing knobs. `/about-v2` is the fallback. The `#dev-hud` frame counter is KEPT (dom's call).
 - `returns2.astro` — CSS Grid layout rebuild complete (Section E done). Awaiting visual review from dom before merging to `returns.astro`. See Section E below for full spec.
 - `returns2.astro` — GSAP animations are identical to `returns.astro` and calibrated to the 1600vh horizontal scroll track — do not recalibrate unless specifically asked
 - `returns.astro` — Mobile snap logic (each slide should behave like an Instagram reel: snap-to-full-viewport, text-first layout, no horizontal overflow)
@@ -581,3 +582,56 @@ Debugging note: the only reliable way to inspect this page in Chrome is REAL whe
 
 
 375/390/430px: snap intact, one slide per viewport, opaque per-slide backgrounds intact, no horizontal overflow, no GSAP running (early-return path), images/masks not applied on mobile. Then desktop re-check at 1024/1280/1440/1920.
+
+---
+
+## AE. about-v3.astro — Scene-stage prototype ("in-situ" About, 2026-08-27)
+
+**The idea (dom):** the hero/header stays LOCKED in the viewport the whole time — nothing scrolls up/down. Every section is a full-screen LAYER stacked in ONE pinned frame; scroll is only a TIMELINE that cross-fades / reveals between the stacked layers. NO vertical or horizontal translation of content — a deck of slides that fog/pixel-morph between each other, driven by scroll. SUPERSEDES the earlier about-v2 "beige world scrolls up + per-section sticky bars" direction. `/about-v2` is left intact as the fallback.
+
+**Where:** `src/pages/about-v3.astro` (self-contained prototype route). If approved, extract a reusable `SceneStage` / `SceneLayer` and roll site-wide.
+
+### Architecture
+- `#stage-track` — tall (currently `520vh`) scroll track; its height IS the scrub distance.
+- `.stage-pin` — `position:sticky; top:0; height:100svh; overflow:hidden` — the fixed stage that stays put for the whole track. Carries `id="hero-sticky"` so `useHeroSquish` anchors to it (pulls hero title+blurb into the void over ~80vh).
+- Stacked children (all absolute, full-viewport): `.scene[data-scene="hero"]` (AboutHeroV2) → `.stage-fog` (z5) → `.stage-portal` (z6) → `#page-bar` (z40) → `.scene[data-scene="founders"]` (z10) → `.scene[data-scene="philosophy"]` (z20). Plus `.scroll-fader` (z60), `#dev-hud` (z90), and the global `#grid-bg` (binary rain) behind.
+
+### ⚠️ Hard-won gotchas (do NOT relearn)
+- **Scenes MUST use explicit `height:100svh`, NOT `inset:0`.** The sticky pin's containing block resolved to **2× viewport**, so inset-based children came out double-height (founders overflowed to ~2076px). Every `.scene` + `.scene-body` uses `height:100svh` / `calc(100svh - header - solaris)`.
+- **Astro scoped styles do NOT reach JS-created elements** (e.g. the pixel-veil cells built in JS) — their rule must live in `<style is:global>`.
+- **The Founders React island is wrapped in `<astro-island>`** — target internals by CLASS (`.grid`, `.grid > div`), never `> div` from `.scene-body`.
+- **Automated/scripted scroll is unreliable** (Lenis momentum + tab focus). Verify by REAL wheel scroll, or force element states via JS + screenshot. `#dev-hud` is the timing reference.
+
+### Timeline — the `T = {…}` knob block (~1 unit ≈ 1 viewport of scroll)
+Master GSAP timeline scrubbed by `#stage-track`; `onUpdate` feeds `#dev-hud`. Beats:
+1. **Hero holds** (`heroHold`) while `useHeroSquish` pulls title+blurb into the central glare (the void).
+2. **ENTER THE VOID** — `#grid-bg` binary rain scales `1 → voidScale`(3.0) with `power2.in` (accelerating rush toward you).
+3. **FOG** — `.stage-fog` = SOLID beige, uniform, FULL coverage (a radial version clipped top/bottom — reverted to solid). Fades in at `fogStart`(0.8) over `fogDur`(1.0).
+4. **PORTAL** — `.stage-portal` = SUBTLE warm radial bloom from centre (`portalStart`0.5), scales up + fades in then dissipates ("following the text into the void / bright-beige white-hole"). Kept subtle (was too dramatic).
+5. **Founders fade in** (pixel veil is BOOKMARKED — below).
+6. **Solaris bar** — bitmappy "data-load" push-down at `barPush`(1.72): stepped `clip-path: inset(0 0 100%→0% 0)` with `steps(6)` + opacity flicker (NO flip, NO gradual grow). Label scrambles in (binary) at **`t 1.91`**.
+7. **Cross-fade** founders → philosophy (opacity); philosophy bar goes WHITE via `setBar(PHIL)` on a 70%-track ScrollTrigger (reverts on leaveBack).
+
+**BOOKMARKED — pixel veil / "scene breaking up".** The founders pixel-reveal (large beige pixels dissolving in random order via `--reveal`) is commented out (`buildVeil` + the two veil tweens). To restore: re-enable `buildVeil(vFounders)`, set `--reveal:-0.05`, and the `scFounders`/`vFounders '--reveal':1` tweens. Founders currently just fade in.
+
+### Features in the stage
+- **Persistent solaris bar** (`#page-bar`, z40, `top:var(--header-h)`) — stepped-clip reveal; `setBar()` sets label + colour (founders = solaris gradient + "Who We Are"; philosophy = white `#fff`/dark text).
+- **Founders** — FULL section height, big text, usual `p-12`. The earlier COMPACTION override was ONLY needed because of the 2×-height bug; removed. Now `#stage-track [data-scene="founders"] .grid { height:100% }`; headshots fill the cards.
+- **`#dev-hud`** (bottom-left) — `t <time> / <total>  p <progress>  y <scrollY>`. **KEEP post-dev** (dom likes it). Tuning workflow: dom reads a `t` off the HUD, we set the matching `T` knob.
+- **Bitmap fader scrollbar** (`.scroll-fader`, custom, desktop-only, native hidden on this page via `is:global`): a PROGRESS bar on the right — TRACK = solid **black** 2px line (unviewed); `.scroll-fader-fill` = **solaris orange** top→handle (viewed); `.scroll-fader-cap` = a **Departure Mono glyph handle** (`▬` horizontal cap-block, swappable) in orange. JS sets `fill.height` + `cap.top` from scroll progress. Black track is invisible on the dark hero/philosophy (only the orange fill shows there) — by design for now.
+
+### Global changes alongside
+- `global.css`: `--font-departure: 'Departure Mono','JetBrains Mono',monospace` + a GLOBAL native bitmap-fader scrollbar (solaris cap) for OTHER pages.
+- `Navigation.tsx`: brand wordmark + page-title spans use `fontFamily: var(--font-departure)` — **TRIAL**. Falls back to JetBrains until `brew install font-departure-mono`. NOT yet `@font-face`'d (local-only; to ship, bundle the woff2 from the repo release). Departure Mono is a SINGLE weight (no bold/italic, not variable) — vary via size (11px multiples) + tracking; rich box-drawing/symbol glyph set.
+- `brandMotion.ts` `ROUTE_NAMES`: `'/about-v3': 'about'` (wordmark was stuck on "bitmap.audio" — route wasn't mapped).
+- `GridBackground.astro`: root got `id="grid-bg"` (for the void-zoom scale).
+
+### Precursor still in about-v2 (from before the pivot)
+about-v2 got a persistent `#page-bar` + `FoundersScene.astro` (fixed-fog + pixel-veil founders reveal) + section-bar-holds removed, BEFORE we pivoted to the stage model. Left as-is (fallback).
+
+### Next / open
+- Decide if the pixel-veil "scene breaking up" returns (bookmarked) now the void-zoom + portal carry the transition.
+- Philosophy in about-v3 is a PLACEHOLDER (heading only) — port the real PhilosophyScene pixel scene as a stacked layer (its internal scroll logic must become timeline-driven, not scroll-through).
+- Extract reusable `SceneStage`/`SceneLayer`; roll site-wide.
+- Mobile: stage is desktop-only; mobile is currently flat/bar-less — needs its own treatment.
+- Ship Departure Mono via `@font-face` if adopted.

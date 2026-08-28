@@ -49,13 +49,14 @@ const ROUTE_NAMES: Record<string, string> = {
   '/home': 'home',
   '/about': 'about us',
   '/about-v2': 'about us',
+  '/about-v3': 'about',
   '/contact': 'contact',
   '/faq': 'faq',
   '/returns': 'returns',
   '/returns2': 'returns',
   '/solutions/sonic-branding': 'sonic branding',
   '/solutions/uiux-sound': 'ui/ux sound',
-  '/solutions/experiential-audio': 'experiential audio',
+  '/solutions/spatial-audio': 'spatial audio',
 };
 
 export function resolvePageName(path: string): string {

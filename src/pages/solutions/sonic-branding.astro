@@ -3,6 +3,7 @@
 import Layout from '../../layouts/Layout.astro';
 import Solaris from '../../components/Solaris.astro';
 import Section from '../../components/Section.astro';
+import FocusScroll from '../../components/FocusScroll.astro';
 import SonicHero from '../../components/modules/solutions/SonicHero.tsx';
 import SonicAnalysis from '../../components/modules/solutions/SonicAnalysis.tsx';
 import DeliverablesGrid from '../../components/modules/solutions/DeliverablesGrid.tsx';
@@ -39,38 +40,36 @@ const sonicDeliverables = [
     })}</script>
   </Fragment>
   {/* Hero: sticks at top of container, content scrolls over it */}
-  <div id="hero-sticky" class="md:sticky top-0 z-[1] min-h-svh">
-    <div class="h-full">
-      <SonicHero client:load />
-    </div>
+  <div id="hero-sticky" class="md:sticky top-0 z-[1] min-h-svh flex flex-col">
+    <SonicHero client:load />
   </div>
 
   <div class="hero-runway" aria-hidden="true"></div>
 
-  {/* Content: scrolls over the sticky hero — sections are frosted glass so hero colours bleed through */}
-  <Solaris />
-
+  {/* Each section: bar sticks under the header, content locks in centred below it, then release
+      together (same pattern as about-v2 / home). Section titles now ride on the bars. */}
   <div class="relative z-10 theme-oat">
-    <Section id="analysis" delay="0.5s" className="!bg-background/50 backdrop-blur-xl" grainBg>
-      <SonicAnalysis client:visible />
-    </Section>
+    <div class="relative">
+      <div class="section-bar-hold"><Solaris text="The Analysis" /></div>
+      <FocusScroll count={1} barOffset id="analysis" class="!bg-background/50 backdrop-blur-xl">
+        <div class="container-page w-full">
+          <SonicAnalysis client:visible />
+        </div>
+      </FocusScroll>
+    </div>
 
-    <Section id="deliverables" invert delay="1.2s" className="!bg-background/50 backdrop-blur-xl">
-      <DeliverablesGrid
-        client:visible
-        items={sonicDeliverables}
-        sectionTitle="What you'll receive"
-      />
-    </Section>
-
-    {/* REUSABLE CTA: Passing specific props for this page */}
-    <Section id="cta" delay="1.5s" className="!bg-background/50 backdrop-blur-xl" grainBg>
-      <CTA
-        client:visible
-        title="Ready to sound like yourself?"
-        description="Let's explore how a sonic brand can strengthen your identity and deepen audience connection."
-        buttonText="START YOUR SONIC BRAND"
-      />
-    </Section>
+    <div class="relative">
+      <div class="section-bar-hold"><Solaris text="Get In Touch" /></div>
+      <FocusScroll count={1} barOffset id="cta" class="!bg-background/50 backdrop-blur-xl">
+        <div class="container-page w-full">
+          <CTA
+            client:visible
+            title="Ready to sound like yourself?"
+            description="Let's explore how a sonic brand can strengthen your identity and deepen audience connection."
+            buttonText="START YOUR SONIC BRAND"
+          />
+        </div>
+      </FocusScroll>
+    </div>
   </div>
 </Layout>

@@ -6,6 +6,8 @@
      'DM Mono'         ← trial
    ─────────────────────────────────────────────────────────────────────────── */
 :root { --font-mono: 'JetBrains Mono', monospace; }
+/* TRIAL: Departure Mono for the brand wordmark + page title (install locally, e.g. via brew). */
+:root { --font-departure: 'Departure Mono', 'JetBrains Mono', monospace; }
 
 @tailwind base;
 @tailwind components;
@@ -112,9 +114,10 @@ html.lenis body { height: auto; }
   --muted-foreground: var(--content-muted-foreground);
   --primary: var(--content-primary);
   --primary-foreground: 0 0% 98%;
-  --accent: var(--content-accent);
+  /* Accent stays the BRIGHT brand orange (root --accent) on the beige world too — it is NOT dimmed
+     here. Use --accent-dimmed explicitly wherever a darker orange is genuinely wanted. */
   --accent-foreground: 0 0% 100%;
-  --ring: var(--content-accent);
+  --ring: var(--accent);
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
 
@@ -145,6 +148,62 @@ html.lenis body { height: auto; }
 .solaris--ghost .solaris-text {
   color: hsl(var(--accent)) !important;
 }
+
+/* ── BITMAP PROGRESS BAR ──────────────────────────────────────────────────────
+   A row of individual PIXEL blocks (not a solid fill) that light up left→right as
+   --progress (0..1) advances — the bitmap house style. Reusable: used under the Values
+   columns + home Services cards, and anywhere else. Colour comes from --accent; set
+   --progress inline / in JS. Tune the block size + gap with --bmp-size / --bmp-gap. */
+.bitmap-progress {
+  --bmp-size: 5px;   /* pixel block size */
+  --bmp-gap: 3px;    /* gap between blocks */
+  --progress: 0;     /* 0..1 fill */
+  position: relative;
+  width: 6rem;
+  height: var(--bmp-size);
+  /* the unlit track — faint pixels */
+  background: repeating-linear-gradient(90deg,
+    hsl(var(--accent) / 0.16) 0 var(--bmp-size),
+    transparent var(--bmp-size) calc(var(--bmp-size) + var(--bmp-gap)));
+}
+.bitmap-progress::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: calc(var(--progress) * 100%);
+  /* the lit pixels — bright accent, each block glows */
+  background: repeating-linear-gradient(90deg,
+    hsl(var(--accent)) 0 var(--bmp-size),
+    transparent var(--bmp-size) calc(var(--bmp-size) + var(--bmp-gap)));
+  filter: drop-shadow(0 0 3px hsl(var(--accent) / 0.7));
+  transition: width 0.12s linear;
+}
+
+/* ── BITMAP FADER SCROLLBAR ────────────────────────────────────────────────────
+   The window scrollbar styled as a FADER: a thin dashed "slot" track with a big
+   chunky SOLARIS cap riding down it, so users keep a sense of position on the long
+   scroll scenes. Sharp edges = bitmap. */
+::-webkit-scrollbar { width: 20px; }
+::-webkit-scrollbar-track {
+  /* the fader SLOT — a thin dashed pixel line down the centre, on the void */
+  background:
+    repeating-linear-gradient(hsl(var(--foreground) / 0.28) 0 4px, transparent 4px 8px) center / 2px 100% no-repeat,
+    hsl(var(--background));
+}
+::-webkit-scrollbar-thumb {
+  min-height: 56px;
+  border: 4px solid hsl(var(--background));      /* insets the cap so the slot shows either side */
+  background:
+    /* grip notches across the cap (bitmap detail) */
+    repeating-linear-gradient(hsl(var(--background) / 0.5) 0 2px, transparent 2px 6px) center / 62% 16px no-repeat,
+    /* the solaris cap */
+    linear-gradient(180deg, var(--solaris-from) 0%, var(--solaris-mid) 55%, var(--solaris-to) 100%);
+  box-shadow: var(--solaris-glow);
+}
+::-webkit-scrollbar-thumb:hover { filter: brightness(1.08); }
+/* Firefox */
+html { scrollbar-width: auto; scrollbar-color: var(--solaris-from) hsl(var(--background)); }
+
 .solaris-text {
   font-family: var(--font-mono);
   color: hsl(var(--solaris-text));
@@ -330,7 +389,9 @@ html.lenis body { height: auto; }
     ======================================================================== */
     --primary: 200 80% 90%;
     --primary-foreground: 180 100% 5%;
-    --accent: 35 100% 55%;
+    --accent: 35 100% 55%;               /* bright brand orange — the ONE accent, used everywhere */
+    --accent-dimmed: 35 92% 46%;         /* a DARKER orange (same warm hue, not rusty) for when a
+                                            dimmed accent is explicitly needed. Tune here only. */
     --accent-foreground: 0 0% 100%;
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 98%;

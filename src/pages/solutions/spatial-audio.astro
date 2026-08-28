@@ -3,10 +3,10 @@
 import Layout from '../../layouts/Layout.astro';
 import Solaris from '../../components/Solaris.astro';
 import Section from '../../components/Section.astro';
+import FocusScroll from '../../components/FocusScroll.astro';
 import ImmersiveHero from '../../components/modules/solutions/ImmersiveHero.tsx';
 import ImmersiveAnalysis from '../../components/modules/solutions/ImmersiveAnalysis.tsx';
 import ConceptGrid from '../../components/modules/ConceptGrid.tsx';
-import DeliverablesGrid from '../../components/modules/solutions/DeliverablesGrid.tsx';
 import CTA from '../../components/modules/CTA.tsx';
 
 // DEFINING THE DATA SET FOR THIS PAGE
@@ -40,17 +40,6 @@ const immersiveAudioApplications = [
     desc: "Generative audio systems that create unique, never-repeating sonic environments."
   }
 ];
-
-const immersiveDeliverables = [
-  "Location audit & acoustic analysis",
-  "Implementation strategy",
-  "3D / Spatial Audio Design",
-  "Ambisonics & Binaural Mixes",
-  "Interactive Audio Systems",
-  "Generative Soundscapes",
-  "Installation Audio",
-  "Technical Integration Support"
-];
 ---
 
 <Layout
@@ -74,48 +63,51 @@ const immersiveDeliverables = [
     })}</script>
   </Fragment>
   {/* Hero: sticks at top of container, content scrolls over it */}
-  <div id="hero-sticky" class="md:sticky top-0 z-[1] min-h-svh">
-    <div class="h-full">
-      <ImmersiveHero client:load />
-    </div>
+  <div id="hero-sticky" class="md:sticky top-0 z-[1] min-h-svh flex flex-col">
+    <ImmersiveHero client:load />
   </div>
 
   <div class="hero-runway" aria-hidden="true"></div>
 
-  {/* Content: scrolls over the sticky hero — sections are frosted glass so hero colours bleed through */}
-  <Solaris />
-
+  {/* Each section: bar sticks under the header, content locks in centred below it, then release
+      together (same pattern as about-v2 / home). Section titles ride on the bars. */}
   <div class="relative z-10 theme-oat">
-    <Section id="analysis" delay="0.5s" className="!bg-background/50 backdrop-blur-xl" grainBg>
-      <ImmersiveAnalysis client:visible />
-    </Section>
+    <div class="relative">
+      <div class="section-bar-hold"><Solaris text="The Analysis" /></div>
+      <FocusScroll count={1} barOffset id="analysis" class="!bg-background/50 backdrop-blur-xl">
+        <div class="container-page w-full">
+          <ImmersiveAnalysis client:visible />
+        </div>
+      </FocusScroll>
+    </div>
 
-    <Section id="applications" invert delay="0.8s" className="!bg-background/50 backdrop-blur-xl">
-      <ConceptGrid
-        client:visible
-        eyebrow="Applications"
-        sectionTitle="Where we create"
-        items={immersiveAudioApplications}
-        mobileGlow={true}
-        columns={2}
-      />
-    </Section>
+    <div class="relative">
+      <div class="section-bar-hold"><Solaris text="Applications" /></div>
+      <FocusScroll count={1} barOffset id="applications" class="!bg-background/50 backdrop-blur-xl">
+        <div class="container-page w-full">
+          <ConceptGrid
+            client:visible
+            sectionTitle="Where we create"
+            items={immersiveAudioApplications}
+            mobileGlow={true}
+            columns={2}
+          />
+        </div>
+      </FocusScroll>
+    </div>
 
-    <Section id="deliverables" delay="1.2s" className="!bg-background/50 backdrop-blur-xl">
-      <DeliverablesGrid
-        client:visible
-        items={immersiveDeliverables}
-        sectionTitle="What you'll receive"
-      />
-    </Section>
-
-    <Section id="cta" delay="1.5s" className="!bg-background/50 backdrop-blur-xl" grainBg>
-      <CTA
-        client:visible
-        title="Enter new dimensions"
-        description="Let's create immersive audio experiences that transport your audience to new realities."
-        buttonText="Explore possibilities"
-      />
-    </Section>
+    <div class="relative">
+      <div class="section-bar-hold"><Solaris text="Get In Touch" /></div>
+      <FocusScroll count={1} barOffset id="cta" class="!bg-background/50 backdrop-blur-xl">
+        <div class="container-page w-full">
+          <CTA
+            client:visible
+            title="Enter new dimensions"
+            description="Let's create immersive audio experiences that transport your audience to new realities."
+            buttonText="Explore possibilities"
+          />
+        </div>
+      </FocusScroll>
+    </div>
   </div>
 </Layout>

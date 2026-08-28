@@ -17,10 +17,11 @@
  */
 import Layout from '../layouts/Layout.astro';
 import Section from '../components/Section.astro';
-import Solaris from '../components/Solaris.astro';
+// Solaris bar is now the page-level persistent #page-bar (below), not per-section <Solaris/>.
 import PhilosophyScene from '../components/modules/PhilosophyScene.astro';
 import AboutHeroV2 from '../components/modules/AboutHeroV2.tsx';
 import Founders from '../components/modules/Founders.tsx';
+import FoundersScene from '../components/modules/FoundersScene.astro';
 import FocusColumns from '../components/modules/FocusColumns.astro';
 import FocusScroll from '../components/FocusScroll.astro';
 // import AboutPhilosophy from '../components/modules/AboutPhilosophy.tsx'; // HIDDEN — kept for reference while the PhilosophyScene replaces it
@@ -50,39 +51,58 @@ import CTA from '../components/modules/CTA.tsx';
       of the hero, NOT inside theme-oat) so the hero shows through. Tune with --hero-runway. */}
   <div class="hero-runway" aria-hidden="true"></div>
 
-  {/* Beige "Cool Oat" world — scrolls up OVER the sticky hero. No horizontal peel — all vertical. */}
-  <div class="relative z-10 theme-oat">
-    {/* Founders — first section over the hero. Bar sticks under the header, founders lock in
-        below it, then release together (section-bar-hold + FocusScroll, same as Values). */}
-    <div class="relative">
-      <div class="section-bar-hold"><Solaris text="Who we are" /></div>
-      <FocusScroll count={1} barOffset id="founders" class="!bg-background">
-        <Founders client:visible />
-      </FocusScroll>
-    </div>
+  {/* ══════════ PERSISTENT SOLARIS BAR ══════════
+      ONE bar for the whole page journey. It GROWS in from the left as the header/nav shrink
+      (initPageBar, below), then stays fixed under the header while its label SCRAMBLES between
+      section names as each section reaches centre. Replaces the old per-section bars (founders bar,
+      phil-bar, and every section-bar-hold). Desktop only for now — mobile trial is bar-less. */}
+  <div id="page-bar" aria-hidden="true">
+    <span class="solaris-text" data-page-label></span>
+  </div>
+  <style>
+    #page-bar {
+      position: fixed; top: var(--header-h); left: 0; right: 0; z-index: 30;
+      height: var(--solaris-height);
+      background: linear-gradient(90deg, var(--solaris-from) 0%, var(--solaris-mid) 55%, var(--solaris-to) 100%);
+      box-shadow: var(--solaris-glow);
+      display: flex; align-items: center; justify-content: center;
+      /* FLIPS DOWN from the header's bottom edge — folded up (hidden) until the founders fog is fully
+         in, then GSAP rotates it flat. transform-origin is the TOP edge so it hinges off the header. */
+      transform-origin: top center;
+      transform: perspective(800px) rotateX(-90deg);
+      pointer-events: none;
+      /* per-section colour is set in JS (setLabel) — transition so the swap morphs, not snaps */
+      transition: background 0.45s ease, box-shadow 0.45s ease;
+    }
+    #page-bar [data-page-label] {
+      opacity: 0;                 /* revealed once first section is active */
+      white-space: nowrap;
+      text-align: center;
+      transition: color 0.45s ease;
+    }
+    @media (max-width: 767px) { #page-bar { display: none; } }
+  </style>
 
-    {/* Philosophy — bar sticks under the header while the pixel scene plays. NOTE: the scene is a
-        GSAP-pinned scene, so this uses a PLAIN sticky bar (not the full-height .section-bar-hold,
-        which needs an overlap margin on its sibling and would risk the scene's pin). Trade-off:
-        the bar can linger briefly at the very end (the short-bar behaviour). A scene-integrated
-        bar — pinned WITH the stage in scene.ts — is the clean fix, as a careful follow-up. */}
-    <div class="relative">
-      {/* Plain sticky bar (scene untouched). A JS pass (below) slides it up in sync with the scene
-          so it doesn't linger, AND flips it to the ghost variant (transparent + accent) only once
-          the stage background actually goes dark — solaris orange while the scene is still beige. */}
-      <div id="phil-bar" class="sticky top-[var(--header-h)] z-20"><Solaris text="Our Philosophy" /></div>
-      {/* The bitmap-pixel scroll SCENE (scene.ts pin) — untouched. */}
+  {/* ══════════ FOUNDERS SCENE (TRIAL) — the "scene deck": this section PINS and assembles in
+      place — beige FOGS IN on approach, then a bitmap PIXEL VEIL dissolves in random order to reveal
+      the founders. The persistent bar (above) already carries the "Who We Are" label. ══════════ */}
+  <FoundersScene />
+
+  {/* Beige "Cool Oat" world — the rest of the sections (still scroll/lock for now). */}
+  <div class="relative z-10 theme-oat">
+    {/* Philosophy — the PERSISTENT bar (above) carries the label; it scrambles to "Our Philosophy"
+        as this scene reaches centre. The old phil-bar + its slide/ghost sync are removed for this
+        trial (the bar just stays put and the text changes). */}
+    <div class="relative" id="sec-philosophy">
       <PhilosophyScene />
     </div>
 
     {/* Our Values — STICKY focus columns, pulled up over philosophy's END (after its TV-out has
         fully finished — tune --scene-follow-pull: bigger = covers sooner, smaller = TV-out gets
         more room / a touch more beige first), led by a solaris bar. */}
-    <div class="scene-follow" style="--scene-follow-pull: 40svh">
-      {/* The Solaris bar arrives under the header FIRST (as before), but sits in a full-height
-          .section-bar-hold so it releases in SYNC with the columns instead of lingering. pinnedBar
-          drops the floating heading and re-centres the columns below the header + bar. */}
-      <div class="section-bar-hold"><Solaris text="Our Values" /></div>
+    <div class="scene-follow" id="sec-values" style="--scene-follow-pull: 40svh">
+      {/* Bar label handled by the persistent bar (scrambles to "Our Values" here). pinnedBar drops
+          the floating heading and re-centres the columns below the header + bar. */}
       <FocusColumns
         heading="Our Values"
         pinnedBar
@@ -96,8 +116,7 @@ import CTA from '../components/modules/CTA.tsx';
 
     {/* Clients — bar sticks under the header, the terminal locks in below it, then they release
         together. The old [ CLIENT_TERMINAL ] label is now carried by the Solaris bar. */}
-    <div class="relative">
-      <div class="section-bar-hold"><Solaris text="Client Terminal" /></div>
+    <div class="relative" id="sec-clients">
       <FocusScroll count={1} barOffset id="clients" class="!bg-background-blur/50 backdrop-blur-xl">
         {/* Side gutters; the grid fills the rest. */}
         <div class="px-4 md:px-12 lg:px-24 w-full">
@@ -107,8 +126,7 @@ import CTA from '../components/modules/CTA.tsx';
     </div>
 
     {/* CTA — bar sticks under the header, the CTA locks in below it, then they release together. */}
-    <div class="relative">
-      <div class="section-bar-hold"><Solaris text="Get In Touch" /></div>
+    <div class="relative" id="sec-cta">
       <FocusScroll count={1} barOffset id="cta" class="!bg-background/50 backdrop-blur-xl">
         <div class="container-page w-full">
           <CTA
@@ -122,66 +140,85 @@ import CTA from '../components/modules/CTA.tsx';
     </div>
   </div>
 
-  {/* Rain freeze: once the beige world starts covering the sticky hero, stop the binary rain so the
-      hero reads as a static backdrop as sections scroll over it. Unfreeze when scrolled back up. */}
+  {/* PERSISTENT SOLARIS BAR driver. The binary rain NEVER stops now (the beige just fogs in over
+      it), so there's no rain-freeze here. The bar grows in as the header shrinks, then its label
+      scrambles between section names as you scroll the page. */}
   <script>
     import { gsap } from 'gsap';
     import { ScrollTrigger } from 'gsap/ScrollTrigger';
+    import { scrambleIn } from '../lib/scene-kit';
     gsap.registerPlugin(ScrollTrigger);
 
-    function initRainFreeze() {
-      const founders = document.getElementById('founders');
-      if (!founders || founders.dataset.rainInit === '1') return;
-      founders.dataset.rainInit = '1';
+    function initPageBar() {
+      const bar = document.getElementById('page-bar');
+      if (!bar || bar.dataset.init === '1') return;
+      bar.dataset.init = '1';
+      const label = bar.querySelector<HTMLElement>('[data-page-label]');
+      if (!label) return;
+
+      // FLIP DOWN — the bar hinges down from the header's bottom edge, but ONLY once the founders
+      // beige fog is fully in (the founders scene reaches the top / pins). It stays down for the rest
+      // of the page. Driven off the scene's ScrollTrigger so it updates under Lenis (a plain scroll
+      // listener doesn't fire here).
+      gsap.set(bar, { transformPerspective: 800, transformOrigin: 'top center', rotationX: -90 });
+      let down = false;
+      const flip = (toDown: boolean) => {
+        if (toDown === down) return;
+        down = toDown;
+        gsap.to(bar, { rotationX: toDown ? 0 : -90, duration: 0.55, ease: toDown ? 'power3.out' : 'power2.in' });
+      };
       ScrollTrigger.create({
-        trigger: founders,
-        start: 'top bottom', // founders begins coming over the hero
-        onEnter: () => { document.documentElement.dataset.rainFrozen = '1'; },
-        onLeaveBack: () => { document.documentElement.dataset.rainFrozen = '0'; },
+        trigger: '#founders-scene',
+        start: 'top top',                       // fog is fully instantiated at this point
+        onEnter: () => flip(true),
+        onLeaveBack: () => flip(false),
+      });
+
+      // LABEL + COLOUR — scramble to the ACTIVE section's name (fires in both scroll directions).
+      // The bar stays put throughout; the text changes and, per section, so can the bar colour.
+      // Add `bg` / `text` / `glow` to any entry to override the default solaris beam for that section
+      // (e.g. the philosophy scene gets a WHITE bar).
+      const DEFAULT_BG = 'linear-gradient(90deg, var(--solaris-from) 0%, var(--solaris-mid) 55%, var(--solaris-to) 100%)';
+      const DEFAULT_GLOW = 'var(--solaris-glow)';
+      const SECTIONS = [
+        { sel: '#founders-scene', name: 'Who We Are' },
+        { sel: '#sec-philosophy', name: 'Our Philosophy', bg: '#ffffff', text: '#141414', glow: '0 0 24px rgba(255,255,255,0.35)' },
+        { sel: '#sec-values',     name: 'Our Values' },
+        { sel: '#sec-clients',    name: 'Client Terminal' },
+        { sel: '#sec-cta',        name: 'Get In Touch' },
+      ];
+      let current = '';
+      const setLabel = (s: { name: string; bg?: string; text?: string; glow?: string }) => {
+        if (s.name === current) return;
+        current = s.name;
+        label.style.opacity = '1';
+        label.style.color = s.text ?? '';            // '' falls back to .solaris-text (dark)
+        bar.style.background = s.bg ?? DEFAULT_BG;
+        bar.style.boxShadow = s.glow ?? DEFAULT_GLOW;
+        scrambleIn(label, s.name, { duration: 650 });
+      };
+      // Fire the label change at the START of each section (its top reaching the top of the viewport),
+      // in BOTH directions — index bookkeeping so scrolling back up restores the previous section.
+      let idx = -1;
+      const apply = (i: number) => {
+        if (i === idx) return;
+        idx = i;
+        if (i < 0) { current = ''; label.style.opacity = '0'; return; } // back above the first scene
+        setLabel(SECTIONS[i]);
+      };
+      SECTIONS.forEach((s, i) => {
+        const el = document.querySelector(s.sel);
+        if (!el) return;
+        ScrollTrigger.create({
+          trigger: el, start: 'top top',
+          onEnter: () => apply(i),
+          onLeaveBack: () => apply(i - 1),
+        });
       });
     }
 
-    // Slide the philosophy bar UP in sync with the pinned scene so it doesn't linger. The scene is
-    // GSAP-pinned (CSS-sticky hold can't sync to that), so this drives the bar off the scene's own
-    // scroll extent instead. Desktop only.
-    function initPhilBarSync() {
-      const bar = document.getElementById('phil-bar');
-      const scene = document.querySelector('[data-scene="bitmap-philosophy"]');
-      const stage = scene && scene.querySelector('.scene-stage');
-      const solaris = bar && bar.querySelector('.solaris');
-      if (!bar || !scene || bar.dataset.syncInit === '1') return;
-      bar.dataset.syncInit = '1';
-      if (!window.matchMedia('(min-width: 768px)').matches) return;
-      let raf = 0;
-      const update = () => {
-        raf = 0;
-        // The scene section (incl. its pin-spacer) spans the scene's whole scroll extent. While the
-        // scene fills/pins, its bottom sits below the viewport → shift 0 (bar stuck under header).
-        // Once its bottom rises above the viewport bottom (scene ready to scroll up), the bar slides
-        // up in lockstep so it LEAVES with the scene.
-        const rect = scene.getBoundingClientRect();
-        const shift = Math.min(0, rect.bottom - window.innerHeight);
-        bar.style.transform = 'translateY(' + shift + 'px)';
-        // Flip to the ghost variant (transparent + accent) only once the stage bg actually goes
-        // DARK; keep the solaris orange bar while the scene is still on the beige world.
-        if (stage && solaris) {
-          const m = getComputedStyle(stage).backgroundColor.match(/\d+/g);
-          if (m) {
-            const lum = 0.299 * +m[0] + 0.587 * +m[1] + 0.114 * +m[2];
-            solaris.classList.toggle('solaris--ghost', lum < 90);
-          }
-        }
-      };
-      const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
-      window.addEventListener('scroll', onScroll, { passive: true });
-      window.addEventListener('resize', onScroll, { passive: true });
-      update();
-    }
-
-    function initAboutV2() { initRainFreeze(); initPhilBarSync(); }
-
-    document.addEventListener('astro:page-load', initAboutV2);
-    if (document.readyState === 'complete') initAboutV2();
-    else window.addEventListener('load', initAboutV2);
+    document.addEventListener('astro:page-load', initPageBar);
+    if (document.readyState === 'complete') initPageBar();
+    else window.addEventListener('load', initPageBar);
   </script>
 </Layout>

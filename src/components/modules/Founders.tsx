@@ -38,7 +38,7 @@ export default function Founders() {
       {founders.map((f, index) => {
         const formattedId = String(index).padStart(4, '0');
         return (
-          <div key={index} className="mobile-viewport-active group relative bg-background/50 p-4 md:p-12 md:min-h-[72vh] flex flex-col justify-center overflow-hidden border border-foreground/10">
+          <div key={index} data-scene-item className="mobile-viewport-active group relative p-4 md:p-12 md:min-h-[72vh] flex flex-col justify-center overflow-hidden border border-foreground/10">
             <div className="absolute top-1 left-1 w-4 h-4 border-t border-l border-foreground/10 group-hover:border-accent transition-colors" />
 
             {/* Headshot — per-person config above controls scale, position, vignette centre */}

@@ -3,6 +3,7 @@
 import Layout from '../../layouts/Layout.astro';
 import Solaris from '../../components/Solaris.astro';
 import Section from '../../components/Section.astro';
+import FocusScroll from '../../components/FocusScroll.astro';
 import UIUXHero from '../../components/modules/solutions/UIUXHero.tsx';
 import UIUXAnalysis from '../../components/modules/solutions/UIUXAnalysis.tsx';
 import ConceptGrid from '../../components/modules/ConceptGrid.tsx';
@@ -62,47 +63,51 @@ const uiuxDeliverables = [
     })}</script>
   </Fragment>
   {/* Hero: sticks at top of container, content scrolls over it */}
-  <div id="hero-sticky" class="md:sticky top-0 z-[1] min-h-svh">
-    <div class="h-full">
-      <UIUXHero client:load />
-    </div>
+  <div id="hero-sticky" class="md:sticky top-0 z-[1] min-h-svh flex flex-col">
+    <UIUXHero client:load />
   </div>
 
   <div class="hero-runway" aria-hidden="true"></div>
 
-  {/* Content: scrolls over the sticky hero — sections are frosted glass so hero colours bleed through */}
-  <Solaris />
-
+  {/* Each section: bar sticks under the header, content locks in centred below it, then release
+      together (same pattern as about-v2 / home). Section titles ride on the bars. */}
   <div class="relative z-10 theme-oat">
-    <Section id="analysis" delay="0.5s" className="!bg-background/50 backdrop-blur-xl" grainBg>
-      <UIUXAnalysis client:visible />
-    </Section>
+    <div class="relative">
+      <div class="section-bar-hold"><Solaris text="The Analysis" /></div>
+      <FocusScroll count={1} barOffset id="analysis" class="!bg-background/50 backdrop-blur-xl">
+        <div class="container-page w-full">
+          <UIUXAnalysis client:visible />
+        </div>
+      </FocusScroll>
+    </div>
 
-    <Section id="applications" invert delay="0.8s" className="!bg-background/50 backdrop-blur-xl">
-      <ConceptGrid
-        client:visible
-        eyebrow="Applications"
-        sectionTitle="Where UI/UX sound makes a difference"
-        items={uiuxApplications}
-        mobileGlow={true}
-      />
-    </Section>
+    <div class="relative">
+      <div class="section-bar-hold"><Solaris text="Applications" /></div>
+      <FocusScroll count={1} barOffset id="applications" class="!bg-background/50 backdrop-blur-xl">
+        <div class="container-page w-full">
+          <ConceptGrid
+            client:visible
+            eyebrow="Applications"
+            sectionTitle="Where UI/UX sound makes a difference"
+            items={uiuxApplications}
+            mobileGlow={true}
+          />
+        </div>
+      </FocusScroll>
+    </div>
 
-    <Section id="deliverables" delay="1.2s" className="!bg-background/50 backdrop-blur-xl">
-      <DeliverablesGrid
-        client:visible
-        items={uiuxDeliverables}
-        sectionTitle="What you'll receive"
-      />
-    </Section>
-
-    <Section id="cta" delay="1.5s" className="!bg-background/50 backdrop-blur-xl" grainBg>
-      <CTA
-        client:visible
-        title="Make your product speak"
-        description="Let's design sound that makes your digital product feel alive, responsive, and human."
-        buttonText="Discuss your product"
-      />
-    </Section>
+    <div class="relative">
+      <div class="section-bar-hold"><Solaris text="Get In Touch" /></div>
+      <FocusScroll count={1} barOffset id="cta" class="!bg-background/50 backdrop-blur-xl">
+        <div class="container-page w-full">
+          <CTA
+            client:visible
+            title="Make your product speak"
+            description="Let's design sound that makes your digital product feel alive, responsive, and human."
+            buttonText="Discuss your product"
+          />
+        </div>
+      </FocusScroll>
+    </div>
   </div>
 </Layout>

@@ -7,7 +7,7 @@ interface Props {
 
 const { showRain = true, showGrid = true } = Astro.props;
 ---
-<div class="fixed inset-0 pointer-events-none z-0">
+<div id="grid-bg" class="fixed inset-0 pointer-events-none z-0">
   
   {/* Layer 1: The Grid (conditional via showGrid prop) */}
   {showGrid && <div class="absolute inset-0 bitmap-grid transition-opacity duration-500" style={{ opacity: 'var(--grid-opacity)' }}></div>}

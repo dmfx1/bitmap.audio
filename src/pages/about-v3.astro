@@ -1,0 +1,536 @@
+---
+/* src/pages/about-v3.astro
+ *
+ * SCENE-STAGE PROTOTYPE — "in-situ" about page. The hero/header stays LOCKED in the viewport the
+ * whole time; nothing ever scrolls up or down. Every scene is a full-screen LAYER stacked in one
+ * pinned frame. Scroll is only a TIMELINE: it drives a fog fade-in, then a pixel reveal, then plain
+ * OPACITY cross-fades from one stacked layer to the next. No translation, vertical or horizontal.
+ *
+ * Structure:
+ *   #stage-track  — a tall (empty) scroll track; its height IS the scrub distance.
+ *   .stage-pin    — position: sticky; stays put for the whole track (the fixed "stage").
+ *     .scene[hero] → .stage-fog → #page-bar → .scene[founders] → .scene[philosophy]  (stacked)
+ *
+ * This is a throwaway prototype route so /about-v2 stays intact. If the feel is right, this becomes
+ * the reusable SceneStage / SceneLayer pattern for the whole site.
+ */
+import Layout from '../layouts/Layout.astro';
+import AboutHeroV2 from '../components/modules/AboutHeroV2.tsx';
+import Founders from '../components/modules/Founders.tsx';
+import Clients from '../components/modules/Clients.tsx';
+// Philosophy comes in as a STACKED LAYER driven by the master timeline (buildPhilosophyScene in the
+// client script) — NOT via <PhilosophyScene/>, so scene.ts never pins it. Values/clients/cta follow.
+---
+<Layout
+  title="About v3 (scene stage) | bitmap.audio"
+  description="Scene-stage prototype."
+>
+  {/* Persistent solaris bar — page-level FIXED so it carries across the WHOLE page (the pinned stage
+      AND the scrolling sections after it). Revealed by the stage timeline (bitmap push-down at
+      barPush); its label is swapped per section. */}
+  <div id="page-bar" aria-hidden="true">
+    <span class="solaris-text" data-page-label></span>
+  </div>
+
+  {/* ══════════ THE PINNED STAGE — hero + founders assemble IN PLACE (fog / void / portal). ══════════ */}
+  <div id="stage-track">
+    {/* id="hero-sticky" is the anchor useHeroSquish looks for. */}
+    <div class="stage-pin" id="hero-sticky">
+      <div class="scene" data-scene="hero" style="z-index:0">
+        <AboutHeroV2 client:load />
+      </div>
+      <div class="stage-fog" data-stage="fog" aria-hidden="true"></div>
+      <div class="stage-portal" data-stage="portal" aria-hidden="true"></div>
+      <div class="scene theme-oat" data-scene="founders" style="z-index:10; --veil-color: hsl(var(--content-background))">
+        <div class="scene-body container-page">
+          <Founders client:visible />
+          <div class="scene-veil" data-veil aria-hidden="true"></div>
+        </div>
+      </div>
+
+      {/* ── LAYER: philosophy — the SAME 6-stage bitmap scene, but a STACKED LAYER driven by the
+          master timeline (buildPhilosophyScene). data-scene="philosophy" is NOT a scene.ts id, so it's
+          never pinned here — it morphs IN PLACE, cross-faded in over the founders. ── */}
+      <div class="scene phil-scene" data-scene="philosophy" style="z-index:20; opacity:0">
+        <div class="phil-inner" data-phil-inner>
+          <svg id="sound-canvas" class="sound-canvas" viewBox="0 0 1200 1000"
+               preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <g id="bit-group"><g id="sub-group"></g></g>
+          </svg>
+          <div class="scene-caps">
+            <p class="scene-cap">Think of your sound like the pixels in an image.</p>
+            <p class="scene-cap">We translate individual traits of your brand's personality into distinct audio "bits".</p>
+            <p class="scene-cap">Then map them together into a unified sonic identity.</p>
+            <p class="scene-cap">The master asset provides you with a complete, cohesive sound for your brand.</p>
+            <p class="scene-cap">Modular stems then give you individual elements pulled from the master, ready for every touchpoint.</p>
+            <p class="scene-cap">The result is complete consistency in how your brand sounds, wherever it appears.</p>
+          </div>
+        </div>
+      </div>
+
+      {/* ── LAYER: values — cross-fades in over philosophy (bg colour void → beige). ── */}
+      <div class="scene values-scene theme-oat" data-scene="values" style="z-index:30; opacity:0">
+        <div class="scene-body">
+          <div class="values-cols">
+            <div class="values-col" data-vcol>
+              <span class="values-id" data-vhi>01</span>
+              <h3 data-vhi>Precision</h3>
+              <p>Sound should feel deliberate and every frequency intentional.</p>
+              <div class="bitmap-progress values-progress" data-vprogress></div>
+            </div>
+            <div class="values-col" data-vcol>
+              <span class="values-id" data-vhi>02</span>
+              <h3 data-vhi>Empathy</h3>
+              <p>Sound should feel intuitive, not intrusive and systems should be collaborative.</p>
+              <div class="bitmap-progress values-progress" data-vprogress></div>
+            </div>
+            <div class="values-col" data-vcol>
+              <span class="values-id" data-vhi>03</span>
+              <h3 data-vhi>Innovation</h3>
+              <p>Sounds should remain adaptable and allow scope for future development.</p>
+              <div class="bitmap-progress values-progress" data-vprogress></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── LAYER: clients ("Client Terminal") — cross-fades in over values. Same scrambling binary →
+          client-name terminal as about-v2 (Clients.tsx), themed beige to sit in the oat world. ── */}
+      <div class="scene clients-scene theme-oat" data-scene="clients" style="z-index:35; opacity:0">
+        <div class="scene-body">
+          <div class="clients-wrap">
+            <Clients client:visible />
+          </div>
+        </div>
+      </div>
+
+      {/* ── LAYER: CTA (finale) — oversized Departure Mono, PIXELATES in via a bitmap veil, on the void. ── */}
+      <div class="scene cta-scene" data-scene="cta" style="z-index:40; opacity:0; --veil-color: hsl(var(--background))">
+        <div class="scene-body container-page">
+          <div class="cta-copy">
+            <p class="cta-kicker">Get in touch</p>
+            <h2 class="cta-head">Let's make you<br/>sound like you.</h2>
+            <a class="cta-link" href="/contact"><span class="cta-caret">&gt;</span> start_project<span class="cta-cursor">_</span></a>
+          </div>
+          <div class="scene-veil" data-cta-veil aria-hidden="true"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {/* Custom BITMAP FADER scrollbar — a big solaris cap on a dashed slot; its position tracks scroll
+      progress so users keep their bearings on the long scene track. */}
+  <div class="scroll-fader" aria-hidden="true">
+    <div class="scroll-fader-fill" data-fader-fill></div>
+    <div class="scroll-fader-cap" data-fader-cap>▬</div>
+  </div>
+
+  {/* DEV timeline HUD — shows t (timeline units) / progress / scrollY. Remove before production. */}
+  <div id="dev-hud" aria-hidden="true">t 0.00</div>
+
+  <style>
+    #stage-track { position: relative; height: 1200vh; } /* hero + founders + philosophy + values + clients + cta, all in one pin */
+    /* ── Progress fader scrollbar: black track (unviewed) → solaris fill (viewed) + glyph handle ── */
+    .scroll-fader { position: fixed; top: 0; right: 14px; bottom: 0; width: 20px; z-index: 60; pointer-events: none; }
+    .scroll-fader::before {                        /* TRACK — solid black line (unviewed) */
+      content: ""; position: absolute; top: 8vh; bottom: 8vh; left: 50%; width: 2px; transform: translateX(-50%);
+      background: #000;
+    }
+    .scroll-fader-fill {                           /* VIEWED — solaris orange, top → handle (JS sets height) */
+      position: absolute; top: 8vh; left: 50%; width: 2px; height: 0; transform: translateX(-50%);
+      background: var(--solaris-from);
+    }
+    .scroll-fader-cap {                            /* HANDLE — a bitmap glyph in solaris (JS sets top) */
+      position: absolute; left: 50%; top: 8vh; transform: translate(-50%, -50%);
+      font-family: var(--font-departure); font-size: 19px; line-height: 1; color: var(--solaris-from);
+      text-shadow: 0 0 8px rgba(255, 158, 26, 0.6);
+    }
+    @media (max-width: 767px) { .scroll-fader { display: none; } }
+    /* DEV HUD */
+    #dev-hud {
+      position: fixed; bottom: 10px; left: 12px; z-index: 90;
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.04em;
+      color: hsl(var(--accent)); background: rgba(0, 0, 0, 0.62); padding: 4px 8px;
+      pointer-events: none; white-space: nowrap;
+    }
+    .stage-pin {
+      position: sticky; top: 0; height: 100svh; overflow: hidden;
+    }
+    /* Explicit viewport height (NOT inset:0 — the sticky pin's containing block was resolving to 2×
+       viewport here, so inset-based children came out double-height). */
+    .scene { position: absolute; top: 0; left: 0; right: 0; height: 100svh; }
+    /* Hero fills the frame so AboutHeroV2's flex-1 / row layout (title + blurb) distributes as before. */
+    .scene[data-scene="hero"] { display: flex; flex-direction: column; }
+    .scene-body {
+      position: absolute; left: 0; right: 0;
+      top: calc(var(--header-h) + var(--solaris-height)); height: calc(100svh - var(--header-h) - var(--solaris-height));
+      display: flex; flex-direction: column; justify-content: center;
+    }
+
+    /* Fog — a BEIGE takeover that EMANATES from the centre (radial + scaled from the void point),
+       so it opens like a portal rather than a flat fade. */
+    /* Fog — SOLID beige, uniform, full coverage (no radial cutoff at top/bottom). */
+    .stage-fog {
+      position: absolute; inset: 0; z-index: 5;
+      background-color: hsl(var(--content-background));
+      opacity: 0; pointer-events: none;
+    }
+    /* Portal — a SOFT warm bloom from the centre that just follows the receding text into the void. */
+    .stage-portal {
+      position: absolute; inset: 0; z-index: 6;
+      transform-origin: 50% 45%;
+      background: radial-gradient(circle at 50% 45%,
+        rgba(255,250,238,0.7) 0%,
+        rgba(255,250,238,0.22) 24%,
+        transparent 58%);
+      opacity: 0; pointer-events: none;
+    }
+
+    /* Philosophy LAYER — its own markup (svg canvas + captions), styled as in PhilosophyScene.astro.
+       phil-inner fills the scene; the builder animates its background (beige ↔ void) + the bits. */
+    .phil-inner {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background-color: hsl(var(--background)); /* fallback; builder drives beige↔void */
+    }
+    .phil-scene .sound-canvas { width: clamp(360px, 88vmin, 900px); aspect-ratio: 1.2 / 1; overflow: visible; }
+    .phil-scene .scene-caps {
+      position: absolute; left: 50%; bottom: clamp(7rem, 18vh, 12rem); transform: translateX(-50%);
+      width: min(96vw, 60rem); min-height: 4.6em; text-align: center;
+      color: #ffffff; mix-blend-mode: difference; /* blend OPERAND — keep pure white */
+    }
+    .phil-scene .scene-cap {
+      position: absolute; inset: 0; margin: 0; font-family: var(--font-mono);
+      font-size: clamp(1.5rem, 3vw, 2.5rem); line-height: 1.5; letter-spacing: 0.02em;
+    }
+
+    /* Pixel veil (built in JS). Colour comes from each scene's --veil-color. */
+    .scene-veil { position: absolute; inset: 0; z-index: 50; display: grid; pointer-events: none; }
+
+    /* ── VALUES layer — beige, cross-fades in over the philosophy void. Focus-columns look/feel from
+       about-v2 (each column grows + goes accent in turn, a bitmap loading bar fills under it). ── */
+    .values-scene { background-color: hsl(var(--content-background)); }
+    .values-scene .scene-body { align-items: center; }
+    .values-cols { display: flex; flex-direction: row; gap: clamp(2rem, 6vw, 5rem); width: min(90vw, 82rem); }
+    .values-col { flex: 1 1 0; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 1rem; will-change: transform, opacity; }
+    .values-id { font-family: var(--font-mono); font-size: clamp(2.5rem, 5vw, 3.75rem); font-weight: 300; color: hsl(var(--content-foreground)); }
+    .values-col h3 { font-family: var(--font-mono); font-size: clamp(1.25rem, 2vw, 1.5rem); color: hsl(var(--content-foreground)); margin: 0; }
+    .values-col p { font-family: var(--font-mono); font-size: 1rem; line-height: 1.6; color: hsl(var(--content-foreground) / 0.82); max-width: 20rem; }
+    .values-progress { margin-top: 0.75rem; }
+
+    /* ── CTA layer (finale) — oversized Departure Mono on the void; pixelates in. ── */
+    /* Clients ("Client Terminal") — beige oat world; centre the terminal grid with page gutters. */
+    .clients-scene { background-color: hsl(var(--content-background)); }
+    .clients-scene .scene-body { align-items: center; }
+    .clients-wrap { width: 100%; padding-inline: clamp(1rem, 6vw, 6rem); }
+
+    .cta-scene { background-color: hsl(var(--background)); }
+    .cta-kicker { font-family: var(--font-departure); text-transform: uppercase; letter-spacing: 0.25em; color: hsl(var(--accent)); font-size: 0.95rem; margin-bottom: 1.8rem; }
+    .cta-head { font-family: var(--font-departure); font-size: clamp(2.6rem, 8vw, 7rem); line-height: 1.05; color: hsl(var(--foreground)); margin: 0 0 2.6rem; }
+    .cta-link { font-family: var(--font-departure); font-size: clamp(1.3rem, 3vw, 2.1rem); color: hsl(var(--foreground)); display: inline-flex; align-items: center; gap: 0.5ch; text-decoration: none; transition: color 0.2s ease; pointer-events: auto; }
+    .cta-link:hover { color: hsl(var(--accent)); }
+    .cta-caret, .cta-cursor { color: hsl(var(--accent)); }
+    .cta-cursor { animation: cta-blink 1s steps(1) infinite; }
+    @keyframes cta-blink { 50% { opacity: 0; } }
+
+    /* Persistent solaris bar — flips down from the header edge once the fog is in. */
+    #page-bar {
+      position: fixed; top: var(--header-h); left: 0; right: 0; z-index: 40;
+      height: var(--solaris-height);
+      background: linear-gradient(90deg, var(--solaris-from) 0%, var(--solaris-mid) 55%, var(--solaris-to) 100%);
+      box-shadow: var(--solaris-glow);
+      display: flex; align-items: center; justify-content: center;
+      pointer-events: none;
+      /* revealed via a stepped clip-path "data load" push-down (set in JS); start clipped away */
+      clip-path: inset(0 0 100% 0);
+      transition: background 0.45s ease, box-shadow 0.45s ease;
+    }
+    #page-bar [data-page-label] { opacity: 0; white-space: nowrap; text-align: center; transition: color 0.45s ease; }
+
+    /* Mobile: prototype is desktop-only for now (scroll-stage disabled). */
+    @media (max-width: 767px) {
+      #stage-track { height: auto; }
+      .stage-pin { position: static; height: auto; overflow: visible; }
+      .scene { position: relative; inset: auto; opacity: 1 !important; }
+      .stage-fog, .scene-veil, #page-bar { display: none; }
+      .scene-body { position: static; padding: 4rem 0; }
+    }
+  </style>
+
+  {/* Veil cell rule must be global (cells are built in JS, outside Astro's scoped styles). */}
+  <style is:global>
+    /* This page uses the custom .scroll-fader, so hide the native scrollbar here. */
+    ::-webkit-scrollbar { width: 0 !important; height: 0 !important; }
+    html { scrollbar-width: none; }
+    .scene-veil > i {
+      display: block;
+      background: var(--veil-color, hsl(var(--content-background)));
+      opacity: clamp(0, calc((var(--o) - var(--reveal, 0)) * 26), 1);
+    }
+
+    /* Founders fill the FULL section height with the usual big-text styling (like the old about page).
+       The scene-height bug is fixed, so the cards fit the frame without shrinking the type.
+       NB: the React island is wrapped in <astro-island>, so target by CLASS, not > child. */
+    #stage-track [data-scene="founders"] .grid { height: 100%; }
+    #stage-track [data-scene="founders"] .grid > div { min-height: 0 !important; }
+
+    /* CTA is the same dark colour as the footer, so drop the Solaris seam beam between them —
+       the CTA reads straight into the footer as one continuous section. (The moving #page-bar
+       is its own element, not a .solaris, so it is untouched.) */
+    .solaris:has(+ footer) { display: none; }
+  </style>
+
+  <script>
+    import { gsap } from 'gsap';
+    import { ScrollTrigger } from 'gsap/ScrollTrigger';
+    import { scrambleIn } from '../lib/scene-kit';
+    import { buildPhilosophyScene } from '../lib/scenes/philosophy';
+    gsap.registerPlugin(ScrollTrigger);
+
+    type BarCfg = { name: string; bg?: string; text?: string; glow?: string };
+
+    function initStage() {
+      const track = document.getElementById('stage-track');
+      const pin = track?.querySelector<HTMLElement>('.stage-pin');
+      if (!track || !pin || track.dataset.init === '1') return;
+      track.dataset.init = '1';
+      if (!window.matchMedia('(min-width: 768px)').matches) return; // desktop only
+
+      const fog = pin.querySelector<HTMLElement>('[data-stage="fog"]')!;
+      const portal = pin.querySelector<HTMLElement>('[data-stage="portal"]')!;
+      const scFounders = pin.querySelector<HTMLElement>('.scene[data-scene="founders"]')!;
+      const scPhil = pin.querySelector<HTMLElement>('.scene[data-scene="philosophy"]')!;
+      const scValues = pin.querySelector<HTMLElement>('.scene[data-scene="values"]')!;
+      const scClients = pin.querySelector<HTMLElement>('.scene[data-scene="clients"]')!;
+      const scCta = pin.querySelector<HTMLElement>('.scene[data-scene="cta"]')!;
+      const vCta = scCta.querySelector<HTMLElement>('[data-cta-veil]')!;
+      const vFounders = scFounders.querySelector<HTMLElement>('[data-veil]')!;
+      const gridBg = document.getElementById('grid-bg'); // fixed binary-rain layer — for the "enter the void" zoom
+
+      // Build a pixel veil (large cells) sized to its scene body.
+      const CELL = 54;
+      const buildVeil = (veil: HTMLElement) => {
+        const host = veil.parentElement as HTMLElement;
+        const w = host.clientWidth || window.innerWidth;
+        const h = host.clientHeight || window.innerHeight;
+        const cols = Math.max(1, Math.ceil(w / CELL));
+        const rows = Math.max(1, Math.ceil(h / CELL));
+        const n = cols * rows;
+        const order = Array.from({ length: n }, (_, i) => i);
+        for (let i = n - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [order[i], order[j]] = [order[j], order[i]]; }
+        veil.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+        veil.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+        const frag = document.createDocumentFragment();
+        for (let i = 0; i < n; i++) { const c = document.createElement('i'); c.style.setProperty('--o', (order[i] / n).toFixed(4)); frag.appendChild(c); }
+        veil.replaceChildren(frag);
+      };
+      // BOOKMARK (pixels): the pixel veil is dropped for now — founders just fade in. Re-enable
+      // buildVeil + the two veil tweens in the timeline to bring the pixel break-up back.
+      // buildVeil(vFounders);
+      // vFounders.style.setProperty('--reveal', '-0.05');
+      void vFounders; void buildVeil; // keep refs alive while bookmarked
+      gsap.set(fog, { opacity: 0 });                                            // solid beige, uniform coverage
+      gsap.set(portal, { opacity: 0, scale: 0.3, transformOrigin: '50% 45%' }); // soft bloom from the void centre
+      // autoAlpha (opacity + visibility) so a faded-OUT scene goes visibility:hidden and stops
+      // intercepting the pointer — otherwise the top-z scene (e.g. CTA at z40) dictates the cursor
+      // even at opacity 0, giving a light (dark-scene) cursor over the beige scenes. With autoAlpha
+      // the VISIBLE scene wins, so its own cursor rule (theme-oat → dark dot; dark → light dot) applies.
+      gsap.set(scFounders, { autoAlpha: 0 }); // shown only AFTER the fog is fully in
+      gsap.set(scPhil, { autoAlpha: 0 });     // cross-faded in after founders
+      gsap.set(scValues, { autoAlpha: 0 });   // cross-faded in after philosophy
+      gsap.set(scClients, { autoAlpha: 0 });  // cross-faded in after values (the client terminal)
+      gsap.set(scCta, { autoAlpha: 0 });      // cross-faded in after clients, then pixelates in
+      buildVeil(vCta);                      // CTA pixel veil (dark cells, --veil-color = void)
+      vCta.style.setProperty('--reveal', '-0.05'); // start fully covered
+
+      // ── Persistent bar helpers ────────────────────────────────────────────────
+      const bar = document.getElementById('page-bar')!;
+      const label = bar.querySelector<HTMLElement>('[data-page-label]')!;
+      const DEFAULT_BG = 'linear-gradient(90deg, var(--solaris-from) 0%, var(--solaris-mid) 55%, var(--solaris-to) 100%)';
+      const DEFAULT_GLOW = 'var(--solaris-glow)';
+      let current = '';
+      const setBar = (s: BarCfg) => {
+        if (s.name === current) return;
+        current = s.name;
+        label.style.opacity = '1';
+        label.style.color = s.text ?? '';
+        bar.style.background = s.bg ?? DEFAULT_BG;
+        bar.style.boxShadow = s.glow ?? DEFAULT_GLOW;
+        scrambleIn(label, s.name, { duration: 650 });
+      };
+      const FOUNDERS: BarCfg = { name: 'Who We Are' };
+      const PHIL: BarCfg = { name: 'Our Philosophy', bg: '#ffffff', text: '#141414', glow: '0 0 24px rgba(255,255,255,0.35)' };
+      const VALUES: BarCfg = { name: 'Our Values' };
+      const CLIENTS: BarCfg = { name: 'Client Terminal' };
+      const CONTACT: BarCfg = { name: 'Get In Touch' };
+
+      // ── Master scrubbed timeline (1 unit ≈ 1 viewport of scroll) ──
+      //   hero holds while the copy recedes into the void (useHeroSquish, first ~80vh) → DARK void
+      //   delay → fog takes over CLEAN + slow (no pixels yet) → founders veil appears seamlessly →
+      //   pixel reveal → hold → opacity cross-fade to philosophy → hold.
+      // ── TIMING KNOBS — units ≈ viewports of scroll. Tune the whole entrance here. ──
+      //   Overlap pixStart with the fog so the beige "breaks up" WHILE the fog is still arriving
+      //   (binary rain → pixels, entering a new dimension) rather than fog-then-pixelate.
+      const T = {
+        heroHold:    0.8,   // hero holds while the copy recedes into the void (kept short)
+        fogStart:    0.8,   // when the beige fog begins (≈ when the words have receded)
+        fogDur:      1.0,   // fog fade duration
+        portalStart: 0.5,   // soft white bloom starts EARLY — follows the receding text into the void
+        foundersHold:0.7,   // settle on founders
+        crossDur:    0.9,   // founders → philosophy cross-fade
+        philHold:    1.0,   // settle on philosophy
+        voidScale:   3.0,   // ENTER THE VOID — how far the binary rain rushes toward you (zoom)
+        barPush:     1.72,  // solaris bar "data-load" push-down (t) — just as the beige fully occupies
+        // bookmarked pixel knobs — only used if the veil is re-enabled
+        veilInStart: 1.0, veilInDur: 0.2, pixStart: 1.5, pixDur: 1.0,
+      };
+      const hud = document.getElementById('dev-hud');
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: track, start: 'top top', end: 'bottom bottom', scrub: 0.6, invalidateOnRefresh: true,
+          onUpdate: () => { if (hud) hud.textContent = `t ${tl.time().toFixed(2)} / ${tl.duration().toFixed(1)}   p ${tl.progress().toFixed(3)}   y ${Math.round(window.scrollY)}`; },
+        },
+      });
+      // DIRECTION-AWARE bar label at a scene boundary: scrolling DOWN sets the section we're entering;
+      // scrolling UP sets the section we're now (re)entering from its end — so the label always shows
+      // the CURRENT scene, both ways. (A plain tl.call fires the same label in both directions.)
+      const clearBar = () => { current = ''; label.style.opacity = '0'; };
+      const boundary = (pos: number | string, down: BarCfg | null, up: BarCfg | null) => tl.call(() => {
+        const dir = tl.scrollTrigger ? tl.scrollTrigger.direction : 1;
+        const cfg = dir === 1 ? down : up;
+        if (cfg) setBar(cfg); else clearBar();
+      }, [], pos);
+      tl.to({}, { duration: T.heroHold });                                                    // hero holds + copy recedes
+      // ENTER THE VOID — the binary rain rushes toward the screen (accelerating zoom).
+      if (gridBg) tl.fromTo(gridBg, { scale: 1 }, { scale: T.voidScale, ease: 'power2.in', duration: T.fogStart + T.fogDur }, 0);
+      // PORTAL — a soft warm bloom from the centre, starting EARLY so it follows the receding text
+      // into the void, then dissipating. Subtle, not a flash.
+      tl.fromTo(portal, { opacity: 0, scale: 0.3 }, { opacity: 0.7, scale: 2.0, ease: 'power2.in', duration: T.fogDur + 0.3 }, T.portalStart);
+      tl.to(portal, { opacity: 0, ease: 'power1.out', duration: 0.5 }, T.fogStart + T.fogDur);
+      // FOG — solid beige, uniform (full coverage, no cutoff).
+      tl.to(fog, { opacity: 1, ease: 'none', duration: T.fogDur }, T.fogStart);
+      // BOOKMARK (pixels): founders just FADE in for now. Re-enable these two to bring pixels back:
+      //   tl.to(scFounders, { opacity: 1, duration: T.veilInDur }, T.veilInStart);
+      //   tl.to(vFounders, { '--reveal': 1, duration: T.pixDur }, T.pixStart);
+      tl.to(scFounders, { autoAlpha: 1, ease: 'none', duration: 0.9 }, T.fogStart + T.fogDur);  // founders fade in (no pixels)
+      // SOLARIS BAR — bitmappy "data-load" push-down from the header (no flip, no gradual grow): it
+      // reveals in discrete pixel bands (steps ease) with a brief flicker, then the label scrambles
+      // in (binary) — in place + scrambled by ~t 1.90.
+      tl.fromTo(bar,
+        { clipPath: 'inset(0 0 100% 0)', opacity: 0.35 },
+        { clipPath: 'inset(0 0 0% 0)', opacity: 1, ease: 'steps(6)', duration: 0.14 },
+        T.barPush);
+      boundary(1.91, FOUNDERS, null);   // down → "Who We Are"; up → clear (back to hero)
+      tl.to({}, { duration: T.foundersHold });      // settle on the resolved founders
+
+      // ── CROSS-FADE founders → philosophy, then play the philosophy choreography IN PLACE as a NESTED
+      //    timeline (no pin). Same 6-stage scene as about-v2 (buildPhilosophyScene). Bar → white. ──
+      tl.addLabel('philIn');
+      tl.to(scFounders, { autoAlpha: 0, ease: 'none', duration: T.crossDur }, 'philIn')
+        .to(scPhil, { autoAlpha: 1, ease: 'none', duration: T.crossDur }, 'philIn');
+      boundary('philIn', PHIL, FOUNDERS);   // down → philosophy; up → back into founders
+      // Add the whole 6-stage choreography DIRECTLY to the master timeline (its first beat uses '>',
+      // so it sequences right after the cross-fade). This keeps it scrubbed by scroll — a separate
+      // gsap.timeline() would auto-play on its own clock.
+      buildPhilosophyScene(tl, scPhil);
+
+      // ── VALUES — cross-fade in over philosophy's dark end (bg colour void → beige), hold. ──
+      tl.addLabel('valuesIn', '>');
+      tl.to(scPhil, { autoAlpha: 0, ease: 'none', duration: T.crossDur }, 'valuesIn')
+        .to(scValues, { autoAlpha: 1, ease: 'none', duration: T.crossDur }, 'valuesIn');
+      boundary('valuesIn', VALUES, PHIL);   // down → values; up → back into philosophy
+      tl.to({}, { duration: 1.4 }); // hold on the values
+
+      // ── CLIENTS ("Client Terminal") — cross-fade in over values (same beige world), hold. ──
+      tl.addLabel('clientsIn', '>');
+      tl.to(scValues, { autoAlpha: 0, ease: 'none', duration: T.crossDur }, 'clientsIn')
+        .to(scClients, { autoAlpha: 1, ease: 'none', duration: T.crossDur }, 'clientsIn');
+      boundary('clientsIn', CLIENTS, VALUES);   // down → clients; up → back into values
+      tl.to({}, { duration: 1.4 }); // hold on the client terminal
+
+      // ── CTA (finale) — clients fades out, the CTA layer appears (veil covering), then PIXELATES in. ──
+      tl.addLabel('ctaIn', '>');
+      tl.to(scClients, { autoAlpha: 0, ease: 'none', duration: T.crossDur }, 'ctaIn')
+        .to(scCta, { autoAlpha: 1, ease: 'none', duration: 0.3 }, 'ctaIn');   // veil (dark) still covering
+      boundary('ctaIn', CONTACT, CLIENTS);   // down → CTA; up → back into clients
+      tl.to(vCta, { '--reveal': 1, ease: 'none', duration: 1.6 }, 'ctaIn+=0.3'); // pixel break-up reveal
+      tl.to({}, { duration: 1.2 }); // hold on the CTA, then the stage releases into the footer / bottom rain
+
+      // ── VALUES focus cycle (same feel as about-v2 FocusColumns): while the values layer is VISIBLE,
+      //    each column grows + goes accent in turn and its bitmap loading bar fills; hover overrides. ──
+      (() => {
+        const readToken = (name: string, el: Element) => {
+          const raw = getComputedStyle(el).getPropertyValue(name).trim();
+          return !raw ? '' : (/^#|^rgb|^hsl/.test(raw) ? raw : `hsl(${raw.split(/\s+/).join(', ')})`);
+        };
+        const vcols = Array.from(scValues.querySelectorAll<HTMLElement>('[data-vcol]'));
+        if (!vcols.length) return;
+        const vhi = vcols.map((c) => c.querySelectorAll<HTMLElement>('[data-vhi]'));
+        const vbars = vcols.map((c) => c.querySelector<HTMLElement>('[data-vprogress]'));
+        const accent = readToken('--accent', scValues);
+        const ink = readToken('--content-foreground', scValues) || readToken('--foreground', scValues);
+        const FOCUS_SCALE = 1.18, DULL = 0.28, FOCUS_DUR = 0.4, INTERVAL = 4500;
+        gsap.set(vcols, { transformOrigin: '50% 50%' });
+        const applyFocus = (a: number) => {
+          vcols.forEach((col, i) => {
+            gsap.to(col, { scale: i === a ? FOCUS_SCALE : 1, opacity: i === a ? 1 : DULL, duration: FOCUS_DUR, ease: 'power2.out' });
+            gsap.to(vhi[i], { color: i === a ? accent : ink, duration: FOCUS_DUR });
+          });
+        };
+        const setProg = (idx: number, p: number) => vbars.forEach((b, i) => { if (b) b.style.setProperty('--progress', String(i === idx ? p : 0)); });
+        applyFocus(0); setProg(0, 0);
+        let active = 0, hover: number | null = null, elapsed = 0, last: number | undefined;
+        const visible = () => parseFloat(getComputedStyle(scValues).opacity) > 0.5;
+        const stepV = (t: number) => {
+          const dt = last === undefined ? 0 : t - last; last = t;
+          if (hover !== null) { elapsed = 0; setProg(hover, 1); }
+          else if (visible()) {
+            elapsed += dt;
+            const p = Math.min(1, elapsed / INTERVAL);
+            setProg(active, p);
+            if (p >= 1) { active = (active + 1) % vcols.length; applyFocus(active); elapsed = 0; }
+          }
+          requestAnimationFrame(stepV);
+        };
+        requestAnimationFrame(stepV);
+        vcols.forEach((col, i) => {
+          col.addEventListener('mouseenter', () => { hover = i; applyFocus(i); });
+          col.addEventListener('mouseleave', () => { hover = null; applyFocus(active); });
+        });
+      })();
+
+      ScrollTrigger.refresh();
+    }
+
+    document.addEventListener('astro:page-load', initStage);
+    if (document.readyState === 'complete') initStage();
+    else window.addEventListener('load', initStage);
+  </script>
+
+  {/* Bitmap fader position — reflects scroll progress. */}
+  <script>
+    function initFader() {
+      const cap = document.querySelector<HTMLElement>('[data-fader-cap]');
+      const fill = document.querySelector<HTMLElement>('[data-fader-fill]');
+      if (!cap || cap.dataset.init === '1') return;
+      cap.dataset.init = '1';
+      const update = () => {
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        const p = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+        const top = window.innerHeight * 0.08;
+        const trackH = window.innerHeight * 0.84;      // track spans 8vh → 92vh
+        if (fill) fill.style.height = (p * trackH) + 'px'; // viewed portion (orange), top → handle
+        cap.style.top = (top + p * trackH) + 'px';         // handle rides the boundary
+      };
+      const onScroll = () => requestAnimationFrame(update);
+      const lenis = (window as any).__lenis;
+      if (lenis && lenis.on) lenis.on('scroll', update);
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll, { passive: true });
+      update();
+    }
+    document.addEventListener('astro:page-load', initFader);
+    if (document.readyState === 'complete') initFader();
+    else window.addEventListener('load', initFader);
+  </script>
+</Layout>

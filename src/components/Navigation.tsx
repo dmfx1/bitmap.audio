@@ -220,7 +220,7 @@ const BrandLockup = ({ pageName }: { pageName: string }) => {
                  height; otherwise its taller line-box inflates the flex row and items-center
                  pushes the b down ~26px, so the centre b wouldn't land on the nav b. */
               className="hidden md:inline-block font-mono font-light tracking-tight leading-none text-foreground whitespace-nowrap will-change-transform"
-              style={{ fontSize: 'clamp(2rem, 6vw, 6.5rem)' }}
+              style={{ fontSize: 'clamp(2rem, 6vw, 6.5rem)', fontFamily: 'var(--font-departure)' }}
             >
               {centerDisplay || BRAND_NAME}
               <span className="text-accent opacity-70">_</span>
@@ -286,6 +286,7 @@ const BrandLockup = ({ pageName }: { pageName: string }) => {
           className="hidden md:block font-mono font-light tracking-tight text-foreground whitespace-nowrap leading-none transition-opacity"
           style={{
             fontSize: 'var(--brandH)',
+            fontFamily: 'var(--font-departure)',
             opacity: wordVisible ? 1 : 0,
             transitionDuration: `${BRAND_MOTION.fadeInMs}ms`,
           }}
@@ -385,10 +386,10 @@ const Navigation = ({ currentPath, pageName = BRAND_NAME }: { currentPath: strin
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>
-                  <a href="/solutions/experiential-audio" className={cn(
+                  <a href="/solutions/spatial-audio" className={cn(
                     "font-mono text-base uppercase tracking-wider link-underline transition-colors",
                     isActive("/about") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
-                  )}>Experience</a>
+                  )}>Spatial</a>
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>

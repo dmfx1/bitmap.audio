@@ -1,0 +1,155 @@
+---
+/* src/components/modules/FoundersScene.astro
+ *
+ * "Scene deck" for About — the founders section assembles IN PLACE, nothing travels up:
+ *   1. (hero copy has already drifted into the void — handled by the hero)
+ *   2. a FIXED, full-screen beige FOG fades in over the held hero — it "takes over the screen" in
+ *      place (it is NOT part of the scrolling section, so there is no rising panel / vertical travel)
+ *   3. the scene pins and a bitmap PIXEL VEIL dissolves in random order to reveal the founders
+ *   4. holds (buffer) — then releases into the rest of the page; the fog stays as the beige world
+ *
+ * The fog is a `position: fixed` layer OUTSIDE the pinned `.founders-pin`, so the GSAP pin transform
+ * never becomes its containing block. Desktop only (mobile / reduced-motion shows the resolved state).
+ */
+import Founders from './Founders.tsx';
+---
+<section id="founders-scene" class="founders-scene theme-oat">
+  {/* FIXED full-screen beige fog — fades in over the held hero, in place (not inside the pin) */}
+  <div class="scene-fog" data-fs="fog" aria-hidden="true"></div>
+  <div class="founders-pin">
+    {/* founders content + the pixel veil that dissolves to reveal it */}
+    <div class="founders-body container-page" data-fs="body">
+      <Founders client:visible />
+      <div class="founders-veil" data-fs="veil" aria-hidden="true"></div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* content-visibility:visible OVERRIDES the global `section { content-visibility: auto }` rule —
+     that rule's implicit `contain` breaks the ScrollTrigger pin. Same fix as the image slides. */
+  .founders-scene { position: relative; z-index: 10; background: transparent; content-visibility: visible; }
+
+  /* The fog is FIXED to the viewport (its only ancestors — section/body/html — have no transform, so
+     it stays viewport-anchored even while the pin transforms .founders-pin). Solid beige so it reads
+     as the whole screen fogging over to the beige world in place. */
+  .scene-fog {
+    position: fixed; inset: 0; z-index: 0;
+    background-color: hsl(var(--content-background));
+    opacity: 0; pointer-events: none;
+  }
+
+  .founders-pin { position: relative; z-index: 1; height: 100svh; overflow: hidden; }
+  .founders-body {
+    position: absolute; z-index: 10; left: 0; right: 0;
+    top: calc(var(--header-h) + var(--solaris-height)); bottom: 0;
+    display: flex; flex-direction: column; justify-content: center;
+    color: hsl(var(--content-foreground));
+  }
+
+  /* Bitmap PIXEL VEIL — grid of large beige "pixels" over the founders body; each cell holds a random
+     threshold --o (0..1); as the scene scrubs, --reveal climbs 0→1 and cells whose --o is below it
+     snap to opacity 0, uncovering the section pixel by pixel. Cells are built in JS. */
+  .founders-veil {
+    position: absolute; inset: 0; z-index: 50; display: grid; pointer-events: none;
+  }
+
+  /* Mobile: no fixed fog (it would cover the whole page), no pin, no veil — a plain beige section. */
+  @media (max-width: 767px) {
+    .founders-scene { background-color: hsl(var(--content-background)); }
+    .scene-fog { display: none; }
+    .founders-pin { height: auto; overflow: visible; }
+    .founders-body { position: static; padding-top: 2rem; }
+    .founders-veil { display: none; }
+  }
+</style>
+
+{/* The veil CELLS are created in JS, so Astro's scoped styles won't reach them — their rule must be
+    GLOBAL. --o is set per cell (its random reveal threshold), --reveal is animated on the veil. */}
+<style is:global>
+  .founders-veil > i {
+    display: block;
+    background: hsl(var(--content-background));
+    opacity: clamp(0, calc((var(--o) - var(--reveal, 0)) * 26), 1);
+  }
+</style>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  gsap.registerPlugin(ScrollTrigger);
+
+  function initFoundersScene() {
+    const scene = document.getElementById('founders-scene');
+    if (!scene || scene.dataset.init === '1') return;
+    scene.dataset.init = '1';
+
+    const pin = scene.querySelector<HTMLElement>('.founders-pin');
+    const fog = scene.querySelector<HTMLElement>('[data-fs="fog"]');
+    const body = scene.querySelector<HTMLElement>('[data-fs="body"]');
+    const veil = scene.querySelector<HTMLElement>('[data-fs="veil"]');
+    if (!pin || !fog || !body || !veil) return;
+
+    const desktop = window.matchMedia('(min-width: 768px)').matches;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (reduced || !desktop) {
+      gsap.set(fog, { opacity: 1 });   // veil hidden on mobile via CSS; nothing to animate
+      return;
+    }
+
+    // Build the pixel veil sized to the body — deliberately LARGE "pixels".
+    const CELL = 54;
+    const buildVeil = () => {
+      const w = body.clientWidth || window.innerWidth;
+      const h = body.clientHeight || window.innerHeight;
+      const cols = Math.max(1, Math.ceil(w / CELL));
+      const rows = Math.max(1, Math.ceil(h / CELL));
+      const n = cols * rows;
+      const order = Array.from({ length: n }, (_, i) => i);
+      for (let i = n - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [order[i], order[j]] = [order[j], order[i]]; }
+      veil.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+      veil.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+      const frag = document.createDocumentFragment();
+      for (let i = 0; i < n; i++) {
+        const c = document.createElement('i');
+        c.style.setProperty('--o', (order[i] / n).toFixed(4));
+        frag.appendChild(c);
+      }
+      veil.replaceChildren(frag);
+    };
+    buildVeil();
+    veil.style.setProperty('--reveal', '0');
+    gsap.set(fog, { opacity: 0 });
+    gsap.set(body, { opacity: 0 });
+
+    // FOG — the fixed full-screen beige fades in over the held hero as the scene approaches. Because
+    // it's fixed and full-viewport, the screen just fogs over in place. The body (veil + content)
+    // fades in on the SAME range, so while the section technically travels up it blends into the fog
+    // instead of sliding in as a bright beige block — reads as the fog taking over the screen.
+    const fogST = { trigger: scene, start: 'top bottom', end: 'top top', scrub: 0.5 };
+    gsap.to(fog, { opacity: 1, ease: 'none', scrollTrigger: fogST });
+    gsap.to(body, { opacity: 1, ease: 'none', scrollTrigger: { ...fogST } });
+
+    // PIN — while pinned: the pixel veil dissolves to reveal the founders, then a BUFFER hold so the
+    // section settles in place (never a hard snap) before the page moves on.
+    const tl = gsap.timeline({ paused: true });
+    tl.to(veil, { '--reveal': 1, duration: 1.0, ease: 'none' }); // reveal — pixels vanish, random order
+    tl.to({}, { duration: 1.2 });                                // BUFFER — read the section in place
+
+    ScrollTrigger.create({
+      trigger: scene,
+      start: 'top top',
+      end: '+=170%',
+      pin: pin,
+      pinSpacing: true,
+      scrub: 0.5,
+      animation: tl,
+      invalidateOnRefresh: true,
+    });
+  }
+
+  document.addEventListener('astro:page-load', initFoundersScene);
+  if (document.readyState === 'complete') initFoundersScene();
+  else window.addEventListener('load', initFoundersScene);
+</script>
