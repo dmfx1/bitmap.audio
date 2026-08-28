@@ -1,9 +1,18 @@
 ---
-/* src/pages/home.astro */
+/* src/pages/home.astro
+ *
+ * Homepage on the SCENE-STAGE architecture (the about-v3 model, packaged): the hero/header stay
+ * locked while scroll drives ONE master timeline that "enters the void" (binary-rain zoom + portal
+ * bloom + beige fog) and then cross-fades the content layers in place — Services → micro/macro
+ * Philosophy → CTA — with no real vertical scroll until the stage releases into the footer.
+ *
+ * Content + styling are preserved from the previous FocusScroll build; only the scroll MECHANISM
+ * changed (stacked layers instead of pinned scroll-over sections). Reusable pieces live in
+ * src/components/scene/* and src/lib/scenes/stage.ts.
+ */
 import Layout from '../layouts/Layout.astro';
-import Solaris from '../components/Solaris.astro';
-import Section from '../components/Section.astro';
-import FocusScroll from '../components/FocusScroll.astro';
+import SceneStage from '../components/scene/SceneStage.astro';
+import SceneLayer from '../components/scene/SceneLayer.astro';
 import Hero from '../components/modules/Hero.tsx';
 import ServicePillars from '../components/modules/ServicePillars';
 import Philosophy from '../components/modules/Philosophy.tsx';
@@ -14,130 +23,34 @@ import CTA from '../components/modules/CTA.tsx';
   title="bitmap.audio | sonic branding & experiential audio"
   description="bitmap.audio designs sonic brand systems, UI/UX sound, and experiential spatial audio for digital products and forward-thinking brands."
 >
-  {/* Hero: fills the viewport and sticks; blurred sections scroll up over it. flex flex-col so
-      the hero (flex-1) fills the height and can pin its blurb to the bottom (as about-v2). */}
-  <div id="hero-sticky" class="md:sticky top-0 z-[1] min-h-svh flex flex-col">
-    <Hero client:load />
-  </div>
+  <SceneStage trackVh={1000} bar void>
+    {/* Hero — holds while its copy recedes into the void (useHeroSquish anchors to the pin). */}
+    <SceneLayer hero z={0}>
+      <Hero client:load />
+    </SceneLayer>
 
-  <div class="hero-runway" aria-hidden="true"></div>
+    {/* Services — fades in through the fog. client:load (not visible): these components self-hide
+        until their own reveal effect runs on hydration, and inside a stacked/hidden layer client:visible
+        may not hydrate — so they'd stay invisible. */}
+    <SceneLayer z={10} label="What we do" hold={1.4}>
+      <ServicePillars client:load />
+    </SceneLayer>
 
-  {/* Beige world — scrolls up over the sticky hero. Each section follows the about-v2 pattern:
-      the Solaris bar sticks under the header, the content locks in centred below it, then they
-      release and scroll up together. */}
-  <div class="relative z-10 theme-oat">
-    {/* Services — bar sticks, the pillars lock + cycle below it. */}
-    <div class="relative">
-      <div class="section-bar-hold"><Solaris text="What we do" /></div>
-      <FocusScroll count={1} barOffset id="services" class="!bg-background/50 backdrop-blur-xl border-t-2 border-border">
-        <ServicePillars client:visible />
-      </FocusScroll>
-    </div>
+    {/* Philosophy — the micro/macro architecture. */}
+    <SceneLayer z={20} label="The micro/macro architecture" hold={1.4}>
+      <Philosophy client:load />
+    </SceneLayer>
 
-    {/* Philosophy — bar sticks, content locks in below it. */}
-    <div class="relative">
-      <div class="section-bar-hold"><Solaris text="The micro/macro architecture" /></div>
-      <FocusScroll count={1} vhPer={1.5} barOffset id="philosophy" class="!bg-background/50 backdrop-blur-xl">
-        <Philosophy client:visible />
-      </FocusScroll>
-    </div>
-
-    {/* CTA — bar sticks, CTA locks in below it. */}
-    <div class="relative">
-      <div class="section-bar-hold"><Solaris text="Get In Touch" /></div>
-      <FocusScroll count={1} barOffset id="cta" class="!bg-background/50 backdrop-blur-xl">
-        <div class="container-page w-full">
-          <CTA
-            client:visible
-            title="Ready to define your sound?"
-            description="Explore how sonic branding can strengthen your identity and deepen audience connection."
-            buttonText="Start the conversation"
-          />
-        </div>
-      </FocusScroll>
-    </div>
-  </div>
-
-  {/* Binary-rain freeze: STOP the rain parallax as the beige world starts covering the hero, so the
-      hero copy flies into a STATIC void (not a moving background). RESUME it once the footer comes
-      into view, so the bottom "sandwich" has the live parallax again. GridBackground's `accum`
-      absorbs the frozen scroll, so it resumes without a jump. (Mirrors the about-v2 handoff.) */}
-  <script>
-    import { gsap } from 'gsap';
-    import { ScrollTrigger } from 'gsap/ScrollTrigger';
-    gsap.registerPlugin(ScrollTrigger);
-
-    function initRain() {
-      const services = document.getElementById('services');
-      const footer = document.querySelector('footer');
-      const root = document.documentElement;
-      if (!services || services.dataset.rainInit === '1') return;
-      services.dataset.rainInit = '1';
-
-      // Freeze once the beige world begins rising over the hero.
-      ScrollTrigger.create({
-        trigger: services,
-        start: 'top bottom',
-        onEnter: () => { root.dataset.rainFrozen = '1'; },
-        onLeaveBack: () => { root.dataset.rainFrozen = '0'; },
-      });
-
-      // Resume for the bottom sandwich when the footer enters view.
-      if (footer) {
-        ScrollTrigger.create({
-          trigger: footer,
-          start: 'top bottom',
-          onEnter: () => { root.dataset.rainFrozen = '0'; },
-          onLeaveBack: () => { root.dataset.rainFrozen = '1'; },
-        });
-      }
-    }
-
-    document.addEventListener('astro:page-load', initRain);
-    if (document.readyState === 'complete') initRain();
-    else window.addEventListener('load', initRain);
-  </script>
-
-  {/* ══════════ TIMED-RELEASE TRIAL (services section only) ══════════
-      Once the services section locks in place, if you sit IDLE for ~3s it auto-advances (smooth-
-      scrolls) past the remaining lock runway, so you don't have to grind through "nothing happens".
-      Any scroll resets the 3s idle timer, so you stay in control. Uses the global Lenis instance so
-      it cooperates with smooth scroll (no jump). Desktop only.
-      To UNDO: delete this whole <script>. To tune: IDLE_MS (wait) / the duration in scrollTo. */}
-  <script is:inline>
-    (function () {
-      var section = document.getElementById('services');
-      if (!section || !window.matchMedia('(min-width: 768px)').matches) return;
-      var IDLE_MS = 3000;
-      var idle = null;
-      var advancing = false;
-
-      function maybeAdvance() {
-        if (advancing) return;
-        var rect = section.getBoundingClientRect();
-        var vh = window.innerHeight;
-        var runwayLeft = rect.bottom - vh;         // scroll still left inside the lock
-        // Only fire while LOCKED (top at/above the viewport top) with meaningful runway remaining.
-        if (rect.top <= 1 && runwayLeft > vh * 0.15) {
-          advancing = true;
-          var target = window.scrollY + runwayLeft; // scroll to where the lock releases
-          var lenis = window.__lenis;
-          if (lenis && lenis.scrollTo) {
-            lenis.scrollTo(target, { duration: 1.0, onComplete: function () { advancing = false; } });
-          } else {
-            window.scrollTo({ top: target, behavior: 'smooth' });
-            setTimeout(function () { advancing = false; }, 1100);
-          }
-        }
-      }
-
-      function onScroll() {
-        if (advancing) return;                     // ignore the auto-advance's own scrolling
-        if (idle) clearTimeout(idle);
-        idle = setTimeout(maybeAdvance, IDLE_MS);   // reset the idle countdown on every scroll
-      }
-
-      window.addEventListener('scroll', onScroll, { passive: true });
-    })();
-  </script>
+    {/* CTA — cross-fades in; the stage then releases into the footer. */}
+    <SceneLayer z={30} label="Get In Touch" hold={1.4}>
+      <div class="container-page w-full">
+        <CTA
+          client:load
+          title="Ready to define your sound?"
+          description="Explore how sonic branding can strengthen your identity and deepen audience connection."
+          buttonText="Start the conversation"
+        />
+      </div>
+    </SceneLayer>
+  </SceneStage>
 </Layout>

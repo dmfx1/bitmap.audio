@@ -159,21 +159,40 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
     </SoundProvider>
 
     <div id="cursor-glow" class="fixed w-32 h-32 bg-primary/20 rounded-full blur-[80px] pointer-events-none z-[9998] hidden md:block translate-x-[-50%] translate-y-[-50%] transition-transform duration-700 ease-out"></div>
+    {/* Adaptive bitmap cursor — mix-blend-difference (see global.css #cursor-bit) so it stays visible
+        on ANY background. JS positions it + toggles has-bit-cursor (hides the native dot). */}
+    <div id="cursor-bit"></div>
 
     <script is:inline>
       const glow = document.getElementById('cursor-glow');
-      
+      const bit = document.getElementById('cursor-bit');
+      // Opt in to the blend cursor only on a pointer device wide enough for it, and only once the
+      // element exists — so the native --cursor-dot remains a safe fallback everywhere else.
+      const bitOn = bit && window.matchMedia('(min-width: 768px) and (pointer: fine)').matches;
+      if (bitOn) document.documentElement.classList.add('has-bit-cursor');
+
       document.addEventListener('mousemove', (e) => {
         window.requestAnimationFrame(() => {
           if (glow) {
             glow.style.left = `${e.clientX}px`;
             glow.style.top = `${e.clientY}px`;
           }
+          if (bitOn) {
+            bit.style.left = `${e.clientX}px`;
+            bit.style.top = `${e.clientY}px`;
+          }
         });
       });
 
+      // Any element with its OWN native cursor (links, buttons, form fields) hides the blend dot so
+      // there's never a double cursor; the MORPH/glow hover treatment stays limited to the original
+      // interactive set (not form fields).
+      const DOT_HIDE = 'a, button, [role="button"], .concept-card, .cursor-pointer, input, textarea, select, [contenteditable="true"]';
+      const MORPH = 'a, button, [role="button"], .concept-card';
+
       document.body.addEventListener('mouseover', (e) => {
-        const target = e.target.closest('a, button, [role="button"], .concept-card');
+        if (bitOn && e.target.closest(DOT_HIDE)) bit.classList.add('is-hover');
+        const target = e.target.closest(MORPH);
         if (!target) return;
         const text = target.textContent?.toLowerCase() || "";
         if (text.includes('explore')) target.classList.add('is-electric-primary');
@@ -182,7 +201,8 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
       });
 
       document.body.addEventListener('mouseout', (e) => {
-        const target = e.target.closest('a, button, [role="button"], .concept-card');
+        if (bitOn && e.target.closest(DOT_HIDE)) bit.classList.remove('is-hover');
+        const target = e.target.closest(MORPH);
         if (!target) return;
         target.classList.remove('is-electric-primary', 'is-morphing');
         if (glow) glow.classList.remove('animate-glow-pulse');

@@ -1,0 +1,78 @@
+---
+/* src/components/scene/SceneLayer.astro
+ *
+ * One full-viewport LAYER in a <SceneStage> deck. Absolutely stacked; the engine cross-fades it in
+ * over the previous layer as scroll advances (see src/lib/scenes/stage.ts). Put any content in the
+ * default slot — a plain section, a React island, an SVG scene, etc.
+ *
+ * Props:
+ *   theme    — "oat" (beige content world) | "void" (dark). Default "void".
+ *   z        — stacking order within the deck. Give later layers higher z. Default 10.
+ *   label    — persistent-bar label while this layer is active (scrambles in).
+ *   hold     — timeline units to dwell on this layer after it arrives. Default 1.
+ *   builder  — id of a GSAP choreography to nest here (e.g. "philosophy"). Optional.
+ *   barBg / barText / barGlow — override the persistent bar's look for this layer.
+ *   body     — wrap the slot in the standard centred .scene-layer-body (default true). Set false to
+ *              take over the full layer yourself (e.g. a component that manages its own layout).
+ *   hero     — this layer is the hero: fills the frame as flex-column (so a flex-1 hero component
+ *              distributes as before) and skips the centred body. Use for the first layer of a void
+ *              stage. Implies body=false.
+ */
+interface Props {
+  /** Content layers are beige ("oat") by DEFAULT — the de-facto post-hero world. Pass "void" for a
+   *  dark layer. The hero layer is always void (it sits on the dark void). */
+  theme?: 'oat' | 'void';
+  z?: number;
+  label?: string;
+  hold?: number;
+  builder?: string;
+  barBg?: string;
+  barText?: string;
+  barGlow?: string;
+  body?: boolean;
+  hero?: boolean;
+  class?: string;
+}
+const {
+  theme = 'oat', z = 10, label, hold = 1, builder,
+  barBg, barText, barGlow, body = true, hero = false, class: className = '',
+} = Astro.props;
+const useBody = body && !hero;
+const resolvedTheme = hero ? 'void' : theme; // the hero is always on the dark void
+---
+<div
+  class:list={["scene-layer", hero && 'scene-layer--hero', resolvedTheme === 'oat' && 'theme-oat', className]}
+  data-scene-layer
+  data-label={label}
+  data-hold={hold}
+  data-builder={builder}
+  data-bar-bg={barBg}
+  data-bar-text={barText}
+  data-bar-glow={barGlow}
+  style={`z-index:${z}`}
+>
+  {useBody ? (
+    <div class="scene-layer-body"><slot /></div>
+  ) : (
+    <slot />
+  )}
+</div>
+
+<style>
+  .scene-layer { position: absolute; top: 0; left: 0; right: 0; height: 100svh; }
+  .scene-layer.theme-oat { background-color: hsl(var(--content-background)); }
+  /* Hero layer fills the frame as a column so a flex-1 hero component distributes as before. */
+  .scene-layer--hero { display: flex; flex-direction: column; }
+  .scene-layer-body {
+    position: absolute; left: 0; right: 0;
+    top: calc(var(--header-h) + var(--solaris-height));
+    height: calc(100svh - var(--header-h) - var(--solaris-height));
+    display: flex; flex-direction: column; justify-content: center;
+  }
+
+  /* Mobile: normal flow, always visible (the engine doesn't run, so no autoAlpha is applied). */
+  @media (max-width: 767px) {
+    .scene-layer { position: relative; height: auto; opacity: 1 !important; visibility: visible !important; }
+    .scene-layer-body { position: static; padding: 4rem 0; }
+  }
+</style>

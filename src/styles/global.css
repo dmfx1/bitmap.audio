@@ -453,6 +453,38 @@ html { scrollbar-width: auto; scrollbar-color: var(--solaris-from) hsl(var(--bac
     }
   }
 
+  /* ADAPTIVE BITMAP CURSOR — a mix-blend-difference dot that inverts against WHATEVER is behind it,
+     so the pointer stays visible on every background: the dark hero/void, the beige oat world, AND
+     the bright bit-graphics inside standalone scenes like philosophy. A native url() cursor can only
+     flip per-theme (light dot / dark dot); this reacts per-pixel. Desktop only.
+     Gated behind html.has-bit-cursor (added by JS once #cursor-bit + its handler are live) so if the
+     script never runs the native --cursor-dot stays as a safe fallback — no cursorless state. */
+  @media (min-width: 768px) {
+    /* !important + explicit .theme-oat/.section-inverted so the native dot is hidden everywhere —
+       those blocks re-declare `cursor: var(--cursor-dot)` on their own element (and .section-inverted
+       is in @layer components, which would otherwise win on layer order). */
+    html.has-bit-cursor, html.has-bit-cursor body,
+    html.has-bit-cursor .theme-oat, html.has-bit-cursor .section-inverted { cursor: none !important; }
+    /* interactive elements keep the brand bitmap arrow (the blend dot hides over them via JS). */
+    html.has-bit-cursor a, html.has-bit-cursor button,
+    html.has-bit-cursor [role="button"], html.has-bit-cursor .concept-card,
+    html.has-bit-cursor .cursor-pointer { cursor: var(--cursor-link) !important; }
+    html.has-bit-cursor .is-electric-primary, html.has-bit-cursor .bg-primary {
+      cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 16 16'%3E%3Cpath fill='%23000000' d='M2 7h6v2H2V7zm6-2h2v6H8V5zm2 2h2v2h-2V7zm-2-4h2v2H8V3zm0 8h2v2H8v-2z'/%3E%3C/svg%3E") 0 0, pointer !important;
+    }
+    /* text fields keep their native caret — the blend dot hides over them (via JS). */
+    html.has-bit-cursor input, html.has-bit-cursor textarea,
+    html.has-bit-cursor select, html.has-bit-cursor [contenteditable="true"] { cursor: auto !important; }
+  }
+  #cursor-bit {
+    position: fixed; top: 0; left: 0; width: 9px; height: 9px;
+    background: #fff; mix-blend-mode: difference; pointer-events: none;
+    z-index: 9999; transform: translate(-50%, -50%); will-change: transform;
+    /* square = bitmap; no border-radius. opacity toggled off over interactive elements. */
+  }
+  #cursor-bit.is-hover { opacity: 0; }
+  @media (max-width: 767px) { #cursor-bit { display: none; } }
+
   h1, h2, h3, h4, h5, h6, .font-mono {
     font-family: var(--font-mono);
   }

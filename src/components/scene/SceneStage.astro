@@ -1,0 +1,95 @@
+---
+/* src/components/scene/SceneStage.astro
+ *
+ * Reusable pinned "scene stage" — a deck of full-viewport <SceneLayer> children stacked in ONE
+ * sticky frame; scroll cross-fades between them in place (no vertical/horizontal content movement)
+ * until the track ends and the stage releases into the footer. Generalised from about-v3 (the
+ * blueprint). All the timeline logic lives in src/lib/scenes/stage.ts.
+ *
+ * Usage:
+ *   <SceneStage trackVh={1200} bar>
+ *     <SceneLayer label="Who We Are" theme="oat"> … </SceneLayer>
+ *     <SceneLayer label="Our Philosophy" builder="philosophy" barBg="#ffffff" barText="#141414"> … </SceneLayer>
+ *     <SceneLayer label="Get In Touch"> … </SceneLayer>
+ *   </SceneStage>
+ *
+ * Props:
+ *   trackVh — scroll-track height in vh = the scrub distance (roughly 100 per layer/hold unit).
+ *   bar     — render the persistent solaris bar (label scrambles per active layer). Default false.
+ *   id      — optional element id.
+ */
+interface Props {
+  trackVh?: number;
+  bar?: boolean;
+  /** "enter the void" intro: binary-rain zoom + portal bloom + beige fog takeover before the first
+   *  content layer. Requires the first layer to be a hero (useHeroSquish anchors to the pin). */
+  void?: boolean;
+  id?: string;
+}
+const { trackVh = 1000, bar = false, void: isVoid = false, id } = Astro.props;
+---
+<div class="scene-stage" data-scene-stage data-void={isVoid ? '' : undefined} id={id} style={`height:${trackVh}vh`}>
+  {/* When void, the pin IS the #hero-sticky ScrollTrigger anchor useHeroSquish looks for. */}
+  <div class="scene-stage-pin" data-scene-pin id={isVoid ? 'hero-sticky' : undefined}>
+    {isVoid && (
+      <Fragment>
+        <div class="scene-fog" data-scene-fog aria-hidden="true"></div>
+        <div class="scene-portal" data-scene-portal aria-hidden="true"></div>
+      </Fragment>
+    )}
+    {bar && (
+      <div class="scene-bar" data-scene-bar aria-hidden="true">
+        <span class="solaris-text" data-scene-bar-label></span>
+      </div>
+    )}
+    <slot />
+  </div>
+</div>
+
+<style>
+  .scene-stage { position: relative; }
+  .scene-stage-pin { position: sticky; top: 0; height: 100svh; overflow: hidden; }
+
+  /* Fog — solid beige takeover; Portal — soft warm bloom from centre (verbatim from about-v3). */
+  .scene-fog {
+    position: absolute; inset: 0; z-index: 5;
+    background-color: hsl(var(--content-background));
+    opacity: 0; pointer-events: none;
+  }
+  .scene-portal {
+    position: absolute; inset: 0; z-index: 6;
+    transform-origin: 50% 45%;
+    background: radial-gradient(circle at 50% 45%,
+      rgba(255,250,238,0.7) 0%,
+      rgba(255,250,238,0.22) 24%,
+      transparent 58%);
+    opacity: 0; pointer-events: none;
+  }
+
+  /* Persistent solaris bar — fixed under the header, label swapped per active layer (engine).
+     Starts hidden (opacity 0) so it doesn't show over the hero; the engine fades it in on first label. */
+  .scene-bar {
+    position: fixed; top: var(--header-h); left: 0; right: 0; z-index: 40;
+    height: var(--solaris-height);
+    background: linear-gradient(90deg, var(--solaris-from) 0%, var(--solaris-mid) 55%, var(--solaris-to) 100%);
+    box-shadow: var(--solaris-glow);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0;
+    transition: opacity 0.45s ease, background 0.45s ease, box-shadow 0.45s ease;
+  }
+  .scene-bar [data-scene-bar-label] {
+    opacity: 0; white-space: nowrap; text-align: center; transition: color 0.45s ease;
+  }
+
+  /* Mobile: no pin, no stacking — the layers flatten to a normal vertical stack (engine early-returns). */
+  @media (max-width: 767px) {
+    .scene-stage { height: auto !important; }
+    .scene-stage-pin { position: static; height: auto; overflow: visible; }
+    .scene-bar, .scene-fog, .scene-portal { display: none; }
+  }
+</style>
+
+<script>
+  import { initSceneStages } from '../../lib/scenes/stage';
+  initSceneStages();
+</script>
