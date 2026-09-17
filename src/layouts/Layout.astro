@@ -16,6 +16,7 @@ const isLandingPage = currentPath === "/" || currentPath === "/index.html";
 const isReturnsPage = currentPath === "/returns" || currentPath === "/returns/" || currentPath === "/returns2" || currentPath === "/returns2/";
 // v2 redesign POC — full-bleed, no edge binary rain, nav brand hidden (CornerMark takes over)
 const isV2Page = currentPath === "/about-v2" || currentPath === "/about-v2/";
+const isFaqPage = currentPath === "/faq" || currentPath === "/faq/";
 const isFullBleed = isLandingPage || isReturnsPage || isV2Page;
 const siteUrl = "https://bitmap.audio";
 const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
@@ -39,7 +40,11 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
         var replay = new URLSearchParams(location.search).has('intro');
         var seen = false;
         try { seen = !!sessionStorage.getItem('bitmap_intro_seen'); } catch (e) {}
-        if (replay || !seen) document.documentElement.classList.add('intro-play');
+        // Home ALWAYS plays the intro; every other page plays it only if it's the session's first
+        // page (intro not yet seen). So a direct link to /about intros, but /about after browsing does not.
+        var p = location.pathname;
+        var isHome = p === '/' || p === '/home' || p === '/home/';
+        if (replay || isHome || !seen) document.documentElement.classList.add('intro-play');
       })();
     </script>
     <meta name="robots" content="index, follow" />
@@ -143,14 +148,19 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
                   <slot />
                 </div>
                 
-                <div class="w-full relative z-20">
-                  {/* Solaris beam removed here — the Footer renders its own (was doubled). */}
-                  <Footer />
-                </div>
+                {/* FAQ has no footer and no bottom buffer — it ends flush at its content. */}
+                {!isFaqPage && (
+                  <Fragment>
+                    <div class="w-full relative z-20">
+                      {/* Solaris beam removed here — the Footer renders its own (was doubled). */}
+                      <Footer />
+                    </div>
 
-                {/* Bottom "sandwich" — transparent runway so the fixed binary rain shows at the
-                    foot of the page (see --page-bottom-runway). */}
-                <div class="page-bottom-runway w-full" aria-hidden="true"></div>
+                    {/* Bottom "sandwich" — transparent runway so the fixed binary rain shows at the
+                        foot of the page (see --page-bottom-runway). */}
+                    <div class="page-bottom-runway w-full" aria-hidden="true"></div>
+                  </Fragment>
+                )}
               </>
             )}
           </main>
@@ -162,6 +172,17 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
     {/* Adaptive bitmap cursor — mix-blend-difference (see global.css #cursor-bit) so it stays visible
         on ANY background. JS positions it + toggles has-bit-cursor (hides the native dot). */}
     <div id="cursor-bit"></div>
+
+    {/* GLOBAL bitmap fader scrollbar + position tracker (bottom-left). Off on landing/returns. */}
+    {!isLandingPage && !isReturnsPage && (
+      <Fragment>
+        <div class="scroll-fader" aria-hidden="true">
+          <div class="scroll-fader-fill" data-fader-fill></div>
+          <div class="scroll-fader-cap" data-fader-cap>▬</div>
+        </div>
+        <div id="dev-hud" aria-hidden="true">p 0.000&nbsp;&nbsp;y 0</div>
+      </Fragment>
+    )}
 
     <script is:inline>
       const glow = document.getElementById('cursor-glow');
@@ -224,6 +245,71 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
           window.location.href = targetPath;
         });
       });
+    </script>
+
+    {/* GLOBAL fader + tracker driver — reflects document-scroll progress. On stage pages (which have
+        #stage-track) the page's own timeline onUpdate enriches #dev-hud with the timeline `t`; here we
+        only own the fader on those pages and leave the HUD text to the stage. */}
+    <script is:inline>
+      (function () {
+        function initGlobalFader() {
+          const cap = document.querySelector('[data-fader-cap]');
+          const fill = document.querySelector('[data-fader-fill]');
+          const hud = document.getElementById('dev-hud');
+          if (!cap && !hud) return;
+          if (cap && cap.dataset.init === '1') return;
+          if (cap) cap.dataset.init = '1';
+          const hasStage = !!document.getElementById('stage-track');
+          const update = function () {
+            const max = document.documentElement.scrollHeight - window.innerHeight;
+            const p = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+            const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+            const top = 2 * rem;                        // --page-gutter (2rem) — aligns with the nav's top edge
+            const bottom = window.innerHeight * 0.08;   // matches .scroll-fader::before bottom (8vh)
+            const trackH = window.innerHeight - top - bottom;
+            if (fill) fill.style.height = (p * trackH) + 'px';
+            if (cap) cap.style.top = (top + p * trackH) + 'px';
+            if (hud && !hasStage) hud.textContent = 'p ' + p.toFixed(3) + '  y ' + Math.round(window.scrollY);
+          };
+          const onScroll = function () { window.requestAnimationFrame(update); };
+          const lenis = window.__lenis;
+          if (lenis && lenis.on) lenis.on('scroll', update);
+          window.addEventListener('scroll', onScroll, { passive: true });
+          window.addEventListener('resize', onScroll, { passive: true });
+          update();
+        }
+        document.addEventListener('astro:page-load', initGlobalFader);
+        if (document.readyState === 'complete') initGlobalFader();
+        else window.addEventListener('load', initGlobalFader);
+      })();
+    </script>
+
+    {/* NAV CONTRAST — flip the nav/brand tokens dark when the beige "oat" world is behind them.
+        Samples the element just below the header (elementFromPoint skips the pointer-events-none
+        header glass + hidden/faded scenes), so it works on both the vertical pages and the stage. */}
+    <script is:inline>
+      (function () {
+        function initNavContrast() {
+          const root = document.documentElement;
+          const update = function () {
+            if (window.innerWidth < 768) { root.classList.remove('nav-over-oat'); return; }
+            const bar = document.getElementById('header-bar');
+            const headerH = bar ? bar.offsetHeight : 140;
+            const el = document.elementFromPoint(Math.round(window.innerWidth / 2), headerH + 8);
+            const overOat = !!(el && el.closest && el.closest('.theme-oat'));
+            root.classList.toggle('nav-over-oat', overOat);
+          };
+          const onScroll = function () { window.requestAnimationFrame(update); };
+          const lenis = window.__lenis;
+          if (lenis && lenis.on) lenis.on('scroll', update);
+          window.addEventListener('scroll', onScroll, { passive: true });
+          window.addEventListener('resize', onScroll, { passive: true });
+          update();
+        }
+        document.addEventListener('astro:page-load', initNavContrast);
+        if (document.readyState === 'complete') initNavContrast();
+        else window.addEventListener('load', initNavContrast);
+      })();
     </script>
 
     <script is:inline>

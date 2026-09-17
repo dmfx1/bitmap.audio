@@ -7,7 +7,7 @@ import FocusScroll from '../../components/FocusScroll.astro';
 import ImmersiveHero from '../../components/modules/solutions/ImmersiveHero.tsx';
 import ImmersiveAnalysis from '../../components/modules/solutions/ImmersiveAnalysis.tsx';
 import ConceptGrid from '../../components/modules/ConceptGrid.tsx';
-import CTA from '../../components/modules/CTA.tsx';
+import CtaScene from '../../components/modules/CtaScene.astro';
 
 // DEFINING THE DATA SET FOR THIS PAGE
 const immersiveAudioApplications = [
@@ -63,7 +63,7 @@ const immersiveAudioApplications = [
     })}</script>
   </Fragment>
   {/* Hero: sticks at top of container, content scrolls over it */}
-  <div id="hero-sticky" class="md:sticky top-0 z-[1] min-h-svh flex flex-col">
+  <div id="hero-sticky" class="md:sticky top-0 z-[1] min-h-svh flex flex-col pt-[var(--header-h)]">
     <ImmersiveHero client:load />
   </div>
 
@@ -91,23 +91,26 @@ const immersiveAudioApplications = [
             items={immersiveAudioApplications}
             mobileGlow={true}
             columns={2}
+            animateIcons={true}
           />
         </div>
       </FocusScroll>
     </div>
 
-    <div class="relative">
-      <div class="section-bar-hold"><Solaris text="Get In Touch" /></div>
-      <FocusScroll count={1} barOffset id="cta" class="!bg-background/50 backdrop-blur-xl">
-        <div class="container-page w-full">
-          <CTA
-            client:visible
-            title="Enter new dimensions"
-            description="Let's create immersive audio experiences that transport your audience to new realities."
-            buttonText="Explore possibilities"
-          />
-        </div>
-      </FocusScroll>
-    </div>
   </div>
+
+  {/* CTA — dark oversized finale (vertical page: shows without pixelating in). */}
+  <div class="relative z-10">
+    <div class="section-bar-hold"><Solaris text="Get in touch" /></div>
+    <FocusScroll count={1} barOffset id="cta" class="!bg-background/50 backdrop-blur-xl">
+      <div class="container-page w-full">
+        <CtaScene head="Enter new<br/>dimensions." href="/contact" linkLabel="explore_possibilities" pixelate={false} />
+      </div>
+    </FocusScroll>
+  </div>
+
+  {/* CTA is the same dark colour as the footer — drop the Solaris seam beam between them. */}
+  <style is:global>
+    .solaris:has(+ footer) { display: none; }
+  </style>
 </Layout>

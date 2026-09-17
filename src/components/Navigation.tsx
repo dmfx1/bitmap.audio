@@ -232,6 +232,7 @@ const BrandLockup = ({ pageName }: { pageName: string }) => {
       <a
         href={HOME_HREF}
         aria-label="Home"
+        data-nav-chrome="brand"
         className="group fixed top-8 z-[60] flex items-center gap-8 select-none"
         /* --brandH: one control for both b + wordmark size. left: aligned to the
            .container-page content edge. transform: the scroll "squash" (--nav-scale). */
@@ -331,7 +332,7 @@ const Navigation = ({ currentPath, pageName = BRAND_NAME }: { currentPath: strin
           oversized b can overhang below the bar and be positioned independently. */}
       <BrandLockup pageName={pageName} />
 
-      <nav className="fixed top-8 left-0 right-0 z-50">
+      <nav data-nav-chrome className="fixed top-8 left-0 right-0 z-50">
         {/* Nav content uses the same .container-page as sections, so the controls
             align with page content (incl. centring on ultra-wide). Top edge = top-8
             (p-8) to match the brand + the page gutter. */}
@@ -365,17 +366,10 @@ const Navigation = ({ currentPath, pageName = BRAND_NAME }: { currentPath: strin
               <NavigationMenuList className="gap-6">
 
                 <NavigationMenuItem>
-                  <a href="/about-v2" className={cn(
+                  <a href="/about-v3" className={cn(
                     "font-mono text-base uppercase tracking-wider link-underline transition-colors",
                     isActive("/about") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
                   )}>About</a>
-                </NavigationMenuItem>
-
-                <NavigationMenuItem>
-                  <a href="/solutions/sonic-branding" className={cn(
-                    "font-mono text-base uppercase tracking-wider link-underline transition-colors",
-                    isActive("/about") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
-                  )}>Branding</a>
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>
@@ -383,6 +377,13 @@ const Navigation = ({ currentPath, pageName = BRAND_NAME }: { currentPath: strin
                     "font-mono text-base uppercase tracking-wider link-underline transition-colors",
                     isActive("/about") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
                   )}>UI/UX</a>
+                </NavigationMenuItem>
+
+                <NavigationMenuItem>
+                  <a href="/solutions/sonic-branding" className={cn(
+                    "font-mono text-base uppercase tracking-wider link-underline transition-colors",
+                    isActive("/about") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
+                  )}>Branding</a>
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>

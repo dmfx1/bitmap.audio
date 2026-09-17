@@ -1,5 +1,43 @@
 /* src/components/modules/Founders.tsx */
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+
+/* Binary hover-scramble: whenever `active` flips (hover in OR out) the name flickers through 0/1s
+ * and resolves left-to-right back to itself — the same bitmap glitch as the nav wordmark. Punctuation
+ * ([], ., -) is held fixed so the shape stays readable; length never changes (no layout shift). */
+const SCRAMBLE_CHARS = '01';
+const FIXED = '[]().-_/ ';
+function useHoverScramble(text: string, active: boolean, durationMs = 520, rollMs = 50) {
+  const [display, setDisplay] = useState(text);
+  const raf = useRef<number>(0);
+  const first = useRef(true);
+  useEffect(() => {
+    // Skip the very first mount so it doesn't scramble unprompted; only run on hover changes.
+    if (first.current) { first.current = false; return; }
+    cancelAnimationFrame(raf.current);
+    const start = performance.now();
+    let lastRoll = 0;
+    let cache = text.split('');
+    const tick = (now: number) => {
+      const p = Math.min(1, (now - start) / durationMs);
+      if (now - lastRoll >= rollMs) {
+        lastRoll = now;
+        cache = cache.map(() => SCRAMBLE_CHARS[(Math.random() * SCRAMBLE_CHARS.length) | 0]);
+      }
+      let out = '';
+      for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        const revealAt = (i / text.length) * 0.55; // resolves L→R
+        out += FIXED.includes(ch) || p >= revealAt + 0.2 ? ch : cache[i];
+      }
+      setDisplay(out);
+      if (p < 1) raf.current = requestAnimationFrame(tick);
+      else setDisplay(text);
+    };
+    raf.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf.current);
+  }, [active, text, durationMs, rollMs]);
+  return display;
+}
 
 // ── HEADSHOT CONFIG ───────────────────────────────────────────────────────────
 // scale:        zoom multiplier — increase to make face appear closer/larger
@@ -11,7 +49,7 @@ const founders = [
   {
     name: "[dom.storrs-fox]",
     role: "Build & Implementation",
-    bio: "Having spent over a decade working as a music producer and sound designer for advertising and animation, Dom has more recently turned his attention to the world of surround sound for film and object-based audio [Dolby Atmos / Wwise] for immersive experiences. An obsessive systems based thinker exploring new ways of user interaction with sound.",
+    bio: "Having spent over a decade working as a music producer and sound designer for advertising and animation, Dom has more recently turned his attention to the world of surround sound for film and object-based audio for immersive experiences. An obsessive systems based thinker exploring new ways of user interaction with sound.",
     image: {
       src: "/images/dom-headshot-01.webp",
       scale: 1.0,
@@ -35,10 +73,24 @@ const founders = [
 export default function Founders() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-px bg-foreground/5 w-full">
-      {founders.map((f, index) => {
-        const formattedId = String(index).padStart(4, '0');
-        return (
-          <div key={index} data-scene-item className="mobile-viewport-active group relative p-4 md:p-12 md:min-h-[72vh] flex flex-col justify-center overflow-hidden border border-foreground/10">
+      {founders.map((f, index) => (
+        <FounderCard key={index} f={f} index={index} />
+      ))}
+    </div>
+  );
+}
+
+function FounderCard({ f, index }: { f: typeof founders[0]; index: number }) {
+  const [hovered, setHovered] = useState(false);
+  const name = useHoverScramble(f.name, hovered);
+  const formattedId = String(index).padStart(4, '0');
+  return (
+    <div
+      data-scene-item
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className="mobile-viewport-active group relative p-4 md:p-12 md:min-h-[72vh] flex flex-col justify-center overflow-hidden border border-foreground/10"
+    >
             <div className="absolute top-1 left-1 w-4 h-4 border-t border-l border-foreground/10 group-hover:border-accent transition-colors" />
 
             {/* Headshot — per-person config above controls scale, position, vignette centre */}
@@ -72,7 +124,7 @@ export default function Founders() {
               <h3
                 className="text-foreground font-mono text-3xl mb-2 transition-all group-hover:translate-x-2"
                 style={{ textShadow: '0 0 20px hsl(var(--background)), 0 0 40px hsl(var(--background))' }}
-              >{f.name}</h3>
+              >{name}</h3>
               <p
                 className="text-primary font-mono text-sm uppercase tracking-[0.3em] mb-8 opacity-80 group-hover:opacity-100 transition-opacity"
                 style={{ textShadow: '0 0 15px hsl(var(--background)), 0 0 30px hsl(var(--background))' }}
@@ -85,9 +137,6 @@ export default function Founders() {
             </div>
             <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/[0.03] to-primary/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-[2000ms] pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-0 h-1 bg-accent transition-all duration-700 group-hover:w-full shadow-[0_0_15px_rgba(255,165,0,0.6)]" />
-          </div>
-        );
-      })}
     </div>
   );
 }

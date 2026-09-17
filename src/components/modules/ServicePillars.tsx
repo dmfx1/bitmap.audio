@@ -3,20 +3,22 @@ import { ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useMobileCenterIndex } from '@/hooks/use-mobile-center-index';
 import { useTimedFocus } from '@/hooks/use-timed-focus';
+import { usePixelRoam } from '@/hooks/use-pixel-roam';
 import { BitmapSonicBranding, BitmapUiUxSound, BitmapExperientialAudio } from '../ui/icons';
 
+// Order puts Sonic Branding in the MIDDLE (it's the flagship — pre-highlighted at rest).
 const services = [
-  {
-    icon: BitmapSonicBranding,
-    title: "Sonic Branding",
-    href: "/solutions/sonic-branding",
-    desc: "Define your brand's audio identity with comprehensive sonic infrastructure that resonates across your entire network."
-  },
   {
     icon: BitmapUiUxSound,
     title: "UI/UX Sound",
     href: "/solutions/uiux-sound",
     desc: "Enhance digital products and systems with audio feedback, enhancing trust and confidence in user experience."
+  },
+  {
+    icon: BitmapSonicBranding,
+    title: "Sonic Branding",
+    href: "/solutions/sonic-branding",
+    desc: "Define your brand's audio identity with comprehensive sonic infrastructure that resonates across your entire network."
   },
   {
     icon: BitmapExperientialAudio,
@@ -25,6 +27,7 @@ const services = [
     desc: "Bring experiences to life. We create spatial audio experiences for AR/VR, installations, and experiential environments."
   },
 ];
+const DEFAULT_INDEX = 1; // Sonic Branding (middle)
 
 export default function ServicePillars() {
   const [internalScan, setInternalScan] = useState(false);
@@ -37,20 +40,79 @@ export default function ServicePillars() {
   // Desktop: a TIMED loop cycles the focus with a per-card progress bar; hovering a card takes
   // precedence and pauses the loop (reusable useTimedFocus). Runs only while the section is
   // on screen (internalScan) and not on mobile.
-  const { index, progress, hoverProps } = useTimedFocus(services.length, {
+  // Continuous, uniform timed cycle with hover-pause (like the Values loop). Progress bars are
+  // written straight to the DOM each frame (barRefs) — no per-frame React re-render, so it's smooth.
+  const barRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const { index, hoverProps } = useTimedFocus(services.length, {
     intervalMs: 4500,
     enabled: internalScan && !isMobile,
+    initialIndex: DEFAULT_INDEX, // Sonic Branding (middle) pre-highlighted, and held a beat on arrival
+    initialHoldMs: 5000,         // dwell on the middle card first (fills via the DOM — no jank)
+    resumeFromNext: true,        // leaving a card resumes from the next card
+    onProgress: (idx, p) => {
+      const bars = barRefs.current;
+      for (let i = 0; i < bars.length; i++) {
+        const b = bars[i];
+        if (b) b.style.setProperty('--progress', String(i === idx ? p : 0));
+      }
+    },
   });
 
-  // Reveal on enter + gate the loop to on-screen.
+  // Autoplay runs only when the section is actually IN FOCUS — centred in the viewport AND, on the
+  // scene-stage (home), when its cross-faded scene is the VISIBLE one (opacity > 0.5). Until then the
+  // middle card (Sonic Branding) stays instantiated and the timer holds. (setInternalScan only
+  // re-renders when the boolean flips, so this stays cheap.)
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => setInternalScan(entry.isIntersecting),
-      { threshold: 0.2 }
-    );
-    if (containerRef.current) observer.observe(containerRef.current);
-    return () => observer.disconnect();
+    const el = containerRef.current;
+    if (!el) return;
+    const scene = el.closest('[data-scene]') as HTMLElement | null;
+    const check = () => {
+      const r = el.getBoundingClientRect();
+      const vh = window.innerHeight;
+      const centred = r.top < vh * 0.6 && r.bottom > vh * 0.4;
+      const visible = scene ? parseFloat(getComputedStyle(scene).opacity || '1') > 0.5 : true;
+      setInternalScan(centred && visible);
+    };
+    check();
+    const lenis = (window as any).__lenis;
+    if (lenis?.on) lenis.on('scroll', check);
+    const onScroll = () => requestAnimationFrame(check);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    return () => {
+      if (lenis?.off) lenis.off('scroll', check);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
   }, []);
+
+  // Per-pillar background tint the SECTION gradually fades to when that pillar is active. The starter
+  // (Sonic Branding, middle) keeps the beige oat; the others drift to a subtle palette tint that still
+  // reads with the dark oat text. (null = revert to the theme beige.) These slots can become imagery later.
+  const PILLAR_BG: (string | null)[] = [
+    'hsl(20, 0%, 100%)', // UI/UX Sound   — soft cool oat (leans to --primary)
+    null,                 // Sonic Branding — beige (starter)
+    'hsl(50, 10%, 80%)',  // Spatial Audio  — soft warm sand (leans to --accent)
+  ];
+  const activeIndex = isMobile ? centerIndex : index;
+  // Pillars with a full-bleed scene that reveals when active (null = no imagery for that pillar).
+  const PERSPECTIVE_IDS: (string | null)[] = ['#uiux-circuit', null, '#spatial-perspective']; // by pillar index
+  useEffect(() => {
+    const scene = containerRef.current?.closest('[data-scene]') as HTMLElement | null;
+    if (!scene) return;
+    scene.style.transition = 'background-color 2s ease';
+    scene.style.backgroundColor = PILLAR_BG[activeIndex] ?? ''; // '' → back to the theme-oat beige
+
+    // Reveal only the active pillar's grid; hide the others. The pause + slow focus/draw-in is all
+    // CSS (transition delays in the *.astro grids); here we just flip the class. Removing it replays
+    // the draw next time the pillar becomes active.
+    PERSPECTIVE_IDS.forEach((sel, i) => {
+      if (!sel) return;
+      const el = scene.querySelector(sel) as HTMLElement | null;
+      el?.classList.toggle('is-revealing', activeIndex === i);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeIndex]);
 
   return (
     <div
@@ -61,8 +123,8 @@ export default function ServicePillars() {
       )}
     >
       {/* HEADER AREA */}
-      <div className="text-center mb-20">
-        <h2 className="text-4xl font-mono text-foreground tracking-tight font-light">
+      <div className="text-center mb-20 mix-blend-difference">
+        <h2 className="text-4xl font-mono text-foreground tracking-tight font-light ">
           Three pillars of sonic design
         </h2>
       </div>
@@ -76,8 +138,7 @@ export default function ServicePillars() {
               key={i}
               service={s}
               isActive={active}
-              // The active card's progress bar fills with the timer (full on mobile / hover).
-              progress={active ? (isMobile ? 1 : progress) : 0}
+              barRef={(el) => { barRefs.current[i] = el; }}
               isMobile={isMobile}
               intensity={intensities[i] ?? (i === centerIndex ? 1 : 0)}
               hoverProps={isMobile ? {} : hoverProps(i)}
@@ -93,18 +154,20 @@ export default function ServicePillars() {
 function ServiceCard({
   service,
   isActive,
-  progress,
+  barRef,
   isMobile,
   intensity,
   hoverProps,
 }: {
   service: typeof services[0];
   isActive: boolean;
-  progress: number;
+  barRef: (el: HTMLDivElement | null) => void;
   isMobile: boolean;
   intensity: number;
   hoverProps: React.HTMLAttributes<HTMLElement>;
 }) {
+  const iconRef = useRef<HTMLSpanElement>(null);
+  usePixelRoam(iconRef, isActive); // one pixel roams the icon when this pillar becomes active
   return (
     <div className="flex flex-col">
     <a
@@ -126,14 +189,16 @@ function ServiceCard({
       )}
     >
       {/* ICON */}
-      <service.icon
-        className={cn(
-          "w-8 h-8 mb-8 transition-all duration-500",
-          isActive
-            ? "text-accent scale-110 drop-shadow-[0_0_8px_hsl(var(--accent)/0.5)]"
-            : "text-primary"
-        )}
-      />
+      <span ref={iconRef} className="inline-block mb-8">
+        <service.icon
+          className={cn(
+            "w-8 h-8 block transition-all duration-500",
+            isActive
+              ? "text-accent scale-110 drop-shadow-[0_0_8px_hsl(var(--accent)/0.5)]"
+              : "text-primary"
+          )}
+        />
+      </span>
 
       {/* TEXT */}
       <h3 className={cn(
@@ -166,7 +231,11 @@ function ServiceCard({
 
       {/* PROGRESS BAR — UNDER (outside) the card block: a scaleX fill driven by the autoplay timer
           for the active card (full while hovered). */}
-      <div className="bitmap-progress mx-auto mt-12" style={{ ['--progress']: progress } as React.CSSProperties} />
+      <div
+        ref={barRef}
+        className="bitmap-progress mx-auto mt-12"
+        style={isMobile ? ({ ['--progress']: isActive ? 1 : 0 } as React.CSSProperties) : undefined}
+      />
     </div>
   );
 }

@@ -41,7 +41,7 @@ export default function ContactHero() {
                 }`}
               >
                 <p className="text-foreground/90 text-3xl md:text-5xl font-mono">
-                  Have a project in mind? We'd love to hear about it. Get in touch and let's explore how we can architect your sonic vision together.
+                  Have a project in mind? We'd love to hear about it.<br/><br/>Get in touch and let's explore how we can architect your sonic vision together.
                 </p>
               </div>
             </div>

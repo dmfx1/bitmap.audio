@@ -1,0 +1,76 @@
+---
+/* src/components/modules/CtaScene.astro
+ *
+ * SITE-WIDE CTA finale — oversized Departure Mono on the dark void, pixelates in via a bitmap veil.
+ * Same on every page; only the text differs. Drop it inside a cta scene body:
+ *
+ *   <div class="scene cta-scene" data-scene="cta" style="z-index:30; --veil-color: hsl(var(--background))">
+ *     <div class="scene-body container-page">
+ *       <CtaScene kicker="Get in touch" head="Ready to define<br/>your sound?" href="/contact" linkLabel="start_project" />
+ *     </div>
+ *   </div>
+ *
+ * The component self-builds its pixel veil (cells sized to the scene body, starts fully covered). The
+ * PAGE's master timeline reveals it with `tl.to(veil, { '--reveal': 1 })` and holds before releasing.
+ * `.cta-scene` / `.scene-veil` styling is global (global.css); `head` accepts inline HTML (<br/>).
+ */
+interface Props {
+  head: string;
+  href?: string;
+  linkLabel?: string;
+  /** Render the pixel veil (stage pages reveal it via the master timeline). Set false on plain
+   *  vertical-scroll pages where the CTA just appears — no pixelate-in. */
+  pixelate?: boolean;
+}
+const { head, href = '/contact', linkLabel = 'start_project', pixelate = true } = Astro.props;
+// NOTE: the "Get in touch" label is no longer a small accent kicker — it's carried by a Solaris
+// bar placed above this component (the persistent #page-bar on stage pages, or a <Solaris text>
+// divider on vertical pages).
+---
+<div class="cta-copy">
+  <h2 class="cta-head" set:html={head}></h2>
+  <a class="cta-link" href={href}><span class="cta-caret">&gt;</span> {linkLabel}<span class="cta-cursor">_</span></a>
+</div>
+{pixelate && <div class="scene-veil" data-cta-veil aria-hidden="true"></div>}
+
+<style>
+  .cta-head { font-family: var(--font-departure); font-size: clamp(2.6rem, 8vw, 7rem); line-height: 1.05; color: hsl(var(--foreground)); margin: 0 0 2.6rem; }
+  .cta-link { font-family: var(--font-departure); font-size: clamp(1.3rem, 3vw, 2.1rem); color: hsl(var(--foreground)); display: inline-flex; align-items: center; gap: 0.5ch; text-decoration: none; transition: color 0.2s ease; pointer-events: auto; }
+  .cta-link:hover { color: hsl(var(--accent)); }
+  .cta-caret, .cta-cursor { color: hsl(var(--accent)); }
+  .cta-cursor { animation: cta-blink 1s steps(1) infinite; }
+  @keyframes cta-blink { 50% { opacity: 0; } }
+</style>
+
+<script>
+  // Build the pixel veil for every CTA on the page, sized to its scene body, starting fully covered.
+  function initCtaVeils() {
+    document.querySelectorAll<HTMLElement>('[data-cta-veil]').forEach((veil) => {
+      if (veil.dataset.built === '1') return;
+      const host = veil.parentElement as HTMLElement | null;
+      if (!host) return;
+      const CELL = 54;
+      const build = () => {
+        const w = host.clientWidth, h = host.clientHeight;
+        if (!w || !h) return false;
+        const cols = Math.max(1, Math.ceil(w / CELL));
+        const rows = Math.max(1, Math.ceil(h / CELL));
+        const n = cols * rows;
+        const order = Array.from({ length: n }, (_, i) => i);
+        for (let i = n - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [order[i], order[j]] = [order[j], order[i]]; }
+        veil.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+        veil.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+        const frag = document.createDocumentFragment();
+        for (let i = 0; i < n; i++) { const c = document.createElement('i'); c.style.setProperty('--o', (order[i] / n).toFixed(4)); frag.appendChild(c); }
+        veil.replaceChildren(frag);
+        veil.style.setProperty('--reveal', '-0.05'); // start fully covered
+        veil.dataset.built = '1';
+        return true;
+      };
+      if (!build()) requestAnimationFrame(() => build());
+    });
+  }
+  document.addEventListener('astro:page-load', initCtaVeils);
+  if (document.readyState === 'complete') initCtaVeils();
+  else window.addEventListener('load', initCtaVeils);
+</script>

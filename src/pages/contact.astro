@@ -6,6 +6,7 @@ import FocusScroll from '../components/FocusScroll.astro';
 import ContactHero from '../components/modules/ContactHero.tsx';
 import ConceptGrid from '../components/modules/ConceptGrid.tsx';
 import SocialsGrid from '@/components/modules/SocialsGrid';
+import MapBackground from '../components/modules/MapBackground.astro';
 import CTA from '../components/modules/CTA.tsx';
 
 const contactCards = [
@@ -42,8 +43,9 @@ const contactCards = [
     <div class="relative">
       <div class="section-bar-hold"><Solaris text="Get In Touch" /></div>
       <FocusScroll count={1} barOffset id="details" class="!bg-background/50 backdrop-blur-xl">
-        <div class="container-page w-full">
-          <ConceptGrid client:visible items={contactCards} mobileGlow={true} />
+        <MapBackground opacity={0.12} barOffset />
+        <div class="container-page w-full relative z-10">
+          <ConceptGrid client:visible items={contactCards} mobileGlow={true} animateIcons={true} />
         </div>
       </FocusScroll>
     </div>

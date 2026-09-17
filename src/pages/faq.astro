@@ -3,8 +3,6 @@
 import Layout from '../layouts/Layout.astro';
 import Section from '../components/Section.astro';
 import FAQContent from '../components/modules/FAQContent.tsx';
-import CTA from '../components/modules/CTA.tsx';
-import { BitmapQuestion } from '../components/ui/icons';
 ---
 
 <Layout
@@ -16,66 +14,38 @@ import { BitmapQuestion } from '../components/ui/icons';
       "@context": "https://schema.org",
       "@type": "FAQPage",
       "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "How do we start a project?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Every project begins with a 'Sonic Audit'. We map your existing touchpoints and identify opportunities for sonic infrastructure improvements. Once the blueprint is approved, we move to synthesis."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "What is the typical timeline?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "A standard sonic branding package typically requires a 4-6 week sprint from audit to delivery."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "What is 'Sonic UI'?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Sonic UI refers to the functional audio cues within a digital interface. It is the sound of a successful transaction, a notification, or a data-upload completion—designed to reduce cognitive load."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Do you provide spatial audio?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Yes. We engineer immersive assets specifically for Atmos, Binaural, and VR/AR environments using object-based audio mapping."
-          }
-        }
+        { "@type": "Question", "name": "How do we start a project?", "acceptedAnswer": { "@type": "Answer", "text": "Every project begins with a 'Sonic Audit'. We map your existing touchpoints and identify opportunities for sonic infrastructure improvements. Once the blueprint is approved, we move to synthesis." } },
+        { "@type": "Question", "name": "What is the typical timeline?", "acceptedAnswer": { "@type": "Answer", "text": "A standard sonic branding package typically requires a 4-6 week sprint from audit to delivery." } },
+        { "@type": "Question", "name": "What is 'Sonic UI'?", "acceptedAnswer": { "@type": "Answer", "text": "Sonic UI refers to the functional audio cues within a digital interface. It is the sound of a successful transaction, a notification, or a data-upload completion—designed to reduce cognitive load." } },
+        { "@type": "Question", "name": "Do you provide spatial audio?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. We engineer immersive assets specifically for Atmos, Binaural, and VR/AR environments using object-based audio mapping." } }
       ]
     })}</script>
   </Fragment>
-  <Section id="faq-hero" delay="0.1s" className="min-h-svh flex items-center">
-    <div class="absolute right-4 top-4 pointer-events-none select-none" aria-hidden="true">
-      <BitmapQuestion className="w-32 h-32 text-primary/10 rotate-12" />
-    </div>
-    <div class="absolute right-20 top-20 pointer-events-none select-none" aria-hidden="true">
-      <BitmapQuestion className="w-16 h-16 text-accent/20 -rotate-6" />
-    </div>
-    <div class="max-w-3xl relative z-10">
-      <p class="text-eyebrow text-accent uppercase tracking-[0.5em] text-sm font-medium mb-4">
-        Knowledge Base
-      </p>
-      <h1 class="text-4xl font-mono text-foreground mb-8 tracking-tighter"> 
-        System <span class="mr-2">[</span>Inquiries<span class=" ml-2">]</span>
-      </h1>
-      <p class="text-muted-foreground font-mono text-base max-w-xl leading-relaxed opacity-60 uppercase tracking-wide">
-        Documentation for our process, technical standards, and engagement models.
-      </p>
+
+  {/* Whole page = one section on the plain background (no binary rain — gated off in Layout). */}
+  <Section id="faq" className="min-h-svh bg-background/10 backdrop-blur-sm">
+    <div class="container-page w-full pt-[calc(var(--header-h)+var(--page-gutter))] pb-24 md:pb-32">
+      <header class="mb-16 md:mb-48 md:mt-16">
+        <h1 class="heading-hero whitespace-nowrap">
+          System <span class="text-accent">[Enquiries]</span>
+        </h1>
+        <p class="mt-6 text-muted-foreground font-mono text-base leading-relaxed tracking-wide opacity-60">
+          Documentation for our process, technical standards, and engagement models.
+        </p>
+      </header>
+
+      <FAQContent client:visible />
     </div>
   </Section>
 
-  <Section id="faq-list" delay="0.3s">
-    <FAQContent client:visible />
-  </Section>
-
-  <Section id="cta" delay="0.5s" className="!bg-background/50 backdrop-blur-xl">
-    <CTA client:visible title="Still have questions?" />
-  </Section>
+  {/* FAQ-only: the header bar sits on a SOLID bg from the start (no scroll-blur fade-in), so the
+      nav never overlaps the title before the blur kicks in like it can on other pages. Hard-coded here. */}
+  <style is:global>
+    #header-bar {
+      opacity: 1 !important;
+      background: hsl(var(--background)) !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+  </style>
 </Layout>

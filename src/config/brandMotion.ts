@@ -34,7 +34,7 @@ export const BRAND_MOTION = {
 
   /* ── Phase-1 intro choreography (b-left / bitmap.audio-right → lift → dock) ── */
   /** How long the centred b + bitmap.audio hold after scrambling in, before the lift. */
-  introHoldMs: 700,
+  introHoldMs: 100,
   /** The upward "whole page lifts" travel: centre → the top bar (b→top-left, word→top-right). */
   liftMs: 900,
   /** CRT power-off of the bitmap.audio wordmark at top-right (total: vertical squeeze + snap). */

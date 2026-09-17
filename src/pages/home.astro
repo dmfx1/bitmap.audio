@@ -1,56 +1,240 @@
 ---
 /* src/pages/home.astro
  *
- * Homepage on the SCENE-STAGE architecture (the about-v3 model, packaged): the hero/header stay
- * locked while scroll drives ONE master timeline that "enters the void" (binary-rain zoom + portal
- * bloom + beige fog) and then cross-fades the content layers in place — Services → micro/macro
- * Philosophy → CTA — with no real vertical scroll until the stage releases into the footer.
- *
- * Content + styling are preserved from the previous FocusScroll build; only the scroll MECHANISM
- * changed (stacked layers instead of pinned scroll-over sections). Reusable pieces live in
- * src/components/scene/* and src/lib/scenes/stage.ts.
+ * Homepage on the SCENE-STAGE architecture — a faithful clone of about-v3's PROVEN inline structure.
+ * Hero/header stay locked; scroll drives ONE master timeline: "enter the void" (binary-rain zoom +
+ * portal bloom + beige fog) → Services → micro/macro Philosophy (scroll-typed quote) → CTA (dark,
+ * oversized Departure Mono, pixelates in) → release into the footer. No real vertical scroll until then.
  */
 import Layout from '../layouts/Layout.astro';
-import SceneStage from '../components/scene/SceneStage.astro';
-import SceneLayer from '../components/scene/SceneLayer.astro';
 import Hero from '../components/modules/Hero.tsx';
 import ServicePillars from '../components/modules/ServicePillars';
+import SpatialPerspective from '../components/modules/SpatialPerspective.astro';
+import UiuxCircuit from '../components/modules/UiuxCircuit.astro';
 import Philosophy from '../components/modules/Philosophy.tsx';
-import CTA from '../components/modules/CTA.tsx';
+import CtaScene from '../components/modules/CtaScene.astro';
 ---
 
 <Layout
   title="bitmap.audio | sonic branding & experiential audio"
   description="bitmap.audio designs sonic brand systems, UI/UX sound, and experiential spatial audio for digital products and forward-thinking brands."
 >
-  <SceneStage trackVh={1000} bar void>
-    {/* Hero — holds while its copy recedes into the void (useHeroSquish anchors to the pin). */}
-    <SceneLayer hero z={0}>
-      <Hero client:load />
-    </SceneLayer>
+  <div id="page-bar" aria-hidden="true">
+    <span class="solaris-text" data-page-label></span>
+  </div>
 
-    {/* Services — fades in through the fog. client:load (not visible): these components self-hide
-        until their own reveal effect runs on hydration, and inside a stacked/hidden layer client:visible
-        may not hydrate — so they'd stay invisible. */}
-    <SceneLayer z={10} label="What we do" hold={1.4}>
-      <ServicePillars client:load />
-    </SceneLayer>
-
-    {/* Philosophy — the micro/macro architecture. */}
-    <SceneLayer z={20} label="The micro/macro architecture" hold={1.4}>
-      <Philosophy client:load />
-    </SceneLayer>
-
-    {/* CTA — cross-fades in; the stage then releases into the footer. */}
-    <SceneLayer z={30} label="Get In Touch" hold={1.4}>
-      <div class="container-page w-full">
-        <CTA
-          client:load
-          title="Ready to define your sound?"
-          description="Explore how sonic branding can strengthen your identity and deepen audience connection."
-          buttonText="Start the conversation"
-        />
+  <div id="stage-track">
+    <div class="stage-pin" id="hero-sticky">
+      <div class="scene" data-scene="hero" style="z-index:0">
+        <Hero client:load />
       </div>
-    </SceneLayer>
-  </SceneStage>
+      <div class="stage-fog" data-stage="fog" aria-hidden="true"></div>
+      <div class="stage-portal" data-stage="portal" aria-hidden="true"></div>
+
+      {/* Services — fades in through the fog. */}
+      <div class="scene theme-oat" data-scene="services" style="z-index:10">
+        {/* Full-bleed scenes that reveal behind the cards when their pillar is active:
+            UI/UX → PCB image (focus-in); Spatial → 1-point-perspective room (draws in). */}
+        <UiuxCircuit />
+        <SpatialPerspective />
+        <div class="scene-body">
+          <ServicePillars client:load />
+        </div>
+      </div>
+
+      {/* Philosophy — the micro/macro architecture; the quote types out on scroll (--phil-progress). */}
+      <div class="scene theme-oat" data-scene="philosophy" style="z-index:20">
+        <div class="scene-body">
+          <Philosophy client:load />
+        </div>
+      </div>
+
+      {/* CTA — dark void, oversized Departure Mono; pixelates in, then the stage releases into the footer. */}
+      <div class="scene cta-scene" data-scene="cta" style="z-index:30; --veil-color: hsl(var(--background))">
+        <div class="scene-body container-page">
+          <CtaScene head="Ready to define<br/>your sound?" href="/contact" linkLabel="start_project" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    #stage-track { position: relative; height: 1300vh; }
+    .stage-pin { position: sticky; top: 0; height: 100svh; overflow: hidden; }
+
+    .scene { position: absolute; top: 0; left: 0; right: 0; height: 100svh; }
+    .scene[data-scene="hero"] { display: flex; flex-direction: column; padding-top: var(--header-h); box-sizing: border-box; }
+    .scene-body {
+      position: absolute; left: 0; right: 0;
+      top: calc(var(--header-h) + var(--solaris-height)); height: calc(100svh - var(--header-h) - var(--solaris-height));
+      display: flex; flex-direction: column; justify-content: center;
+    }
+
+    .stage-fog {
+      position: absolute; inset: 0; z-index: 5;
+      background-color: hsl(var(--content-background));
+      opacity: 0; pointer-events: none;
+    }
+    .stage-portal {
+      position: absolute; inset: 0; z-index: 6;
+      transform-origin: 50% 45%;
+      background: radial-gradient(circle at 50% 45%,
+        rgba(255,250,238,0.7) 0%,
+        rgba(255,250,238,0.22) 24%,
+        transparent 58%);
+      opacity: 0; pointer-events: none;
+    }
+
+    /* .cta-scene + .scene-veil styling is global (global.css); the CTA content is <CtaScene />. */
+
+    #page-bar {
+      position: fixed; top: var(--header-h); left: 0; right: 0; z-index: 40;
+      height: var(--solaris-height);
+      background: linear-gradient(90deg, var(--solaris-from) 0%, var(--solaris-mid) 55%, var(--solaris-to) 100%);
+      box-shadow: var(--solaris-glow);
+      display: flex; align-items: center; justify-content: center;
+      pointer-events: none;
+      clip-path: inset(0 0 100% 0);
+      transition: background 0.45s ease, box-shadow 0.45s ease;
+    }
+    #page-bar [data-page-label] { opacity: 0; white-space: nowrap; text-align: center; transition: color 0.45s ease; }
+
+    @media (max-width: 767px) {
+      #stage-track { height: auto; }
+      .stage-pin { position: static; height: auto; overflow: visible; }
+      .scene { position: relative; inset: auto; height: auto; opacity: 1 !important; visibility: visible !important; }
+      .stage-fog, .stage-portal, .scene-veil, #page-bar { display: none; }
+      .scene-body { position: static; padding: 4rem 0; }
+    }
+  </style>
+
+  {/* CTA is the same dark colour as the footer — drop the Solaris seam beam between them. */}
+  <style is:global>
+    .solaris:has(+ footer) { display: none; }
+  </style>
+
+  <script>
+    import { gsap } from 'gsap';
+    import { ScrollTrigger } from 'gsap/ScrollTrigger';
+    import { scrambleIn } from '../lib/scene-kit';
+    gsap.registerPlugin(ScrollTrigger);
+
+    type BarCfg = { name: string; bg?: string; text?: string; glow?: string };
+
+    function initStage() {
+      const track = document.getElementById('stage-track');
+      const pin = track?.querySelector<HTMLElement>('.stage-pin');
+      if (!track || !pin || track.dataset.init === '1') return;
+      track.dataset.init = '1';
+      if (!window.matchMedia('(min-width: 768px)').matches) return; // desktop only
+
+      const fog = pin.querySelector<HTMLElement>('[data-stage="fog"]')!;
+      const portal = pin.querySelector<HTMLElement>('[data-stage="portal"]')!;
+      const scServices = pin.querySelector<HTMLElement>('.scene[data-scene="services"]')!;
+      const scPhil = pin.querySelector<HTMLElement>('.scene[data-scene="philosophy"]')!;
+      const scCta = pin.querySelector<HTMLElement>('.scene[data-scene="cta"]')!;
+      const vCta = scCta.querySelector<HTMLElement>('[data-cta-veil]')!; // built + started-covered by <CtaScene>
+      const gridBg = document.getElementById('grid-bg');
+
+      gsap.set(fog, { opacity: 0 });
+      gsap.set(portal, { opacity: 0, scale: 0.3, transformOrigin: '50% 45%' });
+      gsap.set(scServices, { autoAlpha: 0 });
+      gsap.set(scPhil, { autoAlpha: 0 });
+      gsap.set(scCta, { autoAlpha: 0 });
+
+      const bar = document.getElementById('page-bar')!;
+      const label = bar.querySelector<HTMLElement>('[data-page-label]')!;
+      const DEFAULT_BG = 'linear-gradient(90deg, var(--solaris-from) 0%, var(--solaris-mid) 55%, var(--solaris-to) 100%)';
+      const DEFAULT_GLOW = 'var(--solaris-glow)';
+      let current = '';
+      const setBar = (s: BarCfg) => {
+        if (s.name === current) return;
+        current = s.name;
+        label.style.opacity = '1';
+        label.style.color = s.text ?? '';
+        bar.style.background = s.bg ?? DEFAULT_BG;
+        bar.style.boxShadow = s.glow ?? DEFAULT_GLOW;
+        scrambleIn(label, s.name, { duration: 650 });
+      };
+      const clearBar = () => { current = ''; label.style.opacity = '0'; };
+      const SERVICES: BarCfg = { name: 'What we do' };
+      const PHIL: BarCfg = { name: 'The micro/macro architecture' };
+      const CONTACT: BarCfg = { name: 'Get In Touch' };
+
+      const T = { heroHold: 0.8, fogStart: 0.8, fogDur: 1.0, portalStart: 0.5, voidScale: 3.0, barPush: 1.72, crossDur: 0.9 };
+      // Incoming layer starts fading in only after the outgoing is ~60% gone — a small overlap, not a
+      // long simultaneous cross-fade (keeps scenes from smearing into each other).
+      const OV = T.crossDur * 0.6;
+
+      const hud = document.getElementById('dev-hud');
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: track, start: 'top top', end: 'bottom bottom', scrub: 0.6, invalidateOnRefresh: true,
+          onUpdate: () => { if (hud) hud.textContent = `t ${tl.time().toFixed(2)} / ${tl.duration().toFixed(1)}   p ${tl.progress().toFixed(3)}   y ${Math.round(window.scrollY)}`; },
+        },
+      });
+
+      const boundary = (pos: number | string, down: BarCfg | null, up: BarCfg | null) => tl.call(() => {
+        const dir = tl.scrollTrigger ? tl.scrollTrigger.direction : 1;
+        const cfg = dir === 1 ? down : up;
+        if (cfg) setBar(cfg); else clearBar();
+      }, [], pos);
+
+      // A label change scoped to ONE scroll direction, at a specific timeline position.
+      const atDir = (pos: number | string, dir: 1 | -1, cfg: BarCfg | null) => tl.call(() => {
+        if ((tl.scrollTrigger ? tl.scrollTrigger.direction : 1) !== dir) return;
+        if (cfg) setBar(cfg); else clearBar();
+      }, [], pos);
+      // Cross-fade label: on the way DOWN it changes only once the incoming scene is IN FOCUS
+      // (buffered past the fade crossover, so you never see the new label over the old scene); on the
+      // way UP it's snappier — fires near the transition start where the previous scene is already back.
+      const DOWN_BUF = (OV + T.crossDur * 0.6).toFixed(3); // incoming ~in focus
+      const crossLabel = (start: string, downCfg: BarCfg, upCfg: BarCfg) => {
+        // DOWN: the old label leaves WITH its scene (clear at the fade start), then the new label
+        // scrambles in only once the incoming scene is in focus — never lingers over the old scene.
+        atDir(start, 1, null);
+        atDir(start + '+=' + DOWN_BUF, 1, downCfg);
+        // UP: mirror — clear the (now-outgoing) label as its scene leaves, restore the previous once back.
+        atDir(start + '+=' + DOWN_BUF, -1, null);
+        atDir(start + '+=0.2', -1, upCfg);
+      };
+
+      // ENTER THE VOID → Services fades in through the fog.
+      tl.to({}, { duration: T.heroHold });
+      if (gridBg) tl.fromTo(gridBg, { scale: 1 }, { scale: T.voidScale, ease: 'power2.in', duration: T.fogStart + T.fogDur }, 0);
+      tl.fromTo(portal, { opacity: 0, scale: 0.3 }, { opacity: 0.7, scale: 2.0, ease: 'power2.in', duration: T.fogDur + 0.3 }, T.portalStart);
+      tl.to(portal, { opacity: 0, ease: 'power1.out', duration: 0.5 }, T.fogStart + T.fogDur);
+      tl.to(fog, { opacity: 1, ease: 'none', duration: T.fogDur }, T.fogStart);
+      tl.to(scServices, { autoAlpha: 1, ease: 'none', duration: 0.9 }, T.fogStart + T.fogDur);
+      tl.fromTo(bar, { clipPath: 'inset(0 0 100% 0)', opacity: 0.35 }, { clipPath: 'inset(0 0 0% 0)', opacity: 1, ease: 'steps(6)', duration: 0.14 }, T.barPush);
+      boundary(1.91, SERVICES, null);
+      tl.to({}, { duration: 0.7 }); // settle on services
+
+      // Services → Philosophy (small overlap), then the quote types out on scroll.
+      tl.addLabel('philIn');
+      tl.to(scServices, { autoAlpha: 0, ease: 'none', duration: T.crossDur }, 'philIn')
+        .to(scPhil, { autoAlpha: 1, ease: 'none', duration: T.crossDur }, 'philIn+=' + OV);
+      crossLabel('philIn', PHIL, SERVICES);   // down (buffered) → philosophy; up (snappy) → services
+      gsap.set(scPhil, { '--phil-progress': 0 });
+      tl.to(scPhil, { '--phil-progress': 1, ease: 'none', duration: 1.6 }); // scroll-typed micro/macro quote
+      tl.to({}, { duration: 0.4 });
+
+      // Philosophy → CTA (small overlap); the CTA appears under a dark veil, then pixelates in.
+      tl.addLabel('ctaIn', '>');
+      tl.to(scPhil, { autoAlpha: 0, ease: 'none', duration: T.crossDur }, 'ctaIn')
+        .to(scCta, { autoAlpha: 1, ease: 'none', duration: 0.3 }, 'ctaIn+=' + OV);
+      crossLabel('ctaIn', CONTACT, PHIL);   // down (buffered) → CTA; up (snappy) → philosophy
+      tl.to(vCta, { '--reveal': 1, ease: 'none', duration: 1.6 }, 'ctaIn+=' + (OV + 0.3));
+      // Dwell on the fully-revealed CTA for a good beat BEFORE the stage unpins into the footer, so the
+      // pixelation lands and settles before any vertical scroll begins. Tune this to taste.
+      tl.to({}, { duration: 2.4 });
+
+      const fonts = (document as any).fonts;
+      if (fonts?.ready) fonts.ready.then(() => ScrollTrigger.refresh());
+    }
+
+    document.addEventListener('astro:page-load', initStage);
+    if (document.readyState === 'complete') initStage();
+    else window.addEventListener('load', initStage);
+  </script>
 </Layout>

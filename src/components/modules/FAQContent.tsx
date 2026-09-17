@@ -17,17 +17,18 @@ const faqs = [
     id: "definitions",
     questions: [
       { q: "What is 'Sonic UI'?", a: "Sonic UI refers to the functional audio cues within a digital interface. It is the sound of a successful transaction, a notification, or a data-upload completion—designed to reduce cognitive load." },
-      { q: "Do you provide spatial audio?", a: "Yes. We engineer immersive assets specifically for Atmos, Binaural, and VR/AR environments using object-based audio mapping." }
+      { q: "Do you provide spatial audio?", a: "Yes. We engineer immersive assets specifically for Atmos, Binaural, and VR/AR environments using object-based audio mapping." },
+      { q: "What is 'Sonic Branding'?", a: "Sonic branding is the strategic use of sound to reinforce brand identity. It encompasses everything from notification sounds to full musical compositions, creating a cohesive auditory experience across all touchpoints." }
     ]
   }
 ];
 
 export default function FAQContent() {
-  const [openIndex, setOpenIndex] = useState<string | null>("process-0");
+  const [openIndex, setOpenIndex] = useState<string | null>(null);
 
   return (
-    <div className="flex flex-col md:flex-row gap-16 max-w-6xl mx-auto px-2 md:px-6">
-      <aside className="md:w-1/5 sticky top-16 md:top-32 h-fit space-y-2 md:space-y-4 bg-background md:bg-transparent py-3 md:py-0 -mx-4 px-4 md:mx-0 md:px-0 z-10">
+    <div className="flex flex-col md:flex-row gap-16 md:gap-24 w-full">
+      <aside className="md:w-1/5 sticky top-24 md:top-44 h-fit space-y-2 md:space-y-4 bg-background md:bg-transparent py-3 md:py-0 -mx-4 px-4 md:mx-0 md:px-0 z-10">
         <p className="text-eyebrow text-accent uppercase tracking-[0.5em] text-2xl font-medium mb-3 md:mb-8">
           Index
         </p>
@@ -35,14 +36,14 @@ export default function FAQContent() {
           <a 
             key={section.id} 
             href={`#${section.id}`}
-            className="block font-mono text-lg uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors focus:outline-none"
+            className="block font-mono text-xl uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors focus:outline-none"
           >
             {`// ${section.category}`}
           </a>
         ))}
       </aside>
 
-      <div className="md:w-4/5 flex-1 space-y-16">
+      <div className="md:w-4/5 flex-1 space-y-24">
         {/* Added 'index' here to the map function */}
         {faqs.map((section, index) => (
           <section 
@@ -54,11 +55,11 @@ export default function FAQContent() {
               index !== 0 && "mt-12"
             )}
           >
-            <h3 className="font-mono text-lg text-foreground/40 mb-4 flex items-center gap-3 uppercase tracking-[0.2em]">
+            <h3 className="font-mono font-bold text-lg text-foreground/60 mb-4 flex items-center gap-3 uppercase tracking-[0.2em]">
               <span className="text-accent">/</span> {section.category}
             </h3>
             
-            <div className="border-b border-foreground/10">
+            <div className="border-b border-accent/80 w-5/6">
               {section.questions.map((item, idx) => {
                 const id = `${section.id}-${idx}`;
                 const isOpen = openIndex === id;

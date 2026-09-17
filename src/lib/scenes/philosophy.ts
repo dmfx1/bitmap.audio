@@ -24,6 +24,7 @@ const CONFIG = {
   colors: {
     void: '#1B2222',       // brand --background "The Void" (dark bg finishing point)
     beige: '#ECEAE0',      // journey light start (theme-oat) — entry
+    dim: '#9EA097',        // gentle mid dip for the Stage-2 flicker (NOT full dark — epilepsy-safe)
     inkOnLight: '#241F1A', // block on the light bg (≈ --content-foreground) — Stage 1
     foreground: '#F2F2F2', // block on the Void (≈ --foreground) — white bits, Stage 2→3
     bit: '#333F3E',        // dim / recessed (Stage 5 master)
@@ -37,8 +38,8 @@ const CONFIG = {
   gridGap: 20,
   lineupGap: 30,
   unifyGrow: 1.12,
-  orbitRadius: 320,
-  orbitSub: 1.4,
+  orbitRadius: 260,
+  orbitSub: 1.15,
   orbitMain: 0.8,
   orbitSpins: 90,
   orbitSteps: 8,
@@ -150,12 +151,16 @@ export function buildPhilosophyScene(tl: gsap.core.Timeline, stage: HTMLElement)
   tl.to([mainBit, ...subBits], { fill: colors.foreground, duration: 0.1 }, '<');
   tl.to(mainBit, { ...toXY(lineupCenters[4], CY), scale: CONFIG.lineupCentral, duration: 0.5, ease: moveEase }, '<');
   bitmapAppear(subBits, 1, '<', 0.5, 0.06);
+  // LIGHTS-ON flicker: a couple of GENTLE brightness dips (beige → mid dim, not black) with SMOOTH
+  // ramps — never a hard black↔white strobe — then a single smooth settle into the void. Kept
+  // low-contrast + few transitions + eased (no instantaneous flashes) for epilepsy safety, since this
+  // is scroll-scrubbed and the flash rate would otherwise track scroll speed.
   tl.to(philInner, {
     keyframes: {
-      backgroundColor: [colors.beige, colors.void, colors.beige, colors.void, colors.beige, colors.void, colors.beige, colors.void, colors.void],
-      easeEach: 'steps(1)',
+      backgroundColor: [colors.beige, colors.dim, colors.beige, colors.dim, colors.void],
+      easeEach: 'power1.inOut',
     },
-    duration: 0.9,
+    duration: 1.0,
     ease: 'none',
   }, '<');
   tl.to({}, { duration: CONFIG.hold });

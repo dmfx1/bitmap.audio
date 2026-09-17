@@ -1,0 +1,33 @@
+---
+/**
+ * UiuxCircuit.astro — full-bleed PCB image that focuses in behind the Services pillars when
+ * "UI/UX Sound" is the active pillar. Shares the `.perspective-grid` reveal (pause → slow
+ * OPACITY focus-in) for show/hide + positioning; the slow BLUR-to-sharp is applied to the <img>
+ * itself so mix-blend-mode: multiply can still blend the board with the section behind it (a
+ * `filter` on the container would isolate it and break the blend). multiply drops the board's
+ * white background so only the dark traces sit over the pillar's tint.
+ *
+ * (Raster image → focus-in only, no per-line "draw-in" like the SVG grids.)
+ */
+---
+
+<div id="uiux-circuit" class="perspective-grid" aria-hidden="true">
+  <img src="/images/uiux-circuit-board.webp" alt="" class="uiux-pcb" width="2356" height="1824" />
+</div>
+
+<style is:global>
+  /* Override the shared container blur — keep the container filter-free so the image below can
+     multiply-blend with the scene. Focus-in opacity still comes from .perspective-grid. */
+  #uiux-circuit { filter: none; }
+  #uiux-circuit .uiux-pcb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    mix-blend-mode: multiply;      /* white board bg → transparent; dark traces darken the tint */
+    opacity: 0.55;                 /* keep it subtle behind the cards */
+    filter: blur(10px);            /* focus-IN: starts soft… */
+    transition: filter 1.5s ease 0.35s;
+  }
+  #uiux-circuit.is-revealing .uiux-pcb { filter: blur(0); } /* …resolves sharp after the pause */
+</style>

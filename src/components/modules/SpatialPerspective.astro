@@ -1,0 +1,71 @@
+---
+/**
+ * SpatialPerspective.astro — a full-bleed one-point-perspective grid that reveals behind the
+ * Services pillars when "Spatial Audio" is the active pillar. Two-part reveal (see home Services):
+ *   1. FOCUS IN — the whole layer eases from blurred + transparent to sharp + visible after a short
+ *      initial PAUSE (transition-delay), then a slow duration. Never an instant snap.
+ *   2. DRAW IN — every line is "covered" by the section background (nothing is painted until it
+ *      draws) and then strokes itself in from the vanishing point outward, like it's being drawn.
+ *
+ * Mechanism: each <line>/<rect> carries pathLength="1" + stroke-dasharray:1 + stroke-dashoffset:1
+ * (fully un-drawn). The global `.is-revealing` class (toggled by ServicePillars when Spatial Audio
+ * is active) transitions stroke-dashoffset → 0 with a per-element delay (var(--d)) so the fan
+ * cascades from the centre out. Removing the class reverses it (and the fast opacity-out hides the
+ * un-draw), so each activation replays the drawing.
+ *
+ * Geometry is authored in a 700×540 viewBox and slice-scaled to cover the scene full-bleed. Lines
+ * are authored STARTING at the vanishing point so the dash draws outward from it.
+ */
+const VP = { x: 350, y: 190 };                 // vanishing point (above centre, matches the ref)
+const O  = { l: 12, t: 12, r: 688, b: 528 };   // outer room rectangle (near frame)
+const k  = 0.38;                               // inner "window" = outer scaled toward the VP
+const I  = {
+  l: VP.x + k * (O.l - VP.x), t: VP.y + k * (O.t - VP.y),
+  r: VP.x + k * (O.r - VP.x), b: VP.y + k * (O.b - VP.y),
+};
+
+// Corner diagonals (outer corner → VP), authored FROM the corner so all four converge on the VP.
+const diagonals = [
+  { x: O.l, y: O.t }, { x: O.r, y: O.t }, { x: O.l, y: O.b }, { x: O.r, y: O.b },
+];
+
+// Floor fan — lines from the VP down to evenly spaced points along the bottom edge.
+const FAN = 19;
+const fan = Array.from({ length: FAN }, (_, i) => ({
+  x: O.l + (O.r - O.l) * (i / (FAN - 1)),
+  y: O.b,
+  i,
+}));
+const fanCentre = (FAN - 1) / 2;
+
+// Timing (seconds). PAUSE is the beat before any line starts drawing (focus happens under it).
+const PAUSE = 0.9;
+const fanDelay = (i: number) => (PAUSE + Math.abs(i - fanCentre) * 0.045).toFixed(3);
+---
+
+<div id="spatial-perspective" class="perspective-grid" style="color: hsl(42 8% 40% / 0.55)" aria-hidden="true">
+  <svg viewBox="0 0 700 540" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <g class="sp-lines" fill="none" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke">
+      <!-- Outer room rectangle — draws last -->
+      <rect data-draw x={O.l} y={O.t} width={O.r - O.l} height={O.b - O.t} pathLength="1" style="--d:1.45s" />
+
+      <!-- Floor fan (VP → bottom edge), authored from the VP so it draws outward -->
+      {fan.map((p) => (
+        <line data-draw x1={VP.x} y1={VP.y} x2={p.x} y2={p.y} pathLength="1" style={`--d:${fanDelay(p.i)}s`} />
+      ))}
+
+      <!-- Corner diagonals (corner → VP) -->
+      {diagonals.map((c) => (
+        <line data-draw x1={c.x} y1={c.y} x2={VP.x} y2={VP.y} pathLength="1" style="--d:1.05s" />
+      ))}
+
+      <!-- Inner "window" rectangle — draws first, right at the VP -->
+      <rect data-draw x={I.l} y={I.t} width={I.r - I.l} height={I.b - I.t} pathLength="1" style={`--d:${PAUSE}s`} />
+    </g>
+
+    <!-- Bitmap vanishing-point mark (a single accent pixel) -->
+    <rect class="sp-vp" x={VP.x - 3} y={VP.y - 3} width="6" height="6" />
+  </svg>
+</div>
+
+<!-- Reveal CSS is shared across all three perspective grids in src/styles/global.css (.perspective-grid). -->

@@ -49,9 +49,12 @@
     align-items: center;
     justify-content: center;
   }
-  /* Big, bold, wide canvas (viewBox 1200×1000 gives room for the line-up). Scales to fit. */
+  /* Big, bold, wide canvas (viewBox 1200×1000 gives room for the line-up). Sized primarily by
+     viewport HEIGHT (svh) so the whole choreography — line-up, orbit/fan carousel, orange master
+     block — shrinks to fit on shorter screens instead of overflowing or clipping. Width is derived
+     from the aspect ratio; capped by 90vw on narrow screens and an absolute max. */
   .sound-canvas {
-    width: clamp(360px, 88vmin, 900px);
+    width: min(90vw, 74svh, 860px); /* 74svh width → ~62svh tall (aspect 1.2), leaves room for caps */
     aspect-ratio: 1.2 / 1;
     overflow: visible;
   }

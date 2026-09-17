@@ -3,12 +3,13 @@
 import Layout from '../layouts/Layout.astro';
 import Solaris from '../components/Solaris.astro';
 import Section from '../components/Section.astro';
+import FocusScroll from '../components/FocusScroll.astro';
 import AboutIntro from '../components/modules/AboutIntro.tsx';
 import Founders from '../components/modules/Founders.tsx';
 import AboutPhilosophy from '../components/modules/AboutPhilosophy.tsx';
 import Values from '../components/modules/Values.tsx';
 import Clients from '../components/modules/Clients.tsx';
-import CTA from '../components/modules/CTA.tsx';
+import CtaScene from '../components/modules/CtaScene.astro';
 ---
 
 <Layout
@@ -60,13 +61,17 @@ import CTA from '../components/modules/CTA.tsx';
       <Clients client:visible />
     </Section>
 
-    <Section id="cta" delay="0.6s" className="!bg-background/50 backdrop-blur-xl" grainBg>
-      <CTA
-        client:visible
-        title="Define your brand's audio identity"
-        description="Let's explore how a sonic brand can strengthen your identity and deepen audience connection."
-        buttonText="START YOUR SONIC BRAND"
-      />
-    </Section>
   </div>
+
+  {/* CTA — dark oversized finale; sticky "Get in touch" bar snaps it into focus like the other sections. */}
+  <div class="relative z-10">
+    <div class="section-bar-hold"><Solaris text="Get in touch" /></div>
+    <FocusScroll count={1} barOffset id="cta" class="!bg-background/50 backdrop-blur-xl">
+      <div class="container-page w-full">
+        <CtaScene head="Define your brand's<br/>audio identity" href="/contact" linkLabel="start_your_sonic_brand" pixelate={false} />
+      </div>
+    </FocusScroll>
+  </div>
+
+  <style is:global>.solaris:has(+ footer) { display: none; }</style>
 </Layout>

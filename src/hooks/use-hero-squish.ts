@@ -65,11 +65,42 @@ export function useHeroSquish(ref: RefObject<HTMLElement | null>, ready: boolean
 
     const tweens = layers.map((el) => {
       const kind = el.getAttribute('data-hero-pull');
+      el.style.willChange = 'transform, opacity';
+
+      // `track` (solutions PLAY REEL): NOT pulled into the void. It HOLDS exactly in place until
+      // p0.096 of the hero-squish scroll, then RISES up to the header at HALF the scroll speed
+      // (0.5px per 1px scrolled), clamping once its centre reaches the header. Same size + full
+      // opacity throughout, so it stays visible and clickable. Its own ScrollTrigger (driven by
+      // onUpdate, not scrub) so the hold is exact and the slow rise isn't bounded by the squish range.
+      if (kind === 'track') {
+        const header = document.getElementById('header-bar');
+        const headerH = header ? header.getBoundingClientRect().height : 96;
+        const HOLD_P = 0.2;     // hold until this progress of the hero-squish range
+        const RISE_SPEED = 0.75;   // half the scroll speed
+        let holdPx = 0, maxRise = 0;
+        const st = ScrollTrigger.create({
+          trigger: triggerEl,
+          start: 'top top',
+          end: '+=400%',
+          invalidateOnRefresh: true,
+          onRefresh: (self: any) => {
+            gsap.set(el, { y: 0 });
+            maxRise = Math.max(0, centre(el).y - headerH / 2);
+            // 0.8 = HERO_SQUISH end '+=80%' → p0.096 of that range, from this trigger's start.
+            holdPx = self.start + window.innerHeight * 0.8 * HOLD_P;
+          },
+          onUpdate: (self: any) => {
+            const past = self.scroll() - holdPx;
+            gsap.set(el, { y: -(past <= 0 ? 0 : Math.min(maxRise, past * RISE_SPEED)) });
+          },
+        });
+        return st as unknown as gsap.core.Tween;
+      }
+
       const pull =
         kind === 'sub' ? HERO_SQUISH.subPull :
         kind === 'title' ? HERO_SQUISH.titlePull :
         parseFloat(kind || '0.6') || 0.6;
-      el.style.willChange = 'transform, opacity';
       return gsap.to(el, {
         // Pull toward the hero centre (the glare). Function-based so it re-measures
         // the natural positions on refresh (invalidateOnRefresh reverts first).

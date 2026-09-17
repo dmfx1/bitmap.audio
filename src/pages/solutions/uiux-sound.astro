@@ -1,44 +1,22 @@
 ---
-/* src/pages/solutions/uiux-sound.astro */
+/* src/pages/solutions/uiux-sound.astro
+ *
+ * Simple VERTICAL SCROLL WITH LOCK (same pattern as sonic-branding / spatial): a sticky hero that the
+ * beige sections rise over, each section locking under its Solaris bar then releasing. (Reverted from
+ * the "into the void" scene-stage — that model is kept for home / about only.)
+ */
 import Layout from '../../layouts/Layout.astro';
 import Solaris from '../../components/Solaris.astro';
-import Section from '../../components/Section.astro';
 import FocusScroll from '../../components/FocusScroll.astro';
 import UIUXHero from '../../components/modules/solutions/UIUXHero.tsx';
 import UIUXAnalysis from '../../components/modules/solutions/UIUXAnalysis.tsx';
 import ConceptGrid from '../../components/modules/ConceptGrid.tsx';
-import DeliverablesGrid from '../../components/modules/solutions/DeliverablesGrid.tsx';
-import CTA from '../../components/modules/CTA.tsx';
+import CtaScene from '../../components/modules/CtaScene.astro';
 
-// DEFINING THE DATA SET FOR THIS PAGE
 const uiuxApplications = [
-  {
-    id: 1,
-    title: "Mobile Apps",
-    icon: "mobile",
-    desc: "Haptic-synced audio, gesture feedback and navigation sounds."
-  },
-  {
-    id: 2,
-    title: "Web Applications",
-    icon: "web",
-    desc: "Form interactions, loading states, real-time updates and collaboration cues."
-  },
-  {
-    id: 3,
-    title: "Hardware Products",
-    icon: "hardware",
-    desc: "Power states, connectivity, errors and physical button feedback sounds."
-  }
-];
-
-const uiuxDeliverables = [
-  "UI/UX Audit & Interaction Analysis",
-  "Approach Guidelines & Strategy",
-  "State & Feedback Sounds",
-  "Interface Indicators",
-  "Ongoing Support & Iteration",
-  "Implementation Guidelines"
+  { id: 1, title: "Mobile Apps", icon: "mobile", desc: "Haptic-synced audio, gesture feedback and navigation sounds." },
+  { id: 2, title: "Web Applications", icon: "web", desc: "Form interactions, loading states, real-time updates and collaboration cues." },
+  { id: 3, title: "Hardware Products", icon: "hardware", desc: "Power states, connectivity, errors and physical button feedback sounds." },
 ];
 ---
 
@@ -52,25 +30,21 @@ const uiuxDeliverables = [
       "@type": "Service",
       "name": "UI/UX Sound Design",
       "description": "Interaction sound libraries, state and feedback sounds, notification hierarchies, error and success indicators, and loading audio for mobile apps, web applications, and hardware products.",
-      "provider": {
-        "@type": "Organization",
-        "@id": "https://bitmap.audio/#organization",
-        "name": "bitmap.audio"
-      },
+      "provider": { "@type": "Organization", "@id": "https://bitmap.audio/#organization", "name": "bitmap.audio" },
       "serviceType": "UI/UX Sound Design",
       "areaServed": "Worldwide",
       "url": "https://bitmap.audio/solutions/uiux-sound"
     })}</script>
   </Fragment>
+
   {/* Hero: sticks at top of container, content scrolls over it */}
-  <div id="hero-sticky" class="md:sticky top-0 z-[1] min-h-svh flex flex-col">
+  <div id="hero-sticky" class="md:sticky top-0 z-[1] min-h-svh flex flex-col pt-[var(--header-h)]">
     <UIUXHero client:load />
   </div>
 
   <div class="hero-runway" aria-hidden="true"></div>
 
-  {/* Each section: bar sticks under the header, content locks in centred below it, then release
-      together (same pattern as about-v2 / home). Section titles ride on the bars. */}
+  {/* Each section: bar sticks under the header, content locks in centred below it, then releases. */}
   <div class="relative z-10 theme-oat">
     <div class="relative">
       <div class="section-bar-hold"><Solaris text="The Analysis" /></div>
@@ -91,23 +65,26 @@ const uiuxDeliverables = [
             sectionTitle="Where UI/UX sound makes a difference"
             items={uiuxApplications}
             mobileGlow={true}
+            animateIcons={true}
           />
         </div>
       </FocusScroll>
     </div>
 
-    <div class="relative">
-      <div class="section-bar-hold"><Solaris text="Get In Touch" /></div>
-      <FocusScroll count={1} barOffset id="cta" class="!bg-background/50 backdrop-blur-xl">
-        <div class="container-page w-full">
-          <CTA
-            client:visible
-            title="Make your product speak"
-            description="Let's design sound that makes your digital product feel alive, responsive, and human."
-            buttonText="Discuss your product"
-          />
-        </div>
-      </FocusScroll>
-    </div>
   </div>
+
+  {/* CTA — dark oversized finale (vertical page: shows without pixelating in). */}
+  <div class="relative z-10">
+    <div class="section-bar-hold"><Solaris text="Get in touch" /></div>
+    <FocusScroll count={1} barOffset id="cta" class="!bg-background/50 backdrop-blur-xl">
+      <div class="container-page w-full">
+        <CtaScene head="Make your product<br/>speak." href="/contact" linkLabel="discuss_your_product" pixelate={false} />
+      </div>
+    </FocusScroll>
+  </div>
+
+  {/* CTA is the same dark colour as the footer — drop the Solaris seam beam between them. */}
+  <style is:global>
+    .solaris:has(+ footer) { display: none; }
+  </style>
 </Layout>

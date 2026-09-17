@@ -72,45 +72,46 @@ type Slide = {
   reveal?: { window?: number; hold?: number; blur?: number };
 };
 const SLIDES: Slide[] = [
-  // type:"text"  → content slide (label = sidebar, width = desktop vw, content.col = grid placement,
-  //                anim = its GSAP timings). type:"image" → blank "intermission" gap (width only; the
-  //                photos are gone, these are the spacing where the parallax shows through, scaled by
-  //                INTERMISSION_SCALE). type:"behind" → kept only as empty anchors the markup/journey
-  //                still reference; carry no art.
-  { id: "00",   type: "text",  label: "Status",               width: "80vw",  content: { col: [2, 9] } },
-  { id: "0.5",  type: "image" },
-  { id: "01",   type: "text",  label: "Context",              width: "75vw",  content: { col: [1, 7] } },
-  { id: "1.5",  type: "image" },
+  { id: "00",   type: "text",  label: "Status",               width: "80vw", content: { col: [2, 9] }  },
+  { id: "0.5",  type: "image", img: "your-brand-is-muted", vivid: true, fade: { left: 0.35, right: 0.65 } },
+  { id: "01",   type: "text",  label: "Context",              width: "75vw", content: { col: [1, 7] }  },
+  { id: "1.5",  type: "image", img: "when-everyone-is-listening", vivid: true, fade: { left: 0.5, right: 0.5 }, },
   { id: "02",   type: "text",  label: "Architecture",         width: "110vw", content: { col: [2, 6] }, anim: {
       nodes: { start: -0.85, end: 0.5, scrub: 0.5 },
       paths: { start: -0.75, end: 0.3, scrub: 0.5 },
   }},
-  { id: "2.5",  type: "image", width: "150vw" },
-  { id: "03",   type: "text",  label: "Neurology.Processing", width: "120vw", content: { col: [3, 5] } },
-  { id: "3.25", type: "image", width: "100vw" }, // faster-than-sight — narrowed (was 150vw) so the scene is less wide
-  { id: "04",   type: "text",  label: "Neurology.Memory",     width: "80vw",  content: { col: [3, 8] }, anim: {
+  { id: "2.5",  type: "image", img: "sound-as-a-data-map", width: "150vw", imgWidth: "150vw", vivid: true, imgX: "-40vw", blend: false, 
+    ramp: { start: -0.8, end: 0 },
+    fade: { left: 0.5, right: 0.3 } 
+  },  
+  { id: "03", type: "text", label: "Neurology.Processing", width: "120vw", content: { col: [3, 5] }},
+  { id: "3.1",  type: "text",  width: "100vw" },
+  { id: "3.25", type: "image", img: "faster-than-sight-2", width: "150vw", imgWidth: "120vw", imgX: "-50vw", z: 50, fade: { left: 0.2, right: 0.7 }, effect: "focus", 
+    ramp: { start: -1.5, end: -0.5 } },
+  { id: "04",   type: "text",  label: "Neurology.Memory",     width: "80vw", content: { col: [3, 8] }, anim: {
       visualsFade: { start: -0.85, end: -0.2, scrub: 0.5 },
       soundGrow:   { start: -0.8,  end: -0.1, scrub: 0.5 },
       vibration:   { start: -0.5,  end:  1.0, scrub: 0.5 },
   }},
-  { id: "4.25", type: "image", width: "100vw" },
-  { id: "4.5",  type: "behind", opacity: 100 },
+  { id: "4.25", type: "image", img: "visuals-fade-sound-echoes", width:"100vw", imgWidth:"130vw", vivid: true, z: 5, imgX: "-30vw",  fade: { left: 0.3, right: 0.4 }, ramp: { start: -1.2, end: -0.5 }},
+  { id: "4.5", type: "behind", img: "brain-processing-speed", opacity: 100, z: 50, vivid: true,
+      reveal: { window: 1.5, hold: 0.65, blur: 25 } },
   { id: "05",   type: "text",  label: "Metrics",              width: "150vw", content: { col: [3, 9] }, anim: {
       pressureLine: { start: -0.4, end: -0.1, scrub: 0.5 },
       statCards:    { start: -0.5, end: -0.0, scrub: 0, cardSpacing: 300 },
   }},
-  { id: "5.5",  type: "image" },
-  { id: "07",   type: "text",  label: "Credibility",          width: "75vw",  content: { col: [4, 8] } },
-  { id: "7.25", type: "image" },
+  { id: "5.5",  type: "image", img: "recall-under-pressure", vivid: true, imgX: "-75vw", imgWidth: "125vw", z: 5, ramp: { start: -1.7, end: -1.2 }, fade: { left: 0.2, right: 0.5 } },
+  { id: "07",   type: "text",  label: "Credibility",          width: "75vw", content: { col: [4, 8] }  },
+  { id: "7.25", type: "image", img: "subconscious-trust-2", vivid: true, imgWidth: "100vw", imgX: "-20vw", z: 5, fade: { left: 0.3, right: 0.5 } },
   { id: "08",   type: "text",  label: "Perception",           width: "100vw", content: { col: [5, 7] } },
-  { id: "9.25", type: "image" },
+  { id: "9.25", type: "image", img: "perceived-as-innovators", vivid: true, imgX: "-35vw", imgWidth: "120vw", z: 5, fade: { left: 0.3, right: 0.5 }, ramp: { start: -0.7, end: -0.2 } },
   { id: "09",   type: "text",  label: "Culture",              width: "125vw", content: { col: [4, 6] } },
-  { id: "10.5", type: "image" },
+  { id: "10.5", type: "image", img: "seamless-cultural-resonance", vivid: true, imgX: "-80vw", imgWidth: "80vw", z: 5, fade: { left: 0.5, right: 0.3 }, ramp: { start: -0.5, end: -0 } },
   { id: "10",   type: "text",  label: "Asset.Ownership",      width: "125vw", content: { col: [4, 8] } },
-  { id: "10.75",type: "image" },
-  { id: "11",   type: "text",  label: "Belief",               width: "75vw",  content: { col: [3, 8] } },
+  { id: "10.75", type: "image", img: "sea-of-sameness-2", vivid: true, imgX: "-70vw", imgWidth: "120vw", z: 5, fade: { left: 0.5, right: 0.5 }, ramp: { start: -1, end: -0 } },
+  { id: "11",   type: "text",  label: "Belief",               width: "75vw", content: { col: [3, 8] }  },
   { id: "12",   type: "text",  label: "Execution",            width: "100vw", content: { col: [1, 12] } },
-  { id: "13",   type: "behind", width: "75vw", opacity: 55 },
+  { id: "13",   type: "behind", img: "master-the-signal", width: "75vw", opacity: 55 },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -222,8 +223,7 @@ const CONFIG = {
   // and a 2560px monitor — do NOT put a px value here.
   // Increase in steps of 0.05 until the SLIDE-13 heading is framed as you want it when the
   // vertical scroll takes over.
-  stripEndOffset: 0,   // 0 = strip travels fully so the final END slide fills the viewport at the
-                       // bottom of the track (everything horizontal — no vertical hand-over).
+  stripEndOffset: 0.3,
 
   // AD6 vividness ramp: slides with `vivid: true` desaturate/dim off-centre and hit full
   // colour as their anchor reaches viewport centre, then ease back down as they exit.
@@ -243,57 +243,28 @@ const CONFIG = {
 const JOURNEY = [
   { at: "0",  color: "#121C1C" }, // bg-background (Status) 121C1C
   { at: "2",  color: "#ABC4CE" }, // bg-primary/80 (Architecture) ABC4CE
-  { at: "3",  color: "#11181A", offset: -0.1 }, // bg-card/30 (Neurology.Processing) 11181A — offset raised
-                                                //  from -0.7 → -0.1 so the blue→dark fade AFTER Architecture
-                                                //  ends later = a slower, longer transition into the next scene.
+  { at: "3",  color: "#11181A", offset: -0.7 }, // bg-card/30 (Neurology.Processing) 11181A
   { at: "4",  color: "#1E231C" }, // bg-accent/5 (Neurology.Memory) 1E231C
   { at: "4.5", color: "#CDE0DD", offset: 2 }, // Muted abyss teal behind the 20x brain graphic
-  // offset +60 (was 0): shortening the 20x slide 300→180vw compressed this teal→dark fade from
-  // ~298vw to ~178vw, so it read as a near-hard colour change (~p0.377) into Recall. Pushing the
-  // dark's completion ~60vw INTO the Recall approach re-lengthens the ramp to ~238vw = gentle again.
-  { at: "5",  color: "#111A1B", offset: 60 }, // bg-card/20 (Metrics) 111A1B
+  { at: "5",  color: "#111A1B" }, // bg-card/20 (Metrics) 111A1B
   { at: "5.5", color: "#1E231C" }, // AD5 TEST — recall-under-pressure right-edge teal (brightened). Anchored to image via data-slide. 1E231C
-  { at: "6.5", color: "#121C1C" }, // blank spacer (ROI removed) — hold dark across the empty run.
-  // HOLD-THEN-FADE into Subconscious Trust. The previous "one long ramp across the 90vw spacer"
-  // stretched the dark→white over so much scroll it read as a discontinuity. Instead: hold dark
-  // flat (6.5 → 7a, both #121C1C) right up to Credibility's approach, THEN one controlled
-  // dark→white fade over ~1.5vw as the slide frames. Two "7" checkpoints (same anchor, different
-  // offset) — the first is the held-dark end, the second the white arrival.
-  { at: "7",  color: "#121C1C", offset: -40 }, // hold dark until ~40vw before Credibility, then…
-  { at: "7",  color: "#DCDDDD", offset: 0 },   // …a real ~40vw dark→white gradient as it frames
-                                               //  (offsets are vw; total travel is ~2500vw, so a
-                                               //  1–2vw offset is near-instant — need tens of vw
-                                               //  for a fade the eye reads as gradual).
+  { at: "6.5", color: "#121C1C" }, // anchored to the blank spacer (ROI removed) — long dark→white ramp into Credibility
+  { at: "7",  color: "#DCDDDD", offset: -0.5 }, // bg-foreground/90 (Credibility) DCDDDD
   { at: "9",  color: "#384648" }, // bg-primary/20 (Perception) 384648
   { at: "10", color: "#121C1C" }, // bg-background (Culture) 121C1C
   { at: "11", color: "#141414" }, // bg-primary/5 (Asset.Ownership) 1C2727
-  { at: "12", color: "#FFA61A", offset: 1.2 }, // bg-accent (Belief) FFA61A — amber establishes at Belief.
-  // HOLD-THEN-FADE into Master the Signal (same pattern as Subconscious Trust above). The amber
-  // is held FLAT across Belief → Execution's approach (12 → 13a, both amber), so the bright orange
-  // fills and sits, THEN one controlled amber→dark fade over ~1.5vw as Master the Signal frames —
-  // instead of the amber drifting to dark across the whole gap (which read as a hard cut).
-  { at: "13", color: "#FFA61A", offset: -1.5 }, // hold amber until ~1.5vw before Master the Signal
-  { at: "13", color: "#121C1C", offset: 0 },    // then fade amber→dark as it frames
+  { at: "12", color: "#FFA61A", offset: 0.5 }, // bg-accent (Belief) FFA61A
+  { at: "13", color: "#121C1C", offset: -0.7 }, // bg-background (Execution) 121C1C
 ];
 
-// Photography STRIPPED (2026-09-08). Image slides now render as empty, correctly-sized `blank`
-// stages (ImageSlide blank mode) — the strip width/timings, data-slide journey anchors and ramp
-// hooks are all preserved, ready to host the new scroll-driven pixel-journey framework. The `img`
-// key is dropped; no /images/returns/* is referenced any more.
-// ── HORIZONTAL-SCROLL DENSITY KNOBS (tweak when the pixel-journey animation returns) ──
-// INTERMISSION_SCALE shrinks the blank image "intermission" stages so there's less horizontal
-// scrolling through empty space between content slides. TRACK_VH is the total vertical scroll
-// distance of the whole strip. Set INTERMISSION_SCALE back toward 1 (and raise TRACK_VH) when the
-// journey animation needs the travel room again. Everything else self-calibrates (GSAP triggers are
-// offset-relative + invalidateOnRefresh), so just change these two and reload.
-const INTERMISSION_SCALE = 0.5;
-const TRACK_VH = 1700;
+// Merge defaults + expand image paths → final <ImageSlide> props. (Don't edit below.)
+const RETURNS = (n: string) => `/images/returns/${n}.webp`;
 const imgSlide: Record<string, any> = Object.fromEntries(
   SLIDES.filter((s) => s.type === "image").map((s) => {
-    const { id, type, img, ...rest } = s as any;
-    const m: any = { id, ...IMG_DEFAULTS, ...rest, blank: true };
-    if (typeof m.width === "string" && m.width.endsWith("vw")) m.width = `${parseFloat(m.width) * INTERMISSION_SCALE}vw`;
-    return [id, m];
+    const { id, type, ...rest } = s as any;
+    const p: any = { id, ...IMG_DEFAULTS, ...rest };
+    if (p.img) { p.src = RETURNS(p.img); delete p.img; }
+    return [id, p];
   })
 );
 // SLIDE-4.5 brain mask. `closest-side` is load-bearing — WITHOUT it the ellipse defaults to
@@ -339,16 +310,6 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
       /* Journey-only preview: fade the whole slide strip out so #journey-bg shows alone. */
       #horizontal-strip { transition: opacity .35s ease; }
       html.journey-only #horizontal-strip { opacity: 0; pointer-events: none; }
-
-      /* All body paragraphs in the strip → bitmap mono + md:text-3xl (matching the Status/Context
-         blurbs). :not(.font-mono) leaves the small mono labels (e.g. the end "bitmap.audio") alone. */
-      #horizontal-strip p:not(.font-mono) { font-family: var(--font-mono); }
-      @media (min-width: 768px) {
-        #horizontal-strip p:not(.font-mono) { font-size: 1.875rem; line-height: 2.25rem; }
-      }
-      /* EXCLUDE the Recall-under-Pressure stat-card descriptions — they keep their own
-         smaller font-sans sizing (the sweep above would otherwise blow them up). */
-      #horizontal-strip .stat-card p { font-family: var(--font-sans); font-size: 1.125rem; line-height: 1.625; }
     </style>
     <script is:inline>
       (function () {
@@ -368,11 +329,11 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
     <!-- Track height controls overall scroll speed: too fast/twitchy = increase,
          too sluggish = decrease. GSAP anim/counter timings are offsetLeft-relative
          so they self-correct to this value. -->
-    <div id="scroll-track" class="relative w-full" style={`height:${TRACK_VH}vh`}>
+    <div id="scroll-track" class="relative w-full h-[2050vh]">
       
-      <div id="sidebar-track" class="absolute left-0 top-0 w-24 h-full z-50 pointer-events-none hidden md:block bg-background/80 backdrop-blur-md shadow-[20px_0_40px_-15px_rgba(0,0,0,0.5)]">
+      <div id="sidebar-track" class="absolute left-0 top-0 w-24 h-full z-50 pointer-events-none hidden md:flex flex-col">
         {sections.filter((sec) => sec.label).map((sec, index) => (
-          <aside data-aside-id={sec.id} class="w-full flex flex-col items-center justify-center gap-8">
+          <aside data-aside-id={sec.id} class="h-screen w-full  bg-background/80 backdrop-blur-md flex flex-col items-center justify-center gap-8 shadow-[20px_0_40px_-15px_rgba(0,0,0,0.5)]">
             <span class="font-mono text-muted-foreground text-[10px] tracking-widest rotate-180 [writing-mode:vertical-lr] uppercase">{sec.label}</span>
             <div class="h-48 w-[1px] bg-border/30 relative">
               <div class="indicator-line absolute top-0 w-[3px] -left-[1px] bg-accent shadow-[0_0_15px_hsl(var(--accent))] origin-top scale-y-0"></div>
@@ -383,12 +344,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
       </div>
 
       <div class="sticky top-0 w-full h-screen overflow-hidden pointer-events-auto">
-
-        <!-- PIXEL JOURNEY overlay — a fixed layer in the sticky viewport. The hero pixel journeys
-             across screen space (grid-snapped, stop-motion) while the strip scrolls underneath it.
-             Populated by buildPixelJourney() in the desktop GSAP path. Desktop only. -->
-        <div id="pixel-journey" class="hidden md:block absolute inset-0 z-40 pointer-events-none"></div>
-
+        
         <div id="horizontal-strip" class="flex w-max h-full will-change-transform">
 
           <!-- ═══════════════════════════════════════════════════════════
@@ -410,7 +366,8 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                  full-bleed and can never disagree with the slide it sits in. -->
             <!-- MOBILE-IMG | slide 00 | your-brand-is-muted.webp | full-bleed -->
             <div class="md:hidden absolute inset-0 pointer-events-none z-0">
-              
+              <img src="/images/returns/your-brand-is-muted.webp" decoding="async" alt=""
+                   class="w-full h-full object-cover opacity-50" />
             </div>
             <!-- 12-col container: pl-24 clears the 96px sidebar; pr-6 matches nav right padding -->
             <div class="md:container mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full mobile:w-full">
@@ -429,7 +386,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                    section now; this block just fills what's left. -->
               <div data-sidebar-anchor class="relative z-10 py-2 mobile:min-h-[40svh] mobile:flex mobile:flex-col mobile:justify-center" style={gridStyle("00")}>
                 <span class="text-eyebrow text-sm mb-8 mobile:mb-3 block">[ Status // Critical ]</span>
-                <h2 data-depth="0.12" class="font-mono text-6xl mobile:text-6xl md:text-[8vw] leading-[0.9] tracking-tighter mb-12 mobile:mb-6 uppercase text-foreground">
+                <h2 class="font-mono text-6xl mobile:text-6xl md:text-[8vw] leading-[0.9] tracking-tighter mb-12 mobile:mb-6 uppercase text-foreground">
                   Your brand<br/>is <span class="text-accent drop-shadow-[0_0_20px_hsl(var(--accent)/0.3)]">Muted.</span>
                 </h2>
                 <!-- BLUEPRINT · the box: `p-6` is scoped to md: so it governs desktop only, and
@@ -437,9 +394,9 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                      from the accent line inward. Scoping the original rather than layering on top
                      matters: Tailwind emits pl/py AFTER p, so leaving an unprefixed `pl-8`/`py-2`
                      next to a `mobile:p-4` would silently override two of its sides. -->
-                <div data-depth="-0.06" class="w-full max-w-2xl bg-background/60 md:p-6 mobile:p-4 border-l-2 border-accent mobile:max-w-none">
-                  <p class="font-mono text-xl mobile:text-xl md:text-3xl text-foreground/80  leading-relaxed">
-                    Visuals reach the eyes, but sound hits the nervous system. Competing on screens alone is a losing battle.
+                <div class="w-full max-w-2xl bg-background/60 md:p-6 mobile:p-4 border-l-2 border-accent mobile:max-w-none">
+                  <p class="font-sans text-xl mobile:text-xl md:text-2xl text-muted-foreground  leading-relaxed">
+                    Visuals reach the eyes, but sound hits the nervous system. Competing on screens alone is a losing battle. It's time to weaponise your audio.
                   </p>
                 </div>
               </div>
@@ -476,7 +433,8 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                  full-bleed and can never disagree with the slide it sits in. -->
             <!-- MOBILE-IMG | slide 01 | when-everyone-is-listening.webp | full-bleed -->
             <div class="md:hidden absolute inset-0 pointer-events-none z-0">
-              
+              <img src="/images/returns/when-everyone-is-listening.webp" decoding="async" alt=""
+                   class="w-full h-full object-cover opacity-50" />
             </div>
 
             <!-- Text-only now — the "when-everyone-is-listening" image moved to its own image slide (SLIDE-1.5) below. -->
@@ -484,21 +442,21 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
             <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full mobile:w-full">
               <!-- mobile:px-4 removed — the edge gap is on the section now, and leaving it here
                    would stack a second gutter inside the first. -->
-              <div data-sidebar-anchor class="w-full flex flex-col items-end mobile:items-start gap-6 mobile:gap-3 relative z-10" style={gridStyle("01")}>
-                  <!-- SPLIT INTO TWO BLOCKS (2026-09-11): the eyebrow+title and the blurb are now
-                       separate accent-bordered cards carrying OPPOSITE data-depth. The content-parallax
-                       engine settles opposite depths to their resting position exactly when the slide is
-                       centred, so the two blocks slide in from opposite sides and meet in the middle on
-                       scroll. Desktop-only motion (parallax runs past the isMobile early-return); on
-                       mobile they just stack. -->
-                  <!-- TITLE BLOCK -->
-                  <div data-converge="left" class="max-w-2xl border-r-2 border-accent md:px-24 md:py-8 mobile:p-4 mobile:w-full mobile:max-w-none mobile:bg-background/30 bg-background/20 backdrop-blur-sm relative z-10">
+              <div data-sidebar-anchor class="w-full flex justify-end mobile:justify-start relative z-10" style={gridStyle("01")}>
+                  <!-- BLUEPRINT · the box. DIFFERENCE FROM SLIDE 00: here the box wraps the
+                       eyebrow + h2 + copy (on 00 it wrapped only the copy), so THIS is the
+                       content block — it carries min-h and the vertical centring, and needs
+                       max-w-none + w-full to fill the inset width.
+                       `pl-8 py-2` scoped to md: so they govern desktop only; mobile gets one
+                       uniform `mobile:p-4`. They must be scoped, not layered over — Tailwind
+                       emits pl/py after p, so unprefixed ones would override two of its sides. -->
+                  <div class="max-w-2xl border-l-2 border-accent md:pl-8 md:py-2 mobile:p-4 mobile:w-full mobile:max-w-none mobile:min-h-[40svh] mobile:flex mobile:flex-col mobile:justify-center mobile:bg-background/30 bg-background/20 backdrop-blur-sm relative z-10">
                       <span class="text-eyebrow text-sm mb-8 mobile:mb-3 block text-primary">[ Context // Always_On ]</span>
-                      <h2 class="font-mono text-5xl md:text-7xl leading-tight uppercase text-foreground">When everyone<br/><span class="text-primary drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">is listening.</span></h2>
-                  </div>
-                  <!-- BLURB BLOCK — opposite depth -->
-                  <div data-converge="right" class="max-w-2xl border-r-2 border-accent md:px-24 md:py-8 mobile:p-4 mobile:w-full mobile:max-w-none mobile:bg-background/30 bg-background/20 backdrop-blur-sm relative z-10">
-                      <p class="font-mono text-xl mobile:text-xl md:text-3xl text-foreground/80 leading-relaxed max-w-xl">
+                      <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 mobile:mb-4 uppercase text-foreground">When everyone<br/><span class="text-primary drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">is listening.</span></h2>
+                      <!-- mobile:pr-4 removed — contents add no x-space of their own. It was
+                           stacking a second right-hand gutter inside the box's mobile:p-4, so the
+                           copy no longer sat symmetrically between the accent line and the edge. -->
+                      <p class="font-sans text-xl text-muted-foreground leading-relaxed max-w-xl">
                         <span class="text-accent">The screenless audience</span> – 80% of consumers form brand memory via audio cues. If you lack an audio-first identity, you have no presence in the moments when eyes are diverted.
                       </p>
                   </div>
@@ -524,7 +482,8 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
 
             <!-- MOBILE-IMG | slide 02 | sound-as-a-data-map.webp | full-bleed -->
             <div class="md:hidden absolute inset-0 pointer-events-none z-0">
-              
+              <img src="/images/returns/sound-as-a-data-map.webp" decoding="async" alt=""
+                   class="w-full h-full object-cover opacity-25" />
             </div>
 
             <!-- MOBILE: stacked layout — SVG behind, text in front -->
@@ -532,19 +491,13 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
               <svg viewBox="80 250 480 860" class="w-full h-full overflow-visible">
                 <g class="stroke-accent" fill="none" stroke-width="3" stroke-linecap="square" stroke-linejoin="miter">
                   <path class="data-path" d="M100,300 H200 V400 H100 Z" />
-                  <path class="data-path" stroke-width="1.5" stroke="hsl(var(--background))" d="M100,350 H200" />
-                  <!-- the 3rd square down from the top-left one (a GAP between them) — same 2x2 styling
-                       as the top square, and a .data-path so its lines draw in on scroll -->
-                  <path class="data-path" d="M100,500 H200 V600 H100 Z" />
-                  <path class="data-path" stroke-width="1.5" stroke="hsl(var(--background))" d="M100,550 H200" />
-                  <path class="data-path" stroke-width="1.5" stroke="hsl(var(--background))" d="M200,550 H300" />
+                  <path class="data-path" stroke-width="1.5" stroke="hsl(var(--background))" d="M150,300 V400 M100,350 H200" />
                   <path class="data-path" d="M200,400 H300 V900 H200 Z" />
                   <path class="data-path" d="M250,400 V900" />
-                  <path class="data-path" stroke-width="1.5" d="M200,500 H300 M200,600 H300 M200,700 H300 M200,800 H300" />
+                  <path class="data-path" stroke-width="1.5" stroke="hsl(var(--background))" d="M200,500 H300 M200,600 H300 M200,700 H300 M200,800 H300" />
                   <path class="data-path" d="M300,500 H600 V800 H500 V900 H300" />
                   <path class="data-path" d="M300,600 H500 V800 H300" />
                   <path class="data-path" stroke-width="1.5" stroke="hsl(var(--background))" d="M300,550 H600" />
-                  <path class="data-path" stroke-width="1.5" stroke="hsl(var(--background))" d="M200,850 H300" />
                   <path class="data-path" stroke-width="1.5" stroke="hsl(var(--background))" d="M300,850 H500" />
                   <path class="data-path" d="M400,500 V600 M400,800 V900" />
                   <path class="data-path" d="M500,500 V800" />
@@ -552,8 +505,6 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                 </g>
                 <g class="fill-accent">
                   <circle class="data-node" cx="100" cy="300" r="4" />
-                  <circle class="data-node" cx="100" cy="500" r="4" />
-                  <circle class="data-node" cx="150" cy="550" r="3" />
                   <circle class="data-node" cx="200" cy="300" r="6" />
                   <circle class="data-node" cx="150" cy="350" r="3" />
                   <circle class="data-node fill-background stroke-accent" stroke-width="2" cx="200" cy="400" r="10" />
@@ -585,26 +536,17 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
             <!-- DESKTOP: container/12-col — text at col-start-1 (clears sidebar); SVG absolute (full-bleed behind text) -->
 
             <!-- SVG diagram — absolute positioned, extends right from ~20vw within section, sits behind text (z-0) -->
-            <!-- data-depth (negative → drifts RIGHT as the slide scrolls, opposite to the text's
-                 leftward drift, so the b and the copy pull apart). Start nudged left (30vw, was 35vw)
-                 so it begins a little more under the text. -->
-            <div data-depth="-0.25" class="hidden md:block absolute left-[30vw] top-[7.5vh] w-[80vw] h-[85vh] opacity-80 z-0">
+            <div class="hidden md:block absolute left-[35vw] top-[7.5vh] w-[80vw] h-[85vh] opacity-80 z-0">
               <svg viewBox="50 200 650 800" class="w-full h-full overflow-visible">
                 <g class="stroke-accent" fill="none" stroke-width="3" stroke-linecap="square" stroke-linejoin="miter">
                   <path class="data-path" d="M100,300 H200 V400 H100 Z" />
-                  <path class="data-path" stroke-width="1.5" stroke="hsl(var(--background))" d="M100,350 H200" />
-                  <!-- the 3rd square down from the top-left one (a GAP between them) — same 2x2 styling
-                       as the top square, and a .data-path so its lines draw in on scroll -->
-                  <path class="data-path" d="M100,500 H200 V600 H100 Z" />
-                  <path class="data-path" stroke-width="1.5" stroke="hsl(var(--background))" d="M100,550 H200" />
-                  <path class="data-path" stroke-width="1.5" stroke="hsl(var(--background))" d="M200,550 H300" />
+                  <path class="data-path" stroke-width="1.5" stroke="hsl(var(--background))" d="M150,300 V400 M100,350 H200" />
                   <path class="data-path" d="M200,400 H300 V900 H200 Z" />
                   <path class="data-path" d="M250,400 V900" />
-                  <path class="data-path" stroke-width="1.5" d="M200,500 H300 M200,600 H300 M200,700 H300 M200,800 H300" />
+                  <path class="data-path" stroke-width="1.5" stroke="hsl(var(--background))" d="M200,500 H300 M200,600 H300 M200,700 H300 M200,800 H300" />
                   <path class="data-path" d="M300,500 H600 V800 H500 V900 H300" />
                   <path class="data-path" d="M300,600 H500 V800 H300" />
                   <path class="data-path" stroke-width="1.5" stroke="hsl(var(--background))" d="M300,550 H600" />
-                  <path class="data-path" stroke-width="1.5" stroke="hsl(var(--background))" d="M200,850 H300" />
                   <path class="data-path" stroke-width="1.5" stroke="hsl(var(--background))" d="M300,850 H500" />
                   <path class="data-path" d="M400,500 V600 M400,800 V900" />
                   <path class="data-path" d="M500,500 V800" />
@@ -612,8 +554,6 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                 </g>
                 <g class="fill-accent">
                   <circle class="data-node" cx="100" cy="300" r="4" />
-                  <circle class="data-node" cx="100" cy="500" r="4" />
-                  <circle class="data-node" cx="150" cy="550" r="3" />
                   <circle class="data-node" cx="200" cy="300" r="6" />
                   <circle class="data-node" cx="150" cy="350" r="3" />
                   <circle class="data-node fill-background stroke-accent" stroke-width="2" cx="200" cy="400" r="10" />
@@ -635,9 +575,9 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
             <!-- Text — container/12-col, sits in front of SVG (z-10) -->
             <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full md:h-full">
               <div data-sidebar-anchor class="hidden md:flex flex-col justify-center md:row-start-1 md:z-10" style={gridStyle("02")}>
-                <span data-depth="0.1" class="text-eyebrow text-sm mb-8 block text-background">[ Architecture // Recall ]</span>
-                <h2 data-depth="0.06" class="font-mono text-8xl leading-tight mb-8 uppercase text-foreground">Sound as a<br/><span class="text-accent drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">Data Map.</span></h2>
-                <p data-depth="-0.04" class="font-mono text-3xl text-background/80 leading-relaxed">
+                <span class="text-eyebrow text-sm mb-8 block text-background">[ Architecture // Recall ]</span>
+                <h2 class="font-mono text-8xl leading-tight mb-8 uppercase text-foreground">Sound as a<br/><span class="text-accent drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">Data Map.</span></h2>
+                <p class="font-sans text-xl text-background/80 leading-relaxed">
                   Faster Neurological Processing and Lasting Memory.
                 </p>
               </div>
@@ -666,25 +606,19 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
 
             <!-- MOBILE-IMG | slide 03 | faster-than-sight.webp | full-bleed -->
             <div class="md:hidden absolute inset-0 pointer-events-none z-0">
-              
+              <img src="/images/returns/faster-than-sight.webp" decoding="async" alt=""
+                   class="w-[150vw] h-[150vh] object-cover opacity-50" />
             </div>
 
             <div class="md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
               <!-- NOTE: slide 03 nests two panels — this anchor has its own bg + border, and the
                    accent box sits inside it. Only the INNER box gets the p-4 gutter; the anchor
                    drops its mobile padding so the two don't stack. -->
-              <!-- SPLIT INTO TWO BLOCKS (2026-09-11): eyebrow+title and blurb are separate accent
-                   cards with OPPOSITE data-depth, so they converge from opposite directions as the
-                   slide reaches centre (desktop-only; they just stack on mobile). -->
-              <div data-sidebar-anchor class="flex flex-col items-end mobile:items-start justify-center gap-6 mobile:gap-3 relative z-10" style={gridStyle("03")}>
-                <!-- TITLE BLOCK -->
-                <div data-converge="left" class="border-r-2 border-accent bg-background/20 md:px-8 md:py-8 mobile:p-4 mobile:w-full">
+              <div data-sidebar-anchor class="flex flex-col items-end mobile:items-start justify-center relative z-10 border-l border-border/20 mobile:bg-background/40 md:bg-background/20" style={gridStyle("03")}>
+                <div class="border-l-2 border-accent bg-background/20 ml-0 md:pl-8 md:py-2 mobile:p-4 mobile:w-full mobile:min-h-[40svh] mobile:flex mobile:flex-col mobile:justify-center">
                   <span class="text-eyebrow text-sm mb-8 mobile:mb-3 block text-accent">[ Neurology // Processing_Speed ]</span>
-                  <h2 class="font-mono text-5xl md:text-7xl leading-tight uppercase">Faster than<br/><span class="text-accent">Sight.</span></h2>
-                </div>
-                <!-- BLURB BLOCK — opposite depth -->
-                <div data-converge="right" class="border-r-2 border-accent bg-background/20 md:px-8 md:py-8 mobile:p-4 mobile:w-full">
-                  <p class="font-sans text-xl mobile:text-foreground md:text-muted-foreground leading-relaxed">
+                  <h2 class="font-mono text-5xl md:text-6xl leading-tight mb-8 mobile:mb-4 uppercase">Faster than<br/><span class="text-accent">Sight.</span></h2>
+                  <p class="font-sans text-xl mobile:text-foreground md:text-muted-foreground leading-relaxed mb-8">
                     Sound is a biological survival mechanism. It reaches the brain 2 to 4 times faster than visual stimuli.<br/><br/>It establishes recognition in just <strong>0.05 seconds</strong> making us aware of our surroundings before we even consciously "see" them.
                   </p>
                 </div>
@@ -694,7 +628,35 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
 
           <!-- #endregion SLIDE-03 -->
 
-          <!-- (SLIDE-3.1 "sound radar" concentric-rings SVG removed — animation paused.) -->
+          <section data-slide="3.1" class="hidden md:flex items-center justify-center relative bg-transparent z-10 pointer-events-none">
+            
+            <svg 
+              id="soundwave-rings"
+              viewBox="0 0 100 100" 
+              class="w-full h-full text-accent drop-shadow-[0_0_20px_hsl(var(--accent)/0.5)] overflow-visible" 
+              style="-webkit-mask-image: linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%); mask-image: linear-gradient(to right, transparent 0%, black 15%, black 85%, transparent 100%);"
+              fill="none" 
+              stroke="currentColor" 
+              stroke-width="1.5" 
+              preserveAspectRatio="xMidYMid slice"
+              aria-hidden="true"
+            >
+              <!-- 10 Full concentric circles. 
+                   Centered towards the right (cx="80") so they radiate from the Tiger.
+                   The linear-gradient mask ensures they fade out gracefully before hitting the hard slide edges. -->
+              <circle cx="80" cy="50" r="4" stroke-opacity="1" />
+              <circle cx="80" cy="50" r="10" stroke-opacity="0.9" />
+              <circle cx="80" cy="50" r="18" stroke-opacity="0.8" />
+              <circle cx="80" cy="50" r="28" stroke-opacity="0.6" />
+              <circle cx="80" cy="50" r="40" stroke-opacity="0.4" />
+              <circle cx="80" cy="50" r="54" stroke-opacity="0.25" />
+              <circle cx="80" cy="50" r="70" stroke-opacity="0.15" />
+              <circle cx="80" cy="50" r="88" stroke-opacity="0.08" />
+              <circle cx="80" cy="50" r="108" stroke-opacity="0.04" />
+              <circle cx="80" cy="50" r="130" stroke-opacity="0.02" />
+            </svg>
+
+          </section>
 
           <!-- ═══════════════════════════════════════════════════════════
                SLIDE 3.25 | Image · Faster Than Sight | DESKTOP ONLY
@@ -716,7 +678,8 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
 
             <!-- MOBILE-IMG | slide 04 | visuals-fade-sound-echoes.webp | full-bleed -->
             <div class="md:hidden absolute inset-0 pointer-events-none z-0">
-              
+              <img src="/images/returns/visuals-fade-sound-echoes.webp" decoding="async" alt=""
+                   class="w-full h-full object-cover opacity-50" />
             </div>
 
             <div class="absolute inset-0 radial-gradient-center opacity-20 pointer-events-none"></div>
@@ -724,14 +687,14 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
               <!-- On 04 the ANCHOR carries the accent border on mobile, so it IS the box —
                    pl-8/py-2 scoped to md:, one uniform mobile:p-4 in their place. -->
               <div data-sidebar-anchor class="md:pl-8 md:py-2 max-w-4xl relative z-10 mobile:border-l-2 mobile:border-accent mobile:p-4 mobile:w-full mobile:max-w-none mobile:min-h-[40svh] mobile:flex mobile:flex-col mobile:justify-center" style={gridStyle("04")}>
-                <span data-depth="0.1" class="text-eyebrow text-accent text-sm mb-8 mobile:mb-3 block">[ Neurology // Echoic_Memory ]</span>
+                <span class="text-eyebrow text-accent text-sm mb-8 mobile:mb-3 block">[ Neurology // Echoic_Memory ]</span>
 
                 <h2 class="font-mono text-5xl mobile:text-5xl md:text-[6vw] leading-[1.1] tracking-tighter mb-8 mobile:mb-4 uppercase text-foreground">
-                  <span id="visuals-fade-text" class="inline-block md:whitespace-nowrap mobile:opacity-40 mobile:text-[80%]">Visuals fade.</span><br/>
-                  <span id="sound-grow-text" class="text-primary inline-block md:whitespace-nowrap origin-right">Sound echoes.</span>
+                  <span id="visuals-fade-text" class="inline-block mobile:opacity-40 mobile:text-[80%]">Visuals fade.</span><br/>
+                  <span id="sound-grow-text" class="text-primary inline-block origin-right">Sound echoes.</span>
                 </h2>
 
-                <p data-depth="-0.05" class="font-sans text-2xl mobile:text-xl text-muted-foreground leading-relaxed">
+                <p class="font-sans text-2xl mobile:text-xl text-muted-foreground leading-relaxed">
                   Auditory sensory memory persists for 2-5 seconds - <strong>10 to 20 times longer</strong> than visual memory. It shows significantly better resistance to decay and triggers emotional encoding via the limbic system.
                 </p>
               </div>
@@ -754,7 +717,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                compositing group — so the mix-blend-screen brain below blends against a clipped
                backdrop and cuts off at a hard vertical line instead of dissolving into the
                journey colour. Same root cause as the image free-roam bug (see CLAUDE.md). -->
-          <section data-slide="4.5" class="hidden md:flex md:bg-transparent h-full flex-shrink-0 relative group z-10" style="width:180vw;content-visibility:visible;">
+          <section data-slide="4.5" class="hidden md:flex md:bg-transparent h-full flex-shrink-0 relative group z-10" style="width:300vw;content-visibility:visible;">
             
 <!-- Same blend recipe as the SLIDE-13 behind image: mix-blend-screen so the image's
                  dark areas drop out and the journey colour shows through (instead of an opaque
@@ -763,7 +726,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                  reads as an edge. The rgba intermediates below round it off. -->
             <div data-behind-layer class="mobile:hidden absolute inset-y-0 left-1/2 -translate-x-1/2 z-0 mix-blend-screen pointer-events-none"
                  style={`width:150vw;opacity:${BACKGROUNDS["4.5"].opacity / 100};-webkit-mask-image:${BRAIN_MASK};mask-image:${BRAIN_MASK};`}>
-              
+              <img src="/images/returns/brain-processing-speed.webp" decoding="async" alt="" class="w-full h-full object-cover object-center" />
             </div>
 
             <div class="w-full h-full flex flex-col items-center justify-center ml-32 relative z-10 pointer-events-none text-center">
@@ -854,7 +817,8 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
 
             <div class="sticky top-0 h-0 z-0 pointer-events-none">
               <div class="absolute inset-x-0 top-0 overflow-hidden" style="height:100svh">
-                
+                <img src="/images/returns/recall-under-pressure.webp" decoding="async" alt=""
+                     class="w-full h-full object-cover opacity-50" />
               </div>
             </div>
 
@@ -937,23 +901,19 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
 
             <!-- MOBILE-IMG | slide 07 | subconscious-trust-2.webp | full-bleed -->
             <div class="md:hidden absolute inset-0 pointer-events-none z-0">
-              
+              <img src="/images/returns/subconscious-trust-2.webp" decoding="async" alt=""
+                   class="w-full h-full object-cover opacity-50" />
             </div>
 
             <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
-            <!-- SPLIT INTO TWO BLOCKS (2026-09-11): eyebrow+title vs blurb (main copy + banking box)
-                 carry OPPOSITE data-depth, so they converge from opposite directions as the slide
-                 reaches centre. (Replaces the single 0.04-depth box; desktop-only motion, stacks on
-                 mobile.) -->
-            <div data-sidebar-anchor class="flex flex-col justify-center gap-6 mobile:gap-4 relative z-10 md:row-start-1" style={gridStyle("07")}>
-              <!-- TITLE BLOCK -->
-              <div data-converge="left" class="w-full md:max-w-2xl border-l-2 border-accent md:pl-8 md:py-2 mobile:p-4 mobile:bg-foreground/70">
+            <div data-sidebar-anchor class="flex flex-col justify-center relative z-10 md:row-start-1" style={gridStyle("07")}>
+              <div class="w-full md:max-w-2xl border-l-2 border-accent md:pl-8 md:py-2 mobile:p-4 mobile:min-h-[40svh] mobile:bg-foreground/70 mobile:flex mobile:flex-col mobile:justify-center">
                 <span class="text-eyebrow text-sm text-background/80 mb-8 mobile:mb-3 block">[ UX // Credibility ]</span>
                 <!-- mobile:[--m-h2:9vw] — overrides the shared mobile h2 size for this slide only. Needed
                        because "Subconscious" (12 chars) is the longest unbreakable word on the page:
                        at the default 12vw it overflowed the box on a 390px device. Sets the variable
                        rather than a font-size class, because the shared rule outranks utilities. -->
-                <h2 class="font-mono text-5xl mobile:[--m-h2:9vw] md:text-7xl leading-[1.1] uppercase flex flex-col items-start">
+                <h2 class="font-mono text-5xl mobile:[--m-h2:9vw] md:text-6xl leading-[1.1] mb-8 mobile:mb-4 uppercase flex flex-col items-start">
                   <span id="subconscious-word" class="mobile:hidden bg-gradient-to-r from-foreground/10 via-foreground to-foreground/10 bg-clip-text text-transparent bg-[length:200%_auto] bg-[position:200%_center] inline-block">
                     Subconscious
                   </span>
@@ -962,13 +922,10 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                   </span>
                   <span class="md:text-8xl leading-none font-bold text-background/80 mt-2">Trust.</span>
                 </h2>
-              </div>
-              <!-- BLURB BLOCK — opposite depth -->
-              <div data-converge="right" class="w-full mt-6 md:max-w-2xl border-l-2 border-accent md:pl-8 md:py-2 mobile:p-4 mobile:bg-foreground/70">
-                <p class="font-sans text-2xl mobile:text-xl text-background/80 leading-relaxed mobile:mb-4">
-                  Sound implies physical reality, making digital interactions feel safer.
+                <p class="font-sans text-2xl mobile:text-xl text-background/80 leading-relaxed mb-8 mobile:mb-4">
+                  Sound implies physical reality, making digital interactions feel safer. In high-stakes systems, auditory UX cues increase task success rates by 25%.
                 </p>
-                <div data-afterthought class="pl-6 mt-12 bg-background/80 backdrop-blur-sm p-4 mobile:hidden">
+                <div class="pl-6 mt-4 bg-background/80 backdrop-blur-sm p-4 mobile:hidden">
                   <p class="font-sans text-xl text-foreground leading-relaxed">
                     In banking, users associate transaction success primarily with proprietary sound cues over visual confirmations.
                   </p>
@@ -993,21 +950,22 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
 
             <!-- MOBILE-IMG | slide 08 | perceived-as-innovators.webp | full-bleed -->
             <div class="md:hidden absolute inset-0 pointer-events-none z-0">
-              
+              <img src="/images/returns/perceived-as-innovators.webp" decoding="async" alt=""
+                   class="w-full h-[125vh] object-cover opacity-50" />
             </div>
 
             <div class="absolute inset-0 radial-gradient-center opacity-20 pointer-events-none"></div>
             <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
             <!-- Same shape as slide 04: the anchor carries the accent border on mobile. -->
             <div data-sidebar-anchor class="md:pl-8 md:py-2 max-w-4xl relative z-10 mobile:border-l-2 mobile:border-accent mobile:p-4 mobile:w-full mobile:max-w-none mobile:min-h-[40svh] mobile:flex mobile:flex-col mobile:justify-center md:row-start-1 mobile:bg-background/60 md:bg-transparent" style={gridStyle("08")}>
-              <span data-depth="0.1" class="text-eyebrow text-sm text-accent mb-8 block">[ Perception // The Edge ]</span>
-
+              <span class="text-eyebrow text-sm text-accent mb-8 block">[ Perception // The Edge ]</span>
+              
               <h2 class="font-mono text-5xl md:text-[6vw] leading-[1.1] tracking-tighter mb-8 uppercase text-foreground">
-                <span data-depth="0.05" class="inline-block">Perceived as</span><br/>
-                <span data-depth="-0.04" class="text-accent inline-block origin-right">Innovators</span>
+                <span id="" class="inline-block">Perceived as</span><br/>
+                <span id="" class="text-accent inline-block origin-right">Innovators</span>
               </h2>
-
-              <p data-depth="-0.05" class="font-sans text-2xl mobile:text-xl p-4 bg-background/20 text-foreground/80 leading-relaxed">
+              
+              <p class="font-sans text-2xl mobile:text-xl p-4 bg-background/20 text-muted-foreground leading-relaxed">
                 Consumers inherently view brands that utilise strategic sound as more forward-thinking. Data shows that 60% of consumers believe brands that use sound in their communications are more innovative.
               </p>
             </div>
@@ -1034,7 +992,8 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
 
             <!-- MOBILE-IMG | slide 8.5 | untapped-opportunity.webp | full-bleed -->
             <div class="md:hidden absolute -top-24 inset-0 pointer-events-none z-0">
-              
+              <img src="/images/returns/untapped-opportunity.webp" decoding="async" alt=""
+                   class="w-[130vw] h-[130vh] object-cover opacity-50" />
             </div>
 
             <!-- Behind image (same pattern as the 4.5 brain). Set the src to your image;
@@ -1042,7 +1001,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                  fade via opacity. Sits at z-0 under the z-10 text. -->
             <div class="mobile:hidden absolute inset-y-0 left-1/2 -translate-x-1/2 z-0 pointer-events-none"
                  style="width:150vw;opacity:0.25;-webkit-mask-image:linear-gradient(to right, transparent 0%, black 40%, black 60%, transparent 100%);mask-image:linear-gradient(to right, transparent 0%, transparent 20%, black 40%, black 60%, transparent 80%, transparent 100%);">
-              
+              <img src="/images/returns/untapped-opportunity.webp" decoding="async" alt="" class="w-full h-full object-cover object-center" />
             </div>
 
             <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
@@ -1070,7 +1029,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                  <!-- Body: text-justify + leading-[2em] were costing ~40px per line and creating
                       ragged word gaps at phone width. mobile:text-left + leading-relaxed matches
                       the body copy on every other slide and reclaims enough height for it to fit. -->
-                 <span class="font-mono w-full text-foreground/60 md:text-2xl mobile:text-[clamp(0.875rem,5vw,1.125rem)] mt-4 mobile:mt-6 drop-shadow-md text-justify mobile:text-left leading-[2em] mobile:leading-snug">Sonic branding drives <span id="hl-loyalty" class="inline-block text-foreground md:text-2xl">loyalty</span> and <span id="hl-purchasing" class="inline-block text-foreground md:text-2xl">purchasing</span> <span id="hl-decisions" class="inline-block text-foreground md:text-2xl">decisions</span> - yet it remains the exclusive domain of global giants.<br/><br/><span class="text-foreground md:text-2xl">SME's make up 90% of businesses worldwide,</span> but most are leaving audio completely untapped.<br/><br/><span class="text-foreground md:text-2xl">That's not a gap.</span><br/><br/><span id="hl-opportunity" class="inline-block text-accent md:text-2xl"><u>That's an opportunity.</u></span></span>
+                 <span class="font-mono w-full text-foreground/50 md:text-xl mobile:text-[clamp(0.875rem,5vw,1.125rem)] mt-4 mobile:mt-6 drop-shadow-md text-justify mobile:text-left leading-[2em] mobile:leading-snug">Sonic branding drives <span id="hl-loyalty" class="inline-block text-foreground md:text-lg">loyalty</span> and <span id="hl-purchasing" class="inline-block text-foreground md:text-lg">purchasing</span> <span id="hl-decisions" class="inline-block text-foreground md:text-lg">decisions</span> — yet it remains the exclusive domain of global giants.<br/><br/><span class="text-foreground/80 md:text-xl">SME's make up 90% of businesses worldwide,</span> but most are leaving audio completely untapped.<br/><br/><span class="text-foreground md:text-xl">That's not a gap.</span><br/><br/><span id="hl-opportunity" class="inline-block text-accent md:text-xl"><u>That's an opportunity.</u></span></span>
               </div>
             </div>
           </section>
@@ -1086,7 +1045,8 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
             
             <!-- MOBILE-IMG | slide 09 | seamless-cultural-resonance.webp | full-bleed -->
             <div class="md:hidden absolute inset-0 pointer-events-none z-0">
-              
+              <img src="/images/returns/seamless-cultural-resonance.webp" decoding="async" alt=""
+                   class="w-full h-full object-cover opacity-50" />
             </div>
 
             <div class="md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
@@ -1095,17 +1055,17 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                  to cancel pl-8 on desktop.)
                  min-h moved HERE from the copy box below — see the note there. -->
             <div data-sidebar-anchor class="relative z-10 py-2 mobile:min-h-[40svh] mobile:flex mobile:flex-col mobile:justify-center md:row-start-1" style={gridStyle("09")}>
-              <span data-depth="0.1" class="text-eyebrow text-sm mb-8 mobile:mb-3 block">[ Localisation // Borders ]</span>
+              <span class="text-eyebrow text-sm mb-8 mobile:mb-3 block">[ Localisation // Borders ]</span>
               <h2 class="font-mono text-6xl mobile:text-5xl md:text-[6vw] leading-[0.9] tracking-tighter mb-12 mobile:mb-6 uppercase text-foreground">
-                <span data-depth="0.05" class="inline-block">Seamless</span><br/><span data-depth="-0.035" class="inline-block">cultural</span> <span data-depth="0.055" class="text-accent md:text-[8vw] drop-shadow-[0_0_20px_hsl(var(--accent)/0.3)] inline-block">Resonance.</span>
+                Seamless<br/>cultural <span class="text-accent md:text-[8vw] drop-shadow-[0_0_20px_hsl(var(--accent)/0.3)]">Resonance.</span>
               </h2>
               <!-- No min-h here: this box wraps ONLY the <p>. 40svh on a paragraph-only panel
                    made it fill half the slide. On slides where the box wraps the eyebrow + h2 +
                    copy (01, 03, 07, 11) the min-h does belong on the box — this slide has slide
                    00's shape instead, where it belongs on the anchor. -->
-              <div data-depth="-0.04" class="w-full max-w-2xl mobile:backdrop-blur-sm backdrop-blur-md mobile:bg-background/40 bg-background/20 md:p-6 mobile:p-4 mobile:max-w-none border-l-2 border-accent">
-                <p class="font-sans text-xl mobile:text-xl md:text-2xl text-foreground/80 leading-relaxed">
-                  Visual copy requires translation.<br/><br/> A well-architected sonic identity transcends borders automatically, requiring zero localisation and maintaining brand consisteny globally.
+              <div class="w-full max-w-2xl mobile:backdrop-blur-sm backdrop-blur-md mobile:bg-background/40 bg-background/20 md:p-6 mobile:p-4 mobile:max-w-none border-l-2 border-accent">
+                <p class="font-sans text-xl mobile:text-xl md:text-2xl text-muted-foreground leading-relaxed">
+                  Visual copy requires translation. A well-architected sonic identity scales across borders instantly, requiring zero localization overhead while maintaining absolute brand consistency globally.
                 </p>
               </div>
             </div>
@@ -1144,7 +1104,8 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
             <!-- MOBILE-IMG | slide 10 | sea-of-sameness-2.webp | STICKY BACKDROP | Sea of Sameness — 2 slides -->
             <div class="md:hidden sticky top-0 h-0 z-0 pointer-events-none">
               <div class="absolute inset-x-0 top-0 overflow-hidden" style="height:100svh">
-                
+                <img src="/images/returns/sea-of-sameness-2.webp" decoding="async" alt=""
+                     class="w-full h-full object-cover opacity-50" />
               </div>
             </div>
 
@@ -1152,12 +1113,12 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
 
             <div class="md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
             <div data-sidebar-anchor class="md:pl-8 md:py-2 z-10 mobile:border-l-2 mobile:border-accent mobile:p-4 mobile:w-full mobile:min-h-[40svh] mobile:flex mobile:flex-col mobile:justify-center md:row-start-1 mobile:bg-background/40" style={gridStyle("10")}>
-              <span data-depth="0.1" class="text-eyebrow text-sm mb-8 block">[ Asset // Ownership ]</span>
+              <span class="text-eyebrow text-sm mb-8 block">[ Asset // Ownership ]</span>
               <h2 class="font-mono text-5xl mobile:text-[11vw] md:text-[6vw] leading-[1.1] tracking-tighter mb-8 uppercase text-foreground">
-                <span data-depth="0.05" class="inline-block">Stop renting</span> <br/><span data-depth="-0.035" class="inline-block">from the sea</span><br/><span data-depth="0.05" class="inline-block">of <span class="text-accent">sameness.</span></span>
+                Stop renting <br/>from the sea<br/>of <span class="text-accent">sameness.</span>
               </h2>
-              <p data-depth="-0.04" class="font-sans text-2xl text-foreground/80 leading-relaxed max-w-4xl bg-background/60 backdrop-blur-md p-8 border border-border/20 mobile:hidden">
-                Library tracks may win the moment, but they fail to build lasting equity.<br/><br/>Leading brands ensure at least <strong>30% of their audio assets are wholly owned</strong>, protecting their future sonic identity.
+              <p class="font-sans text-2xl text-muted-foreground leading-relaxed max-w-4xl bg-background/60 backdrop-blur-md p-8 border border-border/20 mobile:hidden">
+                Short-term custom tracks may win the moment, but they fail to build lasting equity. Leading sonic brands ensure at least <strong>30% of their audio assets are wholly owned</strong>, protecting their mental availability.
               </p>
             </div>
             </div><!-- /container -->
@@ -1215,7 +1176,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                      inside it. mobile:text-[11vw] scales with the viewport, matching slide 11. -->
                 <h2 class="font-mono text-5xl md:text-8xl leading-tight mb-8 uppercase">Tap into the <br/><span class="text-background mobile:text-[9vw] text-9xl font-bold drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">subconscious</span></h2>
                 <div class="">
-                  <p class="text-right mobile:text-center text-2xl text-foreground uppercase">and Discover <span id="hl-believe" class="text-background mobile:text-2xl text-3xl">Your Sound</span></p>
+                  <p class="text-right mobile:text-center text-2xl text-foreground uppercase">With the <span id="hl-believe" class="text-background mobile:text-2xl text-3xl">Power</span> of <span id="hl-power" class="text-background mobile:text-2xl text-3xl">sound</span></p>
                 </div>
               </div>
               <div>
@@ -1257,7 +1218,8 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                   This is the plain full-bleed inset-0 pattern used by the other mobile slides. -->
              <!-- MOBILE-IMG | slide 12 | master-the-signal.webp | full-bleed -->
              <div class="md:hidden absolute inset-0 pointer-events-none z-0">
-               
+               <img src="/images/returns/master-the-signal.webp" decoding="async" alt=""
+                    class="w-full h-full object-cover opacity-50" />
              </div>
 
              <!-- Behind-text background image (master-the-signal) — sits at z-0 under the z-10 text.
@@ -1265,25 +1227,20 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                   edge-mask + mix-blend-screen, positioned inside the text slide. -->
              <div class="mobile:hidden absolute inset-y-0 z-0 mix-blend-screen pointer-events-none"
                   style={`left:-25vw;width:${BACKGROUNDS["13"].width};opacity:${BACKGROUNDS["13"].opacity / 100};-webkit-mask-image:linear-gradient(to right, transparent 0%, rgba(0,0,0,0.3) 14%, rgba(0,0,0,0.75) 28%, black 40%, black 80%, rgba(0,0,0,0.75) 87%, rgba(0,0,0,0.3) 94%, transparent 100%);mask-image:linear-gradient(to right, transparent 0%, rgba(0,0,0,0.3) 14%, rgba(0,0,0,0.75) 28%, black 40%, black 80%, rgba(0,0,0,0.75) 87%, rgba(0,0,0,0.3) 94%, transparent 100%);`}>
-               
+               <img src="/images/returns/master-the-signal.webp" decoding="async" alt="" class="w-full h-full object-cover object-center" />
              </div>
-             <!-- Bottom-fade gradient REMOVED (2026-09-11): it existed to dissolve the old
-                  master-the-signal photo's bottom edge, but the photo is stripped, so it was just
-                  painting an opaque `from-background` dark band with a hard LEFT edge as this slide
-                  scrolled in over the amber journey — the visible "hard cut into Master the Signal"
-                  (and again into the end slide). With no image there's nothing to dissolve, so the
-                  journey colour now shows through cleanly behind the transparent slide. -->
-
-             <!-- (accent/primary "radar" ping-rings removed — they read as competing accent layers
-                 against the journey amber fade at the end.) -->
+             <!-- Bottom fade — dissolves the image into the (dark) background before its hard bottom
+                  edge, so scrolling down into the end screen isn't a hard cutoff. -->
+             <div class="mobile:hidden absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background to-transparent pointer-events-none z-0"></div>
+             <div class="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
+               <div class="w-[60vw] h-[60vw] border border-accent rounded-full animate-ping [animation-duration:4s]"></div>
+               <div class="absolute w-[30vw] h-[30vw] border border-primary rounded-full animate-ping [animation-duration:2s] delay-1000"></div>
+             </div>
 
             <!-- Panel background removed. Legibility now comes from a per-glyph text-shadow halo on the
                  copy below (same approach as the Recall Under Pressure slide), so the image stays
                  readable instead of sitting behind a solid slab. mobile:z-50 kept for stacking. -->
-            <div data-end-fade class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full mobile:z-50">
-              <!-- data-end-fade: desktop cross-fade — this content dissolves in (opacity 0→1) as the
-                   slide reaches centre, so it emerges over the held amber instead of hard-scrolling in.
-                   Mobile untouched (GSAP early-returns before the fade loop runs). -->
+            <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full mobile:z-50">
               <!-- TODO: verify anchor against actual text position with dom — content is right-aligned (items-end) so sidebar may not track to the visual centre of the text -->
               <div data-sidebar-anchor class="md:row-start-1 flex flex-col items-end justify-center" style={gridStyle("12")}>
                 <!-- mobile:pb-32 reserves room for the now-absolutely-pinned button below, so the
@@ -1299,9 +1256,9 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                         Button and anchored it inside that div instead of the <section>. The Button is
                         a sibling of this box's parent, so from here the blur can't reach it. -->
                    <div class="relative z-10 flex flex-col items-end md:pl-8 md:py-2 text-right mobile:border-l-2 mobile:border-accent mobile:bg-foreground/20 mobile:backdrop-blur-sm mobile:p-4 mobile:w-full mobile:min-h-[40svh] mobile:justify-center mobile:items-start mobile:text-left">
-                      <span data-depth="0.05" class="text-eyebrow text-sm mb-8 block text-accent mobile:[text-shadow:0_0_12px_hsl(var(--background)),0_0_30px_hsl(var(--background))]">[ Execution // Final_Phase ]</span>
-                      <h2 data-depth="0.03" class="font-mono text-6xl mobile:text-5xl md:text-[8vw] leading-none tracking-tighter mb-8 mobile:mb-4 uppercase text-primary drop-shadow-[0_0_30px_hsl(var(--accent)/0.3)] mobile:[text-shadow:0_0_20px_hsl(var(--background)),0_0_55px_hsl(var(--background))]">Master the<span class="text-accent"><br/>Signal</span></h2>
-                      <p data-depth="-0.02" class="font-sans text-2xl mobile:text-xl mobile:text-foreground/80 text-muted-foreground mb-16 mobile:mb-0 max-w-2xl mobile:[text-shadow:0_0_12px_hsl(var(--background)),0_0_30px_hsl(var(--background))]">
+                      <span class="text-eyebrow text-sm mb-8 block text-accent mobile:[text-shadow:0_0_12px_hsl(var(--background)),0_0_30px_hsl(var(--background))]">[ Execution // Final_Phase ]</span>
+                      <h2 class="font-mono text-6xl mobile:text-5xl md:text-[8vw] leading-none tracking-tighter mb-8 mobile:mb-4 uppercase text-primary drop-shadow-[0_0_30px_hsl(var(--accent)/0.3)] mobile:[text-shadow:0_0_20px_hsl(var(--background)),0_0_55px_hsl(var(--background))]">Master the<span class="text-accent"><br/>Signal</span></h2>
+                      <p class="font-sans text-2xl mobile:text-xl mobile:text-foreground/80 text-muted-foreground mb-16 mobile:mb-0 max-w-2xl mobile:[text-shadow:0_0_12px_hsl(var(--background)),0_0_30px_hsl(var(--background))]">
                         You know the data. You know the ROI. Turbo charge your brand identity.
                       </p>
                    </div>
@@ -1339,38 +1296,39 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
           <section data-slide="spacer" class="mobile:hidden w-[20vw] md:w-[25vw] h-full flex-shrink-0 md:bg-transparent z-10"></section>
           <!-- #endregion TRAILING-SPACER -->
 
-          <!-- ═══════════════════════════════════════════════════════════
-               END SLIDE (was the vertical #end-screen) — now the FINAL HORIZONTAL slide, so the whole
-               journey stays horizontal end-to-end (no vertical hand-over). No CTA/footer follows.
-               ═══════════════════════════════════════════════════════════ -->
-          <section data-slide="end" class="w-screen h-full flex-shrink-0 flex flex-col items-center justify-center bg-background md:bg-transparent relative overflow-hidden z-10">
-            <!-- data-end-fade wrapper: same desktop cross-fade as Master the Signal — the whole end
-                 card dissolves in as it reaches centre. gap-8 moved here so spacing is preserved. -->
-            <div data-end-fade class="flex flex-col items-center gap-8">
-            <svg id="end-logo" width="48" height="56" viewBox="-1 0.5 7 8" shape-rendering="crispEdges" fill="hsl(var(--primary))" stroke="hsl(var(--primary))" stroke-width="0.25" class="animate-pulse-glow-svg" aria-hidden="true">
-              <rect x="0" y="1" width="1" height="1" />
-              <rect x="1" y="2" width="1" height="5" />
-              <rect x="0" y="4" width="4" height="1" />
-              <rect x="4" y="4" width="1" height="3" />
-              <rect x="1" y="7" width="3" height="1" />
-            </svg>
-            <p class="font-mono text-xs uppercase tracking-[0.4em] text-muted-foreground">bitmap.audio</p>
-            <div class="flex flex-col items-center gap-4 mt-4">
-              <a href="/home" class="font-mono text-sm w-full uppercase tracking-widest text-accent hover:brightness-125 border border-primary p-2 transition-all">
-                ← Return to Site
-              </a>
-              <a href="/contact" class="font-mono text-sm w-full uppercase tracking-widest text-primary hover:brightness-125 border border-accent p-2 transition-colors">
-                Start a Project →
-              </a>
-            </div>
-            </div>
-          </section>
-
         </div>
       </div>
     </div>
 
-    <!-- (vertical #end-screen removed — it's now the final horizontal slide in the strip above.) -->
+    <!-- End-of-journey screen -->
+    <div id="end-screen" class="h-svh flex flex-col items-center justify-center gap-8 bg-background relative overflow-hidden">
+
+      <!-- Sidebar continuation — visually extends #sidebar-track into the end screen -->
+      <div class="absolute left-0 top-0 w-24 h-full z-50 pointer-events-none hidden md:flex flex-col items-center justify-center gap-8  bg-background/80 backdrop-blur-md shadow-[20px_0_40px_-15px_rgba(0,0,0,0.5)]">
+        <span class="font-mono text-muted-foreground text-[10px] tracking-widest rotate-180 [writing-mode:vertical-lr] uppercase">Initiate</span>
+        <div class="h-48 w-[1px] bg-border/30 relative">
+          <div id="end-indicator-line" class="absolute top-0 w-[3px] -left-[1px] bg-accent shadow-[0_0_15px_hsl(var(--accent))] origin-top scale-y-0"></div>
+        </div>
+        <span class="font-mono text-accent text-[10px]">13</span>
+      </div>
+
+      <svg id="end-logo" width="48" height="56" viewBox="-1 0.5 7 8" shape-rendering="crispEdges" fill="hsl(var(--primary))" stroke="hsl(var(--primary))" stroke-width="0.25" class="animate-pulse-glow-svg" aria-hidden="true">
+        <rect x="0" y="1" width="1" height="1" />
+        <rect x="1" y="2" width="1" height="5" />
+        <rect x="0" y="4" width="4" height="1" />
+        <rect x="4" y="4" width="1" height="3" />
+        <rect x="1" y="7" width="3" height="1" />
+      </svg>
+      <p class="font-mono text-xs uppercase tracking-[0.4em] text-muted-foreground">bitmap.audio</p>
+      <div class="flex flex-col items-center gap-4 mt-4">
+        <a href="/home" class="font-mono text-sm w-full uppercase tracking-widest text-accent hover:brightness-125 border border-primary p-2 transition-all">
+          ← Return to Site
+        </a>
+        <a href="/contact" class="font-mono text-sm w-full uppercase tracking-widest text-primary hover:brightness-125 border border-accent p-2 transition-colors">
+          Start a Project → 
+        </a>
+      </div>
+    </div>
   </main>
 
 </Layout>
@@ -1387,8 +1345,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
 <script>
   import { gsap } from "gsap";
   import { ScrollTrigger } from "gsap/ScrollTrigger";
-  import { buildJourney } from "../lib/scenes/pixel-journey";
-
+  
   gsap.registerPlugin(ScrollTrigger);
 
   const initStickyScroll = () => {
@@ -1470,9 +1427,8 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
     if (isMobile) {
       document.documentElement.classList.add('is-mobile-snap');
 
-      // NOTE: the old vertical #end-screen is gone — the end screen is now the FINAL slide inside the
-      // horizontal strip (data-slide="end"), so on mobile it's just the last snap slide. (was: hidden
-      // on mobile via `html.is-mobile-snap #end-screen`.) Its only content is
+      // NOTE: #end-screen is NOT relocated into the scroller any more — it's hidden on mobile
+      // entirely (see `html.is-mobile-snap #end-screen` in the style block). Its only content is
       // navigation, which the hamburger already covers, so "Master the Signal" is the last slide.
       // Desktop is unaffected: end-screen stays in normal document flow after the track.
 
@@ -1499,20 +1455,10 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
     // Returns the horizontal position at which a section's [data-sidebar-anchor] is centred in the viewport.
     // Falls back to the section's geometric centre when no anchor is present.
     const anchorCenter = (sec: HTMLElement): number => {
-      // Text sections are `content-visibility: auto`, so when OFF-SCREEN their inner content isn't
-      // laid out and `anchor.offsetLeft/Width` collapse to 0 — which pins the sidebar to the section's
-      // LEFT edge instead of the content's centre (the error grows the further right the content's
-      // grid column sits, breaking alignment from Credibility onward). Force the section visible just
-      // long enough to measure, then restore. (The section's own width is explicit, so offsetLeft is
-      // already correct; only the inner anchor needs this.)
-      const prevCV = sec.style.contentVisibility;
-      sec.style.contentVisibility = 'visible';
       const anchor = sec.querySelector('[data-sidebar-anchor]') as HTMLElement | null;
-      const val = anchor
+      return anchor
         ? sec.offsetLeft + anchor.offsetLeft + anchor.offsetWidth / 2 - window.innerWidth / 2
         : sec.offsetLeft + sec.offsetWidth / 2 - window.innerWidth / 2;
-      sec.style.contentVisibility = prevCV;
-      return val;
     };
 
     const slide02 = document.querySelector('[data-sidebar="2"]') as HTMLElement | null;
@@ -1548,11 +1494,6 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
       document.fonts.ready.then(() => ScrollTrigger.refresh());
     }
 
-    // PIXEL JOURNEY — the scroll-scrubbed hero pixel (desktop only). Built after the strip tween so
-    // getScrollPos/anchorCenter are final; it reads slide positions via the same helpers.
-    const pjStage = document.getElementById('pixel-journey');
-    if (pjStage) buildJourney({ ScrollTrigger, stage: pjStage, strip, track, getScrollPos, anchorCenter });
-
     // Measure where each sidebar section actually centers horizontally,
     // then resize asides and set indicator triggers to match those real positions.
     const sidebarEl = document.getElementById('sidebar-track') as HTMLElement;
@@ -1567,56 +1508,60 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
     const asideSecs = sidebarAsides.map(a =>
       strip.querySelector(`[data-slide="${a.dataset.asideId}"]`) as HTMLElement | null
     );
-    // LIVE doc-scroll position at which a section is horizontally centred. Recomputed on every call
-    // (not cached) so it always reflects the real, post-font, post-resize layout. anchorCenter forces
-    // content-visibility so off-screen sections measure correctly.
-    const secScrollPos = (sec: HTMLElement | null) => {
-      if (!sec) return 0;
-      const tH = strip.scrollWidth - window.innerWidth - endOffset();
-      const tV = track.offsetHeight - window.innerHeight;
-      return Math.max(0, (anchorCenter(sec) / tH) * tV);
-    };
+    // Vertical scroll position at which each aside's section is horizontally centered.
+    const sectionScrollPos = asideSecs.map(sec =>
+      sec ? Math.max(0, (anchorCenter(sec) / totalH) * totalV) : 0
+    );
 
     // Oversized ghost number on each section slide — generated from the SAME order as the sidebar,
     // so the ghost and the sidebar number can never drift apart. Images/spacers get none.
     asideSecs.forEach((sec, i) => {
       if (!sec || sec.querySelector('.slide-ghost-num')) return;
       const g = document.createElement('div');
+      
+      // Replaced top-0 with top-1/2 and -translate-y-1/2
       g.className = 'slide-ghost-num mobile:hidden absolute right-0 top-1/2 -translate-y-1/2 font-mono font-bold text-foreground blur-4xl select-none pointer-events-none z-0 leading-none mix-blend-overlay opacity-30 z-2 hidden';
+      
       g.style.fontSize = '50vw';
       g.textContent = String(i).padStart(2, '0');
       sec.prepend(g);
     });
 
-    // ── SIDEBAR ALIGNMENT (robust) ── Each aside is ABSOLUTELY positioned so its CENTRE sits exactly
-    // at viewport centre when its section is centred (top = section's centred scroll pos, height = one
-    // viewport, content centred). This replaces the old stacked-height cascade + min-height floor,
-    // which drifted / swallowed labels once slides sat closer than half a viewport apart (exactly what
-    // resizing the intermissions caused). Re-runs on every ScrollTrigger refresh (fonts + resize).
-    const layoutSidebar = () => {
-      sidebarAsides.forEach((aside, i) => {
-        aside.style.position = 'absolute';
-        aside.style.left = '0';
-        aside.style.width = '100%';
-        aside.style.height = `${window.innerHeight}px`;
-        aside.style.top = `${secScrollPos(asideSecs[i])}px`;
-      });
-    };
-    layoutSidebar();
-    ScrollTrigger.addEventListener('refresh', layoutSidebar);
+    // Resize each aside so its vertical center is at the viewport midpoint
+    // exactly when scrollY equals that section's horizontal center position.
+    let cumTop = 0;
+    sidebarAsides.forEach((aside, i) => {
+      if (i >= sectionScrollPos.length) return;
+      const targetDocCenter = sectionScrollPos[i] + window.innerHeight / 2;
+      const height = Math.max(window.innerHeight * 0.5, 2 * (targetDocCenter - cumTop));
+      aside.style.height = `${height}px`;
+      cumTop += height;
+    });
 
-    // Indicator lines fill across each section's scroll window (function-based → self-correcting on refresh).
+    // Stretch the last aside to fill any remaining sidebar height — otherwise a gap of bare
+    // background appears below "12 / Execution" because cumTop stops short of sidebarEl.offsetHeight.
+    if (sidebarAsides.length) {
+      const last = sidebarAsides[sidebarAsides.length - 1];
+      const lastHeight = parseFloat(last.style.height);
+      const remaining = sidebarEl.offsetHeight - (cumTop - lastHeight);
+      if (remaining > lastHeight) {
+        last.style.height = `${remaining}px`;
+      }
+    }
+
+    // Indicator lines animate across each section's scroll window
     indicators.forEach((ind, i) => {
-      if (i >= asideSecs.length) return;
+      if (i >= sectionScrollPos.length) return;
+      const start = sectionScrollPos[i];
+      const end = i + 1 < sectionScrollPos.length ? sectionScrollPos[i + 1] : totalV;
       gsap.to(ind, {
         scaleY: 1,
         ease: "none",
         scrollTrigger: {
           trigger: track,
-          start: () => `${secScrollPos(asideSecs[i])}px top`,
-          end: () => `${i + 1 < asideSecs.length ? secScrollPos(asideSecs[i + 1]) : (track.offsetHeight - window.innerHeight)}px top`,
+          start: `${start}px top`,
+          end: `${end}px top`,
           scrub: true,
-          invalidateOnRefresh: true,
         }
       });
     });
@@ -1816,95 +1761,7 @@ id: string; type?: string; vivid?: boolean; imgX?: string; opacity?: number;
       );
     });
 
-    // ── END-SLIDE CROSS-FADE (desktop) ───────────────────────────────────────
-    // The final two slides — Master the Signal (data-slide "12") and the bitmap.audio end card
-    // ("end") — used to hard-scroll into view over the amber Belief screen. Here their content
-    // (tagged [data-end-fade]) dissolves in on OPACITY only (no blur, so the CTA glow + logo stay
-    // crisp) as each slide approaches centre, so it emerges over the held amber/journey instead of
-    // cutting in. Fade-IN only: self-kills on the way in so scrolling back keeps them visible.
-    // Desktop-only — this whole block is past the isMobile early-return, and gsap.set never runs
-    // on mobile, so the mobile snap slides keep full opacity.
-    ["12", "end"].forEach((id) => {
-      const sec = strip.querySelector(`[data-slide="${id}"]`) as HTMLElement | null;
-      const content = sec?.querySelector("[data-end-fade]") as HTMLElement | null;
-      if (!sec || !content) return;
-      const win = () => window.innerWidth * 0.6; // fade spans ~0.6vw of scroll before centre
-      content.style.willChange = "opacity";
-      gsap.set(content, { opacity: 0 });
-      gsap.fromTo(content, { opacity: 0 },
-        {
-          opacity: 1, ease: "none",
-          scrollTrigger: {
-            trigger: track,
-            start: () => `${getScrollPos(anchorCenter(sec) - win())}px top`,
-            // finish a touch before dead-centre so it's fully resolved while framed
-            end:   () => `${getScrollPos(anchorCenter(sec) - win() * 0.15)}px top`,
-            scrub: true,
-            invalidateOnRefresh: true,
-            onLeave: (self) => { self.kill(); gsap.set(content, { opacity: 1 }); },
-          },
-        }
-      );
-    });
 
-    // ── SPLIT-BLOCK CONVERGE (desktop) ───────────────────────────────────────
-    // On the three split slides — 01 (When Everyone Is Listening), 03 (Faster than Sight),
-    // 07 (Subconscious Trust) — the eyebrow+title block [data-converge="left"] ALWAYS drifts in
-    // from the left and the blurb block [data-converge="right"] from the right, and they meet at
-    // their resting position when the scroll is in the MIDDLE of the scene. A gentle V-shape:
-    //   offset = side * amp * |1 - 2·progress|   (full offset at scene enter/exit, 0 at centre)
-    // so each block stays on its own side the whole time and only kisses in the middle. Small amp
-    // + wide window = a slow drift, not a fast slide. Replaces the earlier data-depth on these
-    // blocks (that drifted linearly, so title/blurb swapped sides past centre). Desktop-only.
-    ["01", "03", "07"].forEach((id) => {
-      const sec = strip.querySelector(`[data-slide="${id}"]`) as HTMLElement | null;
-      if (!sec) return;
-      const leftEl  = sec.querySelector('[data-converge="left"]')  as HTMLElement | null;
-      const rightEl = sec.querySelector('[data-converge="right"]') as HTMLElement | null;
-      if (!leftEl && !rightEl) return;
-      const amp = () => window.innerWidth * 0.05; // max drift (~5vw) — subtle
-      const win = () => window.innerWidth * 1.1;  // half-span each side of centre — wide = slow
-      [leftEl, rightEl].forEach((el) => { if (el) el.style.willChange = "transform"; });
-      ScrollTrigger.create({
-        trigger: track,
-        start: () => `${getScrollPos(anchorCenter(sec) - win())}px top`,
-        end:   () => `${getScrollPos(anchorCenter(sec) + win())}px top`,
-        scrub: true,
-        invalidateOnRefresh: true,
-        onUpdate: (self) => {
-          const d = Math.abs(1 - 2 * self.progress); // 1 at edges → 0 at centre
-          const a = amp() * d;
-          if (leftEl)  leftEl.style.transform  = `translate3d(${-a}px,0,0)`;
-          if (rightEl) rightEl.style.transform = `translate3d(${a}px,0,0)`;
-        },
-      });
-    });
-
-    // ── "AFTERTHOUGHT" DRIFT (desktop) ───────────────────────────────────────
-    // The banking stat on Subconscious Trust ([data-afterthought]) sits QUITE a bit to the right
-    // and drifts left to its resting spot as the scene centres, so the eye reads the title + main
-    // blurb first and this lands as an afterthought. Same V-shape as the converge but always on the
-    // right (side=+1) with a bigger amplitude. It's inside the blurb block (data-converge="right"),
-    // so this transform composes with the parent's → it starts even further right. Desktop-only.
-    strip.querySelectorAll("[data-afterthought]").forEach((node) => {
-      const el = node as HTMLElement;
-      const sec = el.closest("[data-slide]") as HTMLElement | null;
-      if (!sec) return;
-      const amp = () => window.innerWidth * 0.22; // big rightward offset — read last
-      const win = () => window.innerWidth * 1.1;
-      el.style.willChange = "transform";
-      ScrollTrigger.create({
-        trigger: track,
-        start: () => `${getScrollPos(anchorCenter(sec) - win())}px top`,
-        end:   () => `${getScrollPos(anchorCenter(sec) + win())}px top`,
-        scrub: true,
-        invalidateOnRefresh: true,
-        onUpdate: (self) => {
-          const d = Math.abs(1 - 2 * self.progress);
-          el.style.transform = `translate3d(${amp() * d}px,0,0)`;
-        },
-      });
-    });
 
     if (dataPaths.length > 0) {
 
@@ -2261,7 +2118,28 @@ id: string; type?: string; vivid?: boolean; imgX?: string; opacity?: number;
       });
     }
 
-    // (SLIDE-3.1 "sound radar" rings + their fade-out GSAP removed — animation paused.)
+    // ── SOUNDWAVES FADE OUT ─────────────────────────────────────────────────
+    // The Tiger's ramp finishes at -0.5 (it is fully established).
+    // We start fading the rings out exactly there, finishing as the tiger hits 0.
+    const soundwaveRings = document.getElementById("soundwave-rings");
+    const slide3_25 = document.querySelector('[data-slide="3.25"]') as HTMLElement | null;
+
+    if (soundwaveRings && slide3_25) {
+      gsap.fromTo(soundwaveRings,
+        { opacity: 1 },
+        {
+          opacity: 0,
+          ease: "none",
+          scrollTrigger: {
+            trigger: track,
+            start: () => `${getScrollPos(slide3_25.offsetLeft - 1.2 * window.innerWidth)}px top`,
+            end: () => `${getScrollPos(slide3_25.offsetLeft -0.7 * window.innerWidth)}px top`,
+            scrub: true,
+            invalidateOnRefresh: true,
+          }
+        }
+      );
+    }
 
     // WORD HIGHLIGHTS — shift specific words from muted → accent as their slide enters
     if (highlights) {

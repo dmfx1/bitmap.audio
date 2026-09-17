@@ -417,6 +417,13 @@ Mobile hamburger menu current behaviour (do not revert):
 
 ### Backlog / circle back later
 
+- **🔖 BOOKMARK — "reverse the void" at the CTA** (dom's idea, 2026-09-02): the scene stage opens by
+  pulling the user INTO the void (binary rain `#grid-bg` scales up 1→3 + fog + portal). dom wants the
+  END (the CTA finale) to reverse-engineer that: as the CTA resolves / the stage releases, pull the
+  user BACK OUT — the CTA scene dissolves into the zoomed-out binary rain (grid-bg scaling 3→1 or
+  1→smaller), mirroring the intro so the journey book-ends. NOT actioned yet. **dom asked to be
+  PROMPTED about this later — surface it when we've finished a large chunk and have spare time.**
+
 - **Momentary "sticky-pause" per section** (about-v2 idea, deferred 2026-08-12): dom wants each
   section to briefly PAUSE at the top of the viewport as it arrives, ideally a `stickLength=x`
   prop. First attempt was a CSS `position: sticky` wrapper (`src/components/StickySection.astro`,

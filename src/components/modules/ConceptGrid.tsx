@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { cn } from "@/lib/utils";
 import { useBinaryScramble } from '@/hooks/use-binary-scramble';
 import { useMobileCenterIndex } from '@/hooks/use-mobile-center-index';
+import { usePixelRoam } from '@/hooks/use-pixel-roam';
 import {
   BitmapMail, BitmapMap, BitmapArrow, BitmapChevron, BitmapNode, BitmapTick,
   BitmapMobileApps, BitmapWebApplications, BitmapHardwareProducts,
@@ -56,6 +57,8 @@ interface ConceptGridProps {
   onProjectClick?: (item: Concept) => void;
   mobileGlow?: boolean;
   columns?: 1 | 2 | 3; // override cards-per-row on desktop (default: auto based on count)
+  /** Pixel-assemble the card's bitmap icon each time it becomes active (desktop). Opt-in per usage. */
+  animateIcons?: boolean;
 }
 
 export default function ConceptGrid({
@@ -67,6 +70,7 @@ export default function ConceptGrid({
   onProjectClick,
   mobileGlow = false,
   columns,
+  animateIcons = false,
 }: ConceptGridProps) {
   const [internalScan, setInternalScan] = useState(false);
   const [activeAutoIndex, setActiveAutoIndex] = useState<number | null>(null);
@@ -101,8 +105,8 @@ export default function ConceptGrid({
           if (current === null || current >= items.length - 1) return 0;
           return current + 1;
         });
-      }, 3500); // Duration each card stays active
-    }, 2500); // Initial entrance delay
+      }, 2200); // Duration each card stays active
+    }, 1000); // Initial entrance delay
 
     return () => {
       clearTimeout(startDelay);
@@ -192,6 +196,7 @@ export default function ConceptGrid({
             onUserLeave={handleUserLeave} // Passed down to the card
             onClick={(item.videoSlug || item.framerateId) && onProjectClick ? () => onProjectClick(item) : undefined}
             mobileGlow={mobileGlow}
+            animateIcons={animateIcons}
           />
         ))}
       </div>
@@ -210,6 +215,7 @@ function ProjectCard({
     onUserInteraction,
     onUserLeave,
     mobileGlow = false,
+    animateIcons = false,
   }: {
     item: Concept;
     onClick?: () => void;
@@ -221,9 +227,11 @@ function ProjectCard({
     onUserInteraction: () => void;
     onUserLeave: () => void;
     mobileGlow?: boolean;
+    animateIcons?: boolean;
   }) {
   const [isHovered, setIsHovered] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const iconRef = useRef<HTMLDivElement>(null);
   const Icon = item.icon ? ICON_MAP[item.icon] : null;
   const CornerIcon = item.cornerIcon ? ICON_MAP[item.cornerIcon] : null;
 
@@ -244,6 +252,9 @@ function ProjectCard({
       if (videoRef.current) videoRef.current.currentTime = 0;
     }
   }, [shouldBePlaying]);
+
+  // One pixel roams the icon shape each time the card becomes active (see usePixelRoam). Subtle.
+  usePixelRoam(iconRef, shouldBePlaying, animateIcons);
 
   const hasVideo = item.previewVideo || item.previewVideoMp4;
 
@@ -296,7 +307,7 @@ function ProjectCard({
         <div className="relative z-10 pointer-events-none flex flex-col h-full justify-between">
           <div>
             {Icon && (
-              <div className={cn("mb-6 transition-all duration-500", shouldBePlaying ? "text-accent" : "text-primary")}>
+              <div ref={iconRef} className={cn("mb-6 transition-all duration-500", shouldBePlaying ? "text-accent" : "text-primary")}>
                 <Icon className="w-8 h-8" />
               </div>
             )}

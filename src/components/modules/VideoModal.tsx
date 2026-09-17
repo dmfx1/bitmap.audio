@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { BitmapClose } from '../ui/icons';
 import { buildEmbedUrl, DEFAULT_THEME } from '@/data/videos';
 
@@ -30,7 +31,7 @@ export default function VideoModal({ isOpen, onClose, framerateId, mobileFramera
     }
   }, [isOpen, framerateId, mobileFramerateId]);
 
-  if (!isOpen) return null;
+  if (!isOpen || typeof document === 'undefined') return null;
 
   if (isVertical) {
     // Vertical (9:16) mobile layout — FULL-SCREEN COVER, tap-to-play.
@@ -47,7 +48,7 @@ export default function VideoModal({ isOpen, onClose, framerateId, mobileFramera
     //
     // Container and iframe share the 100dvh (dynamic viewport) basis so the iframe matches the
     // container height at every toolbar state — no dark band top/bottom.
-    return (
+    return createPortal(
       <div
         style={{
           position: 'fixed',
@@ -82,16 +83,21 @@ export default function VideoModal({ isOpen, onClose, framerateId, mobileFramera
           <span className="opacity-50 uppercase">[ Decommission ]</span>
           <BitmapClose className="w-5 h-5 text-accent" />
         </button>
-      </div>
+      </div>,
+      document.body,
     );
   }
 
-  // Desktop: constrained 16:9 (aspect-video) box.
-  return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-12 lg:p-24">
+  // Desktop: a big 16:9 box filling ~85% of the viewport (bounded by 85vw AND 85svh so it stays
+  // 16:9 and never overflows on short/wide screens), centred over a blurred backdrop.
+  return createPortal(
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-background/95 backdrop-blur-3xl animate-fade-in" onClick={onClose} />
 
-      <div className="relative w-full max-w-6xl aspect-video min-h-[200px] bg-card border border-foreground/10 shadow-2xl animate-fade-in-up">
+      <div
+        className="relative aspect-video min-h-[200px] bg-card border border-foreground/10 shadow-2xl animate-fade-in-up"
+        style={{ width: 'min(85vw, calc(85svh * 16 / 9))' }}
+      >
         <div className="absolute -top-px -left-px w-10 h-10 border-t border-l border-accent z-10" />
         <div className="absolute -bottom-px -right-px w-10 h-10 border-b border-r border-accent z-10" />
 
@@ -112,6 +118,7 @@ export default function VideoModal({ isOpen, onClose, framerateId, mobileFramera
 
         <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.02),rgba(0,255,0,0.01),rgba(0,0,255,0.02))] bg-[length:100%_4px,3px_100%] z-20 opacity-10" />
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

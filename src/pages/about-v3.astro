@@ -108,7 +108,6 @@ import Clients from '../components/modules/Clients.tsx';
       <div class="scene cta-scene" data-scene="cta" style="z-index:40; opacity:0; --veil-color: hsl(var(--background))">
         <div class="scene-body container-page">
           <div class="cta-copy">
-            <p class="cta-kicker">Get in touch</p>
             <h2 class="cta-head">Let's make you<br/>sound like you.</h2>
             <a class="cta-link" href="/contact"><span class="cta-caret">&gt;</span> start_project<span class="cta-cursor">_</span></a>
           </div>
@@ -118,41 +117,12 @@ import Clients from '../components/modules/Clients.tsx';
     </div>
   </div>
 
-  {/* Custom BITMAP FADER scrollbar — a big solaris cap on a dashed slot; its position tracks scroll
-      progress so users keep their bearings on the long scene track. */}
-  <div class="scroll-fader" aria-hidden="true">
-    <div class="scroll-fader-fill" data-fader-fill></div>
-    <div class="scroll-fader-cap" data-fader-cap>▬</div>
-  </div>
-
-  {/* DEV timeline HUD — shows t (timeline units) / progress / scrollY. Remove before production. */}
-  <div id="dev-hud" aria-hidden="true">t 0.00</div>
+  {/* The bitmap fader scrollbar + #dev-hud tracker are now GLOBAL (Layout.astro / global.css). This
+      page's master timeline still writes the richer `t / total` readout into #dev-hud via onUpdate. */}
 
   <style>
-    #stage-track { position: relative; height: 1200vh; } /* hero + founders + philosophy + values + clients + cta, all in one pin */
-    /* ── Progress fader scrollbar: black track (unviewed) → solaris fill (viewed) + glyph handle ── */
-    .scroll-fader { position: fixed; top: 0; right: 14px; bottom: 0; width: 20px; z-index: 60; pointer-events: none; }
-    .scroll-fader::before {                        /* TRACK — solid black line (unviewed) */
-      content: ""; position: absolute; top: 8vh; bottom: 8vh; left: 50%; width: 2px; transform: translateX(-50%);
-      background: #000;
-    }
-    .scroll-fader-fill {                           /* VIEWED — solaris orange, top → handle (JS sets height) */
-      position: absolute; top: 8vh; left: 50%; width: 2px; height: 0; transform: translateX(-50%);
-      background: var(--solaris-from);
-    }
-    .scroll-fader-cap {                            /* HANDLE — a bitmap glyph in solaris (JS sets top) */
-      position: absolute; left: 50%; top: 8vh; transform: translate(-50%, -50%);
-      font-family: var(--font-departure); font-size: 19px; line-height: 1; color: var(--solaris-from);
-      text-shadow: 0 0 8px rgba(255, 158, 26, 0.6);
-    }
-    @media (max-width: 767px) { .scroll-fader { display: none; } }
-    /* DEV HUD */
-    #dev-hud {
-      position: fixed; bottom: 10px; left: 12px; z-index: 90;
-      font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.04em;
-      color: hsl(var(--accent)); background: rgba(0, 0, 0, 0.62); padding: 4px 8px;
-      pointer-events: none; white-space: nowrap;
-    }
+    #stage-track { position: relative; height: 1400vh; } /* hero + founders + philosophy + values + clients + cta, all in one pin */
+    /* .scroll-fader + #dev-hud styles are GLOBAL now (global.css). */
     .stage-pin {
       position: sticky; top: 0; height: 100svh; overflow: hidden;
     }
@@ -160,7 +130,7 @@ import Clients from '../components/modules/Clients.tsx';
        viewport here, so inset-based children came out double-height). */
     .scene { position: absolute; top: 0; left: 0; right: 0; height: 100svh; }
     /* Hero fills the frame so AboutHeroV2's flex-1 / row layout (title + blurb) distributes as before. */
-    .scene[data-scene="hero"] { display: flex; flex-direction: column; }
+    .scene[data-scene="hero"] { display: flex; flex-direction: column; padding-top: var(--header-h); box-sizing: border-box; }
     .scene-body {
       position: absolute; left: 0; right: 0;
       top: calc(var(--header-h) + var(--solaris-height)); height: calc(100svh - var(--header-h) - var(--solaris-height));
@@ -384,6 +354,9 @@ import Clients from '../components/modules/Clients.tsx';
         // bookmarked pixel knobs — only used if the veil is re-enabled
         veilInStart: 1.0, veilInDur: 0.2, pixStart: 1.5, pixDur: 1.0,
       };
+      // Incoming layer starts fading in only after the outgoing is ~60% gone — small overlap, not a
+      // long simultaneous cross-fade (stops scenes smearing into each other).
+      const OV = T.crossDur * 0.6;
       const hud = document.getElementById('dev-hud');
       const tl = gsap.timeline({
         scrollTrigger: {
@@ -400,6 +373,24 @@ import Clients from '../components/modules/Clients.tsx';
         const cfg = dir === 1 ? down : up;
         if (cfg) setBar(cfg); else clearBar();
       }, [], pos);
+      // A label change scoped to ONE scroll direction at a specific position.
+      const atDir = (pos: number | string, dir: 1 | -1, cfg: BarCfg | null) => tl.call(() => {
+        if ((tl.scrollTrigger ? tl.scrollTrigger.direction : 1) !== dir) return;
+        if (cfg) setBar(cfg); else clearBar();
+      }, [], pos);
+      // Cross-fade label: DOWN changes only once the incoming scene is IN FOCUS (buffered past the
+      // fade crossover — you never see the new label over the outgoing scene); UP is snappier (fires
+      // near the transition start, where the previous scene is already coming back).
+      const DOWN_BUF = (OV + T.crossDur * 0.6).toFixed(3);
+      const crossLabel = (start: string, downCfg: BarCfg, upCfg: BarCfg) => {
+        // DOWN: the old label leaves WITH its scene (clear at the fade start), then the new label
+        // scrambles in only once the incoming scene is in focus — never lingers over the old scene.
+        atDir(start, 1, null);
+        atDir(start + '+=' + DOWN_BUF, 1, downCfg);
+        // UP: mirror — clear the (now-outgoing) label as its scene leaves, restore the previous once back.
+        atDir(start + '+=' + DOWN_BUF, -1, null);
+        atDir(start + '+=0.2', -1, upCfg);
+      };
       tl.to({}, { duration: T.heroHold });                                                    // hero holds + copy recedes
       // ENTER THE VOID — the binary rain rushes toward the screen (accelerating zoom).
       if (gridBg) tl.fromTo(gridBg, { scale: 1 }, { scale: T.voidScale, ease: 'power2.in', duration: T.fogStart + T.fogDur }, 0);
@@ -427,8 +418,8 @@ import Clients from '../components/modules/Clients.tsx';
       //    timeline (no pin). Same 6-stage scene as about-v2 (buildPhilosophyScene). Bar → white. ──
       tl.addLabel('philIn');
       tl.to(scFounders, { autoAlpha: 0, ease: 'none', duration: T.crossDur }, 'philIn')
-        .to(scPhil, { autoAlpha: 1, ease: 'none', duration: T.crossDur }, 'philIn');
-      boundary('philIn', PHIL, FOUNDERS);   // down → philosophy; up → back into founders
+        .to(scPhil, { autoAlpha: 1, ease: 'none', duration: T.crossDur }, 'philIn+=' + OV);
+      crossLabel('philIn', PHIL, FOUNDERS);   // down (buffered) → philosophy; up (snappy) → founders
       // Add the whole 6-stage choreography DIRECTLY to the master timeline (its first beat uses '>',
       // so it sequences right after the cross-fade). This keeps it scrubbed by scroll — a separate
       // gsap.timeline() would auto-play on its own clock.
@@ -437,24 +428,25 @@ import Clients from '../components/modules/Clients.tsx';
       // ── VALUES — cross-fade in over philosophy's dark end (bg colour void → beige), hold. ──
       tl.addLabel('valuesIn', '>');
       tl.to(scPhil, { autoAlpha: 0, ease: 'none', duration: T.crossDur }, 'valuesIn')
-        .to(scValues, { autoAlpha: 1, ease: 'none', duration: T.crossDur }, 'valuesIn');
-      boundary('valuesIn', VALUES, PHIL);   // down → values; up → back into philosophy
+        .to(scValues, { autoAlpha: 1, ease: 'none', duration: T.crossDur }, 'valuesIn+=' + OV);
+      crossLabel('valuesIn', VALUES, PHIL);   // down (buffered) → values; up (snappy) → philosophy
       tl.to({}, { duration: 1.4 }); // hold on the values
 
       // ── CLIENTS ("Client Terminal") — cross-fade in over values (same beige world), hold. ──
       tl.addLabel('clientsIn', '>');
       tl.to(scValues, { autoAlpha: 0, ease: 'none', duration: T.crossDur }, 'clientsIn')
-        .to(scClients, { autoAlpha: 1, ease: 'none', duration: T.crossDur }, 'clientsIn');
-      boundary('clientsIn', CLIENTS, VALUES);   // down → clients; up → back into values
+        .to(scClients, { autoAlpha: 1, ease: 'none', duration: T.crossDur }, 'clientsIn+=' + OV);
+      crossLabel('clientsIn', CLIENTS, VALUES);   // down (buffered) → clients; up (snappy) → values
       tl.to({}, { duration: 1.4 }); // hold on the client terminal
 
       // ── CTA (finale) — clients fades out, the CTA layer appears (veil covering), then PIXELATES in. ──
       tl.addLabel('ctaIn', '>');
       tl.to(scClients, { autoAlpha: 0, ease: 'none', duration: T.crossDur }, 'ctaIn')
-        .to(scCta, { autoAlpha: 1, ease: 'none', duration: 0.3 }, 'ctaIn');   // veil (dark) still covering
-      boundary('ctaIn', CONTACT, CLIENTS);   // down → CTA; up → back into clients
-      tl.to(vCta, { '--reveal': 1, ease: 'none', duration: 1.6 }, 'ctaIn+=0.3'); // pixel break-up reveal
-      tl.to({}, { duration: 1.2 }); // hold on the CTA, then the stage releases into the footer / bottom rain
+        .to(scCta, { autoAlpha: 1, ease: 'none', duration: 0.3 }, 'ctaIn+=' + OV);   // veil (dark) still covering
+      crossLabel('ctaIn', CONTACT, CLIENTS);   // down (buffered) → CTA; up (snappy) → clients
+      tl.to(vCta, { '--reveal': 1, ease: 'none', duration: 1.6 }, 'ctaIn+=' + (OV + 0.3)); // pixel break-up reveal
+      // Dwell on the fully-revealed CTA before the stage unpins into the footer (pixelation settles first).
+      tl.to({}, { duration: 2.4 });
 
       // ── VALUES focus cycle (same feel as about-v2 FocusColumns): while the values layer is VISIBLE,
       //    each column grows + goes accent in turn and its bitmap loading bar fills; hover overrides. ──
@@ -507,30 +499,5 @@ import Clients from '../components/modules/Clients.tsx';
     else window.addEventListener('load', initStage);
   </script>
 
-  {/* Bitmap fader position — reflects scroll progress. */}
-  <script>
-    function initFader() {
-      const cap = document.querySelector<HTMLElement>('[data-fader-cap]');
-      const fill = document.querySelector<HTMLElement>('[data-fader-fill]');
-      if (!cap || cap.dataset.init === '1') return;
-      cap.dataset.init = '1';
-      const update = () => {
-        const max = document.documentElement.scrollHeight - window.innerHeight;
-        const p = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
-        const top = window.innerHeight * 0.08;
-        const trackH = window.innerHeight * 0.84;      // track spans 8vh → 92vh
-        if (fill) fill.style.height = (p * trackH) + 'px'; // viewed portion (orange), top → handle
-        cap.style.top = (top + p * trackH) + 'px';         // handle rides the boundary
-      };
-      const onScroll = () => requestAnimationFrame(update);
-      const lenis = (window as any).__lenis;
-      if (lenis && lenis.on) lenis.on('scroll', update);
-      window.addEventListener('scroll', onScroll, { passive: true });
-      window.addEventListener('resize', onScroll, { passive: true });
-      update();
-    }
-    document.addEventListener('astro:page-load', initFader);
-    if (document.readyState === 'complete') initFader();
-    else window.addEventListener('load', initFader);
-  </script>
+  {/* The bitmap fader driver is GLOBAL now (Layout.astro). */}
 </Layout>

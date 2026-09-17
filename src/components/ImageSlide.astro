@@ -60,6 +60,9 @@ interface Props {
   alt?: string;
   customMask?: string; // Taps into the new explicit config
   ramp?: { start: number; end: number }; // Taps into the GSAP timings
+  blank?: boolean; // Photography stripped: render an EMPTY, correctly-sized stage (keeps the strip
+                   // width/timings + data-slide anchor) with a data-pixel-stage hook for the new
+                   // scroll-driven pixel-journey framework. No image, no placeholder chrome.
 }
 
 const {
@@ -80,6 +83,7 @@ const {
   alt = '',
   customMask,
   ramp,
+  blank = false,
 } = Astro.props;
 
 const exists = src ? fs.existsSync(path.join(process.cwd(), 'public', src)) : false;
@@ -92,14 +96,16 @@ const layerStyle = `left:50%;width:${imgWidth};transform:translateX(-50%) transl
 ---
 
 <section
-  class:list={["hidden md:flex h-full flex-shrink-0 md:items-center relative overflow-visible", bare ? "bg-transparent" : "bg-background"]}
+  class:list={["hidden md:flex h-full flex-shrink-0 md:items-center relative overflow-visible", (bare || blank) ? "bg-transparent" : "bg-background"]}
   data-slide={id}
   style={`width:${width};z-index:${z};content-visibility:visible;`}
   data-ramp-start={ramp?.start}
   data-ramp-end={ramp?.end}
   data-img-x={imgX}
 >
-  {gradient ? (
+  {blank ? (
+    <div class="pixel-stage absolute inset-0" data-pixel-stage></div>
+  ) : gradient ? (
     <div class:list={["absolute inset-0 bg-gradient-to-r", gradient]} style={maskStyle}></div>
   ) : src && exists ? (
     <div class:list={[effectClass, "absolute inset-y-0 z-0 opacity-0"]} style={layerStyle}>

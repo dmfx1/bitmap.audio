@@ -47,13 +47,18 @@ html.lenis body { height: auto; }
   --hero-runway: 45svh;
   /* Transparent runway at the FOOT of the page so the fixed binary rain shows below the
      footer — the bottom half of the "sandwich" (rain top + bottom, content between). */
-  --page-bottom-runway: 40svh;
+  --page-bottom-runway: 0svh;   /* no buffer under the footer — footer bottom = page bottom (dom) */
 }
 
 @layer components {
   /* Shared width restriction for hero copy — apply to the title + body wrappers so
      every hero constrains its text identically. Change --hero-copy-max, not per h/p. */
   .hero-copy { max-width: var(--hero-copy-max); }
+  /* The TITLE runs wider than the blurb so long headings (e.g. "…interfaces intuitive") keep their
+     designed line breaks instead of wrapping/clipping. Both still start at the same left edge. */
+  .hero-copy[data-hero-pull="title"] { max-width: min(66vw, 80rem); }
+  /* The blurb/body stays narrower so body copy doesn't sprawl (value set to taste). Site-wide. */
+  .hero-copy[data-hero-pull="sub"] { max-width: min(55vw, 84rem); }
 
   /* Hero pull layers: the subtitle (title) always stacks ABOVE the blurb (body), so as
      they converge into the glare on scroll the title stays on top. Site-wide. */
@@ -128,6 +133,18 @@ html.lenis body { height: auto; }
   cursor: var(--cursor-dot);
 }
 
+/* ── NAV CHROME ADAPTS TO THE BACKGROUND BEHIND IT ────────────────────────────
+   When the nav/brand ([data-nav-chrome]) sit over the beige "oat" world, JS adds
+   html.nav-over-oat and their colour tokens flip to the dark CONTENT values — so
+   text-foreground / border-border / text-primary read clearly on light — while the
+   glass header bar is untouched. Over the dark hero/void they stay as-is. */
+nav[data-nav-chrome] a.link-underline { transition: color 0.45s ease; }
+html.nav-over-oat nav[data-nav-chrome] a.link-underline { color: hsl(var(--accent)); }
+/* Brand / page-title wordmark → dark INK over beige (its --foreground flips to the content value).
+   Transition includes opacity so the intro fade-in still works. */
+[data-nav-chrome="brand"] span { transition: color 0.45s ease, opacity 0.4s ease; }
+html.nav-over-oat [data-nav-chrome="brand"] { --foreground: var(--content-foreground); }
+
 /* The SOLARIS beam — the seam between the dark hero and the beige world. Fully driven
    by the --solaris-* tokens in :root (height, gradient stops, glow). Centres an optional
    label (see Solaris.astro) when the beam is made tall enough. */
@@ -179,30 +196,51 @@ html.lenis body { height: auto; }
   transition: width 0.12s linear;
 }
 
-/* ── BITMAP FADER SCROLLBAR ────────────────────────────────────────────────────
-   The window scrollbar styled as a FADER: a thin dashed "slot" track with a big
-   chunky SOLARIS cap riding down it, so users keep a sense of position on the long
-   scroll scenes. Sharp edges = bitmap. */
-::-webkit-scrollbar { width: 20px; }
-::-webkit-scrollbar-track {
-  /* the fader SLOT — a thin dashed pixel line down the centre, on the void */
-  background:
-    repeating-linear-gradient(hsl(var(--foreground) / 0.28) 0 4px, transparent 4px 8px) center / 2px 100% no-repeat,
-    hsl(var(--background));
+/* ── BITMAP FADER SCROLLBAR (GLOBAL) ──────────────────────────────────────────
+   The native scrollbar is HIDDEN site-wide; a custom progress FADER (black track =
+   unviewed, solaris fill = viewed, a bitmap glyph handle) rides down the right edge
+   instead, driven by document-scroll progress (markup + JS in Layout.astro). Same
+   fader as the about-v3 stage, now everywhere. Sharp edges = bitmap. */
+::-webkit-scrollbar { width: 0 !important; height: 0 !important; }
+html { scrollbar-width: none; }
+
+/* Positioned in the gap between the nav box (its right edge sits --page-gutter from the page edge)
+   and the page edge — centred on that gap, nudged slightly right. Track TOP = the nav's top edge
+   (--page-gutter, = top-8); the nav scales from its top-right corner on scroll so that top stays put. */
+.scroll-fader { position: fixed; top: 0; right: calc(var(--page-gutter) / 2 - 12px); bottom: 0; width: 20px; z-index: 60; pointer-events: none; }
+.scroll-fader::before {                        /* TRACK — solid black line (unviewed) */
+  content: ""; position: absolute; top: var(--page-gutter); bottom: 8vh; left: 50%; width: 2px; transform: translateX(-50%);
+  background: #000;
 }
-::-webkit-scrollbar-thumb {
-  min-height: 56px;
-  border: 4px solid hsl(var(--background));      /* insets the cap so the slot shows either side */
-  background:
-    /* grip notches across the cap (bitmap detail) */
-    repeating-linear-gradient(hsl(var(--background) / 0.5) 0 2px, transparent 2px 6px) center / 62% 16px no-repeat,
-    /* the solaris cap */
-    linear-gradient(180deg, var(--solaris-from) 0%, var(--solaris-mid) 55%, var(--solaris-to) 100%);
-  box-shadow: var(--solaris-glow);
+.scroll-fader-fill {                           /* VIEWED — solaris orange, top → handle (JS sets height) */
+  position: absolute; top: var(--page-gutter); left: 50%; width: 2px; height: 0; transform: translateX(-50%);
+  background: var(--solaris-from);
 }
-::-webkit-scrollbar-thumb:hover { filter: brightness(1.08); }
-/* Firefox */
-html { scrollbar-width: auto; scrollbar-color: var(--solaris-from) hsl(var(--background)); }
+.scroll-fader-cap {                            /* HANDLE — a bitmap glyph in solaris (JS sets top) */
+  position: absolute; left: 50%; top: var(--page-gutter); transform: translate(-50%, -50%);
+  font-family: var(--font-departure); font-size: 19px; line-height: 1; color: var(--solaris-from);
+  text-shadow: 0 0 8px rgba(255, 158, 26, 0.6);
+}
+@media (max-width: 767px) { .scroll-fader { display: none; } }
+
+/* ── DEV/POSITION TRACKER (GLOBAL) — bottom-left readout of scroll progress + scrollY.
+   Stage pages (home / about-v3) enrich it with the timeline t via their own onUpdate. */
+#dev-hud {
+  position: fixed; bottom: 10px; right: 40px; z-index: 90; pointer-events: none;
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.04em;
+  color: hsl(var(--accent)); background: rgba(0, 0, 0, 0.62); padding: 4px 8px;
+}
+@media (max-width: 767px) { #dev-hud { display: none; } }
+
+/* ── SITE-WIDE CTA scene + pixel veil (see components/modules/CtaScene.astro) ──────────────────── */
+.cta-scene { background-color: hsl(var(--background)); }
+.scene-veil { position: absolute; inset: 0; z-index: 50; display: grid; pointer-events: none; }
+.scene-veil > i {
+  display: block;
+  background: var(--veil-color, hsl(var(--content-background)));
+  opacity: clamp(0, calc((var(--o) - var(--reveal, 0)) * 26), 1);
+}
+@media (max-width: 767px) { .scene-veil { display: none; } }
 
 .solaris-text {
   font-family: var(--font-mono);
@@ -470,7 +508,9 @@ html { scrollbar-width: auto; scrollbar-color: var(--solaris-from) hsl(var(--bac
     html.has-bit-cursor [role="button"], html.has-bit-cursor .concept-card,
     html.has-bit-cursor .cursor-pointer { cursor: var(--cursor-link) !important; }
     html.has-bit-cursor .is-electric-primary, html.has-bit-cursor .bg-primary {
-      cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 16 16'%3E%3Cpath fill='%23000000' d='M2 7h6v2H2V7zm6-2h2v6H8V5zm2 2h2v2h-2V7zm-2-4h2v2H8V3zm0 8h2v2H8v-2z'/%3E%3C/svg%3E") 0 0, pointer !important;
+      /* hotspot 16 16 (image centre) — matches --cursor-link and the centred blend dot, so the cursor
+         doesn't jump when moving from a link / the dot onto a primary button. */
+      cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 16 16'%3E%3Cpath fill='%23000000' d='M2 7h6v2H2V7zm6-2h2v6H8V5zm2 2h2v2h-2V7zm-2-4h2v2H8V3zm0 8h2v2H8v-2z'/%3E%3C/svg%3E") 16 16, pointer !important;
     }
     /* text fields keep their native caret — the blend dot hides over them (via JS). */
     html.has-bit-cursor input, html.has-bit-cursor textarea,
@@ -1093,3 +1133,36 @@ html.intro-play body {
   transform-origin: left center;
 }
 
+
+/* ── Perspective grids (home Services pillars) ───────────────────────────────
+   Shared reveal for the full-bleed one-point-perspective SVGs (Spatial Audio room,
+   UI/UX circuit board, Branding billboard). Each instance carries `.perspective-grid`
+   + a unique id and its own `color` (line colour, set inline). ServicePillars toggles
+   `.is-revealing` on the instance whose pillar is active: a short PAUSE, then a slow
+   FOCUS-in (blur+opacity), while every [data-draw] element strokes itself in from the
+   vanishing point outward (per-element delay via --d). Removing the class replays it. */
+.perspective-grid {
+  position: absolute;
+  inset: 0;
+  z-index: -1;                 /* above the scene background, below the header + cards */
+  pointer-events: none;
+  opacity: 0;
+  filter: blur(9px);
+  transition: opacity 1.2s ease 0.35s, filter 1.5s ease 0.35s;
+}
+.perspective-grid svg { width: 100%; height: 100%; display: block; }
+.perspective-grid [data-draw] {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 1.6s cubic-bezier(0.22, 1, 0.36, 1) 0s;
+}
+.perspective-grid .sp-vp { fill: hsl(var(--accent)); opacity: 0; transition: opacity 0.5s ease 0.7s; }
+.perspective-grid.is-revealing { opacity: 1; filter: blur(0); }
+.perspective-grid.is-revealing [data-draw] {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 1.7s cubic-bezier(0.22, 1, 0.36, 1) var(--d);
+}
+.perspective-grid.is-revealing .sp-vp { opacity: 0.9; }
+@media (prefers-reduced-motion: reduce) {
+  .perspective-grid, .perspective-grid [data-draw], .perspective-grid .sp-vp { transition-duration: 0.2s; }
+}

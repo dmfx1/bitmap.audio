@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import ScrambleHeading from '../ScrambleHeading';
+import PlayReelButton from '../PlayReelButton';
 import { useHeroSquish } from '../../../hooks/use-hero-squish';
 import { useIntroGate } from '../../../hooks/use-intro-gate';
 
@@ -25,7 +26,7 @@ export default function SonicHero() {
       {started && (
         <>
           {/* ROW 1 — title, pinned to the bottom of the top half (reads mid). Drifts slowly. */}
-          <div className="container-page relative z-10 flex flex-col justify-end min-h-0">
+          <div className="container-page relative z-10 flex flex-col justify-center min-h-0">
             <div data-hero-pull="title" className="hero-copy">
               <ScrambleHeading
                 text={"Define your brand's\naudio DNA"}
@@ -42,16 +43,26 @@ export default function SonicHero() {
           {/* ROW 2 — breadcrumb + description, PINNED to the bottom, description bigger. Drifts
               faster (sub). The showContent fade sits on an INNER div so it never fights
               useHeroSquish's opacity (which would otherwise pin it invisible). */}
-          <div className="container-page relative z-10 flex flex-col justify-end min-h-0">
-            <div data-hero-pull="sub" className="hero-copy">
+          {/* ROW 2 — blurb centred in the lower half; PLAY REEL button pinned to the bottom (like home). */}
+          <div className="container-page relative z-10 flex flex-col min-h-0">
+            <div className="flex-1 flex flex-col justify-center min-h-0">
+              <div data-hero-pull="sub" className="hero-copy">
+                <p
+                  className={`text-foreground/90 text-3xl md:text-5xl font-mono transition-all duration-1000 ${
+                    showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                  }`}
+                >
+                  Visual identity can only go so far. <br/><br/>Brands with a unique sonic footprint significantly enhance recognition and recall.
+                </p>
+              </div>
+            </div>
+            <div data-hero-pull="track" className="hero-copy">
               <div
-                className={`transition-all duration-1000 ${
+                className={`w-full max-w-xs transition-all duration-1000 ${
                   showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
                 }`}
               >
-                <p className="text-foreground/90 text-3xl md:text-5xl font-mono">
-                  Visual identity can only go so far. Turbo charge your brand with a unique sonic footprint to significantly enhance recognition and recall.
-                </p>
+                <PlayReelButton slug="sonic-branding" />
               </div>
             </div>
           </div>
