@@ -1,5 +1,7 @@
 # CLAUDE.md — bitmap.audio Development Context
 
+> ⚠️ **Operating rules first: see [`AGENTS.md`](./AGENTS.md).** Always follow it when making any change to this website — Plan First (numbered plan, wait for approval), Do Not Guess (stop and ask), diagnose before rewriting, and never call a task done without a successful `npm run build`. This file (`CLAUDE.md`) holds the project-specific conventions that apply on top of those rules.
+
 ## What This Project Is
 
 bitmap.audio is a sonic branding agency and experiential audio service website. It is NOT a standard marketing site. It is a cinematic, scroll-driven experience designed to demonstrate neurological and psychological principles of audio through its own UX. Every animation is intentional and copy-adjacent — the UI illustrates what the copy is saying.
@@ -407,6 +409,21 @@ Mobile hamburger menu current behaviour (do not revert):
 
 ## Current Active Work
 
+### 🚚 Session handoff — 2026-09-18 (desktop polish done → MOBILE ROLLOUT next)
+
+**dom is opening a NEW chat for the mobile rollout.** Desktop work this session is complete and was verified in the LIVE dev server (`npm run dev -- --host --port 3000`, viewed through the in-app browser — which reaches dom's machine at `http://localhost:3000`, NOT the sandbox). State:
+
+**`returns2.astro` — colour journey (desktop) — FIXED + hardened.**
+- The `#journey-bg` colour drift was rewritten from ~16 competing `gsap.fromTo` colour tweens to ONE single-writer ScrollTrigger: its `onUpdate` lerps the correct `JOURNEY` colour for the current scroll and writes `journeyBg.style.backgroundColor` once per frame. This killed the "starts light grey" bug (the old multi-tween render ORDER was painting a mid-journey light colour at scroll 0). Deterministic now — dark `#121C1C` at the very top.
+- **`JOURNEY` `offset` is in VIEWPORTS (1.0 = 100vw).** A previous edit had `offset: 60` / `-40` (= 60/40 SCREENS off-track, fracs 2.73 / −1.10) which scrambled the whole interpolation — corrected. Teal `#CDE0DD` now PEAKS on the 20x memory slide (`4.5` offset `0.4`) and returns to dark before "Recall under Pressure" (`5` offset `-0.4`). Verified via a computed stop-table + live paint sampling.
+- Other returns2 desktop work this session: slides 01/03/07 split into converging blocks (`data-converge="left|right"` — title always drifts in from the left, blurb from the right, meeting at scene centre via a V-shape); the banking stat right-drifts as an afterthought (`data-afterthought`); end-slide cross-fade (Master the Signal + bitmap.audio card dissolve in over the held amber, `[data-end-fade]`); all `<p>` → `font-mono md:text-3xl` (Recall stat-cards excluded); bitmap-'b' drift on Architecture.
+
+**⚠️ KNOWN PRE-EXISTING BUG (NOT fixed — dom was offered, hasn't decided):** `animateWords` (returns2 ~line 2315) passes `hsl(var(--…))` colours to `gsap.fromTo({ color })`. GSAP cannot parse CSS `var()` inside a colour → it throws `splitColor … reading 'map'` on EVERY ScrollTrigger refresh (thousands of console errors; the word-colour highlights likely don't animate). Fix: resolve the CSS vars to concrete `hsl()/rgb()` before passing to GSAP (or tween a proxy object + write `el.style.color` in `onUpdate`).
+
+**Testing note:** returns2 locks `window.scrollTo`/`scrollTop` (GSAP normalizeScroll) — scripted scroll is unreliable; verify by REAL wheel scroll or compute from the stop-table.
+
+---
+
 - **`about-v3.astro` — Scene-stage prototype (the CURRENT About direction).** Hero/header stays locked; sections are stacked full-screen layers cross-faded/revealed by a scrubbed timeline (no content translation). See section **AE** for full spec, gotchas, and the `T = {}` timing knobs. `/about-v2` is the fallback. The `#dev-hud` frame counter is KEPT (dom's call).
 - `returns2.astro` — CSS Grid layout rebuild complete (Section E done). Awaiting visual review from dom before merging to `returns.astro`. See Section E below for full spec.
 - `returns2.astro` — GSAP animations are identical to `returns.astro` and calibrated to the 1600vh horizontal scroll track — do not recalibrate unless specifically asked
@@ -416,6 +433,30 @@ Mobile hamburger menu current behaviour (do not revert):
 - Global — Padding and spacing consistency pass across all pages for mobile
 
 ### Backlog / circle back later
+
+- **🔖 Service-pillar perspective scenes (PAUSED 2026-09-18) — "draw-in" logic KEPT to revisit.**
+  The home `Services` pillars (`ServicePillars.tsx`) were getting a full-bleed background scene per
+  pillar that FOCUSES IN (blur+opacity, after a short pause — never a snap) and then DRAWS ITSELF in
+  from a vanishing point when that pillar is highlighted (hover or the auto-cycle). dom asked to
+  REMOVE the background imagery for now but KEEP the draw-in code to come back to.
+  - **KEPT (the reference draw-in):** `src/components/modules/SpatialPerspective.astro` — a 1-point
+    perspective room SVG where every `<line>/<rect>` has `pathLength="1"` + `stroke-dasharray:1` +
+    `stroke-dashoffset:1` and strokes itself in from the VP outward via per-element `--d` delays.
+    The shared reveal lives in `global.css` under **`.perspective-grid`**: pause → slow blur/opacity
+    focus-in on the container, and `.perspective-grid.is-revealing [data-draw]{ stroke-dashoffset:0 }`
+    for the draw. A raster image can reuse `.perspective-grid` for the focus-in but can't "draw in"
+    (needs SVG) — a radial wipe from the VP is the fallback for rasters.
+  - **REMOVED:** the UI/UX circuit-board *image* (`UiuxCircuit.astro` + `public/images/uiux-circuit-board.webp`)
+    and the branding *billboard* (`BrandingBillboard.astro`) — deleted. Both scenes are unmounted from
+    `home.astro`, and the reveal toggle is removed from `ServicePillars.tsx`. The per-pillar section
+    tint (`PILLAR_BG`) is UNCHANGED — it predates this work.
+  - **TO RE-ENABLE:** (1) build/keep a `.perspective-grid` grid component (root = `.perspective-grid`
+    + unique `id` + inline `color:` + a `[data-draw]` SVG); (2) mount it as the FIRST child of the
+    `data-scene="services"` div in `home.astro`, before `.scene-body`; (3) in `ServicePillars.tsx`,
+    inside the `activeIndex` effect, toggle it:
+    `scene.querySelector('#<id>')?.classList.toggle('is-revealing', activeIndex === i)`. The z-index is
+    already `-1` (above the scene bg, below the header + cards). Ref dom liked: a dashed 1-point
+    perspective room that draws in from the vanishing point.
 
 - **🔖 BOOKMARK — "reverse the void" at the CTA** (dom's idea, 2026-09-02): the scene stage opens by
   pulling the user INTO the void (binary rain `#grid-bg` scales up 1→3 + fog + portal). dom wants the
