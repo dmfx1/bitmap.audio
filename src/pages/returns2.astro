@@ -247,11 +247,14 @@ const JOURNEY = [
                                                 //  from -0.7 → -0.1 so the blue→dark fade AFTER Architecture
                                                 //  ends later = a slower, longer transition into the next scene.
   { at: "4",  color: "#1E231C" }, // bg-accent/5 (Neurology.Memory) 1E231C
-  { at: "4.5", color: "#CDE0DD", offset: 2 }, // Muted abyss teal behind the 20x brain graphic
-  // offset +60 (was 0): shortening the 20x slide 300→180vw compressed this teal→dark fade from
-  // ~298vw to ~178vw, so it read as a near-hard colour change (~p0.377) into Recall. Pushing the
-  // dark's completion ~60vw INTO the Recall approach re-lengthens the ramp to ~238vw = gentle again.
-  { at: "5",  color: "#111A1B", offset: 60 }, // bg-card/20 (Metrics) 111A1B
+  { at: "4.5", color: "#CDE0DD", offset: 0.4 }, // teal PEAK on the 20x memory slide (its graphic is
+                                                //  centred ~0.4vw in). offset 2 previously pushed the
+                                                //  peak 2 screens right — over Recall — so the light
+                                                //  blue covered "Recall under Pressure". 0.4 peaks it on
+                                                //  the 20x, then checkpoint 5 returns to dark before Recall.
+  // offset -0.4: complete the teal→dark return in the GAP just before Recall (Metrics) frames, so
+  // "Recall under Pressure" sits on dark, not the teal. (offset is in VIEWPORTS — 1.0 = 100vw.)
+  { at: "5",  color: "#111A1B", offset: -0.4 }, // bg-card/20 (Metrics) 111A1B
   { at: "5.5", color: "#1E231C" }, // AD5 TEST — recall-under-pressure right-edge teal (brightened). Anchored to image via data-slide. 1E231C
   { at: "6.5", color: "#121C1C" }, // blank spacer (ROI removed) — hold dark across the empty run.
   // HOLD-THEN-FADE into Subconscious Trust. The previous "one long ramp across the 90vw spacer"
@@ -259,11 +262,9 @@ const JOURNEY = [
   // flat (6.5 → 7a, both #121C1C) right up to Credibility's approach, THEN one controlled
   // dark→white fade over ~1.5vw as the slide frames. Two "7" checkpoints (same anchor, different
   // offset) — the first is the held-dark end, the second the white arrival.
-  { at: "7",  color: "#121C1C", offset: -40 }, // hold dark until ~40vw before Credibility, then…
-  { at: "7",  color: "#DCDDDD", offset: 0 },   // …a real ~40vw dark→white gradient as it frames
-                                               //  (offsets are vw; total travel is ~2500vw, so a
-                                               //  1–2vw offset is near-instant — need tens of vw
-                                               //  for a fade the eye reads as gradual).
+  { at: "7",  color: "#121C1C", offset: -0.4 }, // hold dark until ~40vw before Credibility, then…
+  { at: "7",  color: "#DCDDDD", offset: 0 },    // …a ~40vw dark→white gradient as it frames.
+                                                //  (offset is in VIEWPORTS: 1.0 = 100vw, so 40vw = 0.4.)
   { at: "9",  color: "#384648" }, // bg-primary/20 (Perception) 384648
   { at: "10", color: "#121C1C" }, // bg-background (Culture) 121C1C
   { at: "11", color: "#141414" }, // bg-primary/5 (Asset.Ownership) 1C2727
@@ -1683,37 +1684,60 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
     const journeyBg = document.getElementById("journey-bg");
     const journey = (window as any).__JOURNEY__ as Array<{ at: string; color: string; offset?: number }>;
     if (journeyBg && journey?.length) {
-      gsap.set(journeyBg, { backgroundColor: journey[0].color });
-      for (let i = 0; i < journey.length - 1; i++) {
-        const a = journey[i], b = journey[i + 1];
-        // Resolve a checkpoint id to a section: text slides use data-sidebar, image
-        // slides use data-slide (lets the journey pin a colour to an image slide).
-        const findSec = (id: string) =>
-          (document.querySelector(`[data-sidebar="${id}"]`) ||
-           document.querySelector(`[data-slide="${id}"]`)) as HTMLElement | null;
-        const secA = findSec(a.at);
-        const secB = findSec(b.at);
-        if (!secA || !secB) continue;
-        gsap.fromTo(journeyBg,
-          { backgroundColor: a.color },
-          {
-            backgroundColor: b.color,
-            ease: "none",
-            // Without this, every fromTo paints its `from` colour at creation time and the LAST
-            // segment (amber) wins until ScrollTrigger recomputes — causing an amber flash on refresh.
-            immediateRender: false,
-            scrollTrigger: {
-              trigger: track,
-              // `offset` (vw) shifts a checkpoint's trigger point: negative = colour arrives
-              // earlier (e.g. start the amber behind the image), positive = later.
-              start: () => `${getScrollPos(secA.offsetLeft + (a.offset ?? 0) * window.innerWidth)}px top`,
-              end: () => `${getScrollPos(secB.offsetLeft + (b.offset ?? 0) * window.innerWidth)}px top`,
-              scrub: true,
-              invalidateOnRefresh: true,
-            },
+      // SINGLE-WRITER colour journey (was ~16 competing gsap.fromTo tweens). Each fromTo rendered
+      // its own `from`/`to` on refresh and the render ORDER decided which colour won at scroll 0 —
+      // so as triggers were added elsewhere the top of the page could paint a mid-journey light
+      // colour (the "starts light grey" bug: #9FA3A3 instead of #121C1C). Here ONE ScrollTrigger
+      // computes the correct colour for the current scroll and writes it once per frame, so the
+      // background is always exactly the interpolated JOURNEY colour for where you are — including 0.
+      const findSec = (id: string) =>
+        (document.querySelector(`[data-sidebar="${id}"]`) ||
+         document.querySelector(`[data-slide="${id}"]`)) as HTMLElement | null;
+      const hex2rgb = (h: string) => {
+        const n = parseInt(h.slice(1), 16);
+        return h.length >= 7 ? [(n >> 16) & 255, (n >> 8) & 255, n & 255] : [0, 0, 0];
+      };
+      // Resolved, scroll-sorted checkpoints. Rebuilt on every refresh (offsetLefts change on resize).
+      let stops: Array<{ pos: number; rgb: number[] }> = [];
+      const buildStops = () => {
+        stops = journey
+          .map((cp) => {
+            const sec = findSec(cp.at);
+            if (!sec) return null;
+            // `offset` (vw) shifts a checkpoint's scroll position: negative = colour arrives earlier.
+            return { pos: getScrollPos(sec.offsetLeft + (cp.offset ?? 0) * window.innerWidth), rgb: hex2rgb(cp.color) };
+          })
+          .filter(Boolean) as Array<{ pos: number; rgb: number[] }>;
+        stops.sort((a, b) => a.pos - b.pos);
+      };
+      const paint = (y: number) => {
+        if (!stops.length) return;
+        if (y <= stops[0].pos) { const c = stops[0].rgb; journeyBg.style.backgroundColor = `rgb(${c[0]},${c[1]},${c[2]})`; return; }
+        const last = stops[stops.length - 1];
+        if (y >= last.pos) { journeyBg.style.backgroundColor = `rgb(${last.rgb[0]},${last.rgb[1]},${last.rgb[2]})`; return; }
+        for (let i = 0; i < stops.length - 1; i++) {
+          const s = stops[i], e = stops[i + 1];
+          if (y >= s.pos && y < e.pos) {
+            const t = e.pos === s.pos ? 0 : (y - s.pos) / (e.pos - s.pos);
+            const r = Math.round(s.rgb[0] + (e.rgb[0] - s.rgb[0]) * t);
+            const g = Math.round(s.rgb[1] + (e.rgb[1] - s.rgb[1]) * t);
+            const b = Math.round(s.rgb[2] + (e.rgb[2] - s.rgb[2]) * t);
+            journeyBg.style.backgroundColor = `rgb(${r},${g},${b})`;
+            return;
           }
-        );
-      }
+        }
+      };
+      buildStops();
+      paint(0);
+      ScrollTrigger.create({
+        trigger: track,
+        start: "top top",
+        end: "bottom bottom",
+        scrub: true,
+        invalidateOnRefresh: true,
+        onRefresh: () => { buildStops(); paint(window.scrollY); },
+        onUpdate: (self: any) => paint(self.scroll()),
+      });
     }
 
     // ── AD6: Vividness ramp ─────────────────────────────────────────────────
