@@ -9,8 +9,7 @@
 import Layout from '../layouts/Layout.astro';
 import Hero from '../components/modules/Hero.tsx';
 import ServicePillars from '../components/modules/ServicePillars';
-import SpatialPerspective from '../components/modules/SpatialPerspective.astro';
-import UiuxCircuit from '../components/modules/UiuxCircuit.astro';
+// Pillar draw-in scene imports (SpatialPerspective/UiuxCircuit) removed while the feature is paused — see CLAUDE.md.
 import Philosophy from '../components/modules/Philosophy.tsx';
 import CtaScene from '../components/modules/CtaScene.astro';
 ---
@@ -33,10 +32,9 @@ import CtaScene from '../components/modules/CtaScene.astro';
 
       {/* Services — fades in through the fog. */}
       <div class="scene theme-oat" data-scene="services" style="z-index:10">
-        {/* Full-bleed scenes that reveal behind the cards when their pillar is active:
-            UI/UX → PCB image (focus-in); Spatial → 1-point-perspective room (draws in). */}
-        <UiuxCircuit />
-        <SpatialPerspective />
+        {/* PILLAR BACKGROUND SCENES — PAUSED (2026-09-18). The "draw-in" perspective scenes are on
+            hold; SpatialPerspective.astro + the `.perspective-grid` reveal CSS are kept for a future
+            revisit. See CLAUDE.md § "Service-pillar perspective scenes (PAUSED)" to re-enable. */}
         <div class="scene-body">
           <ServicePillars client:load />
         </div>

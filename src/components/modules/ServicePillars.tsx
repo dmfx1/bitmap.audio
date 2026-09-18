@@ -95,22 +95,15 @@ export default function ServicePillars() {
     'hsl(50, 10%, 80%)',  // Spatial Audio  — soft warm sand (leans to --accent)
   ];
   const activeIndex = isMobile ? centerIndex : index;
-  // Pillars with a full-bleed scene that reveals when active (null = no imagery for that pillar).
-  const PERSPECTIVE_IDS: (string | null)[] = ['#uiux-circuit', null, '#spatial-perspective']; // by pillar index
   useEffect(() => {
     const scene = containerRef.current?.closest('[data-scene]') as HTMLElement | null;
     if (!scene) return;
     scene.style.transition = 'background-color 2s ease';
     scene.style.backgroundColor = PILLAR_BG[activeIndex] ?? ''; // '' → back to the theme-oat beige
 
-    // Reveal only the active pillar's grid; hide the others. The pause + slow focus/draw-in is all
-    // CSS (transition delays in the *.astro grids); here we just flip the class. Removing it replays
-    // the draw next time the pillar becomes active.
-    PERSPECTIVE_IDS.forEach((sel, i) => {
-      if (!sel) return;
-      const el = scene.querySelector(sel) as HTMLElement | null;
-      el?.classList.toggle('is-revealing', activeIndex === i);
-    });
+    // NOTE: per-pillar "draw-in" background scenes are PAUSED (2026-09-18). When revisited, toggle
+    // `.is-revealing` on the active pillar's grid here (by data-scene id). See CLAUDE.md
+    // § "Service-pillar perspective scenes (PAUSED)".
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeIndex]);
 
