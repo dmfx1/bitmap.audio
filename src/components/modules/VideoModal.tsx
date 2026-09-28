@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { BitmapClose } from '../ui/icons';
 import { buildEmbedUrl, DEFAULT_THEME } from '@/data/videos';

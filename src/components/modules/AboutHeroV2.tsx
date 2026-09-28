@@ -8,7 +8,7 @@
  * Keeps `data-has-hero` + fires `hero-content-ready` so Section.astro's reveal
  * observer waits for the hero exactly as it does on the current about page.
  */
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import ScrambleHeading from './ScrambleHeading';
 import { useIntroGate } from '../../hooks/use-intro-gate';
 import { useHeroSquish } from '../../hooks/use-hero-squish';

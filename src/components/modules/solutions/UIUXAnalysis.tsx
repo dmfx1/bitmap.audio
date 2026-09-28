@@ -1,5 +1,4 @@
 /* src/components/modules/solutions/SonicAnalysis.tsx */
-import React from 'react';
 
 export default function UIUXAnalysis() {
   return (

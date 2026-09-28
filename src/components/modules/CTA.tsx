@@ -5,7 +5,6 @@
  * action `> command_`. The command is derived from `buttonText` (lowercased + underscored) or set
  * explicitly via `command`.
  */
-import React from 'react';
 
 interface CTAProps {
   title?: string;

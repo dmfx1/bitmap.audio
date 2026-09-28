@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import ScrambleHeading from './ScrambleHeading';
 import { useHeroSquish } from '../../hooks/use-hero-squish';

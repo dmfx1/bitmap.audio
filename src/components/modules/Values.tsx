@@ -1,5 +1,5 @@
 /* src/components/modules/Values.tsx */
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useMobileCenterIndex } from '@/hooks/use-mobile-center-index';
 
 const values = [

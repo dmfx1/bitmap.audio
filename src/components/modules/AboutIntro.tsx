@@ -1,5 +1,5 @@
 /* src/components/modules/AboutIntro.tsx */
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { ChevronLeft } from 'lucide-react';
 import ScrambleHeading from './ScrambleHeading';
 import { useHeroSquish } from '../../hooks/use-hero-squish';

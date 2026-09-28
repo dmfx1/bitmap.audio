@@ -1,5 +1,4 @@
 /* src/components/modules/AboutPhilosophy.tsx */
-import React from 'react';
 
 const concepts = [
   { term: "Bit [Information]", def: "Represents the digital pulse, the atomic unit and the minutiae we work with to build the bigger picture. Every sound we create for our systems is derived through this process to ensure a unique and lasting sonic footprint." },

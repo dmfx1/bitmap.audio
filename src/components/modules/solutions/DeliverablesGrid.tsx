@@ -1,5 +1,5 @@
 /* src/components/modules/solutions/DeliverablesGrid.tsx */
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { cn } from "@/lib/utils";
 import { useBinaryScramble } from '@/hooks/use-binary-scramble';
 import { useMobileCenterIndex } from '@/hooks/use-mobile-center-index';

@@ -1,5 +1,5 @@
 /* src/components/modules/GrainGradientBg.tsx */
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { GrainGradient } from '@paper-design/shaders-react';
 
 /**

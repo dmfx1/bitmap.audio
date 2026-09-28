@@ -1,5 +1,5 @@
 /* src/components/modules/Founders.tsx */
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 /* Binary hover-scramble: whenever `active` flips (hover in OR out) the name flickers through 0/1s
  * and resolves left-to-right back to itself — the same bitmap glitch as the nav wordmark. Punctuation

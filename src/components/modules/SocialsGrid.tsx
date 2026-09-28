@@ -1,5 +1,4 @@
 /* src/components/modules/SocialsGrid.tsx */
-import React from 'react';
 import { cn } from "@/lib/utils";
 import { BitmapInstagram, BitmapLinkedin, BitmapThreads } from '../ui/icons';
 

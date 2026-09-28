@@ -1,5 +1,5 @@
 /* src/components/modules/FAQContent.tsx */
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { BitmapChevron } from '../ui/icons';
 import { cn } from "@/lib/utils";
 
