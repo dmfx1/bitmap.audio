@@ -14,11 +14,11 @@ export default function ImmersiveHero() {
     <div
       ref={heroRef}
       data-has-hero
-      className="relative w-full flex-1 grid grid-rows-2 py-[var(--page-gutter)] will-change-transform"
+      className="relative w-full flex-1 flex flex-col md:grid md:grid-rows-2 py-[var(--page-gutter)] will-change-transform"
     >
       {started && (
         <>
-          <div className="container-page relative z-10 flex flex-col justify-center min-h-0">
+          <div className="container-page relative z-10 flex flex-col justify-start md:justify-center min-h-0">
             <div data-hero-pull="title" className="hero-copy">
               <ScrambleHeading
                 text={"Sound that exists\nin space"}
@@ -34,7 +34,7 @@ export default function ImmersiveHero() {
 
           {/* ROW 2 — blurb centred in the lower half; PLAY REEL button pinned to the bottom (like home). */}
           <div className="container-page relative z-10 flex flex-col min-h-0">
-            <div className="flex-1 flex flex-col justify-center min-h-0">
+            <div className="flex-1 flex flex-col justify-start md:justify-center min-h-0">
               <div data-hero-pull="sub" className="hero-copy">
                 <p
                   className={`text-foreground/90 text-3xl md:text-5xl font-mono transition-all duration-1000 ${

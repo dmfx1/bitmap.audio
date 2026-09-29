@@ -21,12 +21,12 @@ export default function SonicHero() {
     <div
       ref={heroRef}
       data-has-hero
-      className="relative w-full flex-1 grid grid-rows-2 py-[var(--page-gutter)] will-change-transform"
+      className="relative w-full flex-1 flex flex-col md:grid md:grid-rows-2 py-[var(--page-gutter)] will-change-transform"
     >
       {started && (
         <>
           {/* ROW 1 — title, pinned to the bottom of the top half (reads mid). Drifts slowly. */}
-          <div className="container-page relative z-10 flex flex-col justify-center min-h-0">
+          <div className="container-page relative z-10 flex flex-col justify-start md:justify-center min-h-0">
             <div data-hero-pull="title" className="hero-copy">
               <ScrambleHeading
                 text={"Define your brand's\naudio DNA"}
@@ -45,7 +45,7 @@ export default function SonicHero() {
               useHeroSquish's opacity (which would otherwise pin it invisible). */}
           {/* ROW 2 — blurb centred in the lower half; PLAY REEL button pinned to the bottom (like home). */}
           <div className="container-page relative z-10 flex flex-col min-h-0">
-            <div className="flex-1 flex flex-col justify-center min-h-0">
+            <div className="flex-1 flex flex-col justify-start md:justify-center min-h-0">
               <div data-hero-pull="sub" className="hero-copy">
                 <p
                   className={`text-foreground/90 text-3xl md:text-5xl font-mono transition-all duration-1000 ${

@@ -115,13 +115,6 @@ export default function ServicePillars() {
         internalScan ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
       )}
     >
-      {/* HEADER AREA */}
-      <div className="text-center mb-20 mix-blend-difference">
-        <h2 className="text-4xl font-mono text-foreground tracking-tight font-light ">
-          Three pillars of sonic design
-        </h2>
-      </div>
-
       {/* GRID AREA */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {services.map((s, i) => {

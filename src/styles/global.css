@@ -31,6 +31,7 @@ html.lenis body { height: auto; }
    Change --page-gutter here and it updates the whole site. */
 :root {
   --page-gutter: 2rem;   /* 32px = p-8, everywhere */
+  --page-gutter-x: var(--page-gutter);  /* horizontal gutter; overridden to 1rem on mobile (see @media below) */
   /* Brand mark + page-title lettering size. Shared by the brand lockup AND the nav
      controls (which bottom-align to this height), so the nav box bottom lines up with
      the bottom of the title lettering. Keep in sync with the brand's inline --brandH. */
@@ -231,6 +232,8 @@ html { scrollbar-width: none; }
   color: hsl(var(--accent)); background: rgba(0, 0, 0, 0.62); padding: 4px 8px;
 }
 @media (max-width: 767px) { #dev-hud { display: none; } }
+/* No frosted header bar on mobile (the fixed nav + hamburger carry their own tile). */
+@media (max-width: 767px) { #header-bar { display: none; } }
 
 /* ── SITE-WIDE CTA scene + pixel veil (see components/modules/CtaScene.astro) ──────────────────── */
 .cta-scene { background-color: hsl(var(--background)); }
@@ -341,7 +344,7 @@ html { scrollbar-width: none; }
 @layer components {
   .container-page {
     width: 100%;
-    padding-inline: var(--page-gutter);
+    padding-inline: var(--page-gutter-x);
   }
 }
 
@@ -729,11 +732,18 @@ a, button, [role="button"] {
   }
 
   .heading-hero {
-    @apply font-mono text-5xl md:text-8xl font-light leading-[1.05] tracking-tight text-foreground;
+    @apply font-mono font-light leading-[1.05] tracking-tight text-foreground;
+    font-size: clamp(2.25rem, 7vw, 3rem); /* MOBILE: fluid 36–48px */
   }
 
   .heading-section {
-    @apply font-mono text-3xl md:text-4xl font-medium tracking-tight text-foreground;
+    @apply font-mono font-medium tracking-tight text-foreground;
+    font-size: clamp(1.5rem, 5.5vw, 1.875rem); /* MOBILE: fluid 24–30px */
+  }
+  /* Desktop pins the heading sizes to their original md: values (unchanged). */
+  @media (min-width: 768px) {
+    .heading-hero { font-size: 6rem; }      /* == text-8xl */
+    .heading-section { font-size: 2.25rem; } /* == text-4xl */
   }
 
   .text-eyebrow {
@@ -1165,4 +1175,9 @@ html.intro-play body {
 .perspective-grid.is-revealing .sp-vp { opacity: 0.9; }
 @media (prefers-reduced-motion: reduce) {
   .perspective-grid, .perspective-grid [data-draw], .perspective-grid .sp-vp { transition-duration: 0.2s; }
+}
+
+/* MOBILE horizontal gutter — 16px on phones (vertical rhythm stays on --page-gutter = 32px). */
+@media (max-width: 767px) {
+  :root { --page-gutter-x: 1rem; }
 }

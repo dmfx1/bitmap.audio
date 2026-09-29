@@ -15,11 +15,11 @@ export default function ContactHero() {
     <div
       ref={heroRef}
       data-has-hero
-      className="relative w-full flex-1 grid grid-rows-2 py-[var(--page-gutter)] will-change-transform"
+      className="relative w-full flex-1 flex flex-col md:grid md:grid-rows-2 py-[var(--page-gutter)] will-change-transform"
     >
       {started && (
         <>
-          <div className="container-page relative z-10 flex flex-col justify-end min-h-0">
+          <div className="container-page relative z-10 flex flex-col justify-start md:justify-end min-h-0">
             <div data-hero-pull="title" className="hero-copy">
               <ScrambleHeading
                 text={"Let's start a\nconversation"}
@@ -33,7 +33,7 @@ export default function ContactHero() {
             </div>
           </div>
 
-          <div className="container-page relative z-10 flex flex-col justify-end min-h-0">
+          <div className="container-page relative z-10 flex flex-col justify-start md:justify-end min-h-0">
             <div data-hero-pull="sub" className="hero-copy">
               <div
                 className={`transition-all duration-1000 ${

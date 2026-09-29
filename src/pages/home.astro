@@ -97,12 +97,34 @@ import CtaScene from '../components/modules/CtaScene.astro';
     }
     #page-bar [data-page-label] { opacity: 0; white-space: nowrap; text-align: center; transition: color 0.45s ease; }
 
+    /* ── MOBILE (≤767px): the scene-stage becomes a vertical SNAP REEL ──
+       Desktop GSAP is gated off (<768px). Here each scene unstacks into a
+       full-viewport scroll-snap panel in DOM order, with a subtle rise/fade as
+       it enters (progressive-enhanced via .mob-reveal — see the observer script).
+       svh only (never dvh) per the returns mobile rule. */
+    /* ── MOBILE (≤767px): scenes unstack into a NORMAL vertical scroll (no scroll-snap —
+       snapping felt jumpy on touch). Each section still reveals with a subtle rise/fade as
+       it enters (progressive-enhanced via .mob-reveal). Desktop GSAP stage is untouched. */
     @media (max-width: 767px) {
       #stage-track { height: auto; }
       .stage-pin { position: static; height: auto; overflow: visible; }
-      .scene { position: relative; inset: auto; height: auto; opacity: 1 !important; visibility: visible !important; }
+      .scene {
+        position: relative; inset: auto;
+        height: auto;
+        /* cancel the global .scene desktop pin-tail (margin-bottom:-100svh) + scene-lead. */
+        margin-bottom: 0; padding-top: 0;
+        visibility: visible !important;
+      }
+      .scene[data-scene="hero"] { min-height: 100svh; }
       .stage-fog, .stage-portal, .scene-veil, #page-bar { display: none; }
-      .scene-body { position: static; padding: 4rem 0; }
+      .scene-body {
+        position: static; top: auto; height: auto;
+        padding: 3rem 0;
+        display: flex; flex-direction: column; justify-content: center;
+      }
+      /* entrance transition — only after JS marks the stage (else everything stays visible) */
+      .mob-reveal .scene:not([data-scene="hero"]) { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
+      .mob-reveal .scene.is-in { opacity: 1; transform: none; }
     }
   </style>
 
@@ -234,5 +256,23 @@ import CtaScene from '../components/modules/CtaScene.astro';
     document.addEventListener('astro:page-load', initStage);
     if (document.readyState === 'complete') initStage();
     else window.addEventListener('load', initStage);
+  </script>
+
+  <script>
+    // MOBILE-only: reveal each snap panel as it enters (desktop uses the GSAP stage).
+    function initMobileScenes() {
+      if (!window.matchMedia('(max-width: 767px)').matches) return;
+      const track = document.getElementById('stage-track');
+      if (!track || track.dataset.mobInit === '1') return;
+      track.dataset.mobInit = '1';
+      track.classList.add('mob-reveal');
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } });
+      }, { threshold: 0.2 });
+      track.querySelectorAll('.scene').forEach((s) => io.observe(s));
+    }
+    document.addEventListener('astro:page-load', initMobileScenes);
+    if (document.readyState === 'complete') initMobileScenes();
+    else window.addEventListener('load', initMobileScenes);
   </script>
 </Layout>

@@ -89,7 +89,7 @@ export default function Values() {
 
   return (
     <div className="w-full" ref={containerRef}>
-      <div className="text-center mb-16 md:mb-10">
+      <div className="text-left md:text-center mb-16 md:mb-10">
         <p className="text-base font-mono tracking-[0.5em] uppercase text-accent">
           Our Values
         </p>
@@ -112,11 +112,11 @@ export default function Values() {
               onMouseEnter={() => handleMouseEnter(i)}
               onMouseLeave={handleMouseLeave}
               style={isMobile ? { opacity: mobileOpacity, transitionDuration: '150ms' } : undefined}
-              className={`flex flex-col items-center text-center px-4 cursor-pointer transition-all duration-700 ${
+              className={`flex flex-col items-center text-left md:text-center px-4 cursor-pointer transition-all duration-700 ${
                 isActive ? 'opacity-100' : 'opacity-25 hover:opacity-50'
               }`}
             >
-              <span className={`font-mono text-5xl md:text-6xl font-light mb-6 transition-all duration-700 ${
+              <span className={`font-mono text-[length:clamp(2.5rem,9vw,3.75rem)] md:text-6xl font-light mb-6 transition-all duration-700 ${
                 isActive
                   ? 'text-foreground drop-shadow-[0_0_15px_rgba(0,229,255,0.4)] values-slow-pulse'
                   : 'text-foreground'

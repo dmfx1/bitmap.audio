@@ -62,7 +62,7 @@ export default function Philosophy() {
     <div ref={sectionRef} className="flex flex-col items-center text-center">
       
       <div className="max-w-7xl min-h-[160px] md:min-h-[200px]">
-        <h2 className="text-2xl md:text-4xl lg:text-7xl font-mono font-bold text-foreground/60 text-justify md:text-center">
+        <h2 className="text-2xl md:text-4xl lg:text-7xl font-mono font-bold text-foreground/60 text-left md:text-center">
           {visibleText}
           <span className="inline-block w-[0.5ch] h-[0.9em] bg-accent brightness-125 ml-2 animate-pulse align-middle" />
         </h2>

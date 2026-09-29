@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
-import { ChevronDown, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Button } from "./ui/button";
 import {
   NavigationMenu,
@@ -17,7 +17,7 @@ import { BRAND_NAME, BRAND_MOTION, scrambleInMsFor } from "../config/brandMotion
 const solutions = [
   { name: "Sonic Branding", href: "/solutions/sonic-branding", description: "Brand identity through sound" },
   { name: "UI/UX Sound", href: "/solutions/uiux-sound", description: "Sonic interfaces for technology" },
-  { name: "Experiential Audio", href: "/solutions/experiential-audio", description: "Immersive spatial installations" },
+  { name: "Experiential Audio", href: "/solutions/spatial-audio", description: "Immersive spatial installations" },
 ];
 
 const SEEN_KEY = "bitmap_intro_seen";
@@ -238,7 +238,7 @@ const BrandLockup = ({ pageName }: { pageName: string }) => {
            .container-page content edge. transform: the scroll "squash" (--nav-scale). */
         style={{
           ['--brandH' as any]: 'clamp(3rem, 6vw, 6.5rem)',
-          left: 'var(--page-gutter)',
+          left: 'var(--page-gutter-x)',
           /* Brand squishes MORE than the nav (--brand-scale, its own knob). top-left origin:
              it shrinks toward the top-left corner, keeping the SAME distance from the top and
              left as at full size (rather than shrinking down toward the bottom-left). */
@@ -303,9 +303,6 @@ const BrandLockup = ({ pageName }: { pageName: string }) => {
 const Navigation = ({ currentPath, pageName = BRAND_NAME }: { currentPath: string; pageName?: string }) => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isDesktopOpen, setIsDesktopOpen] = useState(false);
-  const [isSolutionsOpen, setIsSolutionsOpen] = useState(
-    typeof window !== "undefined" && window.innerWidth < 768
-  );
   const isActive = (path: string) => currentPath === path;
 
   // The nav controls are hidden ONLY during the first-visit intro (they fade in when the brand
@@ -368,35 +365,35 @@ const Navigation = ({ currentPath, pageName = BRAND_NAME }: { currentPath: strin
                 <NavigationMenuItem>
                   <a href="/about-v3" className={cn(
                     "font-mono text-base uppercase tracking-wider link-underline transition-colors",
-                    isActive("/about") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
+                    isActive("/about-v3") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
                   )}>About</a>
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>
                   <a href="/solutions/uiux-sound" className={cn(
                     "font-mono text-base uppercase tracking-wider link-underline transition-colors",
-                    isActive("/about") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
+                    isActive("/solutions/uiux-sound") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
                   )}>UI/UX</a>
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>
                   <a href="/solutions/sonic-branding" className={cn(
                     "font-mono text-base uppercase tracking-wider link-underline transition-colors",
-                    isActive("/about") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
+                    isActive("/solutions/sonic-branding") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
                   )}>Branding</a>
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>
                   <a href="/solutions/spatial-audio" className={cn(
                     "font-mono text-base uppercase tracking-wider link-underline transition-colors",
-                    isActive("/about") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
+                    isActive("/solutions/spatial-audio") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
                   )}>Spatial</a>
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>
                   <a href="/returns2" className={cn(
                     "font-mono text-base uppercase tracking-wider link-underline transition-colors",
-                    isActive("/returns") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
+                    isActive("/returns2") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
                   )}>Why?</a>
                 </NavigationMenuItem>
               </NavigationMenuList>
@@ -413,9 +410,7 @@ const Navigation = ({ currentPath, pageName = BRAND_NAME }: { currentPath: strin
           <button
             className="md:hidden flex items-center justify-center h-12 w-12 bg-background/70 backdrop-blur-md border border-border/10 rounded-none text-foreground"
             onClick={() => {
-              const next = !isMobileOpen;
-              setIsMobileOpen(next);
-              if (!next) setIsSolutionsOpen(false);
+              setIsMobileOpen(!isMobileOpen);
             }}
           >
             {isMobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -429,12 +424,12 @@ const Navigation = ({ currentPath, pageName = BRAND_NAME }: { currentPath: strin
           <div className="md:hidden border-t border-border animate-fade-in min-h-[calc(100dvh-4rem)] pb-8 bg-background/95 backdrop-blur-md -mx-4 px-4">
             <div className="flex flex-col gap-1 pt-6 pb-24">
               <a href="/home" className="font-mono text-base uppercase tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">Home</a>
-              <a href="/about" className="font-mono text-base uppercase tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">About</a>
+              <a href="/about-v3" className="font-mono text-base uppercase tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">About</a>
               <a href="/returns2" className="font-mono text-base uppercase tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">Why?</a>
               {/* Solutions dropdown removed — Branding / UI/UX / Experience are flat items now. */}
               <a href="/solutions/sonic-branding" className="font-mono text-base uppercase tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">Branding</a>
               <a href="/solutions/uiux-sound" className="font-mono text-base uppercase tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">UI/UX</a>
-              <a href="/solutions/experiential-audio" className="font-mono text-base uppercase tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">Experience</a>
+              <a href="/solutions/spatial-audio" className="font-mono text-base uppercase tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">Experience</a>
               <a href="/faq" className="font-mono text-base uppercase tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">FAQ</a>
             </div>
 

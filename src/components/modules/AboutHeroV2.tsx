@@ -27,7 +27,7 @@ export default function AboutHeroV2() {
     <div
       ref={heroRef}
       data-has-hero
-      className="relative w-full flex-1 grid grid-rows-2 py-[var(--page-gutter)] will-change-transform"
+      className="relative w-full flex-1 flex flex-col md:grid md:grid-rows-2 py-[var(--page-gutter)] will-change-transform"
     >
       {/* Hero image — anchored RIGHT, fading in from the left (old-site mask).
           Simple opacity fade-in when the hero starts (no flicker). */}
@@ -53,7 +53,7 @@ export default function AboutHeroV2() {
         <>
           {/* ROW 1 (top half) — hero title. data-hero-pull="title" → pulled slowly into
               the central glare on scroll (see use-hero-squish). */}
-          <div className="container-page relative z-10 flex flex-col justify-end min-h-0">
+          <div className="container-page relative z-10 flex flex-col justify-start md:justify-end min-h-0">
             <div data-hero-pull="title" className="hero-copy">
               <ScrambleHeading
                 text={'Two minds,\none sonic vision'}
@@ -72,7 +72,7 @@ export default function AboutHeroV2() {
 
           {/* ROW 2 (bottom half) — description. data-hero-pull="sub" → pulled FASTER into
               the glare (further away, sucked in quicker). */}
-          <div className="container-page relative z-10 flex flex-col justify-end min-h-0">
+          <div className="container-page relative z-10 flex flex-col justify-start md:justify-end min-h-0">
             <div data-hero-pull="sub" className="hero-copy">
               <p
                 className={`text-foreground/90 text-5xl font-mono transition-all duration-1000 ${

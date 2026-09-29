@@ -165,7 +165,7 @@ export default function ConceptGrid({
       )}
     >
       {(eyebrow || sectionTitle) && (
-        <div className="text-center mb-16 space-y-4">
+        <div className="text-left md:text-center mb-16 space-y-4">
           {eyebrow && (
             <p className="text-accent uppercase tracking-[0.5em] text-base font-mono">
               {eyebrow}
