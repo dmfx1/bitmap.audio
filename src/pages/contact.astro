@@ -39,7 +39,7 @@ const contactCards = [
 
   {/* Each section: bar sticks under the header, content locks in centred below it, then release
       together (same pattern as about-v2 / home). */}
-  <div class="relative z-10 theme-oat">
+  <div class="relative z-10 theme-oat sol-body">
     <div class="relative">
       <div class="section-bar-hold"><Solaris text="Get In Touch" /></div>
       <FocusScroll count={1} barOffset id="details" class="!bg-background/50 backdrop-blur-xl">
@@ -59,4 +59,9 @@ const contactCards = [
       </FocusScroll>
     </div>
   </div>
+
+  {/* no Solaris seam beam before the footer on mobile */}
+  <style is:global>
+    @media (max-width: 767px) { .solaris:has(+ footer) { display: none; } }
+  </style>
 </Layout>

@@ -69,6 +69,9 @@ function ClientWord({ text, isActive }: { text: string, isActive: boolean }) {
 // 2. MAIN COMPONENT
 export default function Clients() {
     const [activeSlots, setActiveSlots] = useState<{id: string, name: string}[]>([]);
+    // Shuffled no-repeat queue: the full client list is dealt in random order and only
+    // reshuffled once drained, so every client appears before any repeats — none is missed.
+    const nameQueueRef = useRef<string[]>([]);
     const [isMobile, setIsMobile] = useState(false);
 
     // Hydration-safe mobile detection
@@ -81,7 +84,7 @@ export default function Clients() {
     
     // Dynamic Layout: 3 columns on mobile, 7 on desktop
     const COLUMNS = isMobile ? 3 : 7;
-    const CLIENTS_PER_COL = isMobile ? 6 : 8; // more rows to fill the taller (full-viewport) terminal
+    const CLIENTS_PER_COL = isMobile ? 10 : 8; // more rows on mobile to fill the full-screen terminal + show more names
 
     // We now just build EMPTY slots. No names attached!
     const columnsData = useMemo(() => {
@@ -118,13 +121,13 @@ export default function Clients() {
                 let kept = [...current].sort(() => Math.random() - 0.5);
                 
                 // Drop threshold adapts to screen size
-                const dropThreshold = isMobile ? 3 : 5;
+                const dropThreshold = isMobile ? 5 : 5;
                 const dropCount = current.length > dropThreshold ? Math.floor(Math.random() * 2) + 1 : 0; 
                 kept = kept.slice(dropCount);
                 
                 // 2. Adaptive Clutter Control
-                const minActive = isMobile ? 3 : 9;
-                const maxActive = isMobile ? 5 : 14;
+                const minActive = isMobile ? 6 : 9;
+                const maxActive = isMobile ? 11 : 14;
                 const targetCount = minActive + Math.floor(Math.random() * (maxActive - minActive + 1)); 
                 
                 if (kept.length > targetCount) kept = kept.slice(0, targetCount);
@@ -139,34 +142,43 @@ export default function Clients() {
                 const availableSlots = allSlotIds.filter(id => !activeSlotIds.has(id));
                 availableSlots.sort(() => Math.random() - 0.5);
 
-                // 4. Get all names NOT currently on screen and shuffle them
-                const availableNames = clientsData.filter(name => !activeNames.has(name));
-                availableNames.sort(() => Math.random() - 0.5);
-
-                const newAdditions = [];
-                
-                const limit = Math.min(needed, availableSlots.length, availableNames.length);
-                for (let i = 0; i < limit; i++) {
-                    newAdditions.push({ 
-                        id: availableSlots[i], 
-                        name: availableNames[i] 
-                    });
+                // 4. Pull the next names from the persistent shuffled queue (Fisher-Yates).
+                //    Refills + reshuffles only once drained, so every client is shown before any repeat.
+                const limit = Math.min(needed, availableSlots.length);
+                const newNames: string[] = [];
+                let guard = 0;
+                while (newNames.length < limit && guard < clientsData.length * 4) {
+                    guard++;
+                    if (nameQueueRef.current.length === 0) {
+                        const deck = [...clientsData];
+                        for (let k = deck.length - 1; k > 0; k--) {
+                            const j = Math.floor(Math.random() * (k + 1));
+                            [deck[k], deck[j]] = [deck[j], deck[k]];
+                        }
+                        nameQueueRef.current = deck;
+                    }
+                    const candidate = nameQueueRef.current.shift()!;
+                    // skip names already on screen or already picked this tick (they resurface after the next refill)
+                    if (activeNames.has(candidate) || newNames.includes(candidate)) continue;
+                    newNames.push(candidate);
                 }
+
+                const newAdditions = newNames.map((name, i) => ({ id: availableSlots[i], name }));
 
                 return [...kept, ...newAdditions];
             });
         };
 
         updateActive();
-        // Preserved your 1600ms timing
-        const cycleInterval = setInterval(updateActive, 1600);
+        // Faster cadence on mobile so more names cycle through in a shorter time
+        const cycleInterval = setInterval(updateActive, isMobile ? 900 : 1600);
         return () => clearInterval(cycleInterval);
     }, [columnsData, isMobile]);
 
     return (
         <div className="w-full relative overflow-hidden">
             {/* Added dynamic grid-cols-3 for mobile and responsive height h-[30vh] */}
-            <div className="w-full grid grid-cols-3 md:grid-cols-7 gap-0 h-[56vh] md:h-[68vh] border-y border-border/20 bg-background">
+            <div className="w-full grid grid-cols-3 md:grid-cols-7 gap-0 h-[100svh] md:h-[68vh] border-y border-border/20 bg-background">
                 {columnsData.map((col, colIndex) => (
                     <div 
                         key={`col-${colIndex}`} 

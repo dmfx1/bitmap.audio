@@ -14,7 +14,7 @@ export default function ImmersiveHero() {
     <div
       ref={heroRef}
       data-has-hero
-      className="relative w-full flex-1 flex flex-col md:grid md:grid-rows-2 py-[var(--page-gutter)] will-change-transform"
+      className="relative w-full flex-1 flex flex-col mobile:justify-center mobile:gap-8 md:grid md:grid-rows-2 py-[var(--page-gutter)] will-change-transform"
     >
       {started && (
         <>
@@ -37,7 +37,7 @@ export default function ImmersiveHero() {
             <div className="flex-1 flex flex-col justify-start md:justify-center min-h-0">
               <div data-hero-pull="sub" className="hero-copy">
                 <p
-                  className={`text-foreground/90 text-3xl md:text-5xl font-mono transition-all duration-1000 ${
+                  className={`text-foreground/90 text-2xl md:text-5xl font-mono transition-all duration-1000 ${
                     showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
                   }`}
                 >
@@ -45,9 +45,9 @@ export default function ImmersiveHero() {
                 </p>
               </div>
             </div>
-            <div data-hero-pull="track" className="hero-copy">
+            <div data-hero-pull="track" className="hero-copy mt-8 md:mt-0">
               <div
-                className={`w-full max-w-xs transition-all duration-1000 ${
+                className={`w-full max-w-[13rem] md:max-w-xs transition-all duration-1000 ${
                   showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
                 }`}
               >

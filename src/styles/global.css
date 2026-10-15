@@ -60,6 +60,13 @@ html.lenis body { height: auto; }
   .hero-copy[data-hero-pull="title"] { max-width: min(66vw, 80rem); }
   /* The blurb/body stays narrower so body copy doesn't sprawl (value set to taste). Site-wide. */
   .hero-copy[data-hero-pull="sub"] { max-width: min(55vw, 84rem); }
+  /* MOBILE: hero copy spans the full column width (desktop keeps the narrow vw columns). */
+  @media (max-width: 767px) {
+    .hero-copy,
+    .hero-copy[data-hero-pull="title"],
+    .hero-copy[data-hero-pull="sub"],
+    .hero-copy[data-hero-pull="track"] { max-width: 100%; }
+  }
 
   /* Hero pull layers: the subtitle (title) always stacks ABOVE the blurb (body), so as
      they converge into the glare on scroll the title stays on top. Site-wide. */
@@ -233,7 +240,111 @@ html { scrollbar-width: none; }
 }
 @media (max-width: 767px) { #dev-hud { display: none; } }
 /* No frosted header bar on mobile (the fixed nav + hamburger carry their own tile). */
-@media (max-width: 767px) { #header-bar { display: none; } }
+@media (max-width: 767px) { #header-bar, #nav-top-cover { display: none; } }
+/* No header "squish" on mobile — brand 'b' + nav stay full size on scroll (no shrink/lift). */
+@media (max-width: 767px) {
+  :root { --brand-scale: 1 !important; --nav-scale: 1 !important; --nav-lift: 0px !important; }
+}
+
+/* Apply the light "oat" palette (beige bg + dark text + content-tuned primary/accent) ONLY on mobile.
+   Tag any normally-dark section with class="oat-on-mobile" to make it oat on phones, dark on desktop. */
+@media (max-width: 767px) {
+  .oat-on-mobile {
+    --background: var(--content-background);
+    --foreground: var(--content-foreground);
+    --card: var(--content-card);
+    --card-foreground: var(--content-foreground);
+    --popover: var(--content-card);
+    --popover-foreground: var(--content-foreground);
+    --border: var(--content-border);
+    --input: var(--content-border);
+    --secondary: var(--content-muted);
+    --secondary-foreground: var(--content-foreground);
+    --muted: var(--content-muted);
+    --muted-foreground: var(--content-muted-foreground);
+    --primary: var(--content-primary);
+    --primary-foreground: 0 0% 98%;
+    --accent-foreground: 0 0% 100%;
+    --ring: var(--accent);
+    background-color: hsl(var(--content-background));
+    color: hsl(var(--content-foreground));
+  }
+}
+
+/* STATEMENT SECTIONS: on mobile, let a text-only section fill the screen height and centre its
+   content so it isn't squashed between neighbours. Opt-in per section via class="mobile-fill"
+   (NOT for content-heavy sections like the service pillars). */
+@media (max-width: 767px) {
+  .mobile-fill { min-height: max(100svh, 34rem); display: flex; flex-direction: column; justify-content: center; }  /* floor gives taller sections (more scroll) on short/landscape screens; portrait keeps 100svh */
+}
+
+/* ── SOLUTIONS pages on mobile: ride the binary rain (match home/about). The oat FocusScroll panels
+   drop to transparent and the palette reverts to the dark/void theme so text + cards read on the
+   rain; the CTA stays oat as on the other pages. ── */
+@media (max-width: 767px) {
+  .sol-body {
+    --background: 180 10% 12%;
+    --foreground: 0 0% 95%;
+    --card: 220 20% 7%;
+    --border: 240 100% 100%;
+    --muted: 220 15% 15%;
+    --muted-foreground: 0 0% 60%;
+    --primary: 35 100% 55%;
+    background-color: transparent !important;   /* theme-oat paints oat — drop it so the rain shows */
+  }
+  .sol-body .focus-scroll-sticky {
+    background: transparent !important;
+    backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+    padding-block: clamp(6rem, 20vh, 11rem) !important;   /* beat FocusScroll's scoped padding-top:0 (bar-offset) */
+  }
+  .sol-cta .focus-scroll-sticky {
+    --background: var(--content-background);
+    --foreground: var(--content-foreground);
+    --card: var(--content-card);
+    --border: var(--content-border);
+    --muted-foreground: var(--content-muted-foreground);
+    background: hsl(var(--content-background)) !important;
+    backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+    min-height: max(100svh, 34rem);   /* CTA fills the screen (mobile-fill) */
+  }
+  /* hide the accent section-title bars on mobile (match about — no clunky bars over the rain) */
+  .sol-body .section-bar-hold, .sol-cta .section-bar-hold { display: none; }
+
+  /* Applications (ConceptGrid) sections: tighter lead-in + OAT cards floating on the rain */
+  #analysis .focus-scroll-sticky { padding-bottom: clamp(3rem, 10vh, 5.5rem) !important; }  /* halve the gap down to the cards */
+  #applications .focus-scroll-sticky { padding-block: clamp(3rem, 9vh, 5rem) !important; }
+  #socials .focus-scroll-sticky {
+    min-height: max(100svh, 34rem);                     /* 'follow our work' fills the screen... */
+    --background: var(--content-background);
+    --foreground: var(--content-foreground);
+    --card: var(--content-card);
+    --border: var(--content-border);
+    --muted-foreground: var(--content-muted-foreground);
+    --primary: var(--content-primary);
+    background: hsl(var(--content-background)) !important;   /* ...and stays OAT */
+    backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+  }
+  /* 'Follow Our Work' heading reads dark on the oat (it's hardcoded text-accent otherwise) */
+  #socials .text-eyebrow { color: hsl(var(--foreground)) !important; }
+  /* contact detail cards: match the top gap (after the hero) to the good bottom gap (+1rem = the grid's pb-4) */
+  #details .focus-scroll-sticky {
+    padding-bottom: clamp(6rem, 24vh, 15rem) !important;   /* more room before 'follow our work' */
+    padding-top: calc(clamp(1rem, 4vh, 2.5rem) + 1rem) !important;
+  }
+  .map-bg { display: none; }   /* contact: drop the map behind the detail cards so the block matches applications (clean rain) */
+  .sol-body [data-mobile-center-item] {
+    --card: var(--content-card);
+    --foreground: var(--content-foreground);
+    --primary: var(--content-primary);
+    --muted-foreground: var(--content-muted-foreground);
+    --border: var(--content-border);
+  }
+  .sol-body [data-mobile-center-item] > div {
+    background-color: hsl(var(--content-card) / 0.92) !important;   /* clearly oat, lightly frosted */
+  }
+}
+/* blinking terminal cursor for the mobile section tags (used by ConceptGrid) */
+@keyframes term-blink { 50% { opacity: 0; } }
 
 /* ── SITE-WIDE CTA scene + pixel veil (see components/modules/CtaScene.astro) ──────────────────── */
 .cta-scene { background-color: hsl(var(--background)); }
@@ -733,7 +844,7 @@ a, button, [role="button"] {
 
   .heading-hero {
     @apply font-mono font-light leading-[1.05] tracking-tight text-foreground;
-    font-size: clamp(2.25rem, 7vw, 3rem); /* MOBILE: fluid 36–48px */
+    font-size: clamp(2.75rem, 11vw, 4.25rem); /* MOBILE: fluid ~44–68px (bigger, still responsive) */
   }
 
   .heading-section {
@@ -1141,6 +1252,22 @@ html.intro-play body {
 .animate-bitmap-in {
   animation: bitmapIn var(--bitmap-in-dur, 650ms) steps(1, end) both;
   transform-origin: left center;
+}
+
+/* Exact time-reverse of bitmapIn — the mark flicker-scales back out the way it came in. */
+@keyframes bitmapOut {
+  0%   { transform: scale(1);    opacity: 1; }
+  18%  { transform: scale(0.85); opacity: 0.35; }
+  28%  { transform: scale(1);    opacity: 1; }
+  42%  { transform: scale(0.45); opacity: 0.55; }
+  56%  { transform: scale(0.8);  opacity: 1; }
+  72%  { transform: scale(0.2);  opacity: 0.3; }
+  84%  { transform: scale(0.5);  opacity: 1; }
+  100% { transform: scale(0);    opacity: 0; }
+}
+.animate-bitmap-out {
+  animation: bitmapOut var(--bitmap-out-dur, 520ms) steps(1, end) both;
+  transform-origin: left center;   /* same origin as bitmapIn — reverses the way it came */
 }
 
 

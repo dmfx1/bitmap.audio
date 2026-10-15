@@ -15,7 +15,7 @@ export default function ContactHero() {
     <div
       ref={heroRef}
       data-has-hero
-      className="relative w-full flex-1 flex flex-col md:grid md:grid-rows-2 py-[var(--page-gutter)] will-change-transform"
+      className="relative w-full flex-1 flex flex-col mobile:justify-center mobile:gap-8 md:grid md:grid-rows-2 py-[var(--page-gutter)] will-change-transform"
     >
       {started && (
         <>
@@ -40,7 +40,7 @@ export default function ContactHero() {
                   showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
                 }`}
               >
-                <p className="text-foreground/90 text-3xl md:text-5xl font-mono">
+                <p className="text-foreground/90 text-2xl md:text-5xl font-mono">
                   Have a project in mind? We'd love to hear about it.<br/><br/>Get in touch and let's explore how we can architect your sonic vision together.
                 </p>
               </div>

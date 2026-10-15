@@ -69,7 +69,8 @@ const BrandLockup = ({ pageName }: { pageName: string }) => {
 
   // Centre intro stage.
   const [centerVisible, setCenterVisible] = useState(false);    // stage opacity
-  const [centerBHidden, setCenterBHidden] = useState(false);    // centre b fades at handoff
+  const [centerExiting, setCenterExiting] = useState(false);     // centre logo flicker-scales OUT
+  const [isMobile, setIsMobile] = useState(false);              // true <768 — picks the faster mobile flick-out
   const [centerTarget, setCenterTarget] = useState("");         // scrambles IN to bitmap.audio
   const stageRef = useRef<HTMLDivElement | null>(null);         // the lifted container
   const wordRef = useRef<HTMLSpanElement | null>(null);         // bitmap.audio (CRT target)
@@ -111,9 +112,13 @@ const BrandLockup = ({ pageName }: { pageName: string }) => {
       return;
     }
 
-    const { introHoldMs, liftMs, crtMs, scrambleInMs, fadeInMs } = BRAND_MOTION;
+    const { introHoldMs, flickerOutMs, flickerOutMsMobile, scrambleInMs, fadeInMs } = BRAND_MOTION;
+    const mobileIntro = window.matchMedia('(max-width: 767px)').matches;
+    setIsMobile(mobileIntro);
+    const outMs = mobileIntro ? flickerOutMsMobile : flickerOutMs;
 
-    // Stage begins centred (top:50%, -50% Y) and hidden; scramble bitmap.audio IN.
+    // Stage sits CENTRED (top:50%, -50% Y) and STAYS there — no lift. The b flicker-
+    // assembles (animate-bitmap-in) and bitmap.audio scrambles IN at the centre.
     if (stageRef.current) gsap.set(stageRef.current, { top: "50%", yPercent: -50 });
     const raf = requestAnimationFrame(() => {
       setCenterVisible(true);
@@ -122,44 +127,25 @@ const BrandLockup = ({ pageName }: { pageName: string }) => {
 
     const tl = gsap.timeline({ delay: fadeInMs / 1000 });
 
-    // 1/2. Hold on bitmap.audio at centre.
-    tl.to({}, { duration: introHoldMs / 1000 });
+    // 1. Assemble (flicker-in + scramble-in), then hold.
+    tl.to({}, { duration: (scrambleInMs + introHoldMs) / 1000 });
 
-    // 2. LIFT the whole stage to the top bar (b → top-left, wordmark → top-right).
-    tl.to(stageRef.current, { top: "2rem", yPercent: 0, duration: liftMs / 1000, ease: "power3.inOut" });
+    // 2. Flicker-scale the centred logo OUT in place (mirrors the b's entrance).
+    tl.add(() => setCenterExiting(true));
+    tl.to({}, { duration: outMs / 1000 });
 
-    // 3. Arrive: nav b glitch-grows in, centre b hands off (fades), rain begins.
+    // 3. The resting nav simply APPEARS at the top — no slide, no CRT: the b pops in,
+    //    the page name scrambles in beside it, controls fade in, rain begins.
     tl.add(() => {
+      setCenterVisible(false);
       setBGrown(true);
-      setCenterBHidden(true);
+      setWordVisible(true);
+      setCurrent(pageName);
+      revealControls();
       startRain();
     });
 
-    // 4. CRT power-off the bitmap.audio wordmark: squeeze to a bright line at the
-    //    wordmark's vertical centre (where the nav sits), then snap.
-    tl.to(wordRef.current, {
-      scaleY: 0.03,
-      filter: "brightness(2.4)",
-      transformOrigin: "center center",
-      duration: (crtMs * 0.55) / 1000,
-      ease: "power2.in",
-    }, ">")
-      .to(wordRef.current, {
-        scaleX: 0,
-        opacity: 0,
-        duration: (crtMs * 0.45) / 1000,
-        ease: "power2.in",
-      }, ">");
-
-    // 4b. Nav controls fade into the vacated top-right; page name scrambles in by the b.
-    tl.add(() => {
-      revealControls();
-      setCenterVisible(false);
-      setWordVisible(true);
-      setCurrent(pageName);
-    });
-
-    // 5. Done → hero, once the page-name scramble resolves.
+    // 4. Done → hero, once the page-name scramble resolves.
     tl.add(() => signalIntroDone(), `+=${(scrambleInMs + 150) / 1000}`);
 
     return () => {
@@ -196,31 +182,27 @@ const BrandLockup = ({ pageName }: { pageName: string }) => {
             ['--brandH' as any]: 'clamp(3rem, 6vw, 6.5rem)',
           }}
         >
-          <div className="container-page flex items-center justify-between gap-6">
+          <div className="container-page flex items-center justify-between gap-6 mobile:justify-center">
             {/* b — LEFT. Glitch-assembles in (bitmapIn) at the SAME moment bitmap.audio
                 scrambles in, so the b only does its stepped reveal ONCE (here) — it then
                 stays full-size through the lift + dock (no second glitch at the top). */}
             <img
               src="/images/brand/logo-b.svg"
               alt=""
-              className={`object-contain shrink-0 ${
-                centerVisible && !centerBHidden ? 'animate-bitmap-in' : ''
+              className={`object-contain shrink-0 h-[var(--brandH)] w-[var(--brandH)] mobile:h-[60vw] mobile:w-[60vw] ${
+                centerExiting ? 'animate-bitmap-out' : (centerVisible ? 'animate-bitmap-in' : '')
               }`}
               style={{
-                height: 'var(--brandH)',
-                width: 'var(--brandH)',
-                opacity: centerBHidden ? 0 : 1,
                 ['--bitmap-in-dur' as any]: `${BRAND_MOTION.scrambleInMs}ms`,
+                ['--bitmap-out-dur' as any]: `${isMobile ? BRAND_MOTION.flickerOutMsMobile : BRAND_MOTION.flickerOutMs}ms`,
               }}
             />
             {/* bitmap.audio — RIGHT (desktop only; mobile header has no wordmark). */}
             <span
               ref={wordRef}
-              /* leading-none matches the nav wordmark so this span's line-box == the b's
-                 height; otherwise its taller line-box inflates the flex row and items-center
-                 pushes the b down ~26px, so the centre b wouldn't land on the nav b. */
-              className="hidden md:inline-block font-mono font-light tracking-tight leading-none text-foreground whitespace-nowrap will-change-transform"
-              style={{ fontSize: 'clamp(2rem, 6vw, 6.5rem)', fontFamily: 'var(--font-departure)' }}
+              /* leading-none matches the nav wordmark so this span's line-box == the b's height. */
+              className={`hidden md:inline-block font-mono font-light tracking-tight leading-none text-foreground whitespace-nowrap will-change-transform ${centerExiting ? 'animate-bitmap-out' : ''}`}
+              style={{ fontSize: 'clamp(2rem, 6vw, 6.5rem)', fontFamily: 'var(--font-departure)', ['--bitmap-out-dur' as any]: `${isMobile ? BRAND_MOTION.flickerOutMsMobile : BRAND_MOTION.flickerOutMs}ms` }}
             >
               {centerDisplay || BRAND_NAME}
               <span className="text-accent opacity-70">_</span>

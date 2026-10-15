@@ -72,7 +72,7 @@ const founders = [
 
 export default function Founders() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-px bg-foreground/5 w-full">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-0 bg-foreground/5 w-full">
       {founders.map((f, index) => (
         <FounderCard key={index} f={f} index={index} />
       ))}

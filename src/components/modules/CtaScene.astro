@@ -40,6 +40,22 @@ const { head, href = '/contact', linkLabel = 'start_project', pixelate = true } 
   .cta-caret, .cta-cursor { color: hsl(var(--accent)); }
   .cta-cursor { animation: cta-blink 1s steps(1) infinite; }
   @keyframes cta-blink { 50% { opacity: 0; } }
+
+  /* MOBILE: bordered tappable button — dark/background colour; only the blinking underscore is accent. */
+  @media (max-width: 767px) {
+    .cta-link {
+      font-size: clamp(1.25rem, 5vw, 1.75rem);
+      color: hsl(var(--foreground));
+      border: 2px solid hsl(var(--foreground));
+      background: transparent;
+      padding: 0.6em 1.1em;
+      margin-top: 0.6rem;
+      min-height: 44px;
+    }
+    .cta-link .cta-caret { color: hsl(var(--foreground)); }  /* caret dark too */
+    .cta-link .cta-cursor { color: hsl(var(--accent)); }     /* flashing underscore = accent orange */
+    .cta-link:active { background: hsl(var(--foreground)); color: hsl(var(--background)); }
+  }
 </style>
 
 <script>

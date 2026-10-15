@@ -409,6 +409,36 @@ Mobile hamburger menu current behaviour (do not revert):
 
 ## Current Active Work
 
+### 🚚 Session handoff — 2026-09-29 (MOBILE ROLLOUT — in progress on branch `mobile-rollout`)
+
+**⏸ PAUSED 2026-10-14** — dom moved to other work. **Resume point:** verify + commit about-v3 mobile (currently uncommitted), then the backlog at the end of this entry. Extra fix 2026-10-14: hid `#nav-top-cover` (the grey top gradient) on mobile — it was covering header text (the blurred `#header-bar` was already hidden on mobile).
+
+All work below is on branch **`mobile-rollout`**, **uncommitted** (dom commits in VS Code). Governed by the new **`AGENTS.md`** (operating rules; `CLAUDE.md` links to it at the top). Builds inside the cloud session route Vite/Astro caches out of the mount (mounted `node_modules/.vite` can't be unlinked → EPERM); dom verifies visually in his own `npm run dev`.
+
+**Mobile rollout phase status**
+- **Cleanup (done):** removed unused components + the archived old-landing bundle (`index-landing`, `HomeHero`, `TypewriterHero`, `BitmapTypewriter`) + stale `_delete-*.sh`/`astro.config.tmp.mjs`; stripped unused `React` default imports from 21 components (automatic JSX runtime).
+- **Phase A — mobile side gutter (done):** `--page-gutter-x` (1rem mobile / 2rem desktop) in `global.css`; `.container-page` + the nav brand use it. Vertical rhythm still on `--page-gutter` (32px).
+- **Phase B — fluid mobile typography (done):** `.heading-hero` / `.heading-section` use `clamp()` on mobile, desktop `md:` sizes pinned unchanged; `Values` heading fluidised; Hero CTA `text-base` on mobile; text left-aligned on mobile for `Philosophy`, `Values`, `ConceptGrid`, `DeliverablesGrid`, `ServicePillars`, `404`. Decorative eyebrows / uppercase-tracked labels / mono tags left small on purpose (OPEN: bump or not).
+- **Phase D — nav fixes (done):** mobile "Experience" → `/solutions/spatial-audio` (was a 404 at `/solutions/experiential-audio`); mobile About → `/about-v3`; desktop nav active-state now per-item (was all `isActive("/about")`); removed dead `isSolutionsOpen` state + `ChevronDown` import.
+- **Phase E — scene-stage mobile (HOME + about-v3 DONE):**
+  - Scenes unstack to **normal vertical scroll**. Scroll-**snap was tried then removed** — jumpy on touch (dom's call).
+  - Root bug fixed: the global `.scene { margin-bottom: calc(-1 * var(--scene-tail, 100svh)) }` desktop pin-tail was collapsing the mobile stack (all scenes piled up → CTA/z30 on top). Home's mobile block now sets `margin-bottom:0; padding-top:0; height:auto` on `.scene`, hero keeps `min-height:100svh`.
+  - Subtle rise/fade reveal per section via `.mob-reveal` + an IntersectionObserver (progressive-enhanced; no JS → all visible). No GSAP on mobile.
+  - Glass `#header-bar` hidden on mobile (global.css) — the fixed nav + hamburger carry their own tile.
+  - **Hero text pinned top-left on mobile:** every hero outer `grid grid-rows-2` → `flex flex-col md:grid md:grid-rows-2`, row blocks `justify-start md:justify-end|center`. `useHeroSquish` is desktop-only (guarded), so this is safe. Applies to `Hero`, `Sonic/UIUX/Immersive Hero`, `ContactHero`, `AboutHeroV2`.
+
+**Remaining mobile work (next)**
+- **Phase E about-v3 (DONE 2026-10-01):** same unstack + reveal as home; philosophy captions flow as a list (empty GSAP canvas hidden), values columns stack left-aligned, stage-fog/portal/page-bar hidden. Both scene-stage pages now mobile-complete.
+- `DeliverablesGrid` staggered entry + mobile pulse-glow (backlog).
+- returns / returns2 mobile snap + perf pass (backlog; returns is the special case — leave for now).
+- Eyebrow/label mobile sizing (deferred from Phase B).
+- `--background: 180 10% 12%` reads bluer on wide-gamut (P3) displays than on phones — same CSS both places. Nudge hue/sat only if dom wants a more neutral look (brand change — needs sign-off).
+
+**🔖 NEXT-SESSION request (dom, 2026-09-29) — Intro animation: drop the slide-up.**
+Today `Navigation.tsx` → `BrandLockup` first-visit intro shows a CENTRE stage (`b` + `bitmap.audio`), scrambles in, holds, then **LIFTS the whole stage up** to the top bar (b → top-left, `bitmap.audio` → CRT-power-off top-right) — the "page moves up" slide. dom wants to **remove that vertical lift/slide-up**: instead the wordmark should **scramble OUT of its current (centre) position, then scramble IN at its resting nav position** (where the page-title, e.g. "home", sits). Leave the resting position + hover behaviour as-is. Timing knobs live in `src/config/brandMotion.ts`; see `MOTION-CHEATSHEET.md` / MOTION-PLAN §3. (Not started.)
+
+---
+
 ### 🚚 Session handoff — 2026-09-18 (desktop polish done → MOBILE ROLLOUT next)
 
 **dom is opening a NEW chat for the mobile rollout.** Desktop work this session is complete and was verified in the LIVE dev server (`npm run dev -- --host --port 3000`, viewed through the in-app browser — which reaches dom's machine at `http://localhost:3000`, NOT the sandbox). State:

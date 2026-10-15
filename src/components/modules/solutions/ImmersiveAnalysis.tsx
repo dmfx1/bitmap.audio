@@ -2,7 +2,7 @@
 
 export default function ImmersiveAnalysis() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-48 px-48">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-48 md:px-48">
       {/* THE CHALLENGE */}
       <div className="space-y-8">
         <div className="space-y-2">

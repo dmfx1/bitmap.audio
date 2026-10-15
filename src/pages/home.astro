@@ -41,14 +41,14 @@ import CtaScene from '../components/modules/CtaScene.astro';
       </div>
 
       {/* Philosophy — the micro/macro architecture; the quote types out on scroll (--phil-progress). */}
-      <div class="scene theme-oat" data-scene="philosophy" style="z-index:20">
+      <div class="scene theme-oat mobile-fill" data-scene="philosophy" style="z-index:20">
         <div class="scene-body">
           <Philosophy client:load />
         </div>
       </div>
 
       {/* CTA — dark void, oversized Departure Mono; pixelates in, then the stage releases into the footer. */}
-      <div class="scene cta-scene" data-scene="cta" style="z-index:30; --veil-color: hsl(var(--background))">
+      <div class="scene cta-scene oat-on-mobile mobile-fill" data-scene="cta" style="z-index:30; --veil-color: hsl(var(--background))">
         <div class="scene-body container-page">
           <CtaScene head="Ready to define<br/>your sound?" href="/contact" linkLabel="start_project" />
         </div>
@@ -116,10 +116,14 @@ import CtaScene from '../components/modules/CtaScene.astro';
         visibility: visible !important;
       }
       .scene[data-scene="hero"] { min-height: 100svh; }
+      /* OPTION B: light scenes go transparent on mobile so the fixed binary rain runs the whole page; content sits on light cards. */
+      .scene.theme-oat { background-color: transparent; }
+      /* 'In computer science…' reads as LIGHT text straight on the rain (no card) */
+      .scene[data-scene="philosophy"] { --foreground: 0 0% 95%; --muted-foreground: 48 18% 82%; }
       .stage-fog, .stage-portal, .scene-veil, #page-bar { display: none; }
       .scene-body {
         position: static; top: auto; height: auto;
-        padding: 3rem 0;
+        padding-block: 3rem;  /* vertical only — let container-page supply the 16px side gutter (CTA) */
         display: flex; flex-direction: column; justify-content: center;
       }
       /* entrance transition — only after JS marks the stage (else everything stays visible) */

@@ -99,7 +99,7 @@ export default function ServicePillars() {
     const scene = containerRef.current?.closest('[data-scene]') as HTMLElement | null;
     if (!scene) return;
     scene.style.transition = 'background-color 2s ease';
-    scene.style.backgroundColor = PILLAR_BG[activeIndex] ?? ''; // '' → back to the theme-oat beige
+    scene.style.backgroundColor = isMobile ? '' : (PILLAR_BG[activeIndex] ?? ''); // mobile: no scene tint (CSS makes it transparent so rain shows); desktop: theme tint
 
     // NOTE: per-pillar "draw-in" background scenes are PAUSED (2026-09-18). When revisited, toggle
     // `.is-revealing` on the active pillar's grid here (by data-scene id). See CLAUDE.md
@@ -161,7 +161,7 @@ function ServiceCard({
       data-mobile-center-item
       {...hoverProps}
       style={isMobile ? {
-        backgroundColor: `hsl(var(--background) / ${(0.4 + intensity * 0.4).toFixed(3)})`,
+        backgroundColor: `hsl(var(--background) / ${(0.78 + intensity * 0.18).toFixed(3)})`,
         transform: `scale(${(1 + intensity * 0.02).toFixed(4)})`,
         transitionDuration: '150ms',
       } : undefined}

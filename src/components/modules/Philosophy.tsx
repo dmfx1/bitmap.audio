@@ -59,7 +59,7 @@ export default function Philosophy() {
     }, []);
 
   return (
-    <div ref={sectionRef} className="flex flex-col items-center text-center">
+    <div ref={sectionRef} className="flex flex-col items-center text-center px-[var(--page-gutter-x)] md:px-0">
       
       <div className="max-w-7xl min-h-[160px] md:min-h-[200px]">
         <h2 className="text-2xl md:text-4xl lg:text-7xl font-mono font-bold text-foreground/60 text-left md:text-center">

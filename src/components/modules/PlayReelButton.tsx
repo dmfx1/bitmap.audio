@@ -24,7 +24,7 @@ export default function PlayReelButton({ slug, label = 'PLAY REEL', className }:
         onClick={() => setOpen(true)}
         variant="outline"
         size="xl"
-        className={cn('rounded-none w-full text-xs md:text-xl', className)}
+        className={cn('rounded-none w-full h-14 md:h-24 text-xs md:text-xl', className)}
       >
         {label}
       </Button>

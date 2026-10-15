@@ -5,7 +5,7 @@ import { useHeroSquish } from '../../hooks/use-hero-squish';
 import { useIntroGate } from '../../hooks/use-intro-gate';
 
 /* Home hero — same architecture/layout as the about-v2 hero (site-wide consistency):
- *   • flex-1 flex flex-col md:grid md:grid-rows-2 fills the sticky hero.
+ *   • flex-1 flex flex-col mobile:justify-center mobile:gap-8 md:grid md:grid-rows-2 fills the sticky hero.
  *   • ROW 1 (top half): eyebrow + title, justify-end so the title sits around the vertical
  *     middle. data-hero-pull="title" → pulled SLOWLY into the central void on scroll.
  *   • ROW 2 (bottom half): blurb + CTAs, justify-end so the copy is PINNED to the bottom of
@@ -22,7 +22,7 @@ export default function Hero() {
     <div
       ref={heroRef}
       data-has-hero
-      className="relative w-full flex-1 flex flex-col md:grid md:grid-rows-2 py-[var(--page-gutter)] will-change-transform"
+      className="relative w-full flex-1 flex flex-col mobile:justify-center mobile:gap-8 md:grid md:grid-rows-2 py-[var(--page-gutter)] will-change-transform"
     >
       {started && (
         <>
@@ -54,7 +54,7 @@ export default function Hero() {
             <div className="flex-1 flex flex-col justify-start md:justify-center min-h-0">
               <div data-hero-pull="sub" className="hero-copy">
                 <p
-                  className={`text-foreground/90 text-3xl md:text-5xl font-mono transition-all duration-1000 ${
+                  className={`text-foreground/90 text-2xl md:text-5xl font-mono transition-all duration-1000 ${
                     showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
                   }`}
                 >
@@ -65,18 +65,18 @@ export default function Hero() {
 
             <div data-hero-pull="sub" className="hero-copy">
               <div
-                className={`w-full max-w-xl transition-all duration-1000 ${
+                className={`w-full max-w-xl mt-8 md:mt-0 transition-all duration-1000 ${
                   showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
                 }`}
               >
                 <div className="flex items-stretch gap-4 w-full">
                   <a href="/about" className="flex-1">
-                    <Button variant="default" size="xl" className="rounded-none w-full text-base md:text-xl">
+                    <Button variant="default" size="xl" className="rounded-none w-full h-14 md:h-24 px-4 md:px-8 text-base md:text-xl">
                       OUR STORY
                     </Button>
                   </a>
                   <a href="/contact" className="flex-1">
-                    <Button variant="outline" size="xl" className="morph-accent rounded-none w-full text-base md:text-xl">
+                    <Button variant="outline" size="xl" className="morph-accent rounded-none w-full h-14 md:h-24 px-4 md:px-8 text-base md:text-xl">
                       START A PROJECT
                     </Button>
                   </a>

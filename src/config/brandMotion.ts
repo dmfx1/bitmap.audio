@@ -32,13 +32,14 @@ export const BRAND_MOTION = {
   /** Slow, subtle fade-in for the binary rain AFTER the b/nav appear. */
   rainFadeMs: 3200,
 
-  /* ── Phase-1 intro choreography (b-left / bitmap.audio-right → lift → dock) ── */
-  /** How long the centred b + bitmap.audio hold after scrambling in, before the lift. */
-  introHoldMs: 100,
-  /** The upward "whole page lifts" travel: centre → the top bar (b→top-left, word→top-right). */
-  liftMs: 900,
-  /** CRT power-off of the bitmap.audio wordmark at top-right (total: vertical squeeze + snap). */
-  crtMs: 360,
+  /* ── Entry intro: centred logo flicker-assembles, holds, then flicker-scales OUT in
+     place; the resting nav then simply APPEARS at the top (no slide, no CRT). ── */
+  /** How long the centred b + bitmap.audio hold after assembling, before flickering out. */
+  introHoldMs: 20,
+  /** Flicker-scale-OUT of the centred logo (mirrors bitmap-in). */
+  flickerOutMs: 340,
+  /** Flicker-OUT on mobile — quicker than desktop so it doesn't feel laggy. */
+  flickerOutMsMobile: 260,
 } as const;
 
 /**

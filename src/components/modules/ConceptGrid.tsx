@@ -159,28 +159,36 @@ export default function ConceptGrid({
     <div 
       ref={containerRef} 
       className={cn(
-        "w-full py-12 transition-all duration-1000 ease-out", 
-        activeScan ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4", 
+        "w-full py-6 md:py-12 md:transition-all md:duration-1000 md:ease-out", 
+        (isMobile || activeScan) ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4", 
         className
       )}
     >
       {(eyebrow || sectionTitle) && (
-        <div className="text-left md:text-center mb-16 space-y-4">
-          {eyebrow && (
-            <p className="text-accent uppercase tracking-[0.5em] text-base font-mono">
-              {eyebrow}
-            </p>
-          )}
-          {sectionTitle && (
-            <h2 className="text-3xl md:text-4xl font-mono text-foreground tracking-tight px-4 font-light">
-              {sectionTitle}
-            </h2>
-          )}
-        </div>
+        <>
+          {/* mobile: compact terminal tag (desktop keeps the full heading) */}
+          <p className="md:hidden font-mono text-base tracking-wider text-foreground" style={{ marginBottom: 'var(--page-gutter-x)' }} aria-hidden="true">
+            <span className="text-accent">&gt;</span>{' '}
+            {(eyebrow || sectionTitle || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '')}
+            <span className="text-accent" style={{ animation: 'term-blink 1s steps(1) infinite' }}>_</span>
+          </p>
+          <div className="hidden md:block text-left md:text-center mb-16 space-y-4">
+            {eyebrow && (
+              <p className="text-accent uppercase tracking-[0.5em] text-base font-mono">
+                {eyebrow}
+              </p>
+            )}
+            {sectionTitle && (
+              <h2 className="text-3xl md:text-4xl font-mono text-foreground tracking-tight px-4 font-light">
+                {sectionTitle}
+              </h2>
+            )}
+          </div>
+        </>
       )}
 
       <div className={cn(
-        "grid grid-cols-1 gap-6 md:gap-8 mx-auto w-full text-left px-0 py-4 md:p-4",
+        "grid grid-cols-1 gap-6 md:gap-8 mx-auto w-full text-left px-0 pt-0 pb-4 md:p-4",
         getGridConfig()
       )}>
         {items.map((item, index) => (
@@ -259,13 +267,13 @@ function ProjectCard({
   const hasVideo = item.previewVideo || item.previewVideoMp4;
 
   return (
-    <div data-mobile-center-item className={cn("relative w-full min-h-[200px]", mobileGlow && isMobile && "mobile-viewport-active")}>
+    <div data-mobile-center-item className={cn("relative w-full min-h-[200px] aspect-[1/0.9] md:aspect-auto", mobileGlow && isMobile && "mobile-viewport-active")}>
       <div 
         onMouseEnter={() => { onUserInteraction(); setIsHovered(true); }} 
         onMouseLeave={() => { onUserLeave(); setIsHovered(false); }} 
         onClick={onClick} 
         className={cn(
-          "relative w-full h-full group p-8 md:p-10 border transition-all duration-500 ease-out overflow-hidden flex flex-col justify-between cursor-pointer",
+          "relative w-full h-full group px-8 py-12 md:p-10 border transition-all duration-500 ease-out overflow-hidden flex flex-col justify-between cursor-pointer",
           "bg-card/60 md:bg-card/90 backdrop-blur-md shadow-lg",
           shouldBePlaying ? "border-accent md:scale-[1.02] z-50 shadow-2xl" : "border-muted-foreground z-10 scale-100"
         )}
@@ -304,7 +312,7 @@ function ProjectCard({
           </div>
         )}
 
-        <div className="relative z-10 pointer-events-none flex flex-col h-full justify-between">
+        <div className="relative z-10 pointer-events-none flex flex-col h-full justify-center md:justify-between">
           <div>
             {Icon && (
               <div ref={iconRef} className={cn("mb-6 transition-all duration-500", shouldBePlaying ? "text-accent" : "text-primary")}>

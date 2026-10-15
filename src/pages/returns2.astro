@@ -330,6 +330,19 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
          slides. Hidden on mobile so the per-slide snap backgrounds are untouched. -->
     <div id="journey-bg" class="hidden md:block fixed inset-0 z-0 pointer-events-none" style="background-color:#111b1b;"></div>
 
+    <!-- Mobile-only parallax binary rain. Desktop keeps the #journey-bg colour drift.
+         The body doesn't scroll on mobile (the snap container does), so the parallax is
+         driven from that container's scrollTop in the script below. -->
+    <!-- Mobile colour background — dark or oat, switched per slide by the observer below. -->
+    <div id="ret-bg" class="md:hidden fixed inset-0 z-0 pointer-events-none" aria-hidden="true" style="background-color:#121C1C; transition: background-color 0.5s ease;"></div>
+    <!-- Mobile parallax binary rain, blended OVER the colour bg (inverts on oat, shows on dark). -->
+    <div id="ret-rain" class="md:hidden fixed inset-0 z-0 pointer-events-none" aria-hidden="true" style="mix-blend-mode: difference;">
+      <div class="binary-waterfall">
+        <div id="ret-layer-deep" class="binary-layer layer-deep"></div>
+        <div id="ret-layer-near" class="binary-layer layer-near"></div>
+      </div>
+    </div>
+
     <!-- DEV control — "Journey only": hides all slide text + imagery so only the background
          journey is visible, for tuning the colour flow. Desktop only. Remove/comment out for production. -->
     <label class="hidden md:flex fixed top-4 right-4 z-[100] items-center gap-2 px-3 py-1.5 rounded-full bg-background/80 backdrop-blur border border-border/40 text-[11px] font-mono uppercase tracking-wider text-muted-foreground cursor-pointer select-none">
@@ -403,7 +416,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
           <!-- MOBILE: the edge gap lives HERE on the section, so it sits OUTSIDE the content
                block — the block (and its background) is inset from the device edges rather than
                spanning full width with inner padding. Everything inside adds no x-space. -->
-          <section data-sidebar="0" data-slide="00" class="relative h-full flex-shrink-0 flex flex-col justify-center items-center md:pl-4 md:pr-4 group md:bg-transparent z-10 mobile:px-8 mobile:items-stretch">
+          <section data-sidebar="0" data-slide="00" class="relative h-full flex-shrink-0 flex flex-col justify-center items-center md:pl-4 md:pr-4 group md:bg-transparent z-10 mobile:px-[var(--page-gutter-x)] mobile:items-stretch">
             <!-- Mobile background image — woman reading, bottom-right -->
             <!-- inset-0, NOT w-[100vw] h-[100vh]. Sections are sized in `svh`; plain `vh` is the
                  LARGE viewport, so a 100vh child overflows its parent by one address-bar height.
@@ -417,7 +430,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
             <div class="md:container mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full mobile:w-full">
               <!-- ── MOBILE CONTENT BLOCK (road test) ────────────────────────────────
                    THE PARENT owns the edge gap and the vertical rhythm:
-                     mobile:px-8            equal gap to BOTH device edges (was pl-8, left-only)
+                     mobile:px-[var(--page-gutter-x)]            equal gap to BOTH device edges (was pl-8, left-only)
                      mobile:min-h-[40svh]   consistent block size slide-to-slide.
                                             svh NOT vh — vh is the large viewport and would
                                             overshoot the 100svh slide.
@@ -426,7 +439,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                    align to one left edge. -->
               <!-- No x-padding on mobile at all: `pl-8` + `mobile:pl-0` are both gone. They were
                    also fighting each other — Tailwind emits pl-* AFTER px-*, so a `mobile:pl-0`
-                   alongside `mobile:px-8` silently zeroes the left side. The gap is on the
+                   alongside `mobile:px-[var(--page-gutter-x)]` silently zeroes the left side. The gap is on the
                    section now; this block just fills what's left. -->
               <div data-sidebar-anchor class="relative z-10 py-2 mobile:min-h-[40svh] mobile:flex mobile:flex-col mobile:justify-center" style={gridStyle("00")}>
                 <span class="text-eyebrow text-sm mb-8 mobile:mb-3 block">[ Status // Critical ]</span>
@@ -438,7 +451,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                      from the accent line inward. Scoping the original rather than layering on top
                      matters: Tailwind emits pl/py AFTER p, so leaving an unprefixed `pl-8`/`py-2`
                      next to a `mobile:p-4` would silently override two of its sides. -->
-                <div data-depth="-0.06" class="w-full max-w-2xl bg-background/60 md:p-6 mobile:p-4 border-l-2 border-accent mobile:max-w-none">
+                <div data-depth="-0.06" class="w-full max-w-2xl md:bg-background/60 md:p-6 mobile:p-4 border-l-2 border-accent mobile:max-w-none">
                   <p class="font-mono text-xl mobile:text-xl md:text-3xl text-foreground/80  leading-relaxed">
                     Visuals reach the eyes, but sound hits the nervous system. Competing on screens alone is a losing battle.
                   </p>
@@ -464,11 +477,11 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                "When everyone is listening." + train fade | data-sidebar="1"
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-01 | Context -->
-          <!-- BLUEPRINT · the section owns the edge gap (mobile:px-8), so the content block sits
+          <!-- BLUEPRINT · the section owns the edge gap (mobile:px-[var(--page-gutter-x)]), so the content block sits
                INSET from the device edges. Note: unlike slide 00 this section is a ROW flex, so
                its `items-center` is already doing vertical centring — no items-stretch needed
                here (that would stretch the block to full height instead). -->
-          <section data-sidebar="1" data-slide="01" class="w-screen h-full flex-shrink-0 flex items-center relative group mobile:bg-foreground/50 md:bg-transparent z-20 mobile:px-8">
+          <section data-sidebar="1" data-slide="01" class="w-screen h-full flex-shrink-0 flex items-center relative group  md:bg-transparent z-20 mobile:px-[var(--page-gutter-x)]">
 
             <!-- Mobile background image — woman reading, bottom-right -->
             <!-- inset-0, NOT w-[100vw] h-[100vh]. Sections are sized in `svh`; plain `vh` is the
@@ -493,12 +506,12 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                        scroll. Desktop-only motion (parallax runs past the isMobile early-return); on
                        mobile they just stack. -->
                   <!-- TITLE BLOCK -->
-                  <div data-converge="left" class="max-w-2xl border-r-2 border-accent md:px-24 md:py-8 mobile:p-4 mobile:w-full mobile:max-w-none mobile:bg-background/30 bg-background/20 backdrop-blur-sm relative z-10">
+                  <div data-converge="left" class="max-w-2xl border-r-2 border-accent md:px-24 md:py-8 mobile:p-4 mobile:w-full mobile:max-w-none md:bg-background/20 backdrop-blur-sm relative z-10">
                       <span class="text-eyebrow text-sm mb-8 mobile:mb-3 block text-primary">[ Context // Always_On ]</span>
                       <h2 class="font-mono text-5xl md:text-7xl leading-tight uppercase text-foreground">When everyone<br/><span class="text-primary drop-shadow-[0_0_20px_hsl(var(--primary)/0.3)]">is listening.</span></h2>
                   </div>
                   <!-- BLURB BLOCK — opposite depth -->
-                  <div data-converge="right" class="max-w-2xl border-r-2 border-accent md:px-24 md:py-8 mobile:p-4 mobile:w-full mobile:max-w-none mobile:bg-background/30 bg-background/20 backdrop-blur-sm relative z-10">
+                  <div data-converge="right" class="max-w-2xl border-r-2 border-accent md:px-24 md:py-8 mobile:p-4 mobile:w-full mobile:max-w-none md:bg-background/20 backdrop-blur-sm relative z-10">
                       <p class="font-mono text-xl mobile:text-xl md:text-3xl text-foreground/80 leading-relaxed max-w-xl">
                         <span class="text-accent">The screenless audience</span> – 80% of consumers form brand memory via audio cues. If you lack an audio-first identity, you have no presence in the moments when eyes are diverted.
                       </p>
@@ -521,7 +534,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
           <!-- `relativew-screen` was a fused typo — both `relative` and `w-screen` were dead
                (a second `relative` later in the list was the only reason positioning worked).
                Split back out. Section is a ROW flex, so items-center already centres vertically. -->
-          <section data-sidebar="2" data-slide="02" class="relative w-screen h-full flex-shrink-0 flex flex-row items-center mobile:px-8 mobile:bg-foreground/80 md:bg-transparent group z-10">
+          <section data-sidebar="2" data-slide="02" data-bg="oat" class="relative w-screen h-full flex-shrink-0 flex flex-row items-center mobile:px-[var(--page-gutter-x)]  md:bg-transparent group z-10">
 
             <!-- MOBILE-IMG | slide 02 | sound-as-a-data-map.webp | full-bleed -->
             <div class="md:hidden absolute inset-0 pointer-events-none z-0">
@@ -662,7 +675,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                pins to the top of the 100svh mobile slide and all the slack falls below it (the
                inner justify-center can't fix that — that div is auto-height). content-center
                centres the row. `mobile:` = max-width:767px, so desktop grid layout is untouched. -->
-          <section data-sidebar="3" data-slide="03" class="w-screen h-full flex-shrink-0 grid grid-cols-1 mobile:content-center mobile:bg-foreground/50 md:bg-transparent  relative group z-10 mobile:px-8">
+          <section data-sidebar="3" data-slide="03" class="w-screen h-full flex-shrink-0 grid grid-cols-1 mobile:content-center  md:bg-transparent  relative group z-10 mobile:px-[var(--page-gutter-x)]">
             <!-- Text-only now — the "faster-than-sight" image moved to its own image slide (SLIDE-3.25) below. -->
 
             <!-- MOBILE-IMG | slide 03 | faster-than-sight.webp | full-bleed -->
@@ -679,12 +692,12 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                    slide reaches centre (desktop-only; they just stack on mobile). -->
               <div data-sidebar-anchor class="flex flex-col items-end mobile:items-start justify-center gap-6 mobile:gap-3 relative z-10" style={gridStyle("03")}>
                 <!-- TITLE BLOCK -->
-                <div data-converge="left" class="border-r-2 border-accent bg-background/20 md:px-8 md:py-8 mobile:p-4 mobile:w-full">
+                <div data-converge="left" class="border-r-2 border-accent md:bg-background/20 md:px-8 md:py-8 mobile:p-4 mobile:w-full">
                   <span class="text-eyebrow text-sm mb-8 mobile:mb-3 block text-accent">[ Neurology // Processing_Speed ]</span>
                   <h2 class="font-mono text-5xl md:text-7xl leading-tight uppercase">Faster than<br/><span class="text-accent">Sight.</span></h2>
                 </div>
                 <!-- BLURB BLOCK — opposite depth -->
-                <div data-converge="right" class="border-r-2 border-accent bg-background/20 md:px-8 md:py-8 mobile:p-4 mobile:w-full">
+                <div data-converge="right" class="border-r-2 border-accent md:bg-background/20 md:px-8 md:py-8 mobile:p-4 mobile:w-full">
                   <p class="font-sans text-xl mobile:text-foreground md:text-muted-foreground leading-relaxed">
                     Sound is a biological survival mechanism. It reaches the brain 2 to 4 times faster than visual stimuli.<br/><br/>It establishes recognition in just <strong>0.05 seconds</strong> making us aware of our surroundings before we even consciously "see" them.
                   </p>
@@ -713,7 +726,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                "Visuals fade. Sound echoes." + vibration animation | data-sidebar="4"
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-04 | Neurology Memory -->
-          <section data-sidebar="4" data-slide="04" class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center text-right mobile:px-8 relative mobile:bg-background md:bg-transparent group z-10 mobile:items-stretch mobile:text-right">
+          <section data-sidebar="4" data-slide="04" class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center text-right mobile:px-[var(--page-gutter-x)] relative md:bg-transparent group z-10 mobile:items-stretch mobile:text-right">
 
             <!-- MOBILE-IMG | slide 04 | visuals-fade-sound-echoes.webp | full-bleed -->
             <div class="md:hidden absolute inset-0 pointer-events-none z-0">
@@ -721,7 +734,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
             </div>
 
             <div class="absolute inset-0 radial-gradient-center opacity-20 pointer-events-none"></div>
-            <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full mobile:bg-background/80 mobile:z-50 md:bg-transparent">
+            <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full mobile:z-50 md:bg-transparent">
               <!-- On 04 the ANCHOR carries the accent border on mobile, so it IS the box —
                    pl-8/py-2 scoped to md:, one uniform mobile:p-4 in their place. -->
               <div data-sidebar-anchor class="md:pl-8 md:py-2 max-w-4xl relative z-10 mobile:border-l-2 mobile:border-accent mobile:p-4 mobile:w-full mobile:max-w-none mobile:min-h-[40svh] mobile:flex mobile:flex-col mobile:justify-center" style={gridStyle("04")}>
@@ -934,7 +947,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                "Subconscious Trust." text panel | data-sidebar="7"
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-07 | Credibility Text -->
-          <section data-sidebar="7" data-slide="07" class="w-screen h-full flex-shrink-0 flex flex-col justify-center bg-foreground/50 md:bg-transparent relative group z-10 mobile:px-8">
+          <section data-sidebar="7" data-slide="07" data-bg="oat" class="w-screen h-full flex-shrink-0 flex flex-col justify-center md:bg-foreground/50 md:bg-transparent relative group z-10 mobile:px-[var(--page-gutter-x)]">
 
             <!-- MOBILE-IMG | slide 07 | subconscious-trust-2.webp | full-bleed -->
             <div class="md:hidden absolute inset-0 pointer-events-none z-0">
@@ -948,7 +961,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                  mobile.) -->
             <div data-sidebar-anchor class="flex flex-col justify-center gap-6 mobile:gap-4 relative z-10 md:row-start-1" style={gridStyle("07")}>
               <!-- TITLE BLOCK -->
-              <div data-converge="left" class="w-full md:max-w-2xl border-l-2 border-accent md:pl-8 md:py-2 mobile:p-4 mobile:bg-foreground/70">
+              <div data-converge="left" class="w-full md:max-w-2xl border-l-2 border-accent md:pl-8 md:py-2 mobile:p-4">
                 <span class="text-eyebrow text-sm text-background/80 mb-8 mobile:mb-3 block">[ UX // Credibility ]</span>
                 <!-- mobile:[--m-h2:9vw] — overrides the shared mobile h2 size for this slide only. Needed
                        because "Subconscious" (12 chars) is the longest unbreakable word on the page:
@@ -965,11 +978,11 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                 </h2>
               </div>
               <!-- BLURB BLOCK — opposite depth -->
-              <div data-converge="right" class="w-full mt-6 md:max-w-2xl border-l-2 border-accent md:pl-8 md:py-2 mobile:p-4 mobile:bg-foreground/70">
+              <div data-converge="right" class="w-full mt-6 md:max-w-2xl border-l-2 border-accent md:pl-8 md:py-2 mobile:p-4">
                 <p class="font-sans text-2xl mobile:text-xl text-background/80 leading-relaxed mobile:mb-4">
                   Sound implies physical reality, making digital interactions feel safer.
                 </p>
-                <div data-afterthought class="pl-6 mt-12 bg-background/80 backdrop-blur-sm p-4 mobile:hidden">
+                <div data-afterthought class="pl-6 mt-12 md:bg-background/80 backdrop-blur-sm p-4 mobile:hidden">
                   <p class="font-sans text-xl text-foreground leading-relaxed">
                     In banking, users associate transaction success primarily with proprietary sound cues over visual confirmations.
                   </p>
@@ -990,7 +1003,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                "Perceived as Innovators" | data-sidebar="9"
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-09 | Perception -->
-          <section data-sidebar="9" data-slide="08" class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center text-right mobile:px-8 relative  md:bg-transparent  group z-10 mobile:items-stretch mobile:text-right">
+          <section data-sidebar="9" data-slide="08" class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center text-right mobile:px-[var(--page-gutter-x)] relative  md:bg-transparent  group z-10 mobile:items-stretch mobile:text-right">
 
             <!-- MOBILE-IMG | slide 08 | perceived-as-innovators.webp | full-bleed -->
             <div class="md:hidden absolute inset-0 pointer-events-none z-0">
@@ -1000,7 +1013,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
             <div class="absolute inset-0 radial-gradient-center opacity-20 pointer-events-none"></div>
             <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
             <!-- Same shape as slide 04: the anchor carries the accent border on mobile. -->
-            <div data-sidebar-anchor class="md:pl-8 md:py-2 max-w-4xl relative z-10 mobile:border-l-2 mobile:border-accent mobile:p-4 mobile:w-full mobile:max-w-none mobile:min-h-[40svh] mobile:flex mobile:flex-col mobile:justify-center md:row-start-1 mobile:bg-background/60 md:bg-transparent" style={gridStyle("08")}>
+            <div data-sidebar-anchor class="md:pl-8 md:py-2 max-w-4xl relative z-10 mobile:border-l-2 mobile:border-accent mobile:p-4 mobile:w-full mobile:max-w-none mobile:min-h-[40svh] mobile:flex mobile:flex-col mobile:justify-center md:row-start-1 md:bg-transparent" style={gridStyle("08")}>
               <span data-depth="0.1" class="text-eyebrow text-sm text-accent mb-8 block">[ Perception // The Edge ]</span>
 
               <h2 class="font-mono text-5xl md:text-[6vw] leading-[1.1] tracking-tighter mb-8 uppercase text-foreground">
@@ -1008,7 +1021,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                 <span data-depth="-0.04" class="text-accent inline-block origin-right">Innovators</span>
               </h2>
 
-              <p data-depth="-0.05" class="font-sans text-2xl mobile:text-xl p-4 bg-background/20 text-foreground/80 leading-relaxed">
+              <p data-depth="-0.05" class="font-sans text-2xl mobile:text-xl p-4 md:bg-background/20 text-foreground/80 leading-relaxed">
                 Consumers inherently view brands that utilise strategic sound as more forward-thinking. Data shows that 60% of consumers believe brands that use sound in their communications are more innovative.
               </p>
             </div>
@@ -1031,7 +1044,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                mobile align-items fell back to `stretch`: the wrapper filled the slide height and
                the content block sat at its top, running under the fixed header. Same root cause as
                slides 03 and 12. -->
-          <section id="slide-sme" data-slide="8.5" class="flex mobile:items-center md:items-center md:bg-transparent h-full flex-shrink-0 relative group z-10 mobile:px-8" style="width:200vw;">
+          <section id="slide-sme" data-slide="8.5" class="flex mobile:items-center md:items-center md:bg-transparent h-full flex-shrink-0 relative group z-10 mobile:px-[var(--page-gutter-x)]" style="width:200vw;">
 
             <!-- MOBILE-IMG | slide 8.5 | untapped-opportunity.webp | full-bleed -->
             <div class="md:hidden absolute -top-24 inset-0 pointer-events-none z-0">
@@ -1049,7 +1062,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
             <div class="md:container md:mx-auto md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
               <!-- Mobile: left-aligned with the accent rule, matching every other text slide.
                    Desktop keeps its centred, borderless treatment. -->
-              <div class="flex flex-col items-center justify-center relative overflow-hidden pointer-events-none bg-background/50 md:p-12 mobile:p-4 mobile:w-full mobile:min-h-[40svh] z-10 text-center mobile:text-left mobile:items-start md:col-start-3 md:col-span-8">
+              <div class="flex flex-col items-center justify-center relative overflow-hidden pointer-events-none md:bg-background/50 md:p-12 mobile:p-4 mobile:w-full mobile:min-h-[40svh] z-10 text-center mobile:text-left mobile:items-start md:col-start-3 md:col-span-8">
                  <div class="absolute inset-0 bg-gradient-glow opacity-10"></div>
                  <!-- HEADING. Two things were fighting mobile here:
                       1. `text-[2vw]` = ~7.8px on a 390px phone. Now mobile:text-[11vw], matching
@@ -1083,7 +1096,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                "Seamless cultural Resonance." | data-sidebar="10"
                ═══════════════════════════════════════════════════════════ -->
           <!-- #region SLIDE-10 | Culture -->
-          <section data-sidebar="10" data-slide="09" class="relative w-screen h-full flex-shrink-0 flex flex-col justify-center group mobile:bg-foreground/20 md:bg-transparent z-10 mobile:px-8 mobile:items-stretch">
+          <section data-sidebar="10" data-slide="09" class="relative w-screen h-full flex-shrink-0 flex flex-col justify-center group  md:bg-transparent z-10 mobile:px-[var(--page-gutter-x)] mobile:items-stretch">
             
             <!-- MOBILE-IMG | slide 09 | seamless-cultural-resonance.webp | full-bleed -->
             <div class="md:hidden absolute inset-0 pointer-events-none z-0">
@@ -1091,7 +1104,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
             </div>
 
             <div class="md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
-            <!-- `pl-8` removed — it stacked 32px on top of the section's mobile:px-8, giving a
+            <!-- `pl-8` removed — it stacked 32px on top of the section's mobile:px-[var(--page-gutter-x)], giving a
                  64px left gap against 32px on the right. (md:pl-0 went with it; it only existed
                  to cancel pl-8 on desktop.)
                  min-h moved HERE from the copy box below — see the note there. -->
@@ -1104,7 +1117,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                    made it fill half the slide. On slides where the box wraps the eyebrow + h2 +
                    copy (01, 03, 07, 11) the min-h does belong on the box — this slide has slide
                    00's shape instead, where it belongs on the anchor. -->
-              <div data-depth="-0.04" class="w-full max-w-2xl mobile:backdrop-blur-sm backdrop-blur-md mobile:bg-background/40 bg-background/20 md:p-6 mobile:p-4 mobile:max-w-none border-l-2 border-accent">
+              <div data-depth="-0.04" class="w-full max-w-2xl mobile:backdrop-blur-sm backdrop-blur-md md:bg-background/20 md:p-6 mobile:p-4 mobile:max-w-none border-l-2 border-accent">
                 <p class="font-sans text-xl mobile:text-xl md:text-2xl text-foreground/80 leading-relaxed">
                   Visual copy requires translation.<br/><br/> A well-architected sonic identity transcends borders automatically, requiring zero localisation and maintaining brand consisteny globally.
                 </p>
@@ -1127,7 +1140,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
           <!-- #region SLIDE-11 | Asset Ownership | DESKTOP + MOBILE VARIANT -->
           <!-- ═══ MOBILE GROUP | Sea of Sameness — ONE static backdrop, 2 slides ═══
                Same sticky-backdrop trick as the Recall group, but with a critical difference:
-               the first section here (data-slide="10") ALSO renders on desktop, so this wrapper
+               the first section here (data-slide="10" data-bg="oat") ALSO renders on desktop, so this wrapper
                must NOT be md:hidden — that would delete the slide from the desktop strip.
 
                Hence `md:contents`: on desktop the wrapper generates NO box at all, so its
@@ -1149,15 +1162,15 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
               </div>
             </div>
 
-          <section data-sidebar="11" data-slide="10" class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center mobile:items-stretch text-left mobile:px-8 relative mobile:bg-foreground/10 bg-transparent  group z-10">
+          <section data-sidebar="11" data-slide="10" data-bg="oat" class="w-screen h-full flex-shrink-0 flex flex-col justify-center items-center mobile:items-stretch text-left mobile:px-[var(--page-gutter-x)] relative  bg-transparent  group z-10">
 
             <div class="md:pl-24 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
-            <div data-sidebar-anchor class="md:pl-8 md:py-2 z-10 mobile:border-l-2 mobile:border-accent mobile:p-4 mobile:w-full mobile:min-h-[40svh] mobile:flex mobile:flex-col mobile:justify-center md:row-start-1 mobile:bg-background/40" style={gridStyle("10")}>
+            <div data-sidebar-anchor class="md:pl-8 md:py-2 z-10 mobile:border-l-2 mobile:border-accent mobile:p-4 mobile:w-full mobile:min-h-[40svh] mobile:flex mobile:flex-col mobile:justify-center md:row-start-1" style={gridStyle("10")}>
               <span data-depth="0.1" class="text-eyebrow text-sm mb-8 block">[ Asset // Ownership ]</span>
               <h2 class="font-mono text-5xl mobile:text-[11vw] md:text-[6vw] leading-[1.1] tracking-tighter mb-8 uppercase text-foreground">
                 <span data-depth="0.05" class="inline-block">Stop renting</span> <br/><span data-depth="-0.035" class="inline-block">from the sea</span><br/><span data-depth="0.05" class="inline-block">of <span class="text-accent">sameness.</span></span>
               </h2>
-              <p data-depth="-0.04" class="font-sans text-2xl text-foreground/80 leading-relaxed max-w-4xl bg-background/60 backdrop-blur-md p-8 border border-border/20 mobile:hidden">
+              <p data-depth="-0.04" class="font-sans text-2xl text-foreground/80 leading-relaxed max-w-4xl md:bg-background/60 backdrop-blur-md p-8 border border-border/20 mobile:hidden">
                 Library tracks may win the moment, but they fail to build lasting equity.<br/><br/>Leading brands ensure at least <strong>30% of their audio assets are wholly owned</strong>, protecting their future sonic identity.
               </p>
             </div>
@@ -1165,7 +1178,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
           </section>
 
           <!-- Mobile-only body text slide for "Stop Renting" -->
-          <section class="md:hidden w-screen h-full flex-shrink-0 flex flex-col justify-center px-8 mobile:bg-foreground/10 bg-transparent relative z-10 ">
+          <section class="md:hidden w-screen h-full flex-shrink-0 flex flex-col justify-center px-8  bg-transparent relative z-10 ">
             <!-- Ghost number background -->
             <div class="border-l-2 border-accent p-4 w-full min-h-[40svh] flex flex-col justify-center relative z-10 mobile:bg-background/40">
               <span class="font-mono text-accent text-sm tracking-widest uppercase mb-6 block opacity-60">[ Asset // Ownership ]</span>
@@ -1205,7 +1218,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                md:items-center`), so on mobile the section fell back to block flow and the content
                jammed against the top, running under the fixed header. Same class of bug as
                slide 03's grid. Desktop keeps its own md: row-flex centring, untouched. -->
-          <section data-sidebar="12" data-slide="11" class="w-screen h-full flex-shrink-0 mobile:flex mobile:flex-col mobile:justify-center md:flex md:items-center  mobile:bg-accent md:bg-transparent relative group z-10 mobile:px-8">
+          <section data-sidebar="12" data-slide="11" data-bg="accent" class="w-screen h-full flex-shrink-0 mobile:flex mobile:flex-col mobile:justify-center md:flex md:items-center md:bg-transparent relative group z-10 mobile:px-[var(--page-gutter-x)]">
             <div class="md:container md:mx-auto md:pl-36 md:pr-6 md:grid md:grid-cols-12 md:items-center md:w-full">
             <div data-sidebar-anchor data-blur-in class="flex flex-col justify-center relative z-10 md:row-start-1" style={gridStyle("11")}>
               <div class="border-l-2 border-accent md:border-none md:pl-8 md:py-2 mobile:p-4 mobile:w-full mobile:min-h-[40svh] mobile:flex mobile:flex-col mobile:justify-center">
@@ -1251,7 +1264,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                and bottom:0 is that box's bottom edge — padding only shifts in-flow content.
                Device height is respected automatically: the section is 100svh, so nav and CTA
                carve fixed bands off a height that scales, and the copy centres in what remains. -->
-          <section data-sidebar="13" data-slide="12" class="w-screen h-full flex-shrink-0 flex flex-col items-end justify-center text-center mobile:px-8 mobile:pb-28 relative group mobile:bg-foreground/20 md:bg-transparent z-10" style="content-visibility:visible;">
+          <section data-sidebar="13" data-slide="12" class="w-screen h-full flex-shrink-0 flex flex-col items-end justify-center text-center mobile:px-[var(--page-gutter-x)] mobile:pb-28 relative group  md:bg-transparent z-10" style="content-visibility:visible;">
 
              <!-- MOBILE background image. The desktop one below is mobile:hidden because its
                   framing is desktop-specific (left:-25vw, 75vw wide, horizontal edge-mask).
@@ -1299,7 +1312,7 @@ const BACKGROUNDS: Record<string, any> = Object.fromEntries(
                         transform / will-change), so on the container it captured the mobile:absolute
                         Button and anchored it inside that div instead of the <section>. The Button is
                         a sibling of this box's parent, so from here the blur can't reach it. -->
-                   <div class="relative z-10 flex flex-col items-end md:pl-8 md:py-2 text-right mobile:border-l-2 mobile:border-accent mobile:bg-foreground/20 mobile:backdrop-blur-sm mobile:p-4 mobile:w-full mobile:min-h-[40svh] mobile:justify-center mobile:items-start mobile:text-left">
+                   <div class="relative z-10 flex flex-col items-end md:pl-8 md:py-2 text-right mobile:border-l-2 mobile:border-accent  mobile:backdrop-blur-sm mobile:p-4 mobile:w-full mobile:min-h-[40svh] mobile:justify-center mobile:items-start mobile:text-left">
                       <span data-depth="0.05" class="text-eyebrow text-sm mb-8 block text-accent mobile:[text-shadow:0_0_12px_hsl(var(--background)),0_0_30px_hsl(var(--background))]">[ Execution // Final_Phase ]</span>
                       <h2 data-depth="0.03" class="font-mono text-6xl mobile:text-5xl md:text-[8vw] leading-none tracking-tighter mb-8 mobile:mb-4 uppercase text-primary drop-shadow-[0_0_30px_hsl(var(--accent)/0.3)] mobile:[text-shadow:0_0_20px_hsl(var(--background)),0_0_55px_hsl(var(--background))]">Master the<span class="text-accent"><br/>Signal</span></h2>
                       <p data-depth="-0.02" class="font-sans text-2xl mobile:text-xl mobile:text-foreground/80 text-muted-foreground mb-16 mobile:mb-0 max-w-2xl mobile:[text-shadow:0_0_12px_hsl(var(--background)),0_0_30px_hsl(var(--background))]">
@@ -2337,6 +2350,37 @@ id: string; type?: string; vivid?: boolean; imgX?: string; opacity?: number;
 
 </script>
 
+<script>
+  // Mobile parallax for the binary rain (#ret-rain). On mobile the body doesn't scroll — the
+  // snap container (#scroll-track > .sticky) does — so drive the parallax off its scrollTop.
+  const retDeep = document.getElementById('ret-layer-deep');
+  const retNear = document.getElementById('ret-layer-near');
+  if (retDeep && retNear) {
+    const scroller = document.querySelector('#scroll-track > .sticky');
+    const apply = () => {
+      const y = scroller ? scroller.scrollTop : window.scrollY;
+      retDeep.style.transform = `translateY(${(y * 0.1) % 400}px)`;
+      retNear.style.transform = `translateY(${(y * 0.3) % 800}px)`;
+    };
+    if (scroller) scroller.addEventListener('scroll', apply, { passive: true });
+    window.addEventListener('scroll', apply, { passive: true });
+    apply();
+  }
+
+  // Drive the mobile colour background (#ret-bg) per slide: data-bg="oat" -> oat, else dark.
+  const retBg = document.getElementById('ret-bg');
+  if (retBg) {
+    const OAT = '#ECEAE0', DARK = '#121C1C', ACCENT = '#FF9E1A';
+    const scrollerBg = document.querySelector('#scroll-track > .sticky');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) { const b = (e.target as HTMLElement).dataset.bg; retBg.style.backgroundColor = b === 'oat' ? OAT : (b === 'accent' ? ACCENT : DARK); }
+      });
+    }, { root: scrollerBg, threshold: 0.5 });
+    document.querySelectorAll('#horizontal-strip section[data-slide]').forEach((sec) => io.observe(sec));
+  }
+</script>
+
 <style is:global>
   /* Flip the "visuals-fade-sound-echoes" image horizontally */
   [data-slide="4.25"] img {
@@ -2470,5 +2514,16 @@ id: string; type?: string; vivid?: boolean; imgX?: string; opacity?: number;
 
   html.is-mobile-snap #horizontal-strip section .text-eyebrow {
     margin-bottom: 1.5rem;
+  }
+
+  /* MOBILE: reveal the parallax binary rain (#ret-rain) behind the content — drop the opaque
+     main background and the desktop grid so only the rain (+ section panels) read. */
+  @media (max-width: 767px) {
+    main.grainBG { background-color: transparent !important; }
+    [data-bg="oat"] { --foreground: 48 10% 13%; --muted-foreground: 48 8% 35%; }   /* dark text on the oat slides */
+    /* eyebrows: adapt to the slide bg (several are hardcoded text-background/text-primary and vanish). Accent ones stay. */
+    #horizontal-strip .text-eyebrow:not(.text-accent) { color: hsl(var(--foreground)) !important; }
+    #grid-bg { display: none; }                         /* our #ret-bg + rain own the mobile backdrop */
+    #scroll-track { position: relative; z-index: 5; }   /* content sits ABOVE the fixed bg + rain */
   }
 </style>

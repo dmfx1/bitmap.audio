@@ -27,7 +27,7 @@ export default function AboutHeroV2() {
     <div
       ref={heroRef}
       data-has-hero
-      className="relative w-full flex-1 flex flex-col md:grid md:grid-rows-2 py-[var(--page-gutter)] will-change-transform"
+      className="relative w-full flex-1 flex flex-col mobile:justify-center mobile:gap-8 md:grid md:grid-rows-2 py-[var(--page-gutter)] will-change-transform"
     >
       {/* Hero image — anchored RIGHT, fading in from the left (old-site mask).
           Simple opacity fade-in when the hero starts (no flicker). */}
@@ -75,7 +75,7 @@ export default function AboutHeroV2() {
           <div className="container-page relative z-10 flex flex-col justify-start md:justify-end min-h-0">
             <div data-hero-pull="sub" className="hero-copy">
               <p
-                className={`text-foreground/90 text-5xl font-mono transition-all duration-1000 ${
+                className={`text-foreground/90 text-2xl md:text-5xl font-mono transition-all duration-1000 ${
                   showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
                 }`}
               >
