@@ -40,7 +40,7 @@ html.lenis body { height: auto; }
      in a full-viewport section so it isn't pushed above the optical centre by the sticky header.
      KEEP CONSISTENT: scene stages, peel panels, and any full-screen centred div should offset by
      ~half of this. */
-  --header-h: calc(var(--page-gutter) + var(--brandH));
+  --header-h: calc(var(--page-gutter) * 2 + var(--brandH) * var(--brand-scale, 1));
   /* One knob for how wide hero copy (title + body) is allowed to run, site-wide. */
   --hero-copy-max: 64rem;
   /* Scroll runway after each sticky hero — how long the hero holds (pull plays) before
@@ -278,6 +278,29 @@ html { scrollbar-width: none; }
   .mobile-fill { min-height: max(100svh, 34rem); display: flex; flex-direction: column; justify-content: center; }  /* floor gives taller sections (more scroll) on short/landscape screens; portrait keeps 100svh */
 }
 
+/* Analysis "boxes" fly in from the sides on scroll (desktop only; JS arms via html.fly-ready,
+   IntersectionObserver adds .is-in). Clipped by the section's overflow:hidden — no h-scroll. */
+@media (min-width: 768px) {
+  html.fly-ready [data-fly] {
+    opacity: 0; will-change: transform, opacity;
+    transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.7s ease;
+  }
+  html.fly-ready [data-fly="left"]  { transform: translateX(-120px); }
+  html.fly-ready [data-fly="right"] { transform: translateX(120px); }
+  html.fly-ready [data-fly].is-in   { opacity: 1; transform: none; }
+}
+
+/* ── SOLUTIONS pages (desktop): content sections (after the hero) carry the SAME left→right
+   gradient as the matching services pillar, with a faint STATIC motif behind. Each page sets
+   --sol-grad on .sol-gradient; the frosted FocusScroll panels drop to transparent so it reads. ── */
+@media (min-width: 768px) {
+  .sol-gradient { background: var(--sol-grad, transparent) !important; }
+  .sol-gradient .focus-scroll-sticky {
+    background: transparent !important;
+    backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
+  }
+}
+
 /* ── SOLUTIONS pages on mobile: ride the binary rain (match home/about). The oat FocusScroll panels
    drop to transparent and the palette reverts to the dark/void theme so text + cards read on the
    rain; the CTA stays oat as on the other pages. ── */
@@ -308,7 +331,16 @@ html { scrollbar-width: none; }
     min-height: max(100svh, 34rem);   /* CTA fills the screen (mobile-fill) */
   }
   /* hide the accent section-title bars on mobile (match about — no clunky bars over the rain) */
-  .sol-body .section-bar-hold, .sol-cta .section-bar-hold { display: none; }
+  .sol-body .section-bar-hold { display: none; }
+  /* Thin, text-less solaris bar (left→right fade) before every CTA on mobile. .cta-mobile-bar sits
+     on the "Get in touch" section-bar-holds; .cta-mobile-bar-top is the home CTA scene's own bar. */
+  .cta-mobile-bar { display: block !important; }
+  .cta-mobile-bar .solaris { height: 38px; }
+  .cta-mobile-bar .solaris-text { display: none; }
+  .cta-mobile-bar-top {
+    position: absolute; top: 0; left: 0; right: 0; height: 38px; z-index: 5; pointer-events: none;
+    background: linear-gradient(90deg, var(--solaris-from) 0%, var(--solaris-mid) 55%, var(--solaris-to) 100%);
+  }
 
   /* Applications (ConceptGrid) sections: tighter lead-in + OAT cards floating on the rain */
   #analysis .focus-scroll-sticky { padding-bottom: clamp(3rem, 10vh, 5.5rem) !important; }  /* halve the gap down to the cards */

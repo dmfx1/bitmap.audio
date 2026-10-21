@@ -9,6 +9,9 @@
 import Layout from '../layouts/Layout.astro';
 import Hero from '../components/modules/Hero.tsx';
 import ServicePillars from '../components/modules/ServicePillars';
+import SonicWaves from '../components/modules/SonicWaves.astro';
+import UiuxNodes from '../components/modules/UiuxNodes.astro';
+import SpatialDepth from '../components/modules/SpatialDepth.astro';
 // Pillar draw-in scene imports (SpatialPerspective/UiuxCircuit) removed while the feature is paused — see CLAUDE.md.
 import Philosophy from '../components/modules/Philosophy.tsx';
 import CtaScene from '../components/modules/CtaScene.astro';
@@ -32,9 +35,12 @@ import CtaScene from '../components/modules/CtaScene.astro';
 
       {/* Services — fades in through the fog. */}
       <div class="scene theme-oat" data-scene="services" style="z-index:10">
-        {/* PILLAR BACKGROUND SCENES — PAUSED (2026-09-18). The "draw-in" perspective scenes are on
-            hold; SpatialPerspective.astro + the `.perspective-grid` reveal CSS are kept for a future
-            revisit. See CLAUDE.md § "Service-pillar perspective scenes (PAUSED)" to re-enable. */}
+        {/* PILLAR "DRAW-IN" MOTIFS — one per card, revealed when that pillar is active, masked away
+            from the cards (void). index 0 → UiuxNodes (network), 1 → SonicWaves (spectrum bars),
+            2 → SpatialDepth (perspective tunnel). Toggled in ServicePillars.tsx. */}
+        <SonicWaves />
+        <UiuxNodes />
+        <SpatialDepth />
         <div class="scene-body">
           <ServicePillars client:load />
         </div>
@@ -49,6 +55,7 @@ import CtaScene from '../components/modules/CtaScene.astro';
 
       {/* CTA — dark void, oversized Departure Mono; pixelates in, then the stage releases into the footer. */}
       <div class="scene cta-scene oat-on-mobile mobile-fill" data-scene="cta" style="z-index:30; --veil-color: hsl(var(--background))">
+        <div class="cta-mobile-bar-top md:hidden" aria-hidden="true"></div>
         <div class="scene-body container-page">
           <CtaScene head="Ready to define<br/>your sound?" href="/contact" linkLabel="start_project" />
         </div>

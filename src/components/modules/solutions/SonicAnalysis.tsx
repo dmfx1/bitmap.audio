@@ -4,8 +4,8 @@ export default function SonicAnalysis() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-48 md:px-48">
       {/* THE CHALLENGE */}
-      <div className="space-y-8">
-        <div className="space-y-2">
+      <div data-fly="left" className="space-y-8 bg-background/50 p-6">
+        <div className="space-y-2 ">
           <p className="text-base font-mono text-accent tracking-[0.4em] uppercase">The Challenge</p>
           <h2 className="text-3xl font-mono text-foreground leading-tight">In a world of visual noise, sound cuts through.</h2>
         </div>
@@ -16,7 +16,7 @@ export default function SonicAnalysis() {
       </div>
 
       {/* THE APPROACH */}
-      <div className="space-y-8">
+      <div data-fly="right" className="space-y-8 bg-background/50 p-6">
         <div className="space-y-2">
           <p className="text-base font-mono text-accent tracking-[0.4em] uppercase">Our Approach</p>
           <h2 className="text-3xl font-mono text-foreground leading-tight">From brand essence to sonic expression.</h2>

@@ -12,6 +12,7 @@ import UIUXHero from '../../components/modules/solutions/UIUXHero.tsx';
 import UIUXAnalysis from '../../components/modules/solutions/UIUXAnalysis.tsx';
 import ConceptGrid from '../../components/modules/ConceptGrid.tsx';
 import CtaScene from '../../components/modules/CtaScene.astro';
+import UiuxNodes from '../../components/modules/UiuxNodes.astro';
 
 const uiuxApplications = [
   { id: 1, title: "Mobile Apps", icon: "mobile", desc: "Haptic-synced audio, gesture feedback and navigation sounds." },
@@ -45,10 +46,11 @@ const uiuxApplications = [
   <div class="hero-runway" aria-hidden="true"></div>
 
   {/* Each section: bar sticks under the header, content locks in centred below it, then releases. */}
-  <div class="relative z-10 theme-oat sol-body">
+  <div class="relative z-10 theme-oat sol-body sol-gradient" style="--sol-grad: linear-gradient(to right, hsl(0 0% 100%), hsl(48 20% 90%))">
     <div class="relative">
       <div class="section-bar-hold"><Solaris text="The Analysis" /></div>
       <FocusScroll count={1} barOffset id="analysis" class="!bg-background/50 backdrop-blur-xl">
+        <UiuxNodes page />
         <div class="container-page w-full">
           <UIUXAnalysis client:visible />
         </div>
@@ -61,7 +63,6 @@ const uiuxApplications = [
         <div class="container-page w-full">
           <ConceptGrid
             client:visible
-            eyebrow="Applications"
             sectionTitle="Where UI/UX sound makes a difference"
             items={uiuxApplications}
             mobileGlow={true}
@@ -75,7 +76,7 @@ const uiuxApplications = [
 
   {/* CTA — dark oversized finale (vertical page: shows without pixelating in). */}
   <div class="relative z-10 sol-cta">
-    <div class="section-bar-hold"><Solaris text="Get in touch" /></div>
+    <div class="section-bar-hold cta-mobile-bar"><Solaris text="Get in touch" /></div>
     <FocusScroll count={1} barOffset id="cta" class="!bg-background/50 backdrop-blur-xl">
       <div class="container-page w-full">
         <CtaScene head="Make your product<br/>speak." href="/contact" linkLabel="discuss_your_product" pixelate={false} />

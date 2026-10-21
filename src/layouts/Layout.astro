@@ -115,14 +115,15 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
         {/* HEADER BAR — the "squish then normalise" surface. Transparent at the very top
             (brand floats over the hero); as you scroll it fades in as a SOLID bar and the
             brand + nav squish into it, locking into a compact sticky header. Its bottom
-            border sits on the page-title baseline (calc gutter + brandH). Background is
+            leaves an equal gutter above and below the brand (symmetric, and tracks the
+            brand's scroll scale so the gap stays balanced as it squishes). Background is
             hsl(var(--background)) so it ADAPTS to the section theme (dark hero -> beige
             body once the Phase-4 colour handoff lands). Below nav/brand, above content. */}
         {!isLandingPage && !isReturnsPage && (
           <div
             id="header-bar"
             class="fixed top-0 left-0 right-0 z-30 pointer-events-none"
-            style="height: calc(var(--page-gutter) + var(--brandH, 6.5rem)); background: hsl(var(--background) / 0.5); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); opacity: var(--header-solid, 0);"
+            style="height: var(--header-h); background: hsl(183 34% 18% / 0.5); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); opacity: var(--header-solid, 0);"
           ></div>
         )}
 
@@ -350,6 +351,23 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
       })();
     </script>
 
+    {/* Analysis "boxes" fly-in: arm on load, reveal each [data-fly] when it scrolls into view. */}
+    <script>
+      (() => {
+        document.documentElement.classList.add('fly-ready');
+        const io = new IntersectionObserver((entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); }
+          });
+        }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });
+        const scan = () => document.querySelectorAll('[data-fly]:not([data-fly-seen])').forEach((el) => {
+          el.setAttribute('data-fly-seen', ''); io.observe(el);
+        });
+        scan();
+        new MutationObserver(scan).observe(document.body, { childList: true, subtree: true });
+      })();
+    </script>
+
     {/* Header squish-then-normalise. On scroll the brand + nav gently squish (--nav-scale)
         AND a solid header bar fades in (--header-solid), locking into a compact sticky bar.
         Both use smoothstep. Kept gentle (MIN 0.86) so it's not too dramatic. */}
@@ -360,12 +378,12 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
            HEADER_START: px of scroll BEFORE the header reacts, so the hero TEXT starts
            pulling first and the header/nav only squish after — stops it feeling like the
            page is just scrolling down. SQUISH_DIST/SOLID_DIST run AFTER that offset. */
-        const BRAND_MIN = 0.72, NAV_MIN = 0.86, HEADER_START = 220, SQUISH_DIST = 800, SOLID_DIST = 160;
+        const BRAND_MIN = 0.48, NAV_MIN = 0.78, HEADER_START = 220, SQUISH_DIST = 800, SOLID_DIST = 160;
         const smooth = (x) => x * x * (3 - 2 * x);
         const prog = (y, dist) => smooth(Math.max(0, Math.min(1, (y - HEADER_START) / dist)));
 
         // Heights used to raise the nav so its TOP meets the title TOP when squished.
-        let brandH = 104, panelH = 66;
+        let brandH = 104, panelH = 46;
         const remeasure = () => {
           const b = document.querySelector('a[aria-label="Home"]');
           const pn = document.querySelector('nav .backdrop-blur-md.border');

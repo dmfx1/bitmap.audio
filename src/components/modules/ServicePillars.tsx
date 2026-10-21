@@ -90,22 +90,57 @@ export default function ServicePillars() {
   // (Sonic Branding, middle) keeps the beige oat; the others drift to a subtle palette tint that still
   // reads with the dark oat text. (null = revert to the theme beige.) These slots can become imagery later.
   const PILLAR_BG: (string | null)[] = [
-    'hsl(20, 0%, 100%)', // UI/UX Sound   — soft cool oat (leans to --primary)
-    null,                 // Sonic Branding — beige (starter)
-    'hsl(50, 10%, 80%)',  // Spatial Audio  — soft warm sand (leans to --accent)
+    'linear-gradient(to right, hsl(0 0% 100%), hsl(48 20% 90%))',   // UI/UX   : white → oat
+    'linear-gradient(to right, hsl(48 20% 90%), hsl(44 14% 80%))',  // Sonic   : oat → spatial
+    'linear-gradient(to right, hsl(44 14% 80%), hsl(42 13% 62%))',  // Spatial : spatial → darker
   ];
   const activeIndex = isMobile ? centerIndex : index;
+
+  // Smooth background: gradients can't CSS-transition, so we cross-fade TWO stacked layers (the new
+  // gradient fades up on the back layer as the old fades out). A short debounce means sweeping the
+  // mouse ACROSS the gap between cards no longer flashes an in-between pillar.
+  const bgLayers = useRef<HTMLDivElement[]>([]);
+  const bgFront = useRef(0);
+  const applyT = useRef<number | undefined>(undefined);
+
+  useEffect(() => {
+    const scene = containerRef.current?.closest('[data-scene]') as HTMLElement | null;
+    if (!scene || isMobile) return;
+    scene.style.backgroundImage = '';   // layers drive the gradient now
+    const mk = () => {
+      const d = document.createElement('div');
+      d.style.cssText = 'position:absolute;inset:0;z-index:-2;opacity:0;transition:opacity 0.8s ease;pointer-events:none';
+      scene.prepend(d);
+      return d;
+    };
+    const a = mk(), b = mk();
+    bgLayers.current = [a, b];
+    bgFront.current = 0;
+    return () => { a.remove(); b.remove(); bgLayers.current = []; };
+  }, [isMobile]);
+
   useEffect(() => {
     const scene = containerRef.current?.closest('[data-scene]') as HTMLElement | null;
     if (!scene) return;
-    scene.style.transition = 'background-color 2s ease';
-    scene.style.backgroundColor = isMobile ? '' : (PILLAR_BG[activeIndex] ?? ''); // mobile: no scene tint (CSS makes it transparent so rain shows); desktop: theme tint
-
-    // NOTE: per-pillar "draw-in" background scenes are PAUSED (2026-09-18). When revisited, toggle
-    // `.is-revealing` on the active pillar's grid here (by data-scene id). See CLAUDE.md
-    // § "Service-pillar perspective scenes (PAUSED)".
+    if (isMobile) { bgLayers.current.forEach((l) => (l.style.opacity = '0')); return; }
+    window.clearTimeout(applyT.current);
+    applyT.current = window.setTimeout(() => {
+      const layers = bgLayers.current;
+      if (layers.length === 2) {
+        const grad = PILLAR_BG[activeIndex] ?? '';
+        const back = layers[1 - bgFront.current];
+        back.style.backgroundImage = grad;
+        back.style.opacity = grad ? '1' : '0';
+        layers[bgFront.current].style.opacity = '0';
+        bgFront.current = 1 - bgFront.current;
+      }
+      scene.querySelector('#sonic-waves')?.classList.toggle('is-revealing', internalScan && activeIndex === 1);
+      scene.querySelector('#uiux-nodes')?.classList.toggle('is-revealing', internalScan && activeIndex === 0);
+      scene.querySelector('#spatial-depth')?.classList.toggle('is-revealing', internalScan && activeIndex === 2);
+    }, 160);
+    return () => window.clearTimeout(applyT.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeIndex]);
+  }, [activeIndex, internalScan, isMobile]);
 
   return (
     <div
@@ -116,7 +151,7 @@ export default function ServicePillars() {
       )}
     >
       {/* GRID AREA */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div data-pillars-grid className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {services.map((s, i) => {
           const active = isMobile ? centerIndex === i : index === i;
           return (
@@ -167,11 +202,11 @@ function ServiceCard({
       } : undefined}
       className={cn(
         "relative flex flex-col p-6 md:p-12 pb-14 md:pb-20 transition-all duration-500 overflow-hidden border-[8px] cursor-pointer focus:outline-none focus:ring-1 focus:ring-accent",
-        !isMobile && "bg-background/40 backdrop-blur-sm",
+        !isMobile && "bg-card shadow-[0_12px_40px_-12px_rgba(20,20,20,0.22)]",
         isMobile && "backdrop-blur-sm",
         isActive
-          ? cn("border-accent shadow-[0_0_40px_hsl(var(--accent)/0.2)] z-20", !isMobile && "bg-background/80 scale-[1.06] opacity-100")
-          : cn("border-border z-10", !isMobile && "scale-95 opacity-60")
+          ? cn("border-accent shadow-[0_0_40px_hsl(var(--accent)/0.2)] z-20", !isMobile && "scale-[1.06] opacity-100")
+          : cn("border-border z-10", !isMobile && "scale-95 opacity-90")
       )}
     >
       {/* ICON */}

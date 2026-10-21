@@ -8,6 +8,7 @@ import SonicHero from '../../components/modules/solutions/SonicHero.tsx';
 import SonicAnalysis from '../../components/modules/solutions/SonicAnalysis.tsx';
 import DeliverablesGrid from '../../components/modules/solutions/DeliverablesGrid.tsx';
 import CtaScene from '../../components/modules/CtaScene.astro';
+import SonicWaves from '../../components/modules/SonicWaves.astro';
 
 const sonicDeliverables = [
   "Sonic Audit & Brand Analysis",
@@ -48,10 +49,11 @@ const sonicDeliverables = [
 
   {/* Each section: bar sticks under the header, content locks in centred below it, then release
       together (same pattern as about-v2 / home). Section titles now ride on the bars. */}
-  <div class="relative z-10 theme-oat sol-body">
+  <div class="relative z-10 theme-oat sol-body sol-gradient" style="--sol-grad: linear-gradient(to right, hsl(48 20% 90%), hsl(44 14% 80%))">
     <div class="relative">
       <div class="section-bar-hold"><Solaris text="The Analysis" /></div>
       <FocusScroll count={1} barOffset id="analysis" class="!bg-background/50 backdrop-blur-xl">
+        <SonicWaves page />
         <div class="container-page w-full">
           <SonicAnalysis client:visible />
         </div>
@@ -62,7 +64,7 @@ const sonicDeliverables = [
 
   {/* CTA — dark oversized finale (vertical page: shows without pixelating in). */}
   <div class="relative z-10 sol-cta">
-    <div class="section-bar-hold"><Solaris text="Get in touch" /></div>
+    <div class="section-bar-hold cta-mobile-bar"><Solaris text="Get in touch" /></div>
     <FocusScroll count={1} barOffset id="cta" class="!bg-background/50 backdrop-blur-xl">
       <div class="container-page w-full">
         <CtaScene head="Ready to sound<br/>like yourself?" href="/contact" linkLabel="start_your_sonic_brand" pixelate={false} />

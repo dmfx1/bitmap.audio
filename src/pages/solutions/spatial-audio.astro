@@ -8,6 +8,7 @@ import ImmersiveHero from '../../components/modules/solutions/ImmersiveHero.tsx'
 import ImmersiveAnalysis from '../../components/modules/solutions/ImmersiveAnalysis.tsx';
 import ConceptGrid from '../../components/modules/ConceptGrid.tsx';
 import CtaScene from '../../components/modules/CtaScene.astro';
+import SpatialDepth from '../../components/modules/SpatialDepth.astro';
 
 // DEFINING THE DATA SET FOR THIS PAGE
 const immersiveAudioApplications = [
@@ -71,10 +72,11 @@ const immersiveAudioApplications = [
 
   {/* Each section: bar sticks under the header, content locks in centred below it, then release
       together (same pattern as about-v2 / home). Section titles ride on the bars. */}
-  <div class="relative z-10 theme-oat sol-body">
+  <div class="relative z-10 theme-oat sol-body sol-gradient" style="--sol-grad: linear-gradient(to right, hsl(44 14% 80%), hsl(42 13% 62%))">
     <div class="relative">
       <div class="section-bar-hold"><Solaris text="The Analysis" /></div>
       <FocusScroll count={1} barOffset id="analysis" class="!bg-background/50 backdrop-blur-xl">
+        <SpatialDepth page />
         <div class="container-page w-full">
           <ImmersiveAnalysis client:visible />
         </div>
@@ -101,7 +103,7 @@ const immersiveAudioApplications = [
 
   {/* CTA — dark oversized finale (vertical page: shows without pixelating in). */}
   <div class="relative z-10 sol-cta">
-    <div class="section-bar-hold"><Solaris text="Get in touch" /></div>
+    <div class="section-bar-hold cta-mobile-bar"><Solaris text="Get in touch" /></div>
     <FocusScroll count={1} barOffset id="cta" class="!bg-background/50 backdrop-blur-xl">
       <div class="container-page w-full">
         <CtaScene head="Enter new<br/>dimensions." href="/contact" linkLabel="explore_possibilities" pixelate={false} />

@@ -1,0 +1,152 @@
+---
+/**
+ * SpatialDepth.astro — Spatial Audio "draw-in" background motif for the Services section. A one-point
+ * PERSPECTIVE TUNNEL (abstract 3D space): vertical bars on a left and right "wall" recede toward a
+ * central vanishing point — the void — getting shorter, thinner and closer together with depth, plus
+ * four faint corner edges framing the room. Gives the idea of a 3D space receding behind the cards.
+ *
+ * The centre is masked (feathered ellipse over the real card cluster) so the far end of the tunnel
+ * dissolves into the void and nothing paints behind a card, faded or not.
+ *
+ * Kept faint — a texture, with mild atmospheric fade (near bars a touch stronger/thicker, far bars
+ * fainter/thinner). Shares the `.perspective-grid` reveal; timing overridden for a near-immediate
+ * start. Toggled by ServicePillars.tsx via `.is-revealing` when the Spatial Audio pillar (index 2)
+ * is active + the section is in focus.
+ */
+interface Props { page?: boolean }
+const { page = false } = Astro.props;
+const W = 1600, H = 900, VPx = W / 2, VPy = H / 2;
+const N = 18;            // bars per wall (depth steps)
+const C = 5;             // perspective bunching toward the vanishing point
+const PAUSE = 0.05;
+const SPAN = 0.5;        // reveal spread (s), far (centre) → near (edges)
+
+// Depth param p: 0 = near (frame edge), →1 = far (vanishing point). p_i = i/(i+C) bunches near far.
+type Bar = { d: string; sw: number; op: string; delay: string; accent: boolean };
+function wall(side: -1 | 1): Bar[] {
+  return Array.from({ length: N + 1 }, (_, i) => {
+    const p = i / (i + C);
+    const edgeX = side < 0 ? 0 : W;
+    const x = edgeX + p * (VPx - edgeX);
+    const topY = p * VPy;
+    const botY = H - p * (H - VPy);
+    const near = 1 - p;                         // 1 at edge → 0 at void
+    return {
+      d: `M${x.toFixed(1)},${topY.toFixed(1)} L${x.toFixed(1)},${botY.toFixed(1)}`,
+      sw: +(1 + near * 5).toFixed(2),           // thick near, thin far
+      op: (0.08 + near * 0.17).toFixed(3),      // atmospheric fade
+      delay: (PAUSE + (1 - p) * SPAN).toFixed(3),
+      accent: i === 4,                          // one glowing bar per wall
+    };
+  });
+}
+const bars = [...wall(-1), ...wall(1)];
+
+// Back wall — a small rectangle at the far plane with VERTICAL lines (the room's end wall),
+// replacing the old corner→VP diagonals that crossed into an X at the centre. On the Services
+// pillar this sits under the centre void mask (hidden), so that motif is unchanged.
+const BW = 150, BH = 104;                         // back-wall half-width / half-height
+const bl = VPx - BW, br = VPx + BW, bt = VPy - BH, bb = VPy + BH;
+const VLINES = 6;
+const backVerticals = Array.from({ length: VLINES }, (_, i) => {
+  const x = bl + (BW * 2) * (i / (VLINES - 1));
+  return { d: `M${x.toFixed(1)},${bt} L${x.toFixed(1)},${bb}`, delay: (PAUSE + 0.02).toFixed(3) };
+});
+const backFrame = [`M${bl},${bt} L${br},${bt}`, `M${bl},${bb} L${br},${bb}`]
+  .map((d) => ({ d, delay: (PAUSE + 0.02).toFixed(3) }));
+// Room edges now run frame corner → BACK-WALL corner (no centre X), authored from the back-wall
+// corner outward so they still draw outward from the centre.
+const frameCorners = [[0, 0], [W, 0], [0, H], [W, H]] as const;
+const bwCorners = [[bl, bt], [br, bt], [bl, bb], [br, bb]] as const;
+const edges = frameCorners.map(([cx, cy], i) => ({
+  d: `M${bwCorners[i][0]},${bwCorners[i][1]} L${cx},${cy}`,
+  delay: (PAUSE + 0.04).toFixed(3),
+}));
+---
+
+<div id="spatial-depth" class={page ? "perspective-grid is-revealing is-static" : "perspective-grid sonic-void"} style="color: hsl(180 10% 12%)" aria-hidden="true">
+  <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <g class="void-field" fill="none" stroke-linecap="butt">
+      {edges.map((e) => (
+        <path data-draw d={e.d} pathLength="1" stroke="currentColor" stroke-width="1"
+          stroke-opacity="0.13" style={`--d:${e.delay}s`} />
+      ))}
+      {backFrame.map((e) => (
+        <path data-draw d={e.d} pathLength="1" stroke="currentColor" stroke-width="1"
+          stroke-opacity="0.13" style={`--d:${e.delay}s`} />
+      ))}
+      {backVerticals.map((e) => (
+        <path data-draw d={e.d} pathLength="1" stroke="currentColor" stroke-width="1.2"
+          stroke-opacity="0.17" style={`--d:${e.delay}s`} />
+      ))}
+      {bars.map((b) => (
+        <path data-draw d={b.d} pathLength="1" stroke-width={b.sw} stroke-opacity={b.op}
+          stroke={b.accent ? 'hsl(35 100% 55%)' : 'currentColor'} style={`--d:${b.delay}s`} />
+      ))}
+    </g>
+  </svg>
+</div>
+
+<style>
+  /* Faster start than the shared reveal. */
+  #spatial-depth.perspective-grid { transition: opacity 0.4s ease 0s, filter 0.55s ease 0s; }
+  #spatial-depth.perspective-grid.is-revealing [data-draw] {
+    transition: stroke-dashoffset 1.1s cubic-bezier(0.22, 1, 0.36, 1) var(--d);
+  }
+
+  /* Centre void mask — feathered ellipse over the card cluster (measured from the real grid). */
+  #spatial-depth.sonic-void {
+    -webkit-mask-image: radial-gradient(ellipse var(--void-rx, 44%) var(--void-ry, 30%)
+                        at var(--void-cx, 50%) var(--void-cy, 50%),
+                        transparent 0%, transparent 84%, #000 118%);
+            mask-image: radial-gradient(ellipse var(--void-rx, 44%) var(--void-ry, 30%)
+                        at var(--void-cx, 50%) var(--void-cy, 50%),
+                        transparent 0%, transparent 84%, #000 118%);
+  }
+
+  /* Slow depth "breath" — a faint zoom toward the void once revealed. */
+  #spatial-depth .void-field { transform-origin: 50% 50%; }
+  #spatial-depth.is-revealing .void-field {
+    animation: spatial-depth-breath 8s ease-in-out infinite alternate;
+  }
+  @keyframes spatial-depth-breath {
+    from { opacity: 1; }
+    to   { opacity: 0.82; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #spatial-depth.is-revealing .void-field { animation: none; }
+  }
+  /* STATIC page-background variant (solutions pages): shown drawn, very faint, no mask/animation. */
+  #spatial-depth.is-static { opacity: 0.45 !important; filter: none !important; -webkit-mask-image: none !important; mask-image: none !important; }
+  #spatial-depth.is-static [data-draw] { stroke-dashoffset: 0 !important; transition: none !important; }
+  #spatial-depth.is-static .void-field { animation: none !important; }
+</style>
+
+<script>
+  const setup = () => {
+    const grid = document.querySelector('[data-pillars-grid]') as HTMLElement | null;
+    const field = document.getElementById('spatial-depth');
+    const scene = field?.closest('[data-scene]') as HTMLElement | null;
+    if (!grid || !field || !scene) return false;
+    const measure = () => {
+      const g = grid.getBoundingClientRect();
+      const s = field.getBoundingClientRect();
+      if (!s.width || !s.height) return;
+      const pad = 3;
+      field.style.setProperty('--void-cx', (((g.left + g.width / 2) - s.left) / s.width * 100).toFixed(2) + '%');
+      field.style.setProperty('--void-cy', (((g.top + g.height / 2) - s.top) / s.height * 100).toFixed(2) + '%');
+      field.style.setProperty('--void-rx', ((g.width / 2) / s.width * 100 + pad).toFixed(2) + '%');
+      field.style.setProperty('--void-ry', ((g.height / 2) / s.height * 100 + pad).toFixed(2) + '%');
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(grid); ro.observe(scene);
+    window.addEventListener('resize', measure, { passive: true });
+    [120, 400, 1000].forEach((t) => setTimeout(measure, t));
+    return true;
+  };
+  if (!setup()) {
+    let tries = 0;
+    const iv = setInterval(() => { if (setup() || ++tries > 40) clearInterval(iv); }, 150);
+  }
+</script>
