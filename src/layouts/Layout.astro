@@ -48,6 +48,7 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
     <meta name="robots" content="index, follow" />
     {description && <meta name="description" content={description} />}
     <link rel="canonical" href={resolvedCanonical} />
+    <link rel="preload" href="/fonts/DepartureMono-Regular.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-1 0.5 7 8' shape-rendering='crispEdges' fill='black' stroke='black' stroke-width='0.25'><rect x='0' y='1' width='1' height='1' /><rect x='1' y='2' width='1' height='5' /><rect x='0' y='4' width='4' height='1' /><rect x='4' y='4' width='1' height='3' /><rect x='1' y='7' width='3' height='1' /></svg>" />
     <title>{title}</title>
     <!-- Open Graph -->

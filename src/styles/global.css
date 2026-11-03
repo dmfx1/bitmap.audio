@@ -6,7 +6,15 @@
      'DM Mono'         ← trial
    ─────────────────────────────────────────────────────────────────────────── */
 :root { --font-mono: 'JetBrains Mono', monospace; }
-/* TRIAL: Departure Mono for the brand wordmark + page title (install locally, e.g. via brew). */
+/* Departure Mono (SIL OFL) — SELF-HOSTED for the brand wordmark + page titles + CTA headings.
+   File: public/fonts/DepartureMono-Regular.woff2 · license: public/fonts/DepartureMono-OFL.txt */
+@font-face {
+  font-family: 'Departure Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/DepartureMono-Regular.woff2') format('woff2');
+}
 :root { --font-departure: 'Departure Mono', 'JetBrains Mono', monospace; }
 
 @tailwind base;
