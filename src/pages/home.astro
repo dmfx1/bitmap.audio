@@ -18,8 +18,8 @@ import CtaScene from '../components/modules/CtaScene.astro';
 ---
 
 <Layout
-  title="bitmap.audio | sonic branding & experiential audio"
-  description="bitmap.audio designs sonic brand systems, UI/UX sound, and experiential spatial audio for digital products and forward-thinking brands."
+  title="bitmap.audio | sonic branding & immersive audio"
+  description="bitmap.audio designs sonic brand systems, UI/UX sound, and immersive audio for digital products and forward-thinking brands."
 >
   <div id="page-bar" aria-hidden="true">
     <span class="solaris-text" data-page-label></span>
@@ -236,7 +236,7 @@ import CtaScene from '../components/modules/CtaScene.astro';
       tl.fromTo(portal, { opacity: 0, scale: 0.3 }, { opacity: 0.7, scale: 2.0, ease: 'power2.in', duration: T.fogDur + 0.3 }, T.portalStart);
       tl.to(portal, { opacity: 0, ease: 'power1.out', duration: 0.5 }, T.fogStart + T.fogDur);
       tl.to(fog, { opacity: 1, ease: 'none', duration: T.fogDur }, T.fogStart);
-      tl.to(scServices, { autoAlpha: 1, ease: 'none', duration: 0.9 }, T.fogStart + T.fogDur);
+      tl.to(scServices, { autoAlpha: 1, ease: 'power2.out', duration: 0.45 }, T.fogStart + T.fogDur);
       tl.fromTo(bar, { clipPath: 'inset(0 0 100% 0)', opacity: 0.35 }, { clipPath: 'inset(0 0 0% 0)', opacity: 1, ease: 'steps(6)', duration: 0.14 }, T.barPush);
       boundary(1.91, SERVICES, null);
       tl.to({}, { duration: 0.7 }); // settle on services

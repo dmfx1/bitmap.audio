@@ -30,9 +30,9 @@ export default function Hero() {
               title reads around the vertical middle. Pulled slowly into the void on scroll. */}
           <div className="container-page relative z-10 flex flex-col justify-start md:justify-end min-h-0">
             <div data-hero-pull="title" className="hero-copy">
-              <p className="text-eyebrow text-sm tracking-[0.4em] mb-6">Sonic Infrastructure</p>
+              <p className="text-eyebrow text-base tracking-[0.4em] mb-6">Sonic Infrastructure</p>
               <ScrambleHeading
-                text={'Where data meets\nemotion'}
+                text={'Where data\nmeets emotion'}
                 onComplete={() =>
                   setTimeout(() => {
                     setShowContent(true);

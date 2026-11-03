@@ -1,4 +1,4 @@
-/* src/components/modules/AboutHeroV2.tsx
+/* src/components/modules/AboutHero.tsx
  *
  * v2 About hero — NO photographic imagery. The right side is a generative
  * SonicVisual (canvas oscilloscope/spectrum) instead of the old two-minds photo.
@@ -13,7 +13,7 @@ import ScrambleHeading from './ScrambleHeading';
 import { useIntroGate } from '../../hooks/use-intro-gate';
 import { useHeroSquish } from '../../hooks/use-hero-squish';
 
-export default function AboutHeroV2() {
+export default function AboutHero() {
   // Hold the hero until the nav intro finishes, so the whole site animates in the
   // same order: bitmap.audio -> page name + b at top -> then the hero types.
   const started = useIntroGate();
@@ -41,7 +41,7 @@ export default function AboutHeroV2() {
         }}
       >
         <img
-          src="/images/heroes/heroBG.png"
+          src="/images/heroes/heroBG.webp"
           alt=""
           className="w-full h-full object-cover object-center"
         />

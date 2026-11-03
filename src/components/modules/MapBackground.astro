@@ -34,6 +34,6 @@ const { class: className = '', opacity = 0.12, barOffset = false } = Astro.props
   /* When a .section-bar-hold Solaris bar + sticky header sit above (barOffset FocusScroll), inset the
      map's top by the same amount so the map is centred in the CONTENT region (below the header + bar),
      not the raw viewport — the ring road's centre then lines up with the content's centre. */
-  .map-bg--bar-offset { top: calc(var(--header-h) + var(--solaris-height, 96px)); }
+  .map-bg--bar-offset { top: var(--header-h); }
   .map-bg :global(svg) { width: 100%; height: 100%; display: block; }
 </style>

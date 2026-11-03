@@ -1,176 +1,162 @@
 ---
 /**
- * UiuxNodes.astro — UI/UX Sound "draw-in" background motif for the Services section. A tech HUD
- * NETWORK: interconnected circular HUD nodes (rings, segmented arcs, tick marks) joined by
- * orthogonal circuit traces. Rings/arcs/traces stroke themselves in, centre dots pop, accent
- * (#FF9E1A) nodes glow and pulse. Centre is masked (feathered ellipse over the real card cluster) so the mesh
- * frames the cards and never paints behind one, faded or not.
+ * UiuxNodes.astro — UI/UX Sound "draw-in" background motif for the Services section. A BINARY RAIN:
+ * a dense, pin-sharp canvas grid of 0/1 (with the odd bitmap heart — "data meets emotion") whose
+ * column intensity builds a receding skyline, raining in top-to-bottom. Device-pixel crisp, no blur.
+ * Faint near-black to match the Sonic (spectrum) and Spatial (tunnel) cards.
  *
- * Shares the `.perspective-grid` reveal system (opacity/blur + edge stroke-dashoffset) with timing
- * overridden locally for a near-immediate start. Toggled by ServicePillars.tsx via `.is-revealing`
- * when the UI/UX Sound pillar (index 0) is active + the section is in focus.
+ * Centre is masked (feathered ellipse over the real card cluster) on the Services card so the field
+ * falls away behind the cards; runs full + faint as a static page background (solutions pages).
+ * Toggled by ServicePillars via `.is-revealing`.
  */
 interface Props { page?: boolean }
 const { page = false } = Astro.props;
-const W = 1600, H = 900, CX = W / 2, CY = H / 2;
-const PAUSE = 0.06, SPAN = 0.6;
-const DIAG = Math.hypot(CX, CY);
-
-type Hub = { x: number; y: number; r: number; accent?: boolean };
-const hubs: Hub[] = [
-  { x: 800, y: 450, r: 98, accent: true },   // central hub (masked on the services card)
-  { x: 300, y: 230, r: 58 },
-  { x: 225, y: 600, r: 48 },
-  { x: 520, y: 730, r: 34 },
-  { x: 1075, y: 200, r: 46, accent: true },
-  { x: 1365, y: 400, r: 62 },
-  { x: 1180, y: 680, r: 36 },
-  { x: 625, y: 150, r: 26 },
-  { x: 560, y: 405, r: 42 },
-  { x: 1035, y: 565, r: 44, accent: true },
-  { x: 860, y: 775, r: 30 },
-  { x: 1310, y: 730, r: 28 },
-  { x: 120, y: 360, r: 30 },
-  { x: 955, y: 120, r: 24 },
-];
-const links: [number, number][] = [
-  [0, 1], [0, 4], [0, 5], [0, 3], [0, 6], [0, 8], [0, 9], [0, 10],
-  [1, 7], [1, 12], [4, 5], [4, 13], [2, 3], [5, 9], [6, 11], [8, 2],
-];
-
-// Page (solutions-background) variant fills the lower band too — the services card doesn't need it.
-if (page) {
-  hubs.push(
-    { x: 360, y: 840, r: 30 },
-    { x: 1210, y: 845, r: 26 },
-    { x: 760, y: 878, r: 20 },
-    { x: 80, y: 710, r: 22 },
-  );
-  links.push(...([[14, 3], [15, 11], [16, 10], [17, 2]] as [number, number][]));
-}
-const dist = (h: Hub) => Math.hypot(h.x - CX, h.y - CY) / DIAG;
-
-function arc(cx: number, cy: number, r: number, a0: number, a1: number) {
-  const x0 = cx + r * Math.cos(a0), y0 = cy + r * Math.sin(a0);
-  const x1 = cx + r * Math.cos(a1), y1 = cy + r * Math.sin(a1);
-  const large = (a1 - a0) > Math.PI ? 1 : 0;
-  return `M${x0.toFixed(1)},${y0.toFixed(1)} A${r.toFixed(1)},${r.toFixed(1)} 0 ${large} 1 ${x1.toFixed(1)},${y1.toFixed(1)}`;
-}
-
-type D = { t: 'c' | 'p' | 'l'; sw: number; op: string; accent?: boolean; delay: string;
-  cx?: number; cy?: number; r?: number; d?: string; x1?: number; y1?: number; x2?: number; y2?: number };
-const rings: D[] = [];
-const dots: { cx: number; cy: number; r: number; accent?: boolean; delay: string }[] = [];
-hubs.forEach((h) => {
-  const base = PAUSE + dist(h) * SPAN;
-  rings.push({ t: 'c', cx: h.x, cy: h.y, r: h.r, sw: 2.6, op: '0.17', accent: h.accent, delay: base.toFixed(3) });
-  rings.push({ t: 'p', d: arc(h.x, h.y, h.r * 0.72, -Math.PI * 0.42, Math.PI * 1.35), sw: 3.2, op: '0.2', accent: h.accent, delay: (base + 0.05).toFixed(3) });
-  rings.push({ t: 'p', d: arc(h.x, h.y, h.r * 0.42, -Math.PI * 0.26, Math.PI * 0.26), sw: 2.2, op: '0.16', delay: (base + 0.09).toFixed(3) });
-  rings.push({ t: 'p', d: arc(h.x, h.y, h.r * 0.42, Math.PI * 0.74, Math.PI * 1.26), sw: 2.2, op: '0.16', delay: (base + 0.09).toFixed(3) });
-  const T = 12;
-  for (let k = 0; k < T; k++) {
-    const a = (k / T) * Math.PI * 2;
-    rings.push({ t: 'l', x1: h.x + Math.cos(a) * h.r * 0.9, y1: h.y + Math.sin(a) * h.r * 0.9,
-      x2: h.x + Math.cos(a) * h.r * 1.08, y2: h.y + Math.sin(a) * h.r * 1.08, sw: 1.8, op: '0.12', delay: (base + 0.02 + k * 0.004).toFixed(3) });
-  }
-  dots.push({ cx: h.x, cy: h.y, r: h.accent ? 4 : 3, accent: h.accent, delay: (base + 0.12).toFixed(3) });
-});
-
-function route(a: Hub, b: Hub) {
-  const dx = b.x - a.x, dy = b.y - a.y, sg = (v: number) => (v < 0 ? -1 : 1);
-  if (Math.abs(dx) >= Math.abs(dy)) {
-    const sx = a.x + sg(dx) * a.r, ex = b.x - sg(dx) * b.r, mx = (sx + ex) / 2;
-    return `M${sx.toFixed(1)},${a.y.toFixed(1)} H${mx.toFixed(1)} V${b.y.toFixed(1)} H${ex.toFixed(1)}`;
-  }
-  const sy = a.y + sg(dy) * a.r, ey = b.y - sg(dy) * b.r, my = (sy + ey) / 2;
-  return `M${a.x.toFixed(1)},${sy.toFixed(1)} V${my.toFixed(1)} H${b.x.toFixed(1)} V${ey.toFixed(1)}`;
-}
-const connectors = links.map(([i, j]) => {
-  const a = hubs[i], b = hubs[j], accent = a.accent || b.accent;
-  const delay = (PAUSE + Math.min(dist(a), dist(b)) * SPAN + 0.1).toFixed(3);
-  return { d: route(a, b), op: accent ? '0.26' : '0.13', accent, delay };
-});
 ---
 
-<div id="uiux-nodes" class={page ? "perspective-grid is-revealing is-static" : "perspective-grid sonic-void"} style="color: hsl(180 10% 12%)" aria-hidden="true">
-  <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" shape-rendering="geometricPrecision" xmlns="http://www.w3.org/2000/svg">
-    <g class="net" fill="none" stroke-linecap="round">
-      {connectors.map((c) => (
-        <path data-draw d={c.d} pathLength="1" stroke-width={c.accent ? 3 : 2.4}
-          stroke-opacity={c.op} stroke={c.accent ? 'hsl(35 100% 55%)' : 'currentColor'} style={`--d:${c.delay}s`} />
-      ))}
-      {rings.map((e) => (
-        e.t === 'c' ? (
-          <circle data-draw cx={e.cx} cy={e.cy} r={e.r} pathLength="1" stroke-width={e.sw}
-            stroke-opacity={e.op} stroke={e.accent ? 'hsl(35 100% 55%)' : 'currentColor'} style={`--d:${e.delay}s`} />
-        ) : e.t === 'l' ? (
-          <line data-draw x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2} pathLength="1" stroke-width={e.sw}
-            stroke-opacity={e.op} stroke="currentColor" style={`--d:${e.delay}s`} />
-        ) : (
-          <path data-draw d={e.d} pathLength="1" stroke-width={e.sw}
-            stroke-opacity={e.op} stroke={e.accent ? 'hsl(35 100% 55%)' : 'currentColor'} style={`--d:${e.delay}s`} />
-        )
-      ))}
-      {dots.filter((d) => d.accent).map((d) => (
-        <circle class="halo" cx={d.cx} cy={d.cy} r={d.r * 4} fill="hsl(35 100% 55%)" style={`--d:${d.delay}s`} />
-      ))}
-      {dots.map((d) => (
-        <circle class={d.accent ? 'node node-accent' : 'node'} cx={d.cx} cy={d.cy} r={d.r}
-          fill={d.accent ? 'hsl(35 100% 55%)' : 'currentColor'} fill-opacity={d.accent ? 0.9 : 0.5} style={`--d:${d.delay}s`} />
-      ))}
-  </svg>
+<div id="uiux-nodes" class={`binary-field ${page ? 'is-static' : 'sonic-void'}`} aria-hidden="true">
+  <canvas data-binary></canvas>
 </div>
 
 <style>
-  /* Faster start than the shared reveal. */
-  #uiux-nodes.perspective-grid { transition: opacity 0.4s ease 0s, filter 0.55s ease 0s; }
-  #uiux-nodes.perspective-grid.is-revealing [data-draw] {
-    transition: stroke-dashoffset 1.1s cubic-bezier(0.22, 1, 0.36, 1) var(--d);
+  #uiux-nodes.binary-field {
+    position: absolute; inset: 0; z-index: -1; pointer-events: none; overflow: hidden;
+    opacity: 0; transition: opacity 0.55s ease;
   }
-
-  /* Nodes pop + settle (edges use the shared stroke-dashoffset draw). */
-  #uiux-nodes .node, #uiux-nodes .halo {
-    opacity: 0; transform: scale(0); transform-box: fill-box; transform-origin: center;
-    transition: opacity 0.5s ease var(--d), transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) var(--d);
-  }
-  #uiux-nodes .halo { opacity: 0; }
-  #uiux-nodes.is-revealing .node { opacity: 1; transform: scale(1); }
-  #uiux-nodes.is-revealing .halo { opacity: 0.12; transform: scale(1); }
-  #uiux-nodes.is-revealing .node-accent { animation: uiux-node-pulse 3.2s ease-in-out infinite; }
-  #uiux-nodes.is-revealing .halo { animation: uiux-halo-pulse 3.2s ease-in-out infinite; }
-  @keyframes uiux-node-pulse { 0%,100% { opacity: 0.95; } 50% { opacity: 0.6; } }
-  @keyframes uiux-halo-pulse { 0%,100% { opacity: 0.12; } 50% { opacity: 0.05; } }
+  #uiux-nodes.binary-field.is-revealing { opacity: 1; }
+  #uiux-nodes.binary-field canvas { width: 100%; height: 100%; display: block; }
 
   /* Centre void mask — feathered ellipse over the card cluster (measured from the real grid). */
-  /* 'What we do' section: match the scene-body's (header + solaris) offset so the motif centres
-     with the cards instead of being top-covered by the header. Mask is measured vs the field below. */
-  #uiux-nodes.sonic-void { top: calc(var(--header-h) + var(--solaris-height, 96px)) !important; }
   #uiux-nodes.sonic-void {
     -webkit-mask-image: radial-gradient(ellipse var(--void-rx, 44%) var(--void-ry, 30%)
                         at var(--void-cx, 50%) var(--void-cy, 50%),
-                        transparent 0%, transparent 84%, #000 118%);
+                        transparent 0%, transparent 82%, #000 116%);
             mask-image: radial-gradient(ellipse var(--void-rx, 44%) var(--void-ry, 30%)
                         at var(--void-cx, 50%) var(--void-cy, 50%),
-                        transparent 0%, transparent 84%, #000 118%);
+                        transparent 0%, transparent 82%, #000 116%);
   }
-  @media (prefers-reduced-motion: reduce) {
-    #uiux-nodes .node, #uiux-nodes .halo { transition-duration: 0.2s; }
-    #uiux-nodes.is-revealing .node-accent, #uiux-nodes.is-revealing .halo { animation: none; }
-  }
-  /* STATIC page-background variant (solutions pages): shown drawn, very faint, no mask/animation. */
-  #uiux-nodes.is-static { opacity: 0.45 !important; filter: none !important; -webkit-mask-image: none !important; mask-image: none !important;
-    top: calc(var(--header-h) + var(--solaris-height, 96px)) !important; }
-  #uiux-nodes.is-static [data-draw] { stroke-dashoffset: 0 !important; transition: none !important; }
-  #uiux-nodes.is-static .node, #uiux-nodes.is-static .halo { transition: none !important; animation: none !important; opacity: 1 !important; transform: scale(1) !important; }
-  #uiux-nodes.is-static .halo { opacity: 0.1 !important; }
+  /* 'What we do' section: match the scene-body (header + solaris) offset so the field centres with
+     the cards instead of being top-covered by the header. */
+  #uiux-nodes.sonic-void { top: calc(var(--header-h) + var(--solaris-height, 96px)) !important; }
+
+  /* STATIC page-background variant (solutions pages): shown full, faint, no mask. */
+  #uiux-nodes.is-static { opacity: 0.5 !important;
+    -webkit-mask-image: none !important; mask-image: none !important;
+    top: var(--header-h) !important; }
 </style>
 
 <script>
-  const setup = () => {
+  const root = document.getElementById('uiux-nodes') as HTMLElement | null;
+  const canvas = root?.querySelector('canvas[data-binary]') as HTMLCanvasElement | null;
+  if (root && canvas) {
+    const CELL = 15;                       // css px per cell — smaller = denser
+    const DARK = '28,34,34';               // hsl(180 10% 12%)
+    const ACC = '255,150,26';              // hsl(35 100% 55%)
+    const isStatic = root.classList.contains('is-static');
+    const rnd = (s: number) => { const x = Math.sin(s * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+    const clamp = (v: number, a: number, b: number) => (v < a ? a : v > b ? b : v);
+    const colInt = (c: number, cols: number) => {
+      const x = c / cols;
+      const v = 0.5 + 0.28 * Math.sin(x * 13 + 1.3) + 0.2 * Math.sin(x * 29 + 4.7) + 0.22 * (rnd(c * 9.1) - 0.5);
+      return clamp(v, 0.1, 1);
+    };
+
+    // Resolve the real mono family (canvas ctx.font can't read CSS var()).
+    const probe = document.createElement('span');
+    probe.style.cssText = 'position:absolute;visibility:hidden;font-family:var(--font-mono),monospace';
+    document.body.appendChild(probe);
+    const FONT = getComputedStyle(probe).fontFamily || 'monospace';
+    probe.remove();
+
+    let off: HTMLCanvasElement | null = null, WPX = 0, HPX = 0, CELLpx = 0, cols = 0, reveal = isStatic ? 1 : 0;
+
+    const build = () => {
+      const r = root.getBoundingClientRect();
+      if (!r.width || !r.height) return false;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+      WPX = Math.ceil(r.width * dpr); HPX = Math.ceil(r.height * dpr);
+      canvas.width = WPX; canvas.height = HPX;
+      CELLpx = Math.max(6, Math.round(CELL * dpr));
+      cols = Math.ceil(WPX / CELLpx);
+      const rows = Math.ceil(HPX / CELLpx);
+      off = document.createElement('canvas'); off.width = WPX; off.height = HPX;
+      const o = off.getContext('2d')!;
+      o.textBaseline = 'top';
+      o.font = Math.round(CELL * 0.92 * dpr) + 'px ' + FONT;
+      for (let c = 0; c < cols; c++) {
+        const ci = colInt(c, cols);
+        for (let rr = 0; rr < rows; rr++) {
+          const s = c * 131.1 + rr * 17.7;
+          const vfade = 0.45 + 0.55 * (rr / rows);
+          let a = 0.10 + ci * vfade * 0.30 * (0.55 + 0.45 * rnd(s + 5));
+          if (a > 0.34) a = 0.34;
+          const heart = rnd(s + 300) < 0.015;
+          const acc = heart ? rnd(s + 7) > 0.45 : rnd(s + 400) < 0.018;
+          o.fillStyle = acc ? `rgba(${ACC},${(a * 1.25).toFixed(3)})` : `rgba(${DARK},${a.toFixed(3)})`;
+          const ch = heart ? '♥' : (rnd(s + 200) > 0.5 ? '1' : '0');
+          o.fillText(ch, c * CELLpx + CELLpx * 0.12, rr * CELLpx + CELLpx * 0.04);
+        }
+      }
+      return true;
+    };
+
+    const render = (rv: number) => {
+      const ctx = canvas.getContext('2d')!;
+      ctx.clearRect(0, 0, WPX, HPX);
+      if (!off) return;
+      if (rv >= 1) { ctx.drawImage(off, 0, 0); return; }
+      for (let c = 0; c < cols; c++) {
+        const ph = rnd(c * 2.7) * 0.45;              // per-column rain stagger
+        const lr = clamp((rv - ph) / 0.55, 0, 1);
+        if (lr <= 0) continue;
+        const h = Math.round(lr * HPX);
+        ctx.drawImage(off, c * CELLpx, 0, CELLpx, h, c * CELLpx, 0, CELLpx, h);
+      }
+    };
+
+    let raf = 0;
+    const animate = () => {
+      cancelAnimationFrame(raf);
+      const t0 = performance.now(), dur = 1150;
+      const step = (now: number) => {
+        let p = (now - t0) / dur; if (p > 1) p = 1;
+        reveal = 1 - Math.pow(1 - p, 3);
+        render(reveal);
+        if (p < 1) raf = requestAnimationFrame(step); else reveal = 1;
+      };
+      raf = requestAnimationFrame(step);
+    };
+
+    const start = () => {
+      if (!build()) return false;
+      if (isStatic) { render(1); }
+      else if (root.classList.contains('is-revealing')) animate();
+      else render(1);                                // present but hidden (opacity 0) until revealed
+      return true;
+    };
+    if (!start()) { let n = 0; const iv = setInterval(() => { if (start() || ++n > 40) clearInterval(iv); }, 150); }
+
+    // Re-rain each time the section becomes active.
+    if (!isStatic) {
+      let was = root.classList.contains('is-revealing');
+      new MutationObserver(() => {
+        const now = root.classList.contains('is-revealing');
+        if (now && !was) animate();
+        was = now;
+      }).observe(root, { attributes: true, attributeFilter: ['class'] });
+    }
+
+    // Crisp rebuild once the mono font is ready, and on resize.
+    (document as any).fonts?.ready?.then(() => { if (build()) render(reveal >= 1 || isStatic ? 1 : reveal); });
+    let rt = 0;
+    new ResizeObserver(() => { clearTimeout(rt); rt = window.setTimeout(() => { if (build()) render(isStatic ? 1 : 1); }, 120); }).observe(root);
+  }
+
+  // Centre void-mask measurement (Services card only).
+  const setupMask = () => {
     const grid = document.querySelector('[data-pillars-grid]') as HTMLElement | null;
     const field = document.getElementById('uiux-nodes');
     const scene = field?.closest('[data-scene]') as HTMLElement | null;
-    if (!grid || !field || !scene) return false;
+    if (!grid || !field || !scene || !field.classList.contains('sonic-void')) return !!field;
     const measure = () => {
       const g = grid.getBoundingClientRect();
       const s = field.getBoundingClientRect();
@@ -182,14 +168,10 @@ const connectors = links.map(([i, j]) => {
       field.style.setProperty('--void-ry', ((g.height / 2) / s.height * 100 + pad).toFixed(2) + '%');
     };
     measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(grid); ro.observe(scene);
+    const ro = new ResizeObserver(measure); ro.observe(grid); ro.observe(scene);
     window.addEventListener('resize', measure, { passive: true });
     [120, 400, 1000].forEach((t) => setTimeout(measure, t));
     return true;
   };
-  if (!setup()) {
-    let tries = 0;
-    const iv = setInterval(() => { if (setup() || ++tries > 40) clearInterval(iv); }, 150);
-  }
+  if (!setupMask()) { let n = 0; const iv = setInterval(() => { if (setupMask() || ++n > 40) clearInterval(iv); }, 150); }
 </script>

@@ -52,7 +52,7 @@ const cycleFraction = cycleVh / (cycleVh + tailVh || 1);
   /* When a .section-bar-hold bar sits above, centre the content in the space BELOW the header +
      bar (padding pushes the flex-centre down), so it isn't read behind the bar. */
   .focus-scroll-sticky--bar-offset {
-    padding-top: calc(var(--header-h) + var(--solaris-height, 96px));
+    padding-top: var(--header-h);
   }
   /* Mobile: no lock — a normal block in flow (mobile highlight is viewport-driven). */
   @media (max-width: 767px) {

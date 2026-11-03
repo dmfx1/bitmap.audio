@@ -1,6 +1,5 @@
 ---
 /* src/components/Section.astro */
-import GrainGradientBg from './modules/GrainGradientBg.tsx';
 
 interface Props {
   id?: string;
@@ -12,7 +11,6 @@ interface Props {
   invert?: boolean;
   hasBorder?: boolean;
   gridBg?: boolean; // renders bitmap grid + binary rain as full-bleed background
-  grainBg?: boolean; // mobile-only moving grain-gradient wash — fills the gap left when the (md:sticky) hero scrolls fully away on mobile. No-ops on desktop.
   bgSrc?: string;   // optional background image URL
   bgFade?: 'right' | 'down' | 'up'; // fade direction: right (default), down (top-visible), up (bottom-visible)
   bgSide?: 'left' | 'right'; // which side image anchors to — determines fade direction (left=fades right, right=fades left)
@@ -30,7 +28,6 @@ const {
   invert = false,
   hasBorder = true,
   gridBg = false,
-  grainBg = false,
   bgSrc,
   bgFade = 'right',
   bgSide = 'left',
@@ -111,16 +108,6 @@ const {
       <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_30%,hsl(var(--background)/0.8)_100%)]" />
     </div>
   )}
-
-  {/* Mobile-only moving grain-gradient wash — see GrainGradientBg.tsx for why this is
-      gated to mobile only. client:idle (not client:load — three-plus WebGL shader
-      islands all hydrating immediately at page load fights the main thread against
-      the hero's own client:load animation, causing visible jank/stutter on load; not
-      client:visible either — this island's own initial render is null, which
-      client:visible's IntersectionObserver can't key off reliably). client:idle defers
-      to the browser's idle callback, after initial paint, regardless of the island's
-      render output. */}
-  {grainBg && <GrainGradientBg client:idle />}
 
   {/* Content container — the single source of truth for side gutters + max width.
        - default:      .container-page (capped at --page-max, centred, gutters)

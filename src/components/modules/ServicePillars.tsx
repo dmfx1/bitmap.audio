@@ -12,7 +12,7 @@ const services = [
     icon: BitmapUiUxSound,
     title: "UI/UX Sound",
     href: "/solutions/uiux-sound",
-    desc: "Enhance digital products and systems with audio feedback, enhancing trust and confidence in user experience."
+    desc: "Elevate digital products and systems with audio feedback, enhancing trust and confidence in user experience."
   },
   {
     icon: BitmapSonicBranding,
@@ -22,7 +22,7 @@ const services = [
   },
   {
     icon: BitmapExperientialAudio,
-    title: "Spatial Audio",
+    title: "Immersive Audio",
     href: "/solutions/immersive-audio",
     desc: "Bring experiences to life. We create spatial audio experiences for AR/VR, installations, and experiential environments."
   },

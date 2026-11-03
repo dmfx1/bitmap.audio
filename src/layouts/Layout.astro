@@ -13,11 +13,9 @@ const { title, description = "", canonical = "" } = Astro.props;
 const currentPath = Astro.url.pathname;
 const pageName = resolvePageName(currentPath);
 const isLandingPage = currentPath === "/" || currentPath === "/index.html";
-const isReturnsPage = currentPath === "/returns" || currentPath === "/returns/" || currentPath === "/returns2" || currentPath === "/returns2/";
-// v2 redesign POC — full-bleed, no edge binary rain, nav brand hidden (CornerMark takes over)
-const isV2Page = currentPath === "/about-v2" || currentPath === "/about-v2/";
+const isReturnsPage = currentPath === "/returns" || currentPath === "/returns/";
 const isFaqPage = currentPath === "/faq" || currentPath === "/faq/";
-const isFullBleed = isLandingPage || isReturnsPage || isV2Page;
+const isFullBleed = isLandingPage || isReturnsPage;
 const siteUrl = "https://bitmap.audio";
 const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
 
@@ -92,12 +90,10 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
     <SoundProvider client:load>
       <TooltipProvider client:load>
         
-        {/* v2: binary rain backdrop instead of the bitmap grid (trial on about-v2;
-            at rollout, scope rain to hero sections rather than the whole page). */}
         {/* Bitmap grid removed site-wide (only the returns pages keep it, since
             those are left untouched). Rain stays. */}
         <GridBackground
-          showRain={isV2Page ? true : (!isLandingPage && !isReturnsPage)}
+          showRain={!isLandingPage && !isReturnsPage}
           showGrid={isReturnsPage}
         />
 
@@ -122,9 +118,20 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
         {!isLandingPage && !isReturnsPage && (
           <div
             id="header-bar"
-            class="fixed top-0 left-0 right-0 z-30 pointer-events-none"
-            style="height: var(--header-h); background: hsl(183 34% 18% / 0.5); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); opacity: var(--header-solid, 0);"
+            class="fixed top-0 left-0 right-0 z-[33] pointer-events-none"
+            style="height: var(--header-h); background: hsl(183 34% 18% / 0.34); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); opacity: var(--header-solid, 0);"
           ></div>
+        )}
+
+        {/* DOCK TITLE — the section title rendered crisp ABOVE the glass header (below logo/nav) so it
+            stays legible when the solaris bar docks behind the glass. Driven by the docking script. */}
+        {!isLandingPage && !isReturnsPage && (
+          <div
+            id="dock-title"
+            aria-hidden="true"
+            class="fixed top-0 left-0 right-0 z-[35] pointer-events-none flex items-center justify-center"
+            style="height: var(--header-h); opacity: 0; transition: opacity 0.2s ease;"
+          ><span class="solaris-text"></span></div>
         )}
 
         <div class="relative flex flex-col min-h-svh">
@@ -368,6 +375,57 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
       })();
     </script>
 
+    {/* Section-bar DOCKING (desktop): a sticky solaris section bar first appears under the header,
+        then as you keep scrolling it rises into the header zone and docks at the top — one bar with
+        the logo, the section title and the nav. Drives --dock (0→1) per bar + html.nav-docked. */}
+    <script is:inline>
+      (function () {
+        if (window.innerWidth < 768) return;
+        const root = document.documentElement;
+        const headerBar = document.getElementById('header-bar');
+        const DOCK_DIST = 260;   // px of scroll past the stick line over which it docks
+        let holds = [];
+        const collect = () => { holds = Array.prototype.slice.call(document.querySelectorAll('.section-bar-hold')); };
+        const dockTitle = document.getElementById('dock-title');
+        const dockLabel = dockTitle ? dockTitle.querySelector('span') : null;
+        const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
+        const update = () => {
+          if (!holds.length) return;   // pages without section bars (e.g. home) drive docking themselves
+          const hh = headerBar ? headerBar.offsetHeight : 0;
+          let bestOp = 0, bestTitle = '';
+          for (let i = 0; i < holds.length; i++) {
+            const hold = holds[i];
+            const parent = hold.parentElement;
+            if (!parent) continue;
+            // --dock drives the slide-up + height morph (0 → 1 as the bar rises into the header).
+            const dock = clamp01((hh - parent.getBoundingClientRect().top) / DOCK_DIST);
+            hold.style.setProperty('--dock', dock.toFixed(3));
+            // Title overlay follows the bar's ACTUAL position: fades in as it reaches the top (rTop→0)
+            // and fades back out as it scrolls up and leaves the header zone (rTop→ -headerH).
+            const bar = hold.querySelector('.solaris');
+            if (bar && hh) {
+              const op = clamp01(1 - Math.abs(bar.getBoundingClientRect().top) / hh);
+              if (op > bestOp) {
+                bestOp = op;
+                const t = hold.querySelector('.solaris-text');
+                bestTitle = t ? (t.textContent || '') : '';
+              }
+            }
+          }
+          root.classList.toggle('nav-docked', bestOp > 0.6);
+          if (dockTitle) {
+            dockTitle.style.opacity = bestOp.toFixed(3);
+            if (dockLabel && dockLabel.textContent !== bestTitle) dockLabel.textContent = bestTitle;
+          }
+        };
+        collect();
+        window.addEventListener('scroll', function () { requestAnimationFrame(update); }, { passive: true });
+        window.addEventListener('resize', function () { collect(); update(); }, { passive: true });
+        window.addEventListener('load', function () { collect(); update(); });
+        update();
+      })();
+    </script>
+
     {/* Header squish-then-normalise. On scroll the brand + nav gently squish (--nav-scale)
         AND a solid header bar fades in (--header-solid), locking into a compact sticky bar.
         Both use smoothstep. Kept gentle (MIN 0.86) so it's not too dramatic. */}
@@ -378,7 +436,7 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
            HEADER_START: px of scroll BEFORE the header reacts, so the hero TEXT starts
            pulling first and the header/nav only squish after — stops it feeling like the
            page is just scrolling down. SQUISH_DIST/SOLID_DIST run AFTER that offset. */
-        const BRAND_MIN = 0.48, NAV_MIN = 0.78, HEADER_START = 220, SQUISH_DIST = 800, SOLID_DIST = 160;
+        const BRAND_MIN = 0.60, NAV_MIN = 0.88, HEADER_START = 220, SQUISH_DIST = 800, SOLID_DIST = 160;
         const smooth = (x) => x * x * (3 - 2 * x);
         const prog = (y, dist) => smooth(Math.max(0, Math.min(1, (y - HEADER_START) / dist)));
 

@@ -48,16 +48,13 @@ export const BRAND_MOTION = {
  */
 const ROUTE_NAMES: Record<string, string> = {
   '/home': 'home',
-  '/about': 'about us',
-  '/about-v2': 'about us',
-  '/about-v3': 'about',
+  '/about': 'about',
   '/contact': 'contact',
   '/faq': 'faq',
   '/returns': 'returns',
-  '/returns2': 'returns',
   '/solutions/sonic-branding': 'sonic branding',
   '/solutions/uiux-sound': 'ui/ux sound',
-  '/solutions/spatial-audio': 'spatial audio',
+  '/solutions/immersive-audio': 'immersive audio',
 };
 
 export function resolvePageName(path: string): string {

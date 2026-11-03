@@ -95,11 +95,19 @@ html.lenis body { height: auto; }
      100svh lock. Desktop only (mobile shows a normal bar). */
   .section-bar-hold {
     position: sticky;
-    top: var(--header-h);
+    top: calc(var(--header-h) * (1 - var(--dock, 0)));   /* rises to the top (docks) as --dock → 1 */
     height: calc(100svh - var(--header-h));
     pointer-events: none;
-    z-index: 20;
+    z-index: 45;                                          /* above #header-bar (30) + nav-top-cover (40) once docked */
   }
+  /* The bar grows to the header's height as it docks, so docked it exactly fills the header zone
+     (one bar: logo · section title · nav). */
+  .section-bar-hold .solaris {
+    height: calc(var(--solaris-height) + (var(--header-h) - var(--solaris-height)) * var(--dock, 0));
+  }
+  /* The bar's own text sits BEHIND the glass header (muddy once docked), so fade it out as it docks;
+     a crisp #dock-title overlay (above the glass, below logo/nav) carries the title instead. */
+  .section-bar-hold .solaris-text { opacity: calc(1 - var(--dock, 0)); }
   /* The locked content that FOLLOWS a .section-bar-hold pulls up under it (negative margin-top)
      so the tall hold overlaps the content instead of pushing it down — WITHOUT cancelling the
      hold's height, so the bar releases in sync with the content (not late). */
@@ -152,6 +160,14 @@ html.nav-over-oat nav[data-nav-chrome] a.link-underline { color: hsl(var(--accen
    Transition includes opacity so the intro fade-in still works. */
 [data-nav-chrome="brand"] span { transition: color 0.45s ease, opacity 0.4s ease; }
 html.nav-over-oat [data-nav-chrome="brand"] { --foreground: var(--content-foreground); }
+
+/* DOCKED (desktop): the section's solaris bar has risen into the header zone (orange). Brand + nav
+   must read DARK on it, and the nav pill drops its teal glass so the solaris shows through. Overrides
+   nav-over-oat, whose accent-orange links would otherwise vanish on the orange bar. */
+html.nav-docked [data-nav-chrome="brand"] { --foreground: var(--solaris-text); }
+html.nav-docked nav[data-nav-chrome] a.link-underline { color: hsl(var(--solaris-text)) !important; }
+html.nav-docked nav[data-nav-chrome] .backdrop-blur-md { background: transparent !important; border-color: hsl(var(--solaris-text) / 0.22) !important; }
+html.nav-docked nav[data-nav-chrome] .morph-accent-loop { color: hsl(var(--solaris-text)) !important; border-color: hsl(var(--solaris-text) / 0.4) !important; }
 
 /* The SOLARIS beam — the seam between the dark hero and the beige world. Fully driven
    by the --solaris-* tokens in :root (height, gradient stops, glow). Centres an optional

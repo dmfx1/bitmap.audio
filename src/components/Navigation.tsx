@@ -17,7 +17,7 @@ import { BRAND_NAME, BRAND_MOTION, scrambleInMsFor } from "../config/brandMotion
 const solutions = [
   { name: "Sonic Branding", href: "/solutions/sonic-branding", description: "Brand identity through sound" },
   { name: "UI/UX Sound", href: "/solutions/uiux-sound", description: "Sonic interfaces for technology" },
-  { name: "Experiential Audio", href: "/solutions/spatial-audio", description: "Immersive spatial installations" },
+  { name: "Immersive Audio", href: "/solutions/immersive-audio", description: "Immersive spatial installations" },
 ];
 
 const SEEN_KEY = "bitmap_intro_seen";
@@ -345,14 +345,14 @@ const Navigation = ({ currentPath, pageName = BRAND_NAME }: { currentPath: strin
         >
 
           {/* DESKTOP NAV — items grouped in their own bg panel (square edges, bitmap-style) */}
-          <div className="hidden md:flex items-center gap-4 bg-[hsl(183_34%_20%/0.3)] backdrop-blur-md border border-[hsl(185_45%_62%/0.2)] rounded-none p-2.5">
+          <div className="hidden md:flex items-center gap-4 bg-[hsl(183_34%_20%/0.7)] backdrop-blur-md border border-[hsl(185_45%_62%/0.35)] rounded-none p-2.5">
             <NavigationMenu>
               <NavigationMenuList className="gap-5">
 
                 <NavigationMenuItem>
-                  <a href="/about-v3" className={cn(
+                  <a href="/about" className={cn(
                     "font-mono text-sm uppercase tracking-wider link-underline transition-colors",
-                    isActive("/about-v3") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
+                    isActive("/about") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
                   )}>About</a>
                 </NavigationMenuItem>
 
@@ -371,16 +371,16 @@ const Navigation = ({ currentPath, pageName = BRAND_NAME }: { currentPath: strin
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>
-                  <a href="/solutions/spatial-audio" className={cn(
+                  <a href="/solutions/immersive-audio" className={cn(
                     "font-mono text-sm uppercase tracking-wider link-underline transition-colors",
-                    isActive("/solutions/spatial-audio") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
-                  )}>Spatial</a>
+                    isActive("/solutions/immersive-audio") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
+                  )}>Immersive</a>
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>
-                  <a href="/returns2" className={cn(
+                  <a href="/returns" className={cn(
                     "font-mono text-sm uppercase tracking-wider link-underline transition-colors",
-                    isActive("/returns2") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
+                    isActive("/returns") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
                   )}>Why?</a>
                 </NavigationMenuItem>
               </NavigationMenuList>
@@ -411,12 +411,12 @@ const Navigation = ({ currentPath, pageName = BRAND_NAME }: { currentPath: strin
           <div className="md:hidden border-t border-border animate-fade-in min-h-[calc(100dvh-4rem)] pb-8 bg-background/95 backdrop-blur-md mt-8 -mx-4 px-4">
             <div className="flex flex-col gap-1 pt-6 pb-24">
               <a href="/home" className="font-mono text-xl tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">Home</a>
-              <a href="/about-v3" className="font-mono text-xl tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">About</a>
-              <a href="/returns2" className="font-mono text-xl tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">Why?</a>
+              <a href="/about" className="font-mono text-xl tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">About</a>
+              <a href="/returns" className="font-mono text-xl tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">Why?</a>
               {/* Solutions dropdown removed — Branding / UI/UX / Experience are flat items now. */}
               <a href="/solutions/sonic-branding" className="font-mono text-xl tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">Branding</a>
               <a href="/solutions/uiux-sound" className="font-mono text-xl tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">UI/UX</a>
-              <a href="/solutions/spatial-audio" className="font-mono text-xl tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">Experience</a>
+              <a href="/solutions/immersive-audio" className="font-mono text-xl tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">Immersive</a>
               <a href="/faq" className="font-mono text-xl tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">FAQ</a>
               <a href="/contact" className="font-mono text-xl tracking-wider text-muted-foreground hover:text-primary active:opacity-60 min-h-[44px] flex items-center">Contact</a>
 

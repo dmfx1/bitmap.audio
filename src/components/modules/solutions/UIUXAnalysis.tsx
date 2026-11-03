@@ -1,10 +1,10 @@
-/* src/components/modules/solutions/SonicAnalysis.tsx */
+/* src/components/modules/solutions/UIUXAnalysis.tsx */
 
 export default function UIUXAnalysis() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-48 md:px-48">
       {/* THE CHALLENGE */}
-      <div data-fly="left" className="space-y-8 bg-background/50 p-6">
+      <div data-fly="left" className="space-y-8 bg-background/50 p-2 md:p-6">
         <div className="space-y-2">
           <p className="text-base font-mono text-accent tracking-[0.4em] uppercase">The Challenge</p>
           <h2 className="text-3xl font-mono text-foreground leading-tight">Digital products create disconnect</h2>
@@ -16,7 +16,7 @@ export default function UIUXAnalysis() {
       </div>
 
       {/* THE APPROACH */}
-      <div data-fly="right" className="space-y-8 bg-background/50 p-6">
+      <div data-fly="right" className="space-y-8 bg-background/50 p-2 md:p-6">
         <div className="space-y-2">
           <p className="text-base font-mono text-accent tracking-[0.4em] uppercase">Our Approach</p>
           <h2 className="text-3xl font-mono text-foreground leading-tight">Functional sound, beautiful execution</h2>
