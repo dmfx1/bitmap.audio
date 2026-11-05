@@ -127,3 +127,22 @@ export function scrambleIn(
   };
   requestAnimationFrame(tick);
 }
+
+/** SCRUBBED counterpart of `scrambleIn`: returns `text` at scramble progress `p` (0 = all 0/1,
+ *  1 = fully resolved), locking characters left→right. Deterministic per (char, step) so it is
+ *  reversible under a scroll scrub — the 0/1s flicker as `p` changes but scrubbing back to the same
+ *  `p` gives the same string. Spaces stay spaces (same as scrambleIn) unless keepSpaces:false — then an
+ *  unresolved space is a 0/1 too (use when the text hides inside a binary field). Use from a GSAP onUpdate. */
+export function scrambleAt(text: string, p: number, { chars = '01', flicker = 40, keepSpaces = true }: { chars?: string; flicker?: number; keepSpaces?: boolean } = {}): string {
+  const total = text.length;
+  const locked = Math.floor(Math.min(1, Math.max(0, p)) * total);
+  const step = Math.floor(p * flicker);
+  let out = '';
+  for (let i = 0; i < total; i++) {
+    const ch = text[i];
+    if (i < locked || (keepSpaces && ch === ' ')) { out += ch; continue; }
+    const h = Math.imul(i * 374761393 + step * 668265263, 1274126177) >>> 0;
+    out += chars[h % chars.length];
+  }
+  return out;
+}

@@ -53,7 +53,7 @@ export default function AboutHero() {
         <>
           {/* ROW 1 (top half) — hero title. data-hero-pull="title" → pulled slowly into
               the central glare on scroll (see use-hero-squish). */}
-          <div className="container-page relative z-10 flex flex-col justify-start md:justify-end min-h-0">
+          <div className="container-page relative z-10 flex flex-col justify-start md:justify-center min-h-0">
             <div data-hero-pull="title" className="hero-copy">
               <ScrambleHeading
                 text={'Two minds,\none sonic vision'}
@@ -72,7 +72,7 @@ export default function AboutHero() {
 
           {/* ROW 2 (bottom half) — description. data-hero-pull="sub" → pulled FASTER into
               the glare (further away, sucked in quicker). */}
-          <div className="container-page relative z-10 flex flex-col justify-start md:justify-end min-h-0">
+          <div className="container-page relative z-10 flex flex-col justify-start md:justify-center min-h-0">
             <div data-hero-pull="sub" className="hero-copy">
               <p
                 className={`text-foreground/90 text-2xl md:text-5xl font-mono transition-all duration-1000 ${

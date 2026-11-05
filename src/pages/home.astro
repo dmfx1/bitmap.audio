@@ -3,7 +3,7 @@
  *
  * Homepage on the SCENE-STAGE architecture — a faithful clone of about-v3's PROVEN inline structure.
  * Hero/header stay locked; scroll drives ONE master timeline: "enter the void" (binary-rain zoom +
- * portal bloom + beige fog) → Services → micro/macro Philosophy (scroll-typed quote) → CTA (dark,
+ * portal bloom + beige fog) → Services → Philosophy (6-stage bitmap scene, ported from About) → CTA (dark,
  * oversized Departure Mono, pixelates in) → release into the footer. No real vertical scroll until then.
  */
 import Layout from '../layouts/Layout.astro';
@@ -13,8 +13,10 @@ import SonicWaves from '../components/modules/SonicWaves.astro';
 import UiuxNodes from '../components/modules/UiuxNodes.astro';
 import SpatialDepth from '../components/modules/SpatialDepth.astro';
 // Pillar draw-in scene imports (SpatialPerspective/UiuxCircuit) removed while the feature is paused — see CLAUDE.md.
-import Philosophy from '../components/modules/Philosophy.tsx';
+// Philosophy.tsx (old typed micro/macro quote) is no longer used here — kept on disk until the port is signed off.
 import CtaScene from '../components/modules/CtaScene.astro';
+import { buttonVariants } from '../components/ui/button-variants';
+import { cn } from '../lib/utils';
 ---
 
 <Layout
@@ -46,10 +48,61 @@ import CtaScene from '../components/modules/CtaScene.astro';
         </div>
       </div>
 
-      {/* Philosophy — the micro/macro architecture; the quote types out on scroll (--phil-progress). */}
-      <div class="scene theme-oat mobile-fill" data-scene="philosophy" style="z-index:20">
-        <div class="scene-body">
-          <Philosophy client:load />
+      {/* LISTENING BETWEEN THE LINES — oat interstitial (no bar). A field of large 0/1 digits cascades
+          down from the top (per-column random speeds) until the section is full; the centre row then
+          scrambles into the phrase WITH SCROLL; the field fades away into philosophy. The cascade + fade are
+          TRIGGERED (play on their own clock, both scroll directions); the phrase is SCRUBBED.
+          The field is built in JS (initBinaryField). Mobile: static, fully instantiated. */}
+      <div class="scene field-scene" data-scene="lines" style="z-index:15">
+        <p class="sr-only">listening between the lines</p>
+        <div class="bin-field" data-bin-field data-phrase="listening between the lines" aria-hidden="true"></div>
+      </div>
+
+      {/* Philosophy — the 6-stage bitmap scene PORTED FROM ABOUT (same markup + buildPhilosophyScene).
+          A stacked layer; the choreography is nested in the master timeline (see PHIL_SPEED). */}
+      <div class="scene phil-scene" data-scene="philosophy" style="z-index:20">
+        <div class="phil-inner" data-phil-inner>
+          <svg id="sound-canvas" class="sound-canvas" viewBox="0 0 1200 1000"
+               preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <g id="bit-group"><g id="sub-group"></g></g>
+          </svg>
+          <div class="scene-caps">
+            <p class="scene-cap"><span class="phil-viz" aria-hidden="true"><svg viewBox="0 0 72 72"><rect width="72" height="72" fill="#ECEAE0"/></svg></span>Think of your sound like the pixels in an image.</p>
+            <p class="scene-cap"><span class="phil-viz" aria-hidden="true"><svg viewBox="0 0 220 22"><rect x="6" y="4" width="14" height="14" fill="#ECEAE0"/><rect x="30" y="4" width="14" height="14" fill="#ECEAE0"/><rect x="54" y="4" width="14" height="14" fill="#ECEAE0"/><rect x="78" y="4" width="14" height="14" fill="#ECEAE0"/><rect x="100" y="0" width="22" height="22" fill="#FFFFFF"/><rect x="130" y="4" width="14" height="14" fill="#ECEAE0"/><rect x="154" y="4" width="14" height="14" fill="#ECEAE0"/><rect x="178" y="4" width="14" height="14" fill="#ECEAE0"/><rect x="202" y="4" width="14" height="14" fill="#ECEAE0"/></svg></span>We translate traits of your brand's personality into distinct audio "bits".</p>
+            <p class="scene-cap"><span class="phil-viz" aria-hidden="true"><svg viewBox="0 0 88 88"><rect x="0" y="0" width="26" height="26" fill="#ECEAE0"/><rect x="31" y="0" width="26" height="26" fill="#ECEAE0"/><rect x="62" y="0" width="26" height="26" fill="#ECEAE0"/><rect x="0" y="31" width="26" height="26" fill="#ECEAE0"/><rect x="31" y="31" width="26" height="26" fill="#ECEAE0"/><rect x="62" y="31" width="26" height="26" fill="#ECEAE0"/><rect x="0" y="62" width="26" height="26" fill="#ECEAE0"/><rect x="31" y="62" width="26" height="26" fill="#ECEAE0"/><rect x="62" y="62" width="26" height="26" fill="#ECEAE0"/></svg></span>Then map them together into a unified sonic identity.</p>
+            <p class="scene-cap"><span class="phil-viz" aria-hidden="true"><svg viewBox="0 0 76 76"><defs><filter id="pg4" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="7"/></filter></defs><rect width="76" height="76" fill="#FF9E1A" filter="url(#pg4)"/><rect width="76" height="76" fill="#FF9E1A"/></svg></span>The master asset gives you a cohesive sound for your brand.</p>
+            <p class="scene-cap"><span class="phil-viz" aria-hidden="true"><svg viewBox="23 23 154 154"><g stroke="#FFFFFF" stroke-width="4" stroke-linecap="square"><line x1="100" y1="100" x2="100" y2="34"/><line x1="100" y1="100" x2="147" y2="53"/><line x1="100" y1="100" x2="166" y2="100"/><line x1="100" y1="100" x2="147" y2="147"/><line x1="100" y1="100" x2="100" y2="166"/><line x1="100" y1="100" x2="53" y2="147"/><line x1="100" y1="100" x2="34" y2="100"/><line x1="100" y1="100" x2="53" y2="53"/></g><rect x="89" y="23" width="22" height="22" fill="#FF9E1A"/><rect x="136" y="42" width="22" height="22" fill="#FF9E1A"/><rect x="155" y="89" width="22" height="22" fill="#FF9E1A"/><rect x="136" y="136" width="22" height="22" fill="#FF9E1A"/><rect x="89" y="155" width="22" height="22" fill="#FF9E1A"/><rect x="42" y="136" width="22" height="22" fill="#FF9E1A"/><rect x="23" y="89" width="22" height="22" fill="#FF9E1A"/><rect x="42" y="42" width="22" height="22" fill="#FF9E1A"/><rect x="87" y="87" width="26" height="26" fill="#FFFFFF"/></svg></span>Modular stems are then pulled from the master, ready for every touchpoint.</p>
+            <p class="scene-cap"><span class="phil-viz" aria-hidden="true"><svg viewBox="0 0 100 100"><rect width="100" height="100" fill="#FF9E1A"/><rect x="8" y="8" width="24" height="24" fill="#ECEAE0"/><rect x="38" y="8" width="24" height="24" fill="#ECEAE0"/><rect x="68" y="8" width="24" height="24" fill="#ECEAE0"/><rect x="8" y="38" width="24" height="24" fill="#ECEAE0"/><rect x="38" y="38" width="24" height="24" fill="#ECEAE0"/><rect x="68" y="38" width="24" height="24" fill="#ECEAE0"/><rect x="8" y="68" width="24" height="24" fill="#ECEAE0"/><rect x="38" y="68" width="24" height="24" fill="#ECEAE0"/><rect x="68" y="68" width="24" height="24" fill="#ECEAE0"/></svg></span>The result is complete consistency in how your brand sounds, wherever it appears.</p>
+          </div>
+        </div>
+      </div>
+
+      {/* SOFT CTA — dark, follows on from philosophy's dark ending. Deliberately LIGHTER than the final CTA
+          (mono, smaller, no pixel veil) so the page doesn't "end twice". Same action as the final CTA. */}
+      <div class="scene soft-cta-scene" data-scene="soft-cta" style="z-index:25">
+        <div class="scene-body soft-cta-body">
+          {/* ROW 1 — question, same type + accent-second-line + solaris cursor as the hero title */}
+          <div class="container-page relative flex flex-col justify-start md:justify-center min-h-0">
+            <h2 class="heading-hero mb-8 leading-tight font-medium soft-cta__title">
+              What does your brand sound like<br/><span class="text-accent font-medium">right now?</span><span class="inline-block w-[0.5ch] h-[0.9em] bg-accent brightness-125 ml-1 animate-pulse align-middle" aria-hidden="true"></span>
+            </h2>
+          </div>
+          {/* ROW 2 — support line at the top of the lower half; the button PINNED to the bottom */}
+          <div class="container-page relative flex flex-col min-h-0">
+            <div class="flex-1 flex flex-col justify-center min-h-0">
+              <p class="text-foreground/90 text-2xl md:text-5xl font-mono soft-cta__sub">
+                Book a free, no-obligation 30-minute call with Dom and Nick to talk about how sound could work for your brand, product or space.
+              </p>
+            </div>
+            <div class="w-full max-w-xl mt-8 md:mt-0">
+              <div class="flex items-stretch gap-4 w-full">
+                <a href="/contact" class="flex-1">{/* TODO: point at a booking tool once chosen */}
+                  <span class={cn(buttonVariants({ variant: 'outline', size: 'xl' }), 'morph-accent rounded-none w-full h-14 md:h-24 px-4 md:px-8 text-base md:text-xl')}>Book a free call</span>
+                </a>
+                <span class="flex-1 hidden md:block" aria-hidden="true"></span>{/* keeps the hero's 2-button width */}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -64,7 +117,7 @@ import CtaScene from '../components/modules/CtaScene.astro';
   </div>
 
   <style>
-    #stage-track { position: relative; height: 1300vh; }
+    #stage-track { position: relative; height: 2300vh; } /* ~106vh per timeline unit (unchanged). Measured 20.65u: hero/services 3.0 + binary field 2.95 + philosophy + soft CTA 1.8 + CTA. Re-measure if L / PHIL_SPEED / SOFT_HOLD change. */
     .stage-pin { position: sticky; top: 0; height: 100svh; overflow: hidden; }
 
     .scene { position: absolute; top: 0; left: 0; right: 0; height: 100svh; }
@@ -89,6 +142,38 @@ import CtaScene from '../components/modules/CtaScene.astro';
         transparent 58%);
       opacity: 0; pointer-events: none;
     }
+
+    /* Philosophy LAYER — its own markup (svg canvas + captions), styled as in PhilosophyScene.astro.
+       phil-inner fills the scene; the builder animates its background (beige ↔ void) + the bits. */
+    .phil-inner {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background-color: hsl(var(--background)); /* fallback; builder drives beige↔void */
+    }
+    .phil-scene .sound-canvas { width: clamp(360px, 88vmin, 900px); aspect-ratio: 1.2 / 1; overflow: visible; }
+    .phil-scene .scene-caps {
+      position: absolute; left: 50%; bottom: clamp(7rem, 18vh, 12rem); transform: translateX(-50%);
+      width: min(96vw, 60rem); min-height: 4.6em; text-align: center;
+      color: #ffffff; mix-blend-mode: difference; /* blend OPERAND — keep pure white */
+    }
+    .phil-scene .scene-cap {
+      position: absolute; inset: 0; margin: 0; font-family: var(--font-mono);
+      font-size: clamp(1.5rem, 3vw, 2.5rem); line-height: 1.5; letter-spacing: 0.02em;
+    }
+    .phil-viz { display: none; }  /* motif shown on mobile only */
+
+    /* SOFT CTA — laid out like the hero: two equal rows inside the area under the header + bar. */
+    .soft-cta-scene { background-color: hsl(var(--background)); }
+    .soft-cta-body {
+      display: grid !important; grid-template-rows: 1fr 1fr; justify-content: stretch;
+      padding-block: var(--page-gutter); box-sizing: border-box;
+    }
+    .soft-cta__title { max-width: min(66vw, 80rem); }   /* = .hero-copy[data-hero-pull="title"] */
+    .soft-cta__sub { max-width: min(55vw, 84rem); }     /* = .hero-copy[data-hero-pull="sub"] */
+    .soft-cta-scene a { pointer-events: auto; }
+    /* The support line is longer than the hero's: step it down a size on short laptop screens so it
+       never runs into the pinned button. */
+    @media (min-width: 768px) and (max-height: 860px) { .soft-cta__sub { font-size: 2.25rem; line-height: 2.5rem; } }
 
     /* .cta-scene + .scene-veil styling is global (global.css); the CTA content is <CtaScene />. */
 
@@ -128,6 +213,46 @@ import CtaScene from '../components/modules/CtaScene.astro';
         padding-block: 3rem;  /* vertical only — let container-page supply the 16px side gutter (CTA) */
         display: flex; flex-direction: column; justify-content: center;
       }
+      /* ── PHILOSOPHY — the animation becomes a vertical read-through: each caption is its own
+         full-screen slide with a CSS pixel motif echoing that stage of buildPhilosophyScene
+         (pixel -> bits -> map -> master -> stems -> consistency). Canvas hidden on mobile. ── */
+      .phil-inner { position: relative !important; inset: auto !important; display: block !important; background-color: transparent; }
+      .phil-scene .sound-canvas { display: none; }
+      .phil-scene .scene-caps {
+        position: static; transform: none; width: 100%; min-height: 0; display: block;
+        text-align: center; mix-blend-mode: normal; color: hsl(var(--foreground));
+      }
+      .phil-scene .scene-cap {
+        position: static !important; inset: auto !important; margin: 0; max-width: none;
+        display: flex !important; flex-direction: column; align-items: center; justify-content: flex-start;
+        gap: clamp(1.25rem, 4vh, 2.25rem);          /* motif -> its caption (same on every slide) */
+        padding: 1.5rem var(--page-gutter-x);
+        font-size: clamp(1.6rem, 6.4vw, 2.4rem); line-height: 1.35; letter-spacing: 0.01em;
+        text-shadow: 0 1px 14px hsla(185,24%,3%,0.9), 0 0 3px hsla(185,24%,3%,0.8);
+      }
+      /* consistent rhythm: caption text -> NEXT motif is identical everywhere */
+      .phil-scene .scene-cap + .scene-cap { margin-top: clamp(9rem, 32vh, 17rem); }
+      /* lead-in so the founders section is fully gone before the first slide */
+      .phil-scene .scene-cap:nth-child(1) { margin-top: 42svh; }
+      .phil-scene .scene-caps { padding-bottom: clamp(9rem, 28vh, 15rem); }
+      /* motif SVG above each caption (hidden on desktop, sized per slide) */
+      .phil-viz { display: block; line-height: 0; }
+      .phil-viz svg { display: block; height: auto; overflow: visible; }
+      .scene-cap:nth-child(1) .phil-viz { width: 80px; }
+      .scene-cap:nth-child(2) .phil-viz { width: min(76vw, 300px); }
+      .scene-cap:nth-child(3) .phil-viz { width: 88px; }
+      .scene-cap:nth-child(4) .phil-viz { width: 108px; }
+      .scene-cap:nth-child(5) .phil-viz { width: min(57vw, 221px); }
+      .scene-cap:nth-child(6) .phil-viz { width: 116px; }
+      /* SOFT CTA (mobile) — static dark section, stacked like the hero on mobile */
+      .soft-cta-scene { background-color: hsl(var(--background)); }
+      .soft-cta-body { display: flex !important; flex-direction: column; gap: 2rem; padding-block: 5rem; }
+      .soft-cta__title, .soft-cta__sub { max-width: 100%; }
+
+      /* Philosophy is ~6 screens tall on mobile, so the 0.2 IntersectionObserver threshold can never
+         be met — exempt it from the fade-up or it stays invisible (About neutralises this too). */
+      .mob-reveal .scene[data-scene="philosophy"] { opacity: 1 !important; transform: none !important; }
+
       /* entrance transition — only after JS marks the stage (else everything stays visible) */
       .mob-reveal .scene:not([data-scene="hero"]) { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
       .mob-reveal .scene.is-in { opacity: 1; transform: none; }
@@ -137,6 +262,41 @@ import CtaScene from '../components/modules/CtaScene.astro';
   {/* CTA is the same dark colour as the footer — drop the Solaris seam beam between them. */}
   <style is:global>
     .solaris:has(+ footer) { display: none; }
+
+    /* LISTENING BETWEEN THE LINES — the binary field's columns/digits are built in JS, and Astro's
+       SCOPED styles don't reach JS-created elements, so these rules MUST be global. Every selector is
+       prefixed with .field-scene so nothing leaks. --digit-a / --acc-a are scrubbed (renderPhrase). */
+    .field-scene { background: transparent; pointer-events: none; overflow: hidden; }
+    .field-scene .bin-field {
+      --bin-size: clamp(3rem, 5.5vw, 6rem);  /* the phrase spans ~89vw at 5.5vw */
+      --digit-a: 0.55; --acc-a: 1;
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      display: flex; flex-direction: row;
+      font-family: var(--font-mono); font-size: var(--bin-size); line-height: 1.2;
+    }
+    .field-scene .bin-col {
+      flex: 0 0 1ch; width: 1ch; white-space: pre; text-align: center;   /* pre: a resolved space stays a blank cell */
+      color: hsl(var(--content-foreground) / var(--digit-a));
+      clip-path: inset(0 0 100% 0);   /* revealed top→down by the cascade */
+    }
+    .field-scene .bin-col .acc { color: hsl(var(--accent) / var(--acc-a)); }
+    .field-scene .bin-col .ph { transition: color .15s linear; }
+    .field-scene .bin-col .ph.on { color: hsl(var(--content-foreground)); font-weight: 700; }
+
+    @media (max-width: 767px) {
+      /* static, fully instantiated (no GSAP): DARK field, faint light digits, light phrase. The whole
+         scene fades out at top + bottom so it dissolves into the page's binary rain — no hard block. */
+      /* #stage-track prefix: must out-rank the page's scoped mobile `.scene { height: auto }` */
+      #stage-track .field-scene {
+        background-color: hsl(var(--background)); height: 100svh; position: relative;
+        -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 22%, #000 78%, transparent 100%);
+        mask-image: linear-gradient(to bottom, transparent 0%, #000 22%, #000 78%, transparent 100%);
+      }
+      .field-scene .bin-field { --bin-size: 5.5vw; }   /* phrase still fits one row (~89vw) */
+      .field-scene .bin-col { clip-path: none; color: hsl(var(--foreground) / 0.16); }
+      .field-scene .bin-col .acc { color: hsl(var(--accent) / 0.55); }
+      .field-scene .bin-col .ph.on { color: hsl(var(--foreground)); }
+    }
   </style>
 
   <script>
@@ -144,6 +304,8 @@ import CtaScene from '../components/modules/CtaScene.astro';
     import { ScrollTrigger } from 'gsap/ScrollTrigger';
     import { createStageTimeline, createPageBar, stageLabels, prepareVoid, enterTheVoid, pushInBar, type BarCfg } from '../lib/stage';
     import { initMobileSceneReveal } from '../lib/pixel-veil';
+    import { buildPhilosophyScene } from '../lib/scenes/philosophy';
+    import { scrambleAt } from '../lib/scene-kit';
     gsap.registerPlugin(ScrollTrigger);
 
     function initStage() {
@@ -156,20 +318,26 @@ import CtaScene from '../components/modules/CtaScene.astro';
       const fog = pin.querySelector<HTMLElement>('[data-stage="fog"]')!;
       const portal = pin.querySelector<HTMLElement>('[data-stage="portal"]')!;
       const scServices = pin.querySelector<HTMLElement>('.scene[data-scene="services"]')!;
+      const scLines = pin.querySelector<HTMLElement>('.scene[data-scene="lines"]')!;
       const scPhil = pin.querySelector<HTMLElement>('.scene[data-scene="philosophy"]')!;
+      const scSoft = pin.querySelector<HTMLElement>('.scene[data-scene="soft-cta"]')!;
       const scCta = pin.querySelector<HTMLElement>('.scene[data-scene="cta"]')!;
       const vCta = scCta.querySelector<HTMLElement>('[data-cta-veil]')!; // built + started-covered by <CtaScene>
       const gridBg = document.getElementById('grid-bg');
 
       prepareVoid(fog, portal);
       gsap.set(scServices, { autoAlpha: 0 });
+      gsap.set(scLines, { autoAlpha: 0 });
       gsap.set(scPhil, { autoAlpha: 0 });
+      gsap.set(scSoft, { autoAlpha: 0 });
       gsap.set(scCta, { autoAlpha: 0 });
 
       const bar = document.getElementById('page-bar')!;
       const pageBar = createPageBar(bar);
       const SERVICES: BarCfg = { name: 'What we do' };
-      const PHIL: BarCfg = { name: 'The micro/macro architecture' };
+      const PHIL: BarCfg = { name: 'Our Philosophy', bg: '#ffffff', text: '#141414', glow: '0 0 24px rgba(255,255,255,0.35)' }; // same white bar as About
+      // Soft CTA stays in the dark world, so it keeps the WHITE bar — no colour change on a visible bar.
+      const SOFT: BarCfg = { name: "Let's Talk", bg: '#ffffff', text: '#141414', glow: '0 0 24px rgba(255,255,255,0.35)' };
       const CONTACT: BarCfg = { name: 'Get In Touch' };
 
       const T = { heroHold: 0.8, fogStart: 0.8, fogDur: 1.0, portalStart: 0.5, voidScale: 3.0, barPush: 1.72, crossDur: 0.9 };
@@ -178,7 +346,8 @@ import CtaScene from '../components/modules/CtaScene.astro';
       const OV = T.crossDur * 0.6;
 
       const tl = createStageTimeline(track);
-      const { boundary, crossLabel } = stageLabels(tl, pageBar, T.crossDur);
+      const { boundary, atDir, crossLabel } = stageLabels(tl, pageBar, T.crossDur);
+      const dir = () => (tl.scrollTrigger ? tl.scrollTrigger.direction : 1);
 
       // ENTER THE VOID → Services fades in through the fog.
       enterTheVoid(tl, { fog, portal, gridBg }, T);
@@ -187,20 +356,125 @@ import CtaScene from '../components/modules/CtaScene.astro';
       boundary(1.91, SERVICES, null);
       tl.to({}, { duration: 0.7 }); // settle on services
 
-      // Services → Philosophy (small overlap), then the quote types out on scroll.
-      tl.addLabel('philIn');
-      tl.to(scServices, { autoAlpha: 0, ease: 'none', duration: T.crossDur }, 'philIn')
-        .to(scPhil, { autoAlpha: 1, ease: 'none', duration: T.crossDur }, 'philIn+=' + OV);
-      crossLabel('philIn', PHIL, SERVICES);   // down (buffered) → philosophy; up (snappy) → services
-      gsap.set(scPhil, { '--phil-progress': 0 });
-      tl.to(scPhil, { '--phil-progress': 1, ease: 'none', duration: 1.6 }); // scroll-typed micro/macro quote
-      tl.to({}, { duration: 0.4 });
+      // ── LISTENING BETWEEN THE LINES — binary field ──
+      //    Knobs. Scroll knobs are timeline units (home ≈ 106vh of scroll per unit); cascade/fade are SECONDS.
+      const L = {
+        out: 0.4,         // [scroll] services + bar fade away
+        settle: 0.7,      // [scroll] room for the cascade to fill before the phrase starts
+        decode: 0.9,      // [scroll] phrase scrambles into words (left → right)
+        hold: 0.5,        // [scroll] readable hold
+        blank: 0.45,      // [scroll] oat beat after the fade, before philosophy
+        cascadeMin: 0.55, // [s] fastest column
+        cascadeMax: 1.3,  // [s] slowest column
+        cascadeStagger: 0.35, // [s] max random start delay per column
+        fadeOut: 0.6,     // [s] field fades away
+      };
+      const field = scLines.querySelector<HTMLElement>('[data-bin-field]')!;
+      const F = (window as any).__binField as { cols: HTMLElement[]; phrase: HTMLElement[]; text: string; rows: number } | undefined;
+      const sc = { p: 0 };
+      let fieldReady = false;   // the phrase stays binary until the cascade has filled the screen
+      const renderPhrase = () => {
+        if (!F) return;
+        const eff = fieldReady ? sc.p : 0;
+        const str = scrambleAt(F.text, eff, { keepSpaces: false });
+        const locked = Math.floor(Math.min(1, Math.max(0, eff)) * F.text.length);
+        F.phrase.forEach((el, i) => { el.textContent = str[i]; el.classList.toggle('on', i < locked); });
+        field.style.setProperty('--digit-a', (0.55 - 0.3 * eff).toFixed(3));
+        field.style.setProperty('--acc-a', (1 - 0.4 * eff).toFixed(3));
+      };
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const cascade = () => {          // TRIGGERED: columns pour down from the top at random speeds
+        if (!F) return;
+        fieldReady = false; renderPhrase();
+        gsap.killTweensOf([field, ...F.cols]);
+        gsap.set(field, { opacity: 1 });
+        let longest = 0;
+        F.cols.forEach((c) => {
+          const dur = reduce ? 0 : gsap.utils.random(L.cascadeMin, L.cascadeMax);
+          const delay = reduce ? 0 : gsap.utils.random(0, L.cascadeStagger);
+          longest = Math.max(longest, dur + delay);
+          gsap.fromTo(c, { clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0 0 0% 0)', duration: dur, delay, ease: 'steps(' + F.rows + ')' });
+        });
+        gsap.delayedCall(longest, () => { fieldReady = true; renderPhrase(); });
+      };
+      const fadeAway = () => {          // TRIGGERED: the whole field fades (no movement)
+        if (!F) return;
+        gsap.killTweensOf([field, ...F.cols]);
+        gsap.to(field, { opacity: 0, duration: reduce ? 0 : L.fadeOut, ease: 'power1.out' });
+      };
+      renderPhrase();
 
-      // Philosophy → CTA (small overlap); the CTA appears under a dark veil, then pixelates in.
+      tl.addLabel('linesIn');
+      tl.to(scServices, { autoAlpha: 0, ease: 'none', duration: L.out }, 'linesIn')
+        .to(bar, { autoAlpha: 0, ease: 'none', duration: L.out * 0.6 }, 'linesIn')
+        .set(scLines, { autoAlpha: 1 }, 'linesIn');
+      atDir('linesIn', 1, null);                         // down: no bar label during the field
+      atDir('linesIn+=' + (L.out * 0.6), -1, SERVICES);  // up: "What we do" returns with the cards
+      // Entering from ABOVE → cascade; leaving back UP → fade.
+      tl.call(() => { (dir() === 1 ? cascade : fadeAway)(); }, [], 'linesIn+=' + (L.out * 0.5));
+      tl.to({}, { duration: L.settle });
+      tl.to(sc, { p: 1, ease: 'none', duration: L.decode, onUpdate: renderPhrase });
+      tl.to({}, { duration: L.hold });
+      // Leaving DOWN → fade into philosophy; coming back UP from philosophy → cascade from the top again.
+      tl.addLabel('fieldOut', '>');
+      tl.call(() => { (dir() === 1 ? fadeAway : cascade)(); }, [], 'fieldOut');
+      // The bar's CSS transitions its background over .45s, so recolour it HERE while it's hidden —
+      // down: already white when "Our Philosophy" arrives; up: back to solaris before "What we do" returns.
+      const SOLARIS_BG = 'linear-gradient(90deg, var(--solaris-from) 0%, var(--solaris-mid) 55%, var(--solaris-to) 100%)';
+      const paintBar = (bg: string, glow: string) => { bar.style.background = bg; bar.style.boxShadow = glow; };
+      tl.call(() => {
+        if (dir() === 1) paintBar(PHIL.bg!, PHIL.glow!);
+        else paintBar(SOLARIS_BG, 'var(--solaris-glow)');
+      }, [], 'fieldOut');
+      tl.to({}, { duration: L.blank });
+
+      // ── PHILOSOPHY — the oat is seamless with the scene's beige start, so no cross-fade is needed:
+      //    the bar returns (white), caption 1 fades in, then the 6-stage choreography plays. ──
+      tl.addLabel('philIn', '>');
+      tl.set(scLines, { autoAlpha: 0 }, 'philIn')
+        .to(scPhil, { autoAlpha: 1, ease: 'none', duration: 0.2 }, 'philIn')
+        .to(bar, { autoAlpha: 1, ease: 'none', duration: 0.25 }, 'philIn');
+      atDir('philIn+=0.1', 1, PHIL);   // down: "Our Philosophy" scrambles in on the returning bar
+      atDir('philIn', -1, null);       // up: bar clears as we go back into the lines
+      // Same 6-stage choreography + options as About, built into a CHILD timeline and nested at '>'
+      // (still scrubbed by the master — a nested timeline is driven by its parent, it doesn't auto-play).
+      // PHIL_SPEED: About scrolls ~3x faster per timeline unit than home, so the scene plays 3x faster
+      // here to keep About's tuned pace. Raise = quicker scene / lower = slower. Re-size #stage-track if changed.
+      const PHIL_SPEED = 3;
+      const phil = gsap.timeline();
+      buildPhilosophyScene(phil, scPhil, {
+        heroScale: 2.52,                                                   // opening pixel 10% smaller
+        orbitRadius: 213, orbitSub: 0.94, orbitMain: 0.66, tetherWidth: 9, // modular stems 18% smaller
+        finalScale: 0.96,                                                  // final "result" block ~16% smaller
+        masterGrow: false,                                                 // master: glow up (exaggerated), no growth
+        exit: 'flicker',                                                   // intro-style flicker-scale out (no TV-out)
+      });
+      phil.timeScale(PHIL_SPEED);
+      // Caption 1 ("Think of your sound…") is set visible by the builder; on home it would play out during
+      // the scene's arrival, so hide it and fade it in on the blank oat, just before the pixel appears.
+      const cap1 = scPhil.querySelector<HTMLElement>('.scene-cap');
+      if (cap1) { gsap.set(cap1, { opacity: 0 }); tl.to(cap1, { opacity: 1, ease: 'none', duration: 0.3 }, 'philIn+=0.15'); }
+      tl.add(phil, '>');
+
+      // ── SOFT CTA — fades in over philosophy's dark ending, holds, then hands on. ──
+      const SOFT_HOLD = 1.2;   // [scroll units] time on the soft CTA
+      tl.addLabel('softIn', '>');
+      tl.to(scSoft, { autoAlpha: 1, ease: 'none', duration: 0.6 }, 'softIn')
+        .set(scPhil, { autoAlpha: 0 }, 'softIn+=0.6');
+      // Own label timing (crossLabel's buffer is sized for the 0.9 cross-fades — far too late here).
+      const SOFT_LABEL_AT = 0.3;   // [scroll units] "Let's Talk" scrambles in this far into the 0.6 fade
+      atDir('softIn', 1, null);                              // down: philosophy label clears
+      atDir('softIn+=' + SOFT_LABEL_AT, 1, SOFT);            // down: "Let's Talk"
+      atDir('softIn+=' + SOFT_LABEL_AT, -1, null);           // up: clears as the soft CTA leaves
+      atDir('softIn+=0.1', -1, PHIL);                        // up: "Our Philosophy" back
+      tl.to({}, { duration: SOFT_HOLD });
+
+      // Soft CTA → final CTA (small overlap); the CTA appears under a dark veil, then pixelates in.
+      // (When Proof & people / How it works exist they slot in between here.)
       tl.addLabel('ctaIn', '>');
-      tl.to(scPhil, { autoAlpha: 0, ease: 'none', duration: T.crossDur }, 'ctaIn')
+      tl.to(scSoft, { autoAlpha: 0, ease: 'none', duration: T.crossDur }, 'ctaIn')
         .to(scCta, { autoAlpha: 1, ease: 'none', duration: 0.3 }, 'ctaIn+=' + OV);
-      crossLabel('ctaIn', CONTACT, PHIL);   // down (buffered) → CTA; up (snappy) → philosophy
+      crossLabel('ctaIn', CONTACT, SOFT);   // down (buffered) → CTA; up (snappy) → soft CTA
       tl.to(vCta, { '--reveal': 1, ease: 'none', duration: 1.6 }, 'ctaIn+=' + (OV + 0.3));
       // Dwell on the fully-revealed CTA for a good beat BEFORE the stage unpins into the footer, so the
       // pixelation lands and settles before any vertical scroll begins. Tune this to taste.
@@ -210,9 +484,60 @@ import CtaScene from '../components/modules/CtaScene.astro';
       if (fonts?.ready) fonts.ready.then(() => ScrollTrigger.refresh());
     }
 
-    document.addEventListener('astro:page-load', initStage);
-    if (document.readyState === 'complete') initStage();
-    else window.addEventListener('load', initStage);
+    const boot = () => { initBinaryField(); initStage(); };
+    document.addEventListener('astro:page-load', boot);
+    if (document.readyState === 'complete') boot();
+    else window.addEventListener('load', boot);
+
+    // BINARY FIELD ("listening between the lines") — built once, slightly larger than the SCREEN (not the
+    // window) and centred, so it never needs rebuilding on resize and the phrase stays centred.
+    // ACCENT_RATIO: share of digits in solaris orange (0 = none).
+    function initBinaryField() {
+      const field = document.querySelector<HTMLElement>('[data-bin-field]');
+      if (!field || field.dataset.built === '1') return;
+      field.dataset.built = '1';
+      const ACCENT_RATIO = 0.04;
+      const text = field.dataset.phrase || 'listening between the lines';
+      const mobileBuild = !window.matchMedia('(min-width: 768px)').matches;
+      const probe = document.createElement('span');
+      probe.textContent = '0'; probe.style.cssText = 'position:absolute;visibility:hidden;white-space:pre;line-height:1.2;font-size:' + (mobileBuild ? '12px' : '3rem');
+      field.appendChild(probe);
+      const cw = probe.getBoundingClientRect().width || 14;
+      const lh = (probe.getBoundingClientRect().height || cw / 0.6 * 1.2);   // at the minimum size
+      probe.remove();
+      const W = Math.max(window.screen?.width || 0, window.innerWidth) + 4 * cw;
+      const H = Math.max(window.screen?.height || 0, window.innerHeight) + 2 * lh;
+      let cols = Math.ceil(W / cw); if ((cols - text.length) % 2) cols++;   // even margins either side
+      let rows = Math.ceil(H / lh); if (rows % 2 === 0) rows++;               // a true centre row
+      const midRow = (rows - 1) / 2, startCol = (cols - text.length) / 2;
+      const mobile = !window.matchMedia('(min-width: 768px)').matches;
+      const phrase: HTMLElement[] = [];
+      const colEls: HTMLElement[] = [];
+      const frag = document.createDocumentFragment();
+      for (let c = 0; c < cols; c++) {
+        const col = document.createElement('div');
+        col.className = 'bin-col';
+        for (let r = 0; r < rows; r++) {
+          if (r > 0) col.appendChild(document.createTextNode('\n'));
+          const pi = c - startCol;
+          if (r === midRow && pi >= 0 && pi < text.length) {
+            const s = document.createElement('span');
+            s.className = 'ph' + (mobile ? ' on' : '');
+            s.textContent = mobile ? text[pi] : (Math.random() > 0.5 ? '1' : '0');
+            phrase[pi] = s; col.appendChild(s);
+          } else if (Math.random() < ACCENT_RATIO) {
+            const s = document.createElement('span');
+            s.className = 'acc'; s.textContent = Math.random() > 0.5 ? '1' : '0';
+            col.appendChild(s);
+          } else {
+            col.appendChild(document.createTextNode(Math.random() > 0.5 ? '1' : '0'));
+          }
+        }
+        colEls.push(col); frag.appendChild(col);
+      }
+      field.appendChild(frag);
+      (window as any).__binField = { cols: colEls, phrase, text, rows };
+    }
 
     // MOBILE-only: reveal each unstacked scene as it enters (desktop uses the GSAP stage).
     document.addEventListener('astro:page-load', initMobileSceneReveal);
