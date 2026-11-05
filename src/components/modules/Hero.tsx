@@ -28,11 +28,10 @@ export default function Hero() {
         <>
           {/* ROW 1 (top half) — eyebrow + title, pinned to the bottom of the top half so the
               title reads around the vertical middle. Pulled slowly into the void on scroll. */}
-          <div className="container-page relative z-10 flex flex-col justify-start md:justify-end min-h-0">
+          <div className="container-page relative z-10 flex flex-col justify-start md:justify-center min-h-0">
             <div data-hero-pull="title" className="hero-copy">
-              <p className="text-eyebrow text-base tracking-[0.4em] mb-6">Sonic Infrastructure</p>
               <ScrambleHeading
-                text={'Where data\nmeets emotion'}
+                text={'One sound,\neverywhere'}
                 onComplete={() =>
                   setTimeout(() => {
                     setShowContent(true);
@@ -51,14 +50,16 @@ export default function Hero() {
               data-hero-pull is on each wrapper (useHeroSquish pulls both into the void on scroll); the
               showContent fade lives on INNER divs so it never fights the hook's opacity. */}
           <div className="container-page relative z-10 flex flex-col min-h-0">
-            <div className="flex-1 flex flex-col justify-start md:justify-center min-h-0">
+            <div className="flex-1 flex flex-col justify-start md:justify-start min-h-0">
               <div data-hero-pull="sub" className="hero-copy">
                 <p
                   className={`text-foreground/90 text-2xl md:text-5xl font-mono transition-all duration-1000 ${
                     showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
                   }`}
                 >
-                  We architect sonic experiences that bridge the gap between digital interfaces and human perception.
+                  We build sonic identities for brands who don't speak sound.
+                  <br/><br/>
+                  From the logo, to the app, to the room you're standing in.
                 </p>
               </div>
             </div>

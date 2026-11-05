@@ -3,11 +3,11 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 
 const clientsData = [
     "ADIDAS", "BBC", "SONY", "LEGO", 
-    "REBOK", "PUMA", "F1", "EA GAMES", 
-    "HEINEKEN", "BRITISH & LONDON SCIENCE MUSEUM", 
+    "REEBOK", "PUMA", "F1", "EA GAMES", 
+    "HEINEKEN", "BRITISH SCIENCE MUSEUM", 
     "MASSIVE MUSIC", "SONICBRAND", "PLAYSTATION",
     "FIFA", "SEON", "CHANNEL 4", "MAN CITY",
-    "BMG", "UNIVERSAL MUSIC", "MATCHROOM BOXING",
+    "BMG", "UNIVERSAL MUSIC", "MATCHROOM BOXING", "FRAMELESS",
     "SAVE THE CHILDREN", "WWF", "ITV", 
 ];
 

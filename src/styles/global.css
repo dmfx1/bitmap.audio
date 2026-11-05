@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@300;400&display=swap');
+/* Google Fonts (JetBrains Mono, Inter, DM Mono) are loaded via <link> in Layout.astro's <head>. */
 
 /* ── ACTIVE MONO FONT — change this one line to switch site-wide ─────────────
    Options:

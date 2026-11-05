@@ -2,22 +2,37 @@
 /* src/pages/solutions/sonic-branding.astro */
 import Layout from '../../layouts/Layout.astro';
 import Solaris from '../../components/Solaris.astro';
-import Section from '../../components/Section.astro';
 import FocusScroll from '../../components/FocusScroll.astro';
-import SonicHero from '../../components/modules/solutions/SonicHero.tsx';
-import SonicAnalysis from '../../components/modules/solutions/SonicAnalysis.tsx';
-import DeliverablesGrid from '../../components/modules/solutions/DeliverablesGrid.tsx';
+import SolutionHero from '../../components/modules/solutions/SolutionHero.tsx';
+import SolutionAnalysis from '../../components/modules/solutions/SolutionAnalysis.astro';
 import CtaScene from '../../components/modules/CtaScene.astro';
 import SonicWaves from '../../components/modules/SonicWaves.astro';
 
-const sonicDeliverables = [
-  "Sonic Audit & Brand Analysis",
-  "Approach Guidelines & Strategy",
-  "Adaptive Audio Assets",
-  "Notification & Alert Sounds",
-  "Sonic Logo",
-  "Bespoke Hero Music"
-];
+// Page copy for the shared hero + analysis components.
+const hero = {
+  title: "Define your brand's\naudio DNA",
+  blurb: [
+    "Visual identity can only go so far. ",
+    "Brands with a unique sonic footprint significantly enhance recognition and recall.",
+  ],
+  reelSlug: "sonic-branding",
+};
+const analysis = {
+  challenge: {
+    heading: "In a world of visual noise, sound cuts through.",
+    paragraphs: [
+      "Your audience encounters thousands of visual messages daily. But sound operates differently - it bypasses rational filters and connects directly to emotion and memory.",
+      "A thoughtfully crafted sonic brand becomes instantly recognisable, consistently memorable, and emotionally resonant across every touchpoint.",
+    ],
+  },
+  approach: {
+    heading: "From brand essence to sonic expression.",
+    paragraphs: [
+      "We begin by understanding your brand's core values and how you want them to communicate. We design for each of them and build them into a collective expression.",
+      "The result is a comprehensive asset library that scales from a two-second notification sound to a full musical composition - providing broad utilisation across your branding network.",
+    ],
+  },
+};
 ---
 
 <Layout
@@ -42,7 +57,7 @@ const sonicDeliverables = [
   </Fragment>
   {/* Hero: sticks at top of container, content scrolls over it */}
   <div id="hero-sticky" class="md:sticky top-0 z-[1] min-h-svh flex flex-col pt-[var(--header-h)]">
-    <SonicHero client:load />
+    <SolutionHero client:load {...hero} />
   </div>
 
   <div class="hero-runway" aria-hidden="true"></div>
@@ -55,7 +70,7 @@ const sonicDeliverables = [
       <FocusScroll count={1} barOffset id="analysis" class="!bg-background/50 backdrop-blur-xl">
         <SonicWaves page />
         <div class="container-page w-full">
-          <SonicAnalysis client:visible />
+          <SolutionAnalysis {...analysis} />
         </div>
       </FocusScroll>
     </div>

@@ -12,19 +12,25 @@ const services = [
     icon: BitmapUiUxSound,
     title: "UI/UX Sound",
     href: "/solutions/uiux-sound",
-    desc: "Elevate digital products and systems with audio feedback, enhancing trust and confidence in user experience."
+    promise: "Make products feel human:",
+    detail: "Sounds for buttons, confirmations and alerts that match your brand and build trust with every touch.",
+    mobileFirst: false
   },
   {
     icon: BitmapSonicBranding,
     title: "Sonic Branding",
     href: "/solutions/sonic-branding",
-    desc: "Define your brand's audio identity with comprehensive sonic infrastructure that resonates across your entire network."
+    promise: "Define how your brand sounds:",
+    detail: "Sonic logos, brand music and bespoke audio assets for every touchpoint across your channels.",
+    mobileFirst: true // stacks first on mobile; stays the centre card on desktop
   },
   {
     icon: BitmapExperientialAudio,
     title: "Immersive Audio",
     href: "/solutions/immersive-audio",
-    desc: "Bring experiences to life. We create spatial audio experiences for AR/VR, installations, and experiential environments."
+    promise: "Bring people into your world:",
+    detail: "Spatial sound for retail, galleries and installations that moves with them through the space.",
+    mobileFirst: false
   },
 ];
 const DEFAULT_INDEX = 1; // Sonic Branding (middle)
@@ -151,7 +157,7 @@ export default function ServicePillars() {
       )}
     >
       {/* GRID AREA */}
-      <div data-pillars-grid className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div data-pillars-grid className="grid grid-cols-1 md:grid-cols-3 auto-rows-fr gap-8">
         {services.map((s, i) => {
           const active = isMobile ? centerIndex === i : index === i;
           return (
@@ -190,7 +196,7 @@ function ServiceCard({
   const iconRef = useRef<HTMLSpanElement>(null);
   usePixelRoam(iconRef, isActive); // one pixel roams the icon when this pillar becomes active
   return (
-    <div className="flex flex-col">
+    <div className={cn("flex flex-col", service.mobileFirst && "order-first md:order-none")}>
     <a
       href={service.href}
       data-mobile-center-item
@@ -201,7 +207,7 @@ function ServiceCard({
         transitionDuration: '150ms',
       } : undefined}
       className={cn(
-        "relative flex flex-col p-6 md:p-12 pb-14 md:pb-20 transition-all duration-500 overflow-hidden border-[8px] cursor-pointer focus:outline-none focus:ring-1 focus:ring-accent",
+        "relative flex-1 flex flex-col p-6 md:p-12 pb-14 md:pb-20 transition-all duration-500 overflow-hidden border-[8px] cursor-pointer focus:outline-none focus:ring-1 focus:ring-accent",
         !isMobile && "bg-card shadow-[0_12px_40px_-12px_rgba(20,20,20,0.22)]",
         isMobile && "backdrop-blur-sm",
         isActive
@@ -229,8 +235,13 @@ function ServiceCard({
         {service.title}
       </h3>
 
-      <p className="font-mono text-muted-foreground text-lg font-light leading-relaxed">
-        {service.desc}
+      {/* PROMISE (darker, heavier) then DETAIL on its own line — same font/size/leading as before */}
+      <p className="font-mono text-lg leading-relaxed">
+        <span className="block text-foreground font-light capitalize">{service.promise}</span>
+        <span className={cn(
+          "block mt-2 font-light transition-colors duration-300",
+          isActive ? "text-muted-foreground" : "text-muted-foreground/50"
+        )}>{service.detail}</span>
       </p>
 
       {/* LEARN MORE — pinned at fixed distance from bottom, matching icon distance from top */}

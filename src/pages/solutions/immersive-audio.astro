@@ -2,10 +2,9 @@
 /* src/pages/solutions/immersive-audio.astro */
 import Layout from '../../layouts/Layout.astro';
 import Solaris from '../../components/Solaris.astro';
-import Section from '../../components/Section.astro';
 import FocusScroll from '../../components/FocusScroll.astro';
-import ImmersiveHero from '../../components/modules/solutions/ImmersiveHero.tsx';
-import ImmersiveAnalysis from '../../components/modules/solutions/ImmersiveAnalysis.tsx';
+import SolutionHero from '../../components/modules/solutions/SolutionHero.tsx';
+import SolutionAnalysis from '../../components/modules/solutions/SolutionAnalysis.astro';
 import ConceptGrid from '../../components/modules/ConceptGrid.tsx';
 import CtaScene from '../../components/modules/CtaScene.astro';
 import SpatialDepth from '../../components/modules/SpatialDepth.astro';
@@ -41,6 +40,31 @@ const immersiveAudioApplications = [
     desc: "Generative audio systems that create unique, never-repeating sonic environments."
   }
 ];
+
+// Page copy for the shared hero + analysis components.
+const hero = {
+  title: "Sound that exists\nin space",
+  blurb: [
+    "We design immersive audio experiences for physical installations and augmented reality experiences to bring experiences to life through the feeling of sound.",
+  ],
+  reelSlug: "immersive-audio",
+};
+const analysis = {
+  challenge: {
+    heading: "Flat audio breaks immersion",
+    paragraphs: [
+      "Traditional stereo audio exists on a flat plane. In immersive environments, sound needs to exist in three dimensions, responding to movement, orientation, and space.",
+      "By leveraging spatial audio techniques with object-based audio and immersive audio mixing we can take that flat audio pane and manufacture believable virtual worlds and spaces.",
+    ],
+  },
+  approach: {
+    heading: "Engineering presence through sound.",
+    paragraphs: [
+      "We combine artistic vision with technical expertise in spatial audio formats and audio middleware to create experiences that feel real and respond to their environment.",
+      "Whether it's a VR experience, AR application or a physical installation, we architect sound that responds to space and movement naturally.",
+    ],
+  },
+};
 ---
 
 <Layout
@@ -65,7 +89,7 @@ const immersiveAudioApplications = [
   </Fragment>
   {/* Hero: sticks at top of container, content scrolls over it */}
   <div id="hero-sticky" class="md:sticky top-0 z-[1] min-h-svh flex flex-col pt-[var(--header-h)]">
-    <ImmersiveHero client:load />
+    <SolutionHero client:load {...hero} />
   </div>
 
   <div class="hero-runway" aria-hidden="true"></div>
@@ -78,7 +102,7 @@ const immersiveAudioApplications = [
       <FocusScroll count={1} barOffset id="analysis" class="!bg-background/50 backdrop-blur-xl">
         <SpatialDepth page />
         <div class="container-page w-full">
-          <ImmersiveAnalysis client:visible />
+          <SolutionAnalysis {...analysis} />
         </div>
       </FocusScroll>
     </div>

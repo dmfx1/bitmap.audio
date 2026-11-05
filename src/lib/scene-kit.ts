@@ -1,31 +1,28 @@
 /* src/lib/scene-kit.ts
  *
- * Reusable authoring helpers for scenes built on the Scene framework (src/lib/scene.ts).
+ * Reusable authoring helpers for scroll-scrubbed scenes (used by src/lib/scenes/* and src/lib/stage.ts).
  * Everything here is concept-AGNOSTIC — geometry, easings, and the common GSAP moves used to
  * build a scroll-locked "explainer" scene. A new scene imports what it needs and authors its
  * own beats; nothing below is specific to the philosophy scene, so swap colours / sizes / beats
  * freely.
  *
- *   import { registerScene } from '@/lib/scene';
  *   import { steps, centerXY, gridCell, ringPoint, bitmapAppear, crossfadeCaption, tvOut, glow, reduced } from '@/lib/scene-kit';
  *
- *   registerScene('my-scene', (tl, stage) => {
- *     const el = stage.querySelector('#thing');
- *     bitmapAppear(tl, el, 1, '>');                 // flicker it in
- *     tl.to(el, { ...centerXY(600, 500, 100), ease: steps(7) });
- *   });
+ *   const el = stage.querySelector('#thing');
+ *   bitmapAppear(tl, el, 1, '>');                   // flicker it in
+ *   tl.to(el, { ...centerXY(600, 500, 100), ease: steps(7) });
  *
  * The helpers that build motion take the timeline (`tl`) as their first arg and append to it,
- * so they never own a GSAP instance — they just decorate whatever timeline the framework passes.
+ * so they never own a GSAP instance — they just decorate whatever timeline the page passes.
  */
 import type { gsap } from 'gsap';
+import { prefersReducedMotion } from './motion';
 type Timeline = gsap.core.Timeline;
 
 /* ── environment ─────────────────────────────────────────────────────────── */
 
-/** prefers-reduced-motion (SSR-safe). */
-export const reduced = (): boolean =>
-  typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+/** prefers-reduced-motion (SSR-safe). Alias of motion.ts's prefersReducedMotion. */
+export const reduced = prefersReducedMotion;
 
 /* ── string sugar ────────────────────────────────────────────────────────── */
 

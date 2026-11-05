@@ -8,13 +8,20 @@ bitmap.audio is a sonic branding agency and experiential audio service website. 
 
 **Do not simplify, genericize, or "clean up" animations without explicit instruction. The complexity is the feature.**
 
+> **🧹 Refactor 2026-11-04:** see `docs/refactor-2026-11.md` for the architecture map, problem list and the remaining refactor plan.
+
+> **🔊 Planned: site-wide AUDIO INTERACTIVITY** (not built yet — it's the business, so it will come). When it does:
+> - Components that get sound need to be React islands (`.tsx` + a `client:*` directive). Static `.astro` components (e.g. `SolutionAnalysis.astro`) convert to `.tsx` at that point — keep the same props.
+> - Shared state (mute on/off, audio unlocked after first tap) must work ACROSS islands. React context can't do that in Astro (each island is a separate React root — that's why the old unused `SoundProvider` was removed). Use a tiny shared store such as nanostores (`@nanostores/react`), persisted to localStorage.
+> - Browsers block audio until a user gesture — plan a clear sound on/off control (default muted) and respect `prefers-reduced-motion`.
+
 > **🎛️ Motion tuning knobs:** every scroll/intro timing value (intro, header squish, hero pull, runway, hero-copy width, etc.) and the file it lives in is documented in **`MOTION-CHEATSHEET.md`**. Reach for that when adjusting the "feel."
 
 ---
 
 ## ⚠️ Critical Rules — Read Before Making Any Change
 
-### Hero Image Conventions (Hero.tsx, AboutIntro.tsx, UIUXHero.tsx, SonicHero.tsx, ImmersiveHero.tsx)
+### Hero Image Conventions (Hero.tsx, AboutIntro.tsx, SolutionHero.tsx)
 
 All hero images across the site follow these non-negotiable rules. Do not deviate without explicit instruction.
 
@@ -401,8 +408,8 @@ Mobile hamburger menu current behaviour (do not revert):
 - **Do not add GSAP to `Section.astro`** — it uses IntersectionObserver intentionally
 - **Do not modify sidebar heights in returns.astro via CSS** — they are computed dynamically
 - **Do not simplify the layered image sequences** (phone→book, tiger blur) — the overlap timing is intentional
-- **Do not use `localStorage` for animation state** — SoundContext already handles persisted state
-- **Do not add new Radix/shadcn primitives** without checking `src/components/ui/` first — most are already installed
+- **Do not use `localStorage` for animation state.** (The old `SoundContext` provider was removed in the 2026-11 refactor — it was never consumed, and React context can't cross Astro islands anyway. When site audio lands, share mute state with a tiny store, e.g. nanostores.)
+- **Do not add new Radix/shadcn primitives** without checking `src/components/ui/` first. Unused Radix packages were uninstalled in the 2026-11 refactor — `npm i @radix-ui/react-<name>` when you actually need one
 - **Do not create page-specific variants of `DeliverablesGrid`** — it is a shared component, modify once
 
 ---
@@ -516,8 +523,10 @@ src/components/     — Reusable components
   ui/               — Radix/shadcn primitives (don't modify unless necessary)
 src/layouts/        — Layout.astro (global shell)
 src/hooks/          — Custom React hooks
-src/context/        — SoundContext (global mute state)
 src/lib/utils.ts    — cn() utility
+src/lib/stage.ts    — shared scene-stage helpers (master timeline, page bar, labels, enter-the-void)
+src/lib/pixel-veil.ts — pixel veil + mobile scene reveal (no deps; used by home/about/CtaScene)
+src/components/modules/solutions/SolutionHero.tsx + SolutionAnalysis.astro — shared by all 3 solutions pages (copy lives on each page)
 src/styles/global.css — CSS variables, keyframes, base styles (1000+ lines)
 public/             — Static assets
 ```

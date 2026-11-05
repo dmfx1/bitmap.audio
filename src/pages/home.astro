@@ -104,11 +104,6 @@ import CtaScene from '../components/modules/CtaScene.astro';
     }
     #page-bar [data-page-label] { opacity: 0; white-space: nowrap; text-align: center; transition: color 0.45s ease; }
 
-    /* ── MOBILE (≤767px): the scene-stage becomes a vertical SNAP REEL ──
-       Desktop GSAP is gated off (<768px). Here each scene unstacks into a
-       full-viewport scroll-snap panel in DOM order, with a subtle rise/fade as
-       it enters (progressive-enhanced via .mob-reveal — see the observer script).
-       svh only (never dvh) per the returns mobile rule. */
     /* ── MOBILE (≤767px): scenes unstack into a NORMAL vertical scroll (no scroll-snap —
        snapping felt jumpy on touch). Each section still reveals with a subtle rise/fade as
        it enters (progressive-enhanced via .mob-reveal). Desktop GSAP stage is untouched. */
@@ -147,10 +142,9 @@ import CtaScene from '../components/modules/CtaScene.astro';
   <script>
     import { gsap } from 'gsap';
     import { ScrollTrigger } from 'gsap/ScrollTrigger';
-    import { scrambleIn } from '../lib/scene-kit';
+    import { createStageTimeline, createPageBar, stageLabels, prepareVoid, enterTheVoid, pushInBar, type BarCfg } from '../lib/stage';
+    import { initMobileSceneReveal } from '../lib/pixel-veil';
     gsap.registerPlugin(ScrollTrigger);
-
-    type BarCfg = { name: string; bg?: string; text?: string; glow?: string };
 
     function initStage() {
       const track = document.getElementById('stage-track');
@@ -167,27 +161,13 @@ import CtaScene from '../components/modules/CtaScene.astro';
       const vCta = scCta.querySelector<HTMLElement>('[data-cta-veil]')!; // built + started-covered by <CtaScene>
       const gridBg = document.getElementById('grid-bg');
 
-      gsap.set(fog, { opacity: 0 });
-      gsap.set(portal, { opacity: 0, scale: 0.3, transformOrigin: '50% 45%' });
+      prepareVoid(fog, portal);
       gsap.set(scServices, { autoAlpha: 0 });
       gsap.set(scPhil, { autoAlpha: 0 });
       gsap.set(scCta, { autoAlpha: 0 });
 
       const bar = document.getElementById('page-bar')!;
-      const label = bar.querySelector<HTMLElement>('[data-page-label]')!;
-      const DEFAULT_BG = 'linear-gradient(90deg, var(--solaris-from) 0%, var(--solaris-mid) 55%, var(--solaris-to) 100%)';
-      const DEFAULT_GLOW = 'var(--solaris-glow)';
-      let current = '';
-      const setBar = (s: BarCfg) => {
-        if (s.name === current) return;
-        current = s.name;
-        label.style.opacity = '1';
-        label.style.color = s.text ?? '';
-        bar.style.background = s.bg ?? DEFAULT_BG;
-        bar.style.boxShadow = s.glow ?? DEFAULT_GLOW;
-        scrambleIn(label, s.name, { duration: 650 });
-      };
-      const clearBar = () => { current = ''; label.style.opacity = '0'; };
+      const pageBar = createPageBar(bar);
       const SERVICES: BarCfg = { name: 'What we do' };
       const PHIL: BarCfg = { name: 'The micro/macro architecture' };
       const CONTACT: BarCfg = { name: 'Get In Touch' };
@@ -197,47 +177,13 @@ import CtaScene from '../components/modules/CtaScene.astro';
       // long simultaneous cross-fade (keeps scenes from smearing into each other).
       const OV = T.crossDur * 0.6;
 
-      const hud = document.getElementById('dev-hud');
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: track, start: 'top top', end: 'bottom bottom', scrub: 0.6, invalidateOnRefresh: true,
-          onUpdate: () => { if (hud) hud.textContent = `t ${tl.time().toFixed(2)} / ${tl.duration().toFixed(1)}   p ${tl.progress().toFixed(3)}   y ${Math.round(window.scrollY)}`; },
-        },
-      });
-
-      const boundary = (pos: number | string, down: BarCfg | null, up: BarCfg | null) => tl.call(() => {
-        const dir = tl.scrollTrigger ? tl.scrollTrigger.direction : 1;
-        const cfg = dir === 1 ? down : up;
-        if (cfg) setBar(cfg); else clearBar();
-      }, [], pos);
-
-      // A label change scoped to ONE scroll direction, at a specific timeline position.
-      const atDir = (pos: number | string, dir: 1 | -1, cfg: BarCfg | null) => tl.call(() => {
-        if ((tl.scrollTrigger ? tl.scrollTrigger.direction : 1) !== dir) return;
-        if (cfg) setBar(cfg); else clearBar();
-      }, [], pos);
-      // Cross-fade label: on the way DOWN it changes only once the incoming scene is IN FOCUS
-      // (buffered past the fade crossover, so you never see the new label over the old scene); on the
-      // way UP it's snappier — fires near the transition start where the previous scene is already back.
-      const DOWN_BUF = (OV + T.crossDur * 0.6).toFixed(3); // incoming ~in focus
-      const crossLabel = (start: string, downCfg: BarCfg, upCfg: BarCfg) => {
-        // DOWN: the old label leaves WITH its scene (clear at the fade start), then the new label
-        // scrambles in only once the incoming scene is in focus — never lingers over the old scene.
-        atDir(start, 1, null);
-        atDir(start + '+=' + DOWN_BUF, 1, downCfg);
-        // UP: mirror — clear the (now-outgoing) label as its scene leaves, restore the previous once back.
-        atDir(start + '+=' + DOWN_BUF, -1, null);
-        atDir(start + '+=0.2', -1, upCfg);
-      };
+      const tl = createStageTimeline(track);
+      const { boundary, crossLabel } = stageLabels(tl, pageBar, T.crossDur);
 
       // ENTER THE VOID → Services fades in through the fog.
-      tl.to({}, { duration: T.heroHold });
-      if (gridBg) tl.fromTo(gridBg, { scale: 1 }, { scale: T.voidScale, ease: 'power2.in', duration: T.fogStart + T.fogDur }, 0);
-      tl.fromTo(portal, { opacity: 0, scale: 0.3 }, { opacity: 0.7, scale: 2.0, ease: 'power2.in', duration: T.fogDur + 0.3 }, T.portalStart);
-      tl.to(portal, { opacity: 0, ease: 'power1.out', duration: 0.5 }, T.fogStart + T.fogDur);
-      tl.to(fog, { opacity: 1, ease: 'none', duration: T.fogDur }, T.fogStart);
+      enterTheVoid(tl, { fog, portal, gridBg }, T);
       tl.to(scServices, { autoAlpha: 1, ease: 'power2.out', duration: 0.45 }, T.fogStart + T.fogDur);
-      tl.fromTo(bar, { clipPath: 'inset(0 0 100% 0)', opacity: 0.35 }, { clipPath: 'inset(0 0 0% 0)', opacity: 1, ease: 'steps(6)', duration: 0.14 }, T.barPush);
+      pushInBar(tl, bar, T.barPush);
       boundary(1.91, SERVICES, null);
       tl.to({}, { duration: 0.7 }); // settle on services
 
@@ -267,23 +213,10 @@ import CtaScene from '../components/modules/CtaScene.astro';
     document.addEventListener('astro:page-load', initStage);
     if (document.readyState === 'complete') initStage();
     else window.addEventListener('load', initStage);
-  </script>
 
-  <script>
-    // MOBILE-only: reveal each snap panel as it enters (desktop uses the GSAP stage).
-    function initMobileScenes() {
-      if (!window.matchMedia('(max-width: 767px)').matches) return;
-      const track = document.getElementById('stage-track');
-      if (!track || track.dataset.mobInit === '1') return;
-      track.dataset.mobInit = '1';
-      track.classList.add('mob-reveal');
-      const io = new IntersectionObserver((entries) => {
-        entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } });
-      }, { threshold: 0.2 });
-      track.querySelectorAll('.scene').forEach((s) => io.observe(s));
-    }
-    document.addEventListener('astro:page-load', initMobileScenes);
-    if (document.readyState === 'complete') initMobileScenes();
-    else window.addEventListener('load', initMobileScenes);
+    // MOBILE-only: reveal each unstacked scene as it enters (desktop uses the GSAP stage).
+    document.addEventListener('astro:page-load', initMobileSceneReveal);
+    if (document.readyState === 'complete') initMobileSceneReveal();
+    else window.addEventListener('load', initMobileSceneReveal);
   </script>
 </Layout>

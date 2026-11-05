@@ -8,8 +8,8 @@
 import Layout from '../../layouts/Layout.astro';
 import Solaris from '../../components/Solaris.astro';
 import FocusScroll from '../../components/FocusScroll.astro';
-import UIUXHero from '../../components/modules/solutions/UIUXHero.tsx';
-import UIUXAnalysis from '../../components/modules/solutions/UIUXAnalysis.tsx';
+import SolutionHero from '../../components/modules/solutions/SolutionHero.tsx';
+import SolutionAnalysis from '../../components/modules/solutions/SolutionAnalysis.astro';
 import ConceptGrid from '../../components/modules/ConceptGrid.tsx';
 import CtaScene from '../../components/modules/CtaScene.astro';
 import UiuxNodes from '../../components/modules/UiuxNodes.astro';
@@ -19,6 +19,32 @@ const uiuxApplications = [
   { id: 2, title: "Web Applications", icon: "web", desc: "Form interactions, loading states, real-time updates and collaboration cues." },
   { id: 3, title: "Hardware Products", icon: "hardware", desc: "Power states, connectivity, errors and physical button feedback sounds." },
 ];
+
+// Page copy for the shared hero + analysis components.
+const hero = {
+  title: "Sound that makes\ninterfaces intuitive",
+  blurb: [
+    "Enhance usability and provide critical feedback through purposeful audio.",
+    " We bridge the gap between digital interaction and human intuition.",
+  ],
+  reelSlug: "user-experience",
+};
+const analysis = {
+  challenge: {
+    heading: "Digital products create disconnect",
+    paragraphs: [
+      "Most digital tech either operates in silence or communicates via harsh monophonic alerts and notifications. Users miss feedback, misunderstand states and feel disconnected from the interface.",
+      "Nuanced sound design bridges this gap and reduces the friction between human and machine - building trust and creating a more human-centered digital experience.",
+    ],
+  },
+  approach: {
+    heading: "Functional sound, beautiful execution",
+    paragraphs: [
+      "We map our brand-focussed audio assets to your product's interaction patterns, identify key feedback moments and design a cohesive sound system that enhances usability without becoming annoying.",
+      "Every sound is built from the ground up, tested for repetition tolerance and emotional impact - ensuring it serves the user, not just the brand.",
+    ],
+  },
+};
 ---
 
 <Layout
@@ -40,7 +66,7 @@ const uiuxApplications = [
 
   {/* Hero: sticks at top of container, content scrolls over it */}
   <div id="hero-sticky" class="md:sticky top-0 z-[1] min-h-svh flex flex-col pt-[var(--header-h)]">
-    <UIUXHero client:load />
+    <SolutionHero client:load {...hero} />
   </div>
 
   <div class="hero-runway" aria-hidden="true"></div>
@@ -52,7 +78,7 @@ const uiuxApplications = [
       <FocusScroll count={1} barOffset id="analysis" class="!bg-background/50 backdrop-blur-xl">
         <UiuxNodes page />
         <div class="container-page w-full">
-          <UIUXAnalysis client:visible />
+          <SolutionAnalysis {...analysis} />
         </div>
       </FocusScroll>
     </div>

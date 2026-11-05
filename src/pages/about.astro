@@ -336,11 +336,10 @@ import Clients from '../components/modules/Clients.tsx';
   <script>
     import { gsap } from 'gsap';
     import { ScrollTrigger } from 'gsap/ScrollTrigger';
-    import { scrambleIn } from '../lib/scene-kit';
     import { buildPhilosophyScene } from '../lib/scenes/philosophy';
+    import { createStageTimeline, createPageBar, stageLabels, prepareVoid, enterTheVoid, pushInBar, type BarCfg } from '../lib/stage';
+    import { fillPixelVeil } from '../lib/pixel-veil';
     gsap.registerPlugin(ScrollTrigger);
-
-    type BarCfg = { name: string; bg?: string; text?: string; glow?: string };
 
     function initStage() {
       const track = document.getElementById('stage-track');
@@ -360,30 +359,17 @@ import Clients from '../components/modules/Clients.tsx';
       const vFounders = scFounders.querySelector<HTMLElement>('[data-veil]')!;
       const gridBg = document.getElementById('grid-bg'); // fixed binary-rain layer — for the "enter the void" zoom
 
-      // Build a pixel veil (large cells) sized to its scene body.
-      const CELL = 54;
+      // Build a pixel veil (large cells) sized to its scene body (falls back to the viewport size).
       const buildVeil = (veil: HTMLElement) => {
         const host = veil.parentElement as HTMLElement;
-        const w = host.clientWidth || window.innerWidth;
-        const h = host.clientHeight || window.innerHeight;
-        const cols = Math.max(1, Math.ceil(w / CELL));
-        const rows = Math.max(1, Math.ceil(h / CELL));
-        const n = cols * rows;
-        const order = Array.from({ length: n }, (_, i) => i);
-        for (let i = n - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [order[i], order[j]] = [order[j], order[i]]; }
-        veil.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-        veil.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
-        const frag = document.createDocumentFragment();
-        for (let i = 0; i < n; i++) { const c = document.createElement('i'); c.style.setProperty('--o', (order[i] / n).toFixed(4)); frag.appendChild(c); }
-        veil.replaceChildren(frag);
+        fillPixelVeil(veil, host.clientWidth || window.innerWidth, host.clientHeight || window.innerHeight);
       };
       // BOOKMARK (pixels): the pixel veil is dropped for now — founders just fade in. Re-enable
       // buildVeil + the two veil tweens in the timeline to bring the pixel break-up back.
       // buildVeil(vFounders);
       // vFounders.style.setProperty('--reveal', '-0.05');
       void vFounders; void buildVeil; // keep refs alive while bookmarked
-      gsap.set(fog, { opacity: 0 });                                            // solid beige, uniform coverage
-      gsap.set(portal, { opacity: 0, scale: 0.3, transformOrigin: '50% 45%' }); // soft bloom from the void centre
+      prepareVoid(fog, portal); // solid beige fog + soft bloom from the void centre, both hidden
       // autoAlpha (opacity + visibility) so a faded-OUT scene goes visibility:hidden and stops
       // intercepting the pointer — otherwise the top-z scene (e.g. CTA at z40) dictates the cursor
       // even at opacity 0, giving a light (dark-scene) cursor over the beige scenes. With autoAlpha
@@ -396,21 +382,9 @@ import Clients from '../components/modules/Clients.tsx';
       buildVeil(vCta);                      // CTA pixel veil (dark cells, --veil-color = void)
       vCta.style.setProperty('--reveal', '-0.05'); // start fully covered
 
-      // ── Persistent bar helpers ────────────────────────────────────────────────
+      // ── Persistent bar ────────────────────────────────────────────────────────
       const bar = document.getElementById('page-bar')!;
-      const label = bar.querySelector<HTMLElement>('[data-page-label]')!;
-      const DEFAULT_BG = 'linear-gradient(90deg, var(--solaris-from) 0%, var(--solaris-mid) 55%, var(--solaris-to) 100%)';
-      const DEFAULT_GLOW = 'var(--solaris-glow)';
-      let current = '';
-      const setBar = (s: BarCfg) => {
-        if (s.name === current) return;
-        current = s.name;
-        label.style.opacity = '1';
-        label.style.color = s.text ?? '';
-        bar.style.background = s.bg ?? DEFAULT_BG;
-        bar.style.boxShadow = s.glow ?? DEFAULT_GLOW;
-        scrambleIn(label, s.name, { duration: 650 });
-      };
+      const pageBar = createPageBar(bar);
       const FOUNDERS: BarCfg = { name: 'Who We Are' };
       const PHIL: BarCfg = { name: 'Our Philosophy', bg: '#ffffff', text: '#141414', glow: '0 0 24px rgba(255,255,255,0.35)' };
       const VALUES: BarCfg = { name: 'Our Values' };
@@ -440,60 +414,19 @@ import Clients from '../components/modules/Clients.tsx';
       // Incoming layer starts fading in only after the outgoing is ~60% gone — small overlap, not a
       // long simultaneous cross-fade (stops scenes smearing into each other).
       const OV = T.crossDur * 0.6;
-      const hud = document.getElementById('dev-hud');
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: track, start: 'top top', end: 'bottom bottom', scrub: 0.6, invalidateOnRefresh: true,
-          onUpdate: () => { if (hud) hud.textContent = `t ${tl.time().toFixed(2)} / ${tl.duration().toFixed(1)}   p ${tl.progress().toFixed(3)}   y ${Math.round(window.scrollY)}`; },
-        },
-      });
-      // DIRECTION-AWARE bar label at a scene boundary: scrolling DOWN sets the section we're entering;
-      // scrolling UP sets the section we're now (re)entering from its end — so the label always shows
-      // the CURRENT scene, both ways. (A plain tl.call fires the same label in both directions.)
-      const clearBar = () => { current = ''; label.style.opacity = '0'; };
-      const boundary = (pos: number | string, down: BarCfg | null, up: BarCfg | null) => tl.call(() => {
-        const dir = tl.scrollTrigger ? tl.scrollTrigger.direction : 1;
-        const cfg = dir === 1 ? down : up;
-        if (cfg) setBar(cfg); else clearBar();
-      }, [], pos);
-      // A label change scoped to ONE scroll direction at a specific position.
-      const atDir = (pos: number | string, dir: 1 | -1, cfg: BarCfg | null) => tl.call(() => {
-        if ((tl.scrollTrigger ? tl.scrollTrigger.direction : 1) !== dir) return;
-        if (cfg) setBar(cfg); else clearBar();
-      }, [], pos);
-      // Cross-fade label: DOWN changes only once the incoming scene is IN FOCUS (buffered past the
-      // fade crossover — you never see the new label over the outgoing scene); UP is snappier (fires
-      // near the transition start, where the previous scene is already coming back).
-      const DOWN_BUF = (OV + T.crossDur * 0.6).toFixed(3);
-      const crossLabel = (start: string, downCfg: BarCfg, upCfg: BarCfg) => {
-        // DOWN: the old label leaves WITH its scene (clear at the fade start), then the new label
-        // scrambles in only once the incoming scene is in focus — never lingers over the old scene.
-        atDir(start, 1, null);
-        atDir(start + '+=' + DOWN_BUF, 1, downCfg);
-        // UP: mirror — clear the (now-outgoing) label as its scene leaves, restore the previous once back.
-        atDir(start + '+=' + DOWN_BUF, -1, null);
-        atDir(start + '+=0.2', -1, upCfg);
-      };
-      tl.to({}, { duration: T.heroHold });                                                    // hero holds + copy recedes
-      // ENTER THE VOID — the binary rain rushes toward the screen (accelerating zoom).
-      if (gridBg) tl.fromTo(gridBg, { scale: 1 }, { scale: T.voidScale, ease: 'power2.in', duration: T.fogStart + T.fogDur }, 0);
-      // PORTAL — a soft warm bloom from the centre, starting EARLY so it follows the receding text
-      // into the void, then dissipating. Subtle, not a flash.
-      tl.fromTo(portal, { opacity: 0, scale: 0.3 }, { opacity: 0.7, scale: 2.0, ease: 'power2.in', duration: T.fogDur + 0.3 }, T.portalStart);
-      tl.to(portal, { opacity: 0, ease: 'power1.out', duration: 0.5 }, T.fogStart + T.fogDur);
-      // FOG — solid beige, uniform (full coverage, no cutoff).
-      tl.to(fog, { opacity: 1, ease: 'none', duration: T.fogDur }, T.fogStart);
+      const tl = createStageTimeline(track);
+      // Direction-aware bar labels: `boundary` at a scene edge (label = CURRENT scene both ways);
+      // `crossLabel` on a cross-fade (DOWN waits until the incoming scene is in focus, UP is snappy).
+      const { boundary, crossLabel } = stageLabels(tl, pageBar, T.crossDur);
+      // ENTER THE VOID — hero holds + copy recedes, binary rain zooms, portal blooms, beige fog takes over.
+      enterTheVoid(tl, { fog, portal, gridBg }, T);
       // BOOKMARK (pixels): founders just FADE in for now. Re-enable these two to bring pixels back:
       //   tl.to(scFounders, { opacity: 1, duration: T.veilInDur }, T.veilInStart);
       //   tl.to(vFounders, { '--reveal': 1, duration: T.pixDur }, T.pixStart);
       tl.to(scFounders, { autoAlpha: 1, ease: 'none', duration: 0.9 }, T.fogStart + T.fogDur);  // founders fade in (no pixels)
-      // SOLARIS BAR — bitmappy "data-load" push-down from the header (no flip, no gradual grow): it
-      // reveals in discrete pixel bands (steps ease) with a brief flicker, then the label scrambles
-      // in (binary) — in place + scrambled by ~t 1.90.
-      tl.fromTo(bar,
-        { clipPath: 'inset(0 0 100% 0)', opacity: 0.35 },
-        { clipPath: 'inset(0 0 0% 0)', opacity: 1, ease: 'steps(6)', duration: 0.14 },
-        T.barPush);
+      // SOLARIS BAR — bitmappy "data-load" push-down from the header, then the label scrambles in
+      // (binary) — in place + scrambled by ~t 1.90.
+      pushInBar(tl, bar, T.barPush);
       boundary(1.91, FOUNDERS, null);   // down → "Who We Are"; up → clear (back to hero)
       tl.to({}, { duration: T.foundersHold });      // settle on the resolved founders
 
@@ -561,7 +494,13 @@ import Clients from '../components/modules/Clients.tsx';
         const setProg = (idx: number, p: number) => vbars.forEach((b, i) => { if (b) b.style.setProperty('--progress', String(i === idx ? p : 0)); });
         applyFocus(0); setProg(0, 0);
         let active = 0, hover: number | null = null, elapsed = 0, last: number | undefined;
-        const visible = () => parseFloat(getComputedStyle(scValues).opacity) > 0.5;
+        // Read the opacity GSAP writes inline (autoAlpha) instead of getComputedStyle — this runs every
+        // frame, and getComputedStyle forced a synchronous style recalc on each one. Falls back to the
+        // computed value only if no inline opacity has been set.
+        const visible = () => {
+          const o = scValues.style.opacity;
+          return parseFloat(o !== '' ? o : getComputedStyle(scValues).opacity) > 0.5;
+        };
         const stepV = (t: number) => {
           const dt = last === undefined ? 0 : t - last; last = t;
           if (hover !== null) { elapsed = 0; setProg(hover, 1); }
@@ -590,20 +529,10 @@ import Clients from '../components/modules/Clients.tsx';
 
   <script>
     // MOBILE-only: reveal each unstacked scene as it enters (desktop uses the GSAP stage).
-    function initMobileScenes() {
-      if (!window.matchMedia('(max-width: 767px)').matches) return;
-      const track = document.getElementById('stage-track');
-      if (!track || track.dataset.mobInit === '1') return;
-      track.dataset.mobInit = '1';
-      track.classList.add('mob-reveal');
-      const io = new IntersectionObserver((entries) => {
-        entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } });
-      }, { threshold: 0.2 });
-      track.querySelectorAll('.scene').forEach((s) => io.observe(s));
-    }
-    document.addEventListener('astro:page-load', initMobileScenes);
-    if (document.readyState === 'complete') initMobileScenes();
-    else window.addEventListener('load', initMobileScenes);
+    import { initMobileSceneReveal } from '../lib/pixel-veil';
+    document.addEventListener('astro:page-load', initMobileSceneReveal);
+    if (document.readyState === 'complete') initMobileSceneReveal();
+    else window.addEventListener('load', initMobileSceneReveal);
   </script>
 
   {/* The bitmap fader driver is GLOBAL now (Layout.astro). */}

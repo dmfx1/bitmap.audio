@@ -1,8 +1,6 @@
 ---
 /* src/layouts/Layout.astro */
 import '../styles/global.css';
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { SoundProvider } from '../context/SoundContext.tsx';
 import Navigation from '../components/Navigation.tsx';
 import Footer from '../components/Footer.astro';
 import Solaris from '../components/Solaris.astro';
@@ -12,10 +10,12 @@ import { resolvePageName } from '../config/brandMotion';
 const { title, description = "", canonical = "" } = Astro.props;
 const currentPath = Astro.url.pathname;
 const pageName = resolvePageName(currentPath);
-const isLandingPage = currentPath === "/" || currentPath === "/index.html";
+// NB: "/" (index.astro) is a standalone redirect and never renders this layout, so there is no
+// landing-page branch here. The returns page is the only full-bleed page: it owns its own
+// scroll + GSAP, so it opts out of the global header chrome, rain, footer and fader.
 const isReturnsPage = currentPath === "/returns" || currentPath === "/returns/";
 const isFaqPage = currentPath === "/faq" || currentPath === "/faq/";
-const isFullBleed = isLandingPage || isReturnsPage;
+const showChrome = !isReturnsPage;
 const siteUrl = "https://bitmap.audio";
 const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
 
@@ -49,6 +49,11 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
     {description && <meta name="description" content={description} />}
     <link rel="canonical" href={resolvedCanonical} />
     <link rel="preload" href="/fonts/DepartureMono-Regular.woff2" as="font" type="font/woff2" crossorigin />
+    {/* Google Fonts loaded in parallel from <head> (was a render-blocking @import chained inside
+        global.css). Same families/weights; the --font-mono switch in global.css still applies. */}
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@300;400&display=swap" />
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-1 0.5 7 8' shape-rendering='crispEdges' fill='black' stroke='black' stroke-width='0.25'><rect x='0' y='1' width='1' height='1' /><rect x='1' y='2' width='1' height='5' /><rect x='0' y='4' width='4' height='1' /><rect x='4' y='4' width='1' height='3' /><rect x='1' y='7' width='3' height='1' /></svg>" />
     <title>{title}</title>
     <!-- Open Graph -->
@@ -88,102 +93,82 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
   </head>
   
   <body class="bg-background text-foreground antialiased selection:bg-primary/30">
-    <SoundProvider client:load>
-      <TooltipProvider client:load>
-        
-        {/* Bitmap grid removed site-wide (only the returns pages keep it, since
-            those are left untouched). Rain stays. */}
-        <GridBackground
-          showRain={!isLandingPage && !isReturnsPage}
-          showGrid={isReturnsPage}
-        />
+    {/* ONE rAF-throttled scroll scheduler shared by every inline scroll effect below (fader, nav
+        contrast, nav cover, mobile glow, section docking, header squish). Previously each script
+        added its own scroll listener and queued a rAF per scroll EVENT, so a busy frame ran every
+        handler several times. Each handler is a pure function of scroll position, so running them
+        once per frame is visually identical. Resize/load listeners stay with their own scripts. */}
+    <script is:inline>
+      (function () {
+        var fns = [], queued = false;
+        function run() { queued = false; for (var i = 0; i < fns.length; i++) fns[i](); }
+        window.addEventListener('scroll', function () {
+          if (!queued) { queued = true; window.requestAnimationFrame(run); }
+        }, { passive: true });
+        window.__bmOnScroll = function (fn) { fns.push(fn); };
+      })();
+    </script>
 
-        { !isLandingPage && <Navigation currentPath={currentPath} pageName={pageName} client:load /> }
+    {/* Bitmap grid removed site-wide (only the returns page keeps it). Rain everywhere else. */}
+    <GridBackground showRain={showChrome} showGrid={isReturnsPage} />
 
-        {/* Solid cap over the very top so NOTHING shows through the nav bar at the
-            top of the page (scrollY 0) — the binary rain is hidden behind it. Sits
-            below the nav (z-50) + brand (z-60), above the rain. Fades out on scroll,
-            so content shows through the nav once you start scrolling. Site-wide
-            (except landing/returns). */}
-        {!isLandingPage && !isReturnsPage && (
-          <div id="nav-top-cover" class="fixed top-0 left-0 right-0 h-48 z-40 pointer-events-none bg-gradient-to-b from-background from-[70%] to-transparent"></div>
-        )}
+    <Navigation currentPath={currentPath} pageName={pageName} client:load />
 
-        {/* HEADER BAR — the "squish then normalise" surface. Transparent at the very top
-            (brand floats over the hero); as you scroll it fades in as a SOLID bar and the
-            brand + nav squish into it, locking into a compact sticky header. Its bottom
-            leaves an equal gutter above and below the brand (symmetric, and tracks the
-            brand's scroll scale so the gap stays balanced as it squishes). Background is
-            hsl(var(--background)) so it ADAPTS to the section theme (dark hero -> beige
-            body once the Phase-4 colour handoff lands). Below nav/brand, above content. */}
-        {!isLandingPage && !isReturnsPage && (
-          <div
-            id="header-bar"
-            class="fixed top-0 left-0 right-0 z-[33] pointer-events-none"
-            style="height: var(--header-h); background: hsl(183 34% 18% / 0.34); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); opacity: var(--header-solid, 0);"
-          ></div>
-        )}
+    {showChrome && (
+      <Fragment>
+        {/* Solid cap over the very top so NOTHING shows through the nav bar at scrollY 0 — the binary
+            rain is hidden behind it. Below the nav (z-50) + brand (z-60), above the rain. Fades out on
+            scroll so content shows through the nav once you start scrolling. */}
+        <div id="nav-top-cover" class="fixed top-0 left-0 right-0 h-48 z-40 pointer-events-none bg-gradient-to-b from-background from-[70%] to-transparent"></div>
+
+        {/* HEADER BAR — the "squish then normalise" surface. Transparent at the top (brand floats over
+            the hero); on scroll it fades in as a solid bar and the brand + nav squish into it. Below
+            nav/brand, above content. Driven by --header-solid (header squish script below). */}
+        <div
+          id="header-bar"
+          class="fixed top-0 left-0 right-0 z-[33] pointer-events-none"
+          style="height: var(--header-h); background: hsl(183 34% 18% / 0.34); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); opacity: var(--header-solid, 0);"
+        ></div>
 
         {/* DOCK TITLE — the section title rendered crisp ABOVE the glass header (below logo/nav) so it
             stays legible when the solaris bar docks behind the glass. Driven by the docking script. */}
-        {!isLandingPage && !isReturnsPage && (
-          <div
-            id="dock-title"
-            aria-hidden="true"
-            class="fixed top-0 left-0 right-0 z-[35] pointer-events-none flex items-center justify-center"
-            style="height: var(--header-h); opacity: 0; transition: opacity 0.2s ease;"
-          ><span class="solaris-text"></span></div>
+        <div
+          id="dock-title"
+          aria-hidden="true"
+          class="fixed top-0 left-0 right-0 z-[35] pointer-events-none flex items-center justify-center"
+          style="height: var(--header-h); opacity: 0; transition: opacity 0.2s ease;"
+        ><span class="solaris-text"></span></div>
+      </Fragment>
+    )}
+
+    <div class="relative flex flex-col min-h-svh">
+      <main class="flex-1 flex flex-col items-center">
+        <div class="w-full flex-1 flex flex-col">
+          <slot />
+        </div>
+
+        {/* Footer on every chrome page except FAQ (which ends flush at its content). The returns
+            page is full-bleed: no footer, but it keeps the bottom runway. */}
+        {showChrome && !isFaqPage && (
+          <div class="w-full relative z-20">
+            {/* Solaris beam lives inside the Footer (was doubled here). */}
+            <Footer />
+          </div>
         )}
 
-        <div class="relative flex flex-col min-h-svh">
-          <main class="flex-1 flex flex-col items-center"> 
-            {isFullBleed ? (
-              <>
-                <div class="w-full flex-1 flex flex-col">
-                  <slot />
-                </div>
-                {!isLandingPage && !isReturnsPage && (
-                  <div class="w-full relative z-20">
-                    <Footer />
-                  </div>
-                )}
-                {/* Bottom "sandwich" — a transparent runway so the fixed binary rain shows at the
-                    foot of the page, mirroring the hero at the top. Tune with --page-bottom-runway. */}
-                <div class="page-bottom-runway w-full" aria-hidden="true"></div>
-              </>
-            ) : (
-              <>
-                <div class="w-full flex-1 flex flex-col">
-                  <slot />
-                </div>
-                
-                {/* FAQ has no footer and no bottom buffer — it ends flush at its content. */}
-                {!isFaqPage && (
-                  <Fragment>
-                    <div class="w-full relative z-20">
-                      {/* Solaris beam removed here — the Footer renders its own (was doubled). */}
-                      <Footer />
-                    </div>
-
-                    {/* Bottom "sandwich" — transparent runway so the fixed binary rain shows at the
-                        foot of the page (see --page-bottom-runway). */}
-                    <div class="page-bottom-runway w-full" aria-hidden="true"></div>
-                  </Fragment>
-                )}
-              </>
-            )}
-          </main>
-        </div>
-      </TooltipProvider>
-    </SoundProvider>
+        {/* Bottom "sandwich" — transparent runway so the fixed binary rain shows at the foot of the
+            page, mirroring the hero at the top. Tune with --page-bottom-runway. */}
+        {!isFaqPage && <div class="page-bottom-runway w-full" aria-hidden="true"></div>}
+      </main>
+    </div>
 
     <div id="cursor-glow" class="fixed w-32 h-32 bg-primary/20 rounded-full blur-[80px] pointer-events-none z-[9998] hidden md:block translate-x-[-50%] translate-y-[-50%] transition-transform duration-700 ease-out"></div>
     {/* Adaptive bitmap cursor — mix-blend-difference (see global.css #cursor-bit) so it stays visible
         on ANY background. JS positions it + toggles has-bit-cursor (hides the native dot). */}
     <div id="cursor-bit"></div>
 
-    {/* GLOBAL bitmap fader scrollbar + position tracker (bottom-left). Off on landing/returns. */}
-    {!isLandingPage && !isReturnsPage && (
+    {/* GLOBAL bitmap fader scrollbar + position tracker (bottom-left). Off on returns. */}
+    {showChrome && (
       <Fragment>
         <div class="scroll-fader" aria-hidden="true">
           <div class="scroll-fader-fill" data-fader-fill></div>
@@ -201,17 +186,22 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
       const bitOn = bit && window.matchMedia('(min-width: 768px) and (pointer: fine)').matches;
       if (bitOn) document.documentElement.classList.add('has-bit-cursor');
 
+      // One rAF per frame, painting the LATEST pointer position (was one rAF per mousemove event).
+      let mx = 0, my = 0, cursorQueued = false;
+      const paintCursor = () => {
+        cursorQueued = false;
+        if (glow) {
+          glow.style.left = `${mx}px`;
+          glow.style.top = `${my}px`;
+        }
+        if (bitOn) {
+          bit.style.left = `${mx}px`;
+          bit.style.top = `${my}px`;
+        }
+      };
       document.addEventListener('mousemove', (e) => {
-        window.requestAnimationFrame(() => {
-          if (glow) {
-            glow.style.left = `${e.clientX}px`;
-            glow.style.top = `${e.clientY}px`;
-          }
-          if (bitOn) {
-            bit.style.left = `${e.clientX}px`;
-            bit.style.top = `${e.clientY}px`;
-          }
-        });
+        mx = e.clientX; my = e.clientY;
+        if (!cursorQueued) { cursorQueued = true; window.requestAnimationFrame(paintCursor); }
       });
 
       // Any element with its OWN native cursor (links, buttons, form fields) hides the blend dot so
@@ -238,22 +228,6 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
         if (glow) glow.classList.remove('animate-glow-pulse');
       });
 
-      // ==========================================
-      // THE LATERAL FIX: MANUAL PAGE TRANSITIONS
-      // ==========================================
-      document.querySelectorAll('a[href^="/"]').forEach(link => {
-        link.addEventListener('click', (e) => {
-          if (e.ctrlKey || e.metaKey || e.shiftKey) return;
-          
-          const targetPath = link.getAttribute('href');
-          if (targetPath === window.location.pathname) return;
-
-          // No exit animation on internal navigation — the intro fade only plays on first
-          // visit (?intro=1). Navigate immediately, no fade-out.
-          e.preventDefault();
-          window.location.href = targetPath;
-        });
-      });
     </script>
 
     {/* GLOBAL fader + tracker driver — reflects document-scroll progress. On stage pages (which have
@@ -280,11 +254,11 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
             if (cap) cap.style.top = (top + p * trackH) + 'px';
             if (hud && !hasStage) hud.textContent = 'p ' + p.toFixed(3) + '  y ' + Math.round(window.scrollY);
           };
-          const onScroll = function () { window.requestAnimationFrame(update); };
+          const onResize = function () { window.requestAnimationFrame(update); };
           const lenis = window.__lenis;
           if (lenis && lenis.on) lenis.on('scroll', update);
-          window.addEventListener('scroll', onScroll, { passive: true });
-          window.addEventListener('resize', onScroll, { passive: true });
+          window.__bmOnScroll(update);
+          window.addEventListener('resize', onResize, { passive: true });
           update();
         }
         document.addEventListener('astro:page-load', initGlobalFader);
@@ -308,11 +282,11 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
             const overOat = !!(el && el.closest && el.closest('.theme-oat'));
             root.classList.toggle('nav-over-oat', overOat);
           };
-          const onScroll = function () { window.requestAnimationFrame(update); };
+          const onResize = function () { window.requestAnimationFrame(update); };
           const lenis = window.__lenis;
           if (lenis && lenis.on) lenis.on('scroll', update);
-          window.addEventListener('scroll', onScroll, { passive: true });
-          window.addEventListener('resize', onScroll, { passive: true });
+          window.__bmOnScroll(update);
+          window.addEventListener('resize', onResize, { passive: true });
           update();
         }
         document.addEventListener('astro:page-load', initNavContrast);
@@ -336,9 +310,7 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
           });
         };
 
-        window.addEventListener('scroll', () => {
-          window.requestAnimationFrame(updateGlow);
-        }, { passive: true });
+        window.__bmOnScroll(updateGlow);
 
         updateGlow();
       }
@@ -354,7 +326,7 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
           const o = Math.max(0, 1 - window.scrollY / 160);
           cover.style.opacity = o.toFixed(3);
         };
-        window.addEventListener('scroll', () => window.requestAnimationFrame(update), { passive: true });
+        window.__bmOnScroll(update);
         update();
       })();
     </script>
@@ -420,7 +392,7 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
           }
         };
         collect();
-        window.addEventListener('scroll', function () { requestAnimationFrame(update); }, { passive: true });
+        window.__bmOnScroll(update);
         window.addEventListener('resize', function () { collect(); update(); }, { passive: true });
         window.addEventListener('load', function () { collect(); update(); });
         update();
@@ -464,7 +436,7 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
           root.style.setProperty('--nav-lift', (-(brandH - panelH) * navScale * p).toFixed(1) + 'px');
           root.style.setProperty('--header-solid', prog(y, SOLID_DIST).toFixed(3));
         };
-        window.addEventListener('scroll', () => window.requestAnimationFrame(update), { passive: true });
+        window.__bmOnScroll(update);
         update();
       })();
     </script>

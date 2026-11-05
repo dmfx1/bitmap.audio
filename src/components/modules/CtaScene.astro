@@ -59,26 +59,18 @@ const { head, href = '/contact', linkLabel = 'start_project', pixelate = true } 
 </style>
 
 <script>
+  import { fillPixelVeil } from '../../lib/pixel-veil';
+
   // Build the pixel veil for every CTA on the page, sized to its scene body, starting fully covered.
   function initCtaVeils() {
     document.querySelectorAll<HTMLElement>('[data-cta-veil]').forEach((veil) => {
       if (veil.dataset.built === '1') return;
       const host = veil.parentElement as HTMLElement | null;
       if (!host) return;
-      const CELL = 54;
       const build = () => {
         const w = host.clientWidth, h = host.clientHeight;
         if (!w || !h) return false;
-        const cols = Math.max(1, Math.ceil(w / CELL));
-        const rows = Math.max(1, Math.ceil(h / CELL));
-        const n = cols * rows;
-        const order = Array.from({ length: n }, (_, i) => i);
-        for (let i = n - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [order[i], order[j]] = [order[j], order[i]]; }
-        veil.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-        veil.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
-        const frag = document.createDocumentFragment();
-        for (let i = 0; i < n; i++) { const c = document.createElement('i'); c.style.setProperty('--o', (order[i] / n).toFixed(4)); frag.appendChild(c); }
-        veil.replaceChildren(frag);
+        fillPixelVeil(veil, w, h);
         veil.style.setProperty('--reveal', '-0.05'); // start fully covered
         veil.dataset.built = '1';
         return true;
