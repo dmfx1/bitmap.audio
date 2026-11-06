@@ -53,7 +53,7 @@ export default function Hero() {
             <div className="flex-1 flex flex-col justify-start md:justify-start min-h-0">
               <div data-hero-pull="sub" className="hero-copy">
                 <p
-                  className={`text-foreground/90 text-2xl md:text-5xl font-mono transition-all duration-1000 ${
+                  className={`text-foreground/90 type-lead font-mono transition-all duration-1000 ${
                     showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
                   }`}
                 >

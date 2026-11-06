@@ -48,7 +48,10 @@ html.lenis body { height: auto; }
      in a full-viewport section so it isn't pushed above the optical centre by the sticky header.
      KEEP CONSISTENT: scene stages, peel panels, and any full-screen centred div should offset by
      ~half of this. */
-  --header-h: calc(var(--page-gutter) * 2 + var(--brandH) * var(--brand-scale, 1));
+  /* Vertical gutter above+below the brand. The squish script shrinks this so the COMPACT header
+     lands exactly on --solaris-height WITHOUT shrinking the brand past its floor (decoupled). */
+  --header-pad: var(--page-gutter);
+  --header-h: calc(var(--header-pad, var(--page-gutter)) * 2 + var(--brandH) * var(--brand-scale, 1));
   /* One knob for how wide hero copy (title + body) is allowed to run, site-wide. */
   --hero-copy-max: 64rem;
   /* Scroll runway after each sticky hero — how long the hero holds (pull plays) before
@@ -898,9 +901,32 @@ a, button, [role="button"] {
     border-color: hsl(var(--primary) / 0.3);
   }
 
+  /* ── SHARED TYPE SCALE (2026-11-05) — change a size HERE and every scene using it follows.
+     Used by: Hero (title + lead), SoftCta, HowWeWork. Values reproduce the previous sizes exactly.
+       --type-display  big statement titles      (.heading-hero)
+       --type-lead     the line under a title    (.type-lead)  = was text-2xl / md:text-5xl
+       --type-title    card / step titles        (.type-title)
+       --type-body     supporting copy           (.type-body)                                  */
+  :root {
+    --type-display: clamp(2.75rem, 11vw, 4.25rem);   /* MOBILE: fluid ~44–68px */
+    --type-lead: 1.5rem;   --type-lead-lh: 2rem;
+    --type-title: 1.75rem; --type-title-lh: 1.15;
+    --type-body: 1.125rem; --type-body-lh: 1.55;
+  }
+  @media (min-width: 768px) {
+    :root {
+      --type-display: 6rem;                         /* == text-8xl */
+      --type-lead: 3rem;     --type-lead-lh: 1;     /* == text-5xl */
+      --type-title: 2.25rem;
+    }
+  }
+  .type-lead  { font-size: var(--type-lead);  line-height: var(--type-lead-lh); }
+  .type-title { font-size: var(--type-title); line-height: var(--type-title-lh); }
+  .type-body  { font-size: var(--type-body);  line-height: var(--type-body-lh); }
+
   .heading-hero {
     @apply font-mono font-light leading-[1.05] tracking-tight text-foreground;
-    font-size: clamp(2.75rem, 11vw, 4.25rem); /* MOBILE: fluid ~44–68px (bigger, still responsive) */
+    font-size: var(--type-display);   /* shared type scale (above) */
   }
 
   .heading-section {
@@ -909,7 +935,7 @@ a, button, [role="button"] {
   }
   /* Desktop pins the heading sizes to their original md: values (unchanged). */
   @media (min-width: 768px) {
-    .heading-hero { font-size: 6rem; }      /* == text-8xl */
+    /* .heading-hero desktop size now comes from --type-display (shared type scale) */
     .heading-section { font-size: 2.25rem; } /* == text-4xl */
   }
 

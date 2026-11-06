@@ -215,12 +215,13 @@ const BrandLockup = ({ pageName }: { pageName: string }) => {
         href={HOME_HREF}
         aria-label="Home"
         data-nav-chrome="brand"
-        className="group fixed top-8 z-[60] flex items-center gap-8 select-none"
+        className="group fixed z-[60] flex items-center gap-8 select-none"
         /* --brandH: one control for both b + wordmark size. left: aligned to the
            .container-page content edge. transform: the scroll "squash" (--nav-scale). */
         style={{
           ['--brandH' as any]: 'clamp(3rem, 6vw, 6.5rem)',
           left: 'var(--page-gutter-x)',
+          top: 'var(--header-pad, 2rem)',
           /* Brand squishes MORE than the nav (--brand-scale, its own knob). top-left origin:
              it shrinks toward the top-left corner, keeping the SAME distance from the top and
              left as at full size (rather than shrinking down toward the bottom-left). */
@@ -316,7 +317,7 @@ const Navigation = ({ currentPath, pageName = BRAND_NAME }: { currentPath: strin
       {isMobileOpen && (
         <div className="md:hidden fixed inset-x-0 top-0 h-[var(--header-h)] bg-background/95 backdrop-blur-md z-40" aria-hidden="true" />
       )}
-      <nav data-nav-chrome className="fixed top-8 left-0 right-0 z-50">
+      <nav data-nav-chrome className="fixed left-0 right-0 z-50" style={{ top: 'var(--header-pad, 2rem)' }}>
         {/* Nav content uses the same .container-page as sections, so the controls
             align with page content (incl. centring on ultra-wide). Top edge = top-8
             (p-8) to match the brand + the page gutter. */}
@@ -325,18 +326,18 @@ const Navigation = ({ currentPath, pageName = BRAND_NAME }: { currentPath: strin
           {/* Right-aligned controls row — hidden during the intro; fades in on arrival.
               Also squashes with the brand on scroll (scale via --nav-scale). */}
         <div
-          className="relative z-50 flex items-end justify-end"
+          className="relative z-50 flex items-center justify-end"
           /* items-end + min-height --brandH: bottom-align the controls box with the
              BOTTOM of the page-title lettering (same --brandH as the brand), so the
              nav reads as emerging from the CRT line where bitmap.audio powers off. */
           style={{
-            minHeight: 'var(--brandH)',
+            minHeight: 'calc(var(--brandH) * var(--brand-scale, 1))',
             opacity: controlsVisible ? 1 : 0,
             /* Nav squishes LESS than the brand (--nav-scale), from its top-right corner (right
                distance preserved). --nav-lift raises it as it shrinks so its TOP meets the title
                TOP (the gutter line) when fully squished, while staying bottom-aligned at full. */
-            transform: 'translateY(var(--nav-lift, 0px)) scale(var(--nav-scale, 1))',
-            transformOrigin: 'top right',
+            transform: 'scale(var(--nav-scale, 1))',
+            transformOrigin: 'center right',
             /* Only the intro opacity fade transitions; the squish transform is scroll-linked
                (no transition) so it tracks the scroll tightly instead of lagging. */
             transition: `opacity ${BRAND_MOTION.revealMs}ms ease`,

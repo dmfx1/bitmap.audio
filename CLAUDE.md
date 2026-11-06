@@ -63,6 +63,20 @@ return (
     {/* my comment */}
 ```
 
+### Pages compose; scenes are components (added 2026-11-05)
+
+Scene-stage pages (`home.astro`, `about.astro`) are **composition only**. Do NOT write a scene's markup, CSS or choreography inline in a page.
+
+- **Markup + styles** → a component in `src/components/modules/` (e.g. `PhilosophyScene.astro`, `BinaryField.astro`, `SoftCta.astro`, `CtaScene.astro`).
+- **Choreography** → a builder in `src/lib/scenes/*.ts` that the page adds to its master timeline (e.g. `buildPhilosophyScene(tl, scene, opts)`, `createBinaryFieldScene(scene, opts)` → `cascade` / `fadeAway` / `decode`).
+- **The page keeps only:** the `.scene` / `.scene-body` stage wrappers (they MUST stay in the page — Astro scopes styles per component, so the page's `.scene` positioning can't reach an element rendered inside a child, and a child's styles can't reach the page's wrapper; inside a component, target the page's wrapper with `:global(.my-scene) .x`), the **copy** passed as props (e.g. `PHILOSOPHY_CAPTIONS` at the top of `home.astro`), and the master-timeline wiring (labels, scroll knobs, track height).
+- Elements created in JS (e.g. the binary field's digits) need `<style is:global>` in their component, every selector prefixed by the scene class so nothing leaks.
+- Components that will get **sound** convert to React islands later (see the audio note at the top) — keep the SAME props when they do.
+
+### Type sizes — use the shared type scale
+
+Text sizes for the stage scenes come from the **shared type scale** in `global.css` (`--type-display` / `--type-lead` / `--type-title` / `--type-body`, with `.heading-hero`, `.type-lead`, `.type-title`, `.type-body`). Change a size THERE, not per component. Used by Hero, SoftCta, HowWeWork. (AboutHero / SolutionHero / ContactHero still use `text-2xl md:text-5xl` directly — same values as `.type-lead`; switch them when next touched.)
+
 ### Do Not Assume Stylistic Intent
 
 Only make changes that were **explicitly requested** in the task. Do not:
@@ -175,6 +189,14 @@ Key variables: `--primary` (cyan), `--accent` (amber), `--background`, `--foregr
 - Use the `useBinaryScramble` hook (`src/hooks/use-binary-scramble.ts`) for 0/1 randomization effects
 - Characters cycle through `"01"` only, then lock in sequence
 - Do not replicate this logic inline — always use the hook
+- **Scroll-scrubbed scrambles** (must run backwards with scroll) can't use the time-based hook — use `scrambleAt(text, p, { keepSpaces })` in `src/lib/scene-kit.ts` (deterministic, reversible; `keepSpaces:false` when the text hides inside a binary field). `scrambleIn()` (same file) is the time-based, non-React version.
+
+### Stage tracks — re-measure after changing scroll timings
+
+On scene-stage pages the master timeline is scrubbed across `#stage-track`, so the track height sets the scroll pace. **Any change to a scroll knob (`L`, `PHIL_SPEED`, `SOFT_HOLD`, holds, cross-fades) changes the timeline length — re-size the track.**
+- Home keeps **~106vh of scroll per timeline unit**: `height ≈ total_units × 106.4 + 100` (vh). Read `total` off the `#dev-hud` (`t … / total`) after scrolling, or measure the timeline offline.
+- About's pace is ~35vh/unit; home nests the philosophy scene with `PHIL_SPEED = 3` so it plays at About's tuned pace.
+- **Gotcha:** a `tl.call` / label helper placed AFTER a scene's own end silently stretches the timeline (e.g. `crossLabel`'s buffer is sized for 0.9 cross-fades — on a short fade, use `atDir` at explicit positions instead).
 
 ### The `cn()` Utility
 
@@ -378,7 +400,7 @@ gsap.fromTo(el, { opacity: 0, filter: "blur(30px)" }, { opacity: 0.8, filter: "b
 ### Other Pages
 
 - `index.astro` — Splash/landing. TypewriterHero + BitmapTypewriter + ConceptGrid. CSS-driven, minimal GSAP.
-- `home.astro` — Standard vertical scroll. Section.astro reveals only. No GSAP.
+- `home.astro` — SCENE-STAGE (GSAP master timeline over `#stage-track`; mobile unstacks to a static vertical scroll). Scenes in order: Hero (`Hero.tsx`) → What we do (`ServicePillars.tsx`) → Listening between the lines (`BinaryField.astro` + `lib/scenes/binary-field.ts`) → Our Philosophy (`PhilosophyScene.astro` + `lib/scenes/philosophy.ts`) → Soft CTA (`SoftCta.astro`) → How we work (`HowWeWork.astro` + `BitChevron.astro` + `lib/scenes/how-we-work.ts`) → CTA (`CtaScene.astro`). Planned: Proof & people, between Soft CTA and How we work. Copy for the scenes lives at the top of the file / in component props.
 - `about.astro` — Standard vertical scroll. Section.astro + AboutIntro typewriter. No GSAP.
 - `contact.astro` — Standard vertical scroll. Pure CSS. No GSAP.
 - `solutions/*.astro` — Standard vertical scroll. Hero + Analysis + DeliverablesGrid. No GSAP.

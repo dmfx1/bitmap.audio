@@ -1,0 +1,60 @@
+---
+/* src/components/modules/BinaryField.astro
+ *
+ * "Listening between the lines": a full-screen field of large 0/1 digits whose centre row scrambles
+ * into `phrase`. The digits are BUILT IN JS (initBinaryField) and ANIMATED by createBinaryFieldScene —
+ * both in src/lib/scenes/binary-field.ts. Place it inside the page's stage wrapper:
+ *   <div class="scene field-scene" data-scene="lines" style="z-index:15">
+ *     <BinaryField phrase="listening between the lines" />
+ *   </div>
+ * Desktop: cascade + fade are triggered, the phrase is scrubbed (see the page timeline).
+ * Mobile: static and fully instantiated (dark field, phrase resolved).
+ */
+interface Props {
+  phrase: string;
+  /** Share of digits drawn in solaris orange (0 = none). */
+  accentRatio?: number;
+}
+const { phrase, accentRatio = 0.04 } = Astro.props;
+---
+<p class="sr-only">{phrase}</p>
+<div class="bin-field" data-bin-field data-phrase={phrase} data-accent-ratio={accentRatio} aria-hidden="true"></div>
+
+{/* Must be GLOBAL: the columns/digits are created in JS, and Astro's scoped styles don't reach
+    JS-created elements. Every selector is prefixed with .field-scene so nothing leaks. */}
+<style is:global>
+    /* LISTENING BETWEEN THE LINES — the binary field's columns/digits are built in JS, and Astro's
+       SCOPED styles don't reach JS-created elements, so these rules MUST be global. Every selector is
+       prefixed with .field-scene so nothing leaks. --digit-a / --acc-a are scrubbed (renderPhrase). */
+    .field-scene { background: transparent; pointer-events: none; overflow: hidden; }
+    .field-scene .bin-field {
+      --bin-size: clamp(3rem, 5.5vw, 6rem);  /* the phrase spans ~89vw at 5.5vw */
+      --digit-a: 0.55; --acc-a: 1;
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      display: flex; flex-direction: row;
+      font-family: var(--font-mono); font-size: var(--bin-size); line-height: 1.2;
+    }
+    .field-scene .bin-col {
+      flex: 0 0 1ch; width: 1ch; white-space: pre; text-align: center;   /* pre: a resolved space stays a blank cell */
+      color: hsl(var(--content-foreground) / var(--digit-a));
+      clip-path: inset(0 0 100% 0);   /* revealed top→down by the cascade */
+    }
+    .field-scene .bin-col .acc { color: hsl(var(--accent) / var(--acc-a)); }
+    .field-scene .bin-col .ph { transition: color .15s linear; }
+    .field-scene .bin-col .ph.on { color: hsl(var(--content-foreground)); font-weight: 700; }
+
+    @media (max-width: 767px) {
+      /* static, fully instantiated (no GSAP): DARK field, faint light digits, light phrase. The whole
+         scene fades out at top + bottom so it dissolves into the page's binary rain — no hard block. */
+      /* #stage-track prefix: must out-rank the page's scoped mobile `.scene { height: auto }` */
+      #stage-track .field-scene {
+        background-color: hsl(var(--background)); height: 100svh; position: relative;
+        -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 22%, #000 78%, transparent 100%);
+        mask-image: linear-gradient(to bottom, transparent 0%, #000 22%, #000 78%, transparent 100%);
+      }
+      .field-scene .bin-field { --bin-size: 5.5vw; }   /* phrase still fits one row (~89vw) */
+      .field-scene .bin-col { clip-path: none; color: hsl(var(--foreground) / 0.16); }
+      .field-scene .bin-col .acc { color: hsl(var(--accent) / 0.55); }
+      .field-scene .bin-col .ph.on { color: hsl(var(--foreground)); }
+    }
+</style>

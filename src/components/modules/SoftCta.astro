@@ -1,0 +1,73 @@
+---
+/* src/components/modules/SoftCta.astro
+ *
+ * Mid-page "soft" CTA, laid out like the Hero: question centred in the top half (heading-hero, the
+ * `accent` line in solaris + the blinking solaris cursor), the support line in the lower half, and the
+ * button pinned to the bottom (the Hero's outline button). Deliberately lighter than <CtaScene> — no
+ * pixel veil — so the page doesn't "end twice".
+ *
+ * Place it INSIDE the page's stage wrapper + scene body:
+ *   <div class="scene soft-cta-scene" data-scene="soft-cta" style="z-index:25">
+ *     <div class="scene-body"><SoftCta head="…" accent="…" sub="…" label="…" /></div>
+ *   </div>
+ *
+ * Static .astro for now. When site AUDIO arrives (see CLAUDE.md), convert to SoftCta.tsx with the SAME props.
+ */
+import { buttonVariants } from '../ui/button-variants';
+import { cn } from '../../lib/utils';
+
+interface Props {
+  /** First line of the question. */
+  head: string;
+  /** Second line, in solaris (optional). */
+  accent?: string;
+  /** Support line under the question. */
+  sub: string;
+  href?: string;
+  /** Button label (rendered uppercase by the button style). */
+  label: string;
+}
+const { head, accent, sub, href = '/contact', label } = Astro.props;
+---
+<div class="soft-cta">
+  {/* ROW 1 — question, same type + accent-second-line + solaris cursor as the hero title */}
+  <div class="container-page relative flex flex-col justify-start md:justify-center min-h-0">
+    <h2 class="heading-hero mb-8 leading-tight font-medium soft-cta__title">
+      {head}{accent && <Fragment><br/><span class="text-accent font-medium">{accent}</span></Fragment>}<span class="inline-block w-[0.5ch] h-[0.9em] bg-accent brightness-125 ml-1 animate-pulse align-middle" aria-hidden="true"></span>
+    </h2>
+  </div>
+  {/* ROW 2 — support line in the lower half; the button PINNED to the bottom */}
+  <div class="container-page relative flex flex-col min-h-0">
+    <div class="flex-1 flex flex-col justify-center min-h-0">
+      <p class="text-foreground/90 type-lead font-mono soft-cta__sub">{sub}</p>
+    </div>
+    <div class="w-full max-w-xl mt-8 md:mt-0">
+      <div class="flex items-stretch gap-4 w-full">
+        <a href={href} class="flex-1">
+          <span class={cn(buttonVariants({ variant: 'outline', size: 'xl' }), 'morph-accent rounded-none w-full h-14 md:h-24 px-4 md:px-8 text-base md:text-xl')}>{label}</span>
+        </a>
+        <span class="flex-1 hidden md:block" aria-hidden="true"></span>{/* keeps the hero's 2-button width */}
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Two equal rows filling the scene body (which is sized under the header + bar by the page). */
+  .soft-cta {
+    height: 100%; display: grid; grid-template-rows: 1fr 1fr;
+    padding-block: var(--page-gutter); box-sizing: border-box;
+  }
+  .soft-cta__title { max-width: min(66vw, 80rem); }   /* = .hero-copy[data-hero-pull="title"] */
+  .soft-cta__sub { max-width: min(55vw, 84rem); }     /* = .hero-copy[data-hero-pull="sub"] */
+  a { pointer-events: auto; }
+  /* The support line is longer than the hero's: step it down a size on short laptop screens so it
+     never runs into the pinned button. */
+  @media (min-width: 768px) and (max-height: 860px) { .soft-cta__sub { font-size: 2.25rem; line-height: 2.5rem; } }
+
+  @media (max-width: 767px) {
+    /* stacked like the hero on mobile. padding 2rem + the page's mobile .scene-body 3rem = 5rem */
+    .soft-cta { height: auto; display: flex; flex-direction: column; gap: 2rem; padding-block: 2rem; }
+    .soft-cta__title, .soft-cta__sub { max-width: 100%; }
+  }
+</style>

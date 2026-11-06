@@ -401,8 +401,8 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
 
     {/* Header squish-then-normalise. On scroll the brand + nav gently squish (--nav-scale)
         AND a solid header bar fades in (--header-solid), locking into a compact sticky bar.
-        Both use smoothstep. Brand floors at 0.80, nav at 0.94 — i.e. half the previous
-        reduction, so neither shrinks past a 50% cut of what it used to lose. */}
+        Brand floors at 0.62 so it sits CENTRED with even top/bottom padding inside the
+        solaris-height compact bar; the nav holds FULL size (NAV_MIN 1) and centres vertically. */}
     <script is:inline>
       (function () {
         const root = document.documentElement;
@@ -410,7 +410,11 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
            HEADER_START: px of scroll BEFORE the header reacts, so the hero TEXT starts
            pulling first and the header/nav only squish after — stops it feeling like the
            page is just scrolling down. SQUISH_DIST/SOLID_DIST run AFTER that offset. */
-        const BRAND_MIN = 0.80, NAV_MIN = 0.94, HEADER_START = 220, SQUISH_DIST = 800, SOLID_DIST = 160;
+        const BRAND_MIN = 0.62, NAV_MIN = 1.00, HEADER_START = 220, SQUISH_DIST = 800, SOLID_DIST = 160;
+        // Compact header matches the solaris bar: shrink the gutter so header-h -> --solaris-height
+        // while the brand holds its floor. GUTTER_PX = --page-gutter (2rem) resolved to px.
+        const GUTTER_PX = parseFloat(getComputedStyle(root).fontSize) * 2 || 32;
+        const SOLARIS_H = parseFloat(getComputedStyle(root).getPropertyValue('--solaris-height')) || 96;
         const smooth = (x) => x * x * (3 - 2 * x);
         const prog = (y, dist) => smooth(Math.max(0, Math.min(1, (y - HEADER_START) / dist)));
 
@@ -433,8 +437,10 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
           // Brand + nav shrink toward their own corners (origins set in Navigation).
           root.style.setProperty('--brand-scale', (1 - p * (1 - BRAND_MIN)).toFixed(3));
           root.style.setProperty('--nav-scale', navScale.toFixed(3));
-          // Nav-lift: bottom-aligned at full (p=0) -> top meets the title top when squished (p=1).
-          root.style.setProperty('--nav-lift', (-(brandH - panelH) * navScale * p).toFixed(1) + 'px');
+          // Gutter shrinks so the squished header-h equals --solaris-height; padCompact centres the
+          // floored brand inside that solaris-tall bar. Brand + nav ride up via top: var(--header-pad).
+          const padCompact = Math.max(2, (SOLARIS_H - brandH * BRAND_MIN) / 2);
+          root.style.setProperty('--header-pad', (GUTTER_PX - p * (GUTTER_PX - padCompact)).toFixed(1) + 'px');
           root.style.setProperty('--header-solid', prog(y, SOLID_DIST).toFixed(3));
         };
         window.__bmOnScroll(update);
