@@ -127,8 +127,6 @@ const PARTNERS = {
             heading="How we work together"
             steps={HOW_STEPS}
             aside="We don't start with the sound. We start with what you need it to say."
-            price="Sonic identities start from £4k and typically take 6–10 weeks."
-            custom="UI/UX and immersive projects are planned around you."
           />{/* TODO: href → the planned pricing / working-with-us page once it exists */}
         </div>
       </div>
@@ -136,7 +134,7 @@ const PARTNERS = {
       {/* PARTNERS & PROOF — DARK, hero layout. Brand-safe title + terms + quote + client names + the pinned ask (the page's last word).
           Component: PartnersProof.astro. No separate final CTA on home. */}
       <div class="scene partners-scene" data-scene="partners" style="z-index:28">
-        <TermTag label="Partners" />
+        <TermTag label="Your Partners" />
         <div class="scene-body">
           <PartnersProof
             head={PARTNERS.head}
@@ -258,7 +256,7 @@ const PARTNERS = {
   <script>
     import { gsap } from 'gsap';
     import { ScrollTrigger } from 'gsap/ScrollTrigger';
-    import { createStageTimeline, createPageBar, stageLabels, prepareVoid, enterTheVoid, pushInBar, type BarCfg } from '../lib/stage';
+    import { createStageTimeline, createPageBar, stageLabels, prepareVoid, enterTheVoid, pushInBar, oneWayScene, type BarCfg } from '../lib/stage';
     import { initMobileSceneReveal } from '../lib/pixel-veil';
     import { buildPhilosophyScene } from '../lib/scenes/philosophy';
     import { initBinaryField, createBinaryFieldScene } from '../lib/scenes/binary-field';
@@ -297,7 +295,7 @@ const PARTNERS = {
       // Soft CTA stays in the dark world, so it keeps the WHITE bar — no colour change on a visible bar.
       const SOFT: BarCfg = { name: "Let's Talk", bg: '#ffffff', text: '#141414', glow: '0 0 24px rgba(255,255,255,0.35)' };
       const HOW: BarCfg = { name: 'Our Process' };
-      const PARTNERS_BAR: BarCfg = { name: 'Partners' };
+      const PARTNERS_BAR: BarCfg = { name: 'Your Partners' };
 
       const T = { heroHold: 0.8, fogStart: 0.8, fogDur: 1.0, portalStart: 0.5, voidScale: 3.0, barPush: 1.72, crossDur: 0.9 };
       // Incoming layer starts fading in only after the outgoing is ~60% gone — a small overlap, not a
@@ -379,6 +377,19 @@ const PARTNERS = {
       const cap1 = scPhil.querySelector<HTMLElement>('.scene-cap');
       if (cap1) { gsap.set(cap1, { opacity: 0 }); tl.to(cap1, { opacity: 1, ease: 'none', duration: 0.3 }, 'philIn+=0.15'); }
       tl.add(phil, '>');
+
+      // ONE-WAY: the binary field only plays on the way DOWN. Scrolling back up from philosophy skips it —
+      // "What we do" (cards + solaris bar) is held on screen across that stretch instead.
+      oneWayScene(tl, {
+        scene: scLines, from: 'linesIn', to: 'philIn', hold: [scServices, bar],
+        onSkip: () => {
+          // swap the bar to solaris + "What we do" instantly (no visible colour fade while it's showing)
+          bar.style.transition = 'none';
+          pageBar.setBar(SERVICES);
+          void bar.offsetWidth;
+          bar.style.transition = '';
+        },
+      });
 
       // ── SOFT CTA — fades in over philosophy's dark ending, holds, then hands on. ──
       const SOFT_HOLD = 1.2;   // [scroll units] time on the soft CTA

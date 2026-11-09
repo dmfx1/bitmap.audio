@@ -171,12 +171,19 @@ html.nav-over-oat nav[data-nav-chrome] a.link-underline { color: hsl(var(--accen
    Transition includes opacity so the intro fade-in still works. */
 [data-nav-chrome="brand"] span { transition: color 0.45s ease, opacity 0.4s ease; }
 html.nav-over-oat [data-nav-chrome="brand"] { --foreground: var(--content-foreground); }
-/* MOBILE: no header bar, so over an oat section (data-oat-mobile) the white b mark flips to dark ink.
-   invert + hue-rotate keeps the amber underline roughly amber. */
-@media (max-width: 767px) {
-  [data-nav-chrome="brand"] img { transition: filter 0.3s ease; }
-  html.nav-over-oat [data-nav-chrome="brand"] img:first-of-type { filter: invert(1) hue-rotate(180deg); }
-}
+/* No glass header bar (removed 2026-11-09), so over oat — or a docked solaris bar — the white b mark
+   flips to dark ink (desktop + mobile). invert + hue-rotate keeps the amber underline roughly amber. */
+/* HEADER BAR — solid, no glass: it takes the colour of the section behind it (dark by default, oat when
+   the nav-contrast check sees oat). Transparent while a solaris section bar is docked, so the bar shows. */
+#header-bar { background-color: hsl(var(--background)); transition: background-color 0.3s ease; }
+html.nav-over-oat #header-bar { background-color: hsl(var(--content-background)); }
+html.nav-docked #header-bar { background-color: transparent; }
+/* PER-SECTION OPT-OUT: put data-header-clear on a section (e.g. About's split hero) and, while it's under
+   the header, NO header background shows — neither the bar nor the top-of-page cover. Logo + nav stay. */
+html.header-clear #header-bar, html.header-clear #nav-top-cover { opacity: 0 !important; }
+[data-nav-chrome="brand"] img { transition: filter 0.3s ease; }
+html.nav-over-oat [data-nav-chrome="brand"] img:first-of-type,
+html.nav-docked [data-nav-chrome="brand"] img:first-of-type { filter: invert(1) hue-rotate(180deg); }
 
 /* DOCKED (desktop): the section's solaris bar has risen into the header zone (orange). Brand + nav
    must read DARK on it, and the nav pill drops its teal glass so the solaris shows through. Overrides
@@ -465,6 +472,24 @@ html { scrollbar-width: none; }
   .oat-fade-mobile.oat-join-above { --ft: 0px; }
 
 }
+/* ONE-WAY SCENES (lib/stage.ts oneWayScene): beat GSAP's inline autoAlpha while a one-way scene is skipped. */
+.stage-skip { visibility: hidden !important; opacity: 0 !important; }
+
+/* RAIN THROUGHOUT (opt-in per page: put data-rain-all on the stage track / wrapper). Every .scene inside
+   gets its own binary rain over its background — white on dark, inverted (dark ink) on .theme-oat — moving
+   with scroll via --rain-y (set on <html> by the page). Opt a section OUT with .no-rain (its plain
+   background shows). Tune strength with --scene-rain-o on a section. */
+[data-rain-all] .scene:not(.no-rain) { isolation: isolate; }   /* so the rain (z -1) sits over the bg, under the content */
+[data-rain-all] .scene:not(.no-rain)::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: -1;
+  background-image: var(--pattern-binary-rain); background-size: 600px 800px; background-repeat: repeat;
+  background-position: 0 var(--rain-y, 0px);
+  opacity: var(--scene-rain-o, 0.6);
+}
+[data-rain-all] .scene.theme-oat:not(.no-rain)::before { filter: invert(1); opacity: var(--scene-rain-o, 0.45); }
+/* Mobile: dark sections are already transparent over the page's own rain — only the oat ones need theirs. */
+@media (max-width: 767px) { [data-rain-all] .scene:not(.theme-oat)::before { content: none; } }
+.stage-hold { visibility: visible !important; opacity: 1 !important; }
 .term-tag { display: none; }
 @media (max-width: 767px) {
   .term-tag {
@@ -634,7 +659,7 @@ html { scrollbar-width: none; }
     --content-accent: 28 90% 45%;        /* deepened orange for contrast on cream */
 
     /* SOLARIS beam — the dark→beige seam divider. Make it BIGGER via --solaris-height. */
-    --solaris-height: 72px;      /* section bar height — was 96px (smaller, 2026-11-09) */
+    --solaris-height: 96px;      /* section bar height — back to the original 96px (2026-11-09 22:16; briefly 84/72) */
     --header-compact-h: 104px;   /* compact (scrolled) header height — DECOUPLED from the bar (2026-11-09); the brand + nav keep their sizes, this is the space they sit in. Docking bars grow to this height. */
     --solaris-from: #FF9E1A;             /* brand orange (left) */
     --solaris-mid: #FFC24A;

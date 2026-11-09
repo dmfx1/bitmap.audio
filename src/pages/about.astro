@@ -17,7 +17,8 @@
  * The previous page is kept, unrouted, at src/pages/_about-v3-old.astro (cleanup list in CLAUDE.md).
  */
 import Layout from '../layouts/Layout.astro';
-import AboutHero from '../components/modules/AboutHero.tsx';
+import AboutHero from '../components/modules/AboutHero.tsx';   // previous single hero — kept (unused) until sign-off
+import AboutSplitHero from '../components/modules/AboutSplitHero.tsx';
 import Founders, { type Founder } from '../components/modules/Founders.tsx';
 import Clients from '../components/modules/Clients.tsx';
 import Beat from '../components/modules/Beat.astro';
@@ -26,11 +27,13 @@ import SoftCta from '../components/modules/SoftCta.astro';
 import TermTag from '../components/modules/TermTag.astro';
 
 // ══════════ COPY — ⚠ FILLER (2026-11-09), built from dom's homework answers. DOM TO REWRITE. ══════════
+// SPLIT HERO — left half dark (Dom), right half oat (Nick); the title runs across the seam.
 const HERO = {
-  title: 'Sound is easy.\nVoice is rare.',
-  sub: "We're Dom and Nick. We build sonic identities that sound like you, everywhere you show up.",
-  cta: 'BOOK A CALL',
+  // Titles only (dom, 22:32). Optional per side: name / meta; optional ctaLabel on the component.
+  left:  { title: 'Two minds,' },
+  right: { title: 'one voice.' },
 };
+// (previous single-hero filler: 'Sound is easy. / Voice is rare.')
 const PROBLEM = {
   head: 'Most sonic logos',
   accent: 'are sound effects.',
@@ -99,10 +102,19 @@ const PEOPLE = [{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick',
     <span class="solaris-text" data-page-label></span>
   </div>
 
-  <div id="stage-track">
+  <div id="stage-track" data-rain-all>{/* rain throughout — opt a scene out with class="no-rain" */}
     <div class="stage-pin" id="hero-sticky">
-      <div class="scene" data-scene="hero" style="z-index:0">
-        <AboutHero client:load title={HERO.title} sub={HERO.sub} ctaLabel={HERO.cta} />
+      <div class="scene no-rain" data-scene="hero" data-header-clear style="z-index:0">{/* split hero has its own two rains */}
+        {/* Split backgrounds + seam fill the WHOLE scene (under the header too); the hero copy sits on top. */}
+        <div class="split-bg" aria-hidden="true">
+          <div class="split-bg__dark"></div>
+          <div class="split-bg__oat"><div class="split-bg__rain" data-split-rain></div></div>
+          <div class="split-bg__seam" data-split-seam></div>
+        </div>
+        <AboutSplitHero client:load left={HERO.left} right={HERO.right} />
+        {/* The exit WIPE: the seam splits into two bars that sweep out left + right, oat behind them. */}
+        <div class="split-wipe split-wipe--l theme-oat" data-split-wipe="l" aria-hidden="true"></div>
+        <div class="split-wipe split-wipe--r theme-oat" data-split-wipe="r" aria-hidden="true"></div>
       </div>
       <div class="stage-fog" data-stage="fog" aria-hidden="true"></div>
       <div class="stage-portal" data-stage="portal" aria-hidden="true"></div>
@@ -160,7 +172,7 @@ const PEOPLE = [{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick',
       </div>
 
       {/* 8 · LET'S TALK — dark tint over the returning rain ("reverse the void"), the soft CTA */}
-      <div class="scene close-scene" data-scene="close" style="z-index:45">
+      <div class="scene close-scene no-rain" data-scene="close" style="z-index:45">{/* the REAL rain shows through its tint */}
         <TermTag label="Let's talk" />
         <div class="scene-body">
           <SoftCta
@@ -196,6 +208,37 @@ const PEOPLE = [{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick',
       opacity: 0; pointer-events: none;
     }
 
+    /* ── SPLIT HERO — two halves + a solaris seam. Backgrounds here; copy layout below (global, the copy
+       is a React island). The dark half is transparent so the global white rain (#grid-bg) shows; the oat
+       half carries its own DARK rain (the same pattern, inverted). ── */
+    /* The split titles centre on the WHOLE screen (the header is ignored — it floats over, clear). */
+    .scene[data-scene="hero"] { isolation: isolate; padding-top: 0; }
+    .split-bg { position: absolute; inset: 0; z-index: -1; display: grid; grid-template-columns: 1fr 1fr; pointer-events: none; }
+    .split-bg__dark { background: transparent; }
+    .split-bg__oat { position: relative; background-color: hsl(var(--content-background)); overflow: hidden; }
+    .split-bg__rain {
+      position: absolute; inset: 0;
+      background-image: var(--pattern-binary-rain); background-size: 600px 800px; background-repeat: repeat;
+      background-position: 0 var(--rain-y, 0px);   /* moved with scroll (script below) */
+      filter: invert(1); opacity: 0.55;   /* white glyphs → dark ink on oat. Raise/lower to taste. */
+      -webkit-mask-image: radial-gradient(circle at 0% 40%, rgba(0,0,0,0.25) 0%, #000 60%);
+      mask-image: radial-gradient(circle at 0% 40%, rgba(0,0,0,0.25) 0%, #000 60%);   /* knocked back near the seam's glow, like the dark side */
+    }
+    .split-bg__seam {
+      position: absolute; top: 0; bottom: 0; left: 50%; width: var(--split-seam-w, 22px); transform: translateX(-50%);   /* seam thickness */
+      transform-origin: 50% 50%;
+      background: linear-gradient(to bottom, var(--solaris-from) 0%, var(--solaris-mid) 55%, var(--solaris-to) 100%);
+      box-shadow: var(--solaris-glow);
+    }
+
+    .split-wipe {
+      position: absolute; top: 0; bottom: 0; width: 0; z-index: 3; pointer-events: auto;   /* auto + .theme-oat: the nav-contrast check sees oat once wiped → dark logo */
+      background-color: hsl(var(--content-background));   /* = the white-out fog, so the hand-off is seamless */
+      visibility: hidden;
+    }
+    .split-wipe--l { right: 50%; border-left: calc(var(--split-seam-w, 22px) / 2) solid var(--solaris-mid); box-shadow: -18px 0 40px -10px var(--solaris-from); }
+    .split-wipe--r { left: 50%;  border-right: calc(var(--split-seam-w, 22px) / 2) solid var(--solaris-mid); box-shadow: 18px 0 40px -10px var(--solaris-from); }
+
     /* Tones */
     .theme-oat.scene { background-color: hsl(var(--content-background)); }
     .beat-dark { background-color: hsl(var(--background)); }
@@ -227,6 +270,8 @@ const PEOPLE = [{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick',
       .stage-pin { position: static; height: auto; overflow: visible; }
       .scene { position: relative; inset: auto; height: auto; margin-bottom: 0; padding-top: 0; visibility: visible !important; opacity: 1 !important; }
       .scene[data-scene="hero"] { min-height: 100svh; }
+      /* split hero stacks: the halves carry their own backgrounds on mobile (heights follow the copy) */
+      .split-bg { display: none; }
       .stage-fog, .stage-portal, #page-bar { display: none; }
       .scene-body { position: static; top: auto; height: auto; padding-block: 3rem; display: flex; flex-direction: column; justify-content: center; }
       .beat-dark, .close-scene { background-color: transparent; }
@@ -241,6 +286,39 @@ const PEOPLE = [{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick',
   </style>
 
   <style is:global>
+    /* SPLIT HERO copy (AboutSplitHero.tsx — a React island, so global). Same 50/50 grid as .split-bg. */
+    .split-hero { display: grid; grid-template-columns: 1fr 1fr; }
+    /* Everything CENTRED within its own half. */
+    .split-hero__half { display: grid; grid-template-rows: 1fr 1fr; justify-items: center; text-align: center; padding: var(--page-gutter) var(--page-gutter-x); min-height: 0; }
+    .split-hero__title-wrap { align-self: end; justify-self: center; }
+    .split-hero__title { margin: 0 0 clamp(1rem, 4vh, 2.5rem); min-height: 0; white-space: nowrap; font-size: min(var(--type-display), 5vw); }   /* each half's line stays on ONE line */
+    .split-hero__title--left > span.animate-pulse { display: none; }   /* one cursor only — at the end of the right half */
+    /* titles only: one centred line per half */
+    .split-hero--titles .split-hero__half { grid-template-rows: 1fr; align-items: center; }
+    .split-hero--titles .split-hero__title-wrap { align-self: center; }
+    .split-hero--titles .split-hero__title { margin: 0; }
+    .split-hero__lower { display: flex; flex-direction: column; justify-content: flex-start; align-items: center; }
+    .split-hero__name { margin: 0 0 0.35rem; }
+    .split-hero__meta { margin: 0; }
+    @media (max-width: 767px) {
+      .split-hero { grid-template-columns: 1fr; }
+      .split-hero__half { grid-template-rows: auto auto; align-content: center; gap: 1.5rem; min-height: 50svh; }
+      .split-hero__half { min-height: auto; padding-block: 2.5rem; }
+
+      .split-hero__half--oat {
+        position: relative; padding-left: var(--page-gutter-x);
+        background-color: hsl(var(--content-background));
+        border-top: 8px solid transparent;
+        border-image: linear-gradient(90deg, var(--solaris-from), var(--solaris-mid) 55%, var(--solaris-to)) 1;
+      }
+      .split-hero__half--oat::before {
+        content: ''; position: absolute; inset: 0; pointer-events: none;
+        background-image: var(--pattern-binary-rain); background-size: 600px 800px; background-position: 0 var(--rain-y, 0px); filter: invert(1); opacity: 0.45;
+      }
+      .split-hero__half--oat > * { position: relative; }
+      .split-hero__title { margin: 0; font-size: var(--type-display); white-space: normal; }
+      .split-hero--titles .split-hero__half { min-height: 50svh; }
+    }
     /* Founders: the React island sits inside <astro-island>, so target by class. Fill the scene body. */
     #stage-track [data-scene="team"] .grid { height: 100%; }
     #stage-track [data-scene="team"] .grid > div { min-height: 0 !important; }
@@ -252,6 +330,7 @@ const PEOPLE = [{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick',
     import { ScrollTrigger } from 'gsap/ScrollTrigger';
     import { createStageTimeline, createPageBar, stageLabels, prepareVoid, enterTheVoid, pushInBar, type BarCfg } from '../lib/stage';
     import { initBeliefsFocus } from '../lib/scenes/beliefs';
+    import { buildSplitHeroEntrance } from '../lib/scenes/split-hero';
     gsap.registerPlugin(ScrollTrigger);
 
     function initStage() {
@@ -299,7 +378,14 @@ const PEOPLE = [{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick',
       const paint = (c: BarCfg) => { bar.style.background = c.bg ?? SOLARIS_BG; bar.style.boxShadow = c.glow ?? 'var(--solaris-glow)'; };
 
       // HERO → ENTER THE VOID → the first oat beat fades in through the fog; the bar pushes down.
-      enterTheVoid(tl, { fog, portal, gridBg }, T);
+      // No dive into the rain here (gridBg null) — the split hero WIPES out instead: the seam splits and
+      // sweeps left + right, then the oat white-out fog takes over as usual.
+      enterTheVoid(tl, { fog, portal, gridBg: null }, T);
+      buildSplitHeroEntrance(tl, {
+        seam: pin.querySelector<HTMLElement>('[data-split-seam]'),
+        wipeL: pin.querySelector<HTMLElement>('[data-split-wipe="l"]'),
+        wipeR: pin.querySelector<HTMLElement>('[data-split-wipe="r"]'),
+      }, { start: 0.15, dur: 0.85 });
       tl.to(BEATS[0].el, { autoAlpha: 1, ease: 'power2.out', duration: 0.45 }, T.fogStart + T.fogDur);
       pushInBar(tl, bar, T.barPush);
       boundary(1.91, BEATS[0].cfg, null);
@@ -349,6 +435,18 @@ const PEOPLE = [{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick',
     document.addEventListener('astro:page-load', initStage);
     if (document.readyState === 'complete') initStage();
     else window.addEventListener('load', initStage);
+  </script>
+
+  <script>
+    // RAIN MOTION: the split hero's oat rain + the per-scene rain drift with scroll like the global "near" rain layer
+    // (GridBackground.astro: 0.3 × scroll, 800px repeat) so both halves rain together.
+    // --rain-y on <html>: drives the split hero's oat rain AND every [data-rain-all] scene's rain.
+    const moveRain = () => {
+      document.documentElement.style.setProperty('--rain-y', `${(window.scrollY * 0.3) % 800}px`);
+    };
+    const w = window as any;
+    if (w.__bmOnScroll) w.__bmOnScroll(moveRain); else window.addEventListener('scroll', moveRain, { passive: true });
+    moveRain();
   </script>
 
   <script>

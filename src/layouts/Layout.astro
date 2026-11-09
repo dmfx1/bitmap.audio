@@ -126,8 +126,9 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
             nav/brand, above content. Driven by --header-solid (header squish script below). */}
         <div
           id="header-bar"
+          data-note="NO glass (2026-11-09) — was hsl(183 34% 18% / 0.34) + blur(14px). Now a SOLID bar matching the section behind; colour rules in global.css (#header-bar)."
           class="fixed top-0 left-0 right-0 z-[33] pointer-events-none"
-          style="height: var(--header-h); background: hsl(183 34% 18% / 0.34); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); opacity: var(--header-solid, 0);"
+          style="height: var(--header-h); opacity: var(--header-solid, 0);"
         ></div>
 
         {/* DOCK TITLE — the section title rendered crisp ABOVE the glass header (below logo/nav) so it
@@ -281,8 +282,12 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
             // mobile: sample under the logo; only sections marked data-oat-mobile are actually oat there
             // (other .theme-oat scenes go transparent on the rain on mobile).
             let overOat;
+            let clear = false;   // a section marked data-header-clear wants NO header background at all
             if (mobile) {
               const y = 40;   // the logo's line
+              clear = Array.prototype.some.call(document.querySelectorAll('[data-header-clear]'), function (s) {
+                const r = s.getBoundingClientRect(); return r.top <= y && r.bottom >= y;
+              });
               overOat = Array.prototype.some.call(document.querySelectorAll('[data-oat-mobile]'), function (s) {
                 // ignore the faded buffer (its padding) — flip only once the logo is over solid oat
                 const r = s.getBoundingClientRect(); const f = (parseFloat(getComputedStyle(s).paddingTop) || 0) * 0.6;
@@ -291,8 +296,10 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
             } else {
               const el = document.elementFromPoint(Math.round(window.innerWidth / 2), headerH + 8);
               overOat = !!(el && el.closest && el.closest('.theme-oat'));
+              clear = !!(el && el.closest && el.closest('[data-header-clear]'));
             }
             root.classList.toggle('nav-over-oat', overOat);
+            root.classList.toggle('header-clear', clear);
           };
           const onResize = function () { window.requestAnimationFrame(update); };
           const lenis = window.__lenis;

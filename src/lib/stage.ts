@@ -133,3 +133,46 @@ export function pushInBar(tl: Timeline, bar: HTMLElement, at: number) {
     { clipPath: 'inset(0 0 0% 0)', opacity: 1, ease: 'steps(6)', duration: 0.14 },
     at);
 }
+
+/**
+ * ONE-WAY SCENE (desktop stage) — a scene you only see on the way DOWN.
+ * Scrolling back UP into its stretch of the timeline (entering from its END side), the scene is hidden and
+ * `hold` (usually the scene before it) is held on screen instead, until you leave the stretch. Entering from
+ * the START side (scrolling down) plays it normally. Decided by the side you enter from, so a small wobble
+ * in scroll direction mid-stretch doesn't flicker it on/off.
+ * Works with CSS classes that beat GSAP's inline styles: `.stage-skip` / `.stage-hold` (global.css).
+ *   oneWayScene(tl, { scene: scLines, from: 'linesIn', to: 'philIn', hold: [scServices, bar],
+ *                     onSkip: () => pageBar.setBar(SERVICES) });
+ */
+const oneWayRegistry = new WeakMap<Timeline, Array<() => void>>();
+export function oneWayScene(
+  tl: Timeline,
+  o: { scene: HTMLElement; from: string | number; to: string | number; hold?: HTMLElement[]; onSkip?: () => void; onRelease?: () => void },
+) {
+  const at = (p: string | number) => (typeof p === 'number' ? p : tl.labels[p]);
+  let prevT = tl.time();
+  let skipping = false;
+  const set = (on: boolean) => {
+    if (on === skipping) return;
+    skipping = on;
+    o.scene.classList.toggle('stage-skip', on);
+    (o.hold || []).forEach((el) => el.classList.toggle('stage-hold', on));
+    if (on) o.onSkip?.(); else o.onRelease?.();
+  };
+  const check = () => {
+    const a = at(o.from), b = at(o.to), t = tl.time();
+    if (a === undefined || b === undefined) return;
+    const inside = t > a && t < b;
+    if (!inside) set(false);
+    else if (!(prevT > a && prevT < b)) set(prevT >= b);   // just entered: from the END side → skip
+    prevT = t;
+  };
+  let list = oneWayRegistry.get(tl);
+  if (!list) {
+    list = [];
+    oneWayRegistry.set(tl, list);
+    const fns = list;
+    tl.eventCallback('onUpdate', () => fns.forEach((f) => f()));
+  }
+  list.push(check);
+}
