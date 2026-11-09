@@ -146,3 +146,11 @@ export function scrambleAt(text: string, p: number, { chars = '01', flicker = 40
   }
   return out;
 }
+
+/** SCRUBBED word-to-word scramble: at p=0 shows `from`, at p=1 shows `to`. First half un-resolves `from`
+ *  back to 0/1s (right → left), second half resolves `to` (left → right). Reversible under a scroll scrub.
+ *  Use for a title that changes word as you scroll (e.g. HOW we work steps). */
+export function scrambleSwap(from: string, to: string, p: number, opts: { chars?: string; flicker?: number; keepSpaces?: boolean } = {}): string {
+  const q = Math.min(1, Math.max(0, p));
+  return q < 0.5 ? scrambleAt(from, 1 - q * 2, opts) : scrambleAt(to, q * 2 - 1, opts);
+}

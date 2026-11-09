@@ -1,0 +1,97 @@
+---
+/* src/components/modules/ProcessWords.astro
+ *
+ * "Our process" as BIG TYPE — no cards, no colour. Desktop: one big bold step title in the centre of the
+ * screen with its number above and its line below; scrolling scrambles each into the next step
+ * (lib/scenes/process-words.ts), then the footer (aside / price / custom / link) fades up at the bottom.
+ * Mobile: the steps simply stacked as big text, static.
+ *
+ * Place INSIDE the page's stage wrapper + scene body:
+ *   <div class="scene theme-oat how-scene" data-scene="how"><div class="scene-body"><ProcessWords … /></div></div>
+ * Same props as HowWeWork (icons ignored here), COPY in HOW_* at the top of home.astro.
+ */
+interface Step { n: string; name: string; line: string; icon?: string }
+interface Props {
+  heading: string;
+  steps: readonly Step[];
+  aside?: string;
+  price: string;
+  custom?: string;
+  linkLead?: string;
+  linkLabel?: string;
+  href?: string;
+}
+const { heading, steps, aside, price, custom, linkLead, linkLabel, href = '/contact' } = Astro.props;
+const first = steps[0];
+const data = JSON.stringify(steps.map(({ n, name, line }) => ({ n, name, line })));
+---
+<div class="pw">
+  {/* DESKTOP live block — the timeline rewrites these three as you scroll (aria-hidden: the list below is the
+      accessible version). Starts on step 0's text so there's no flash before the script runs. */}
+  <div class="pw__live" data-pw data-steps={data} aria-hidden="true">
+    <span class="type-body pw__n" data-pw-n>{first.n}</span>
+    <p class="heading-hero pw__title" data-pw-title>{first.name}</p>
+    <p class="type-lead pw__line" data-pw-line>{first.line}</p>
+  </div>
+
+  {/* MOBILE: the steps stacked (static). On desktop this is screen-reader only. */}
+  <div class="pw__list">
+    <h2 class="type-lead pw__heading">{heading}</h2>
+    <ol>
+      {steps.map((s) => (
+        <li class="pw__item">
+          <span class="type-body pw__n">{s.n}</span>
+          <h3 class="heading-hero pw__title">{s.name}</h3>
+          <p class="type-lead pw__line">{s.line}</p>
+        </li>
+      ))}
+    </ol>
+  </div>
+
+  <div class="container-page pw__foot" data-pw-foot>
+    {aside && <p class="type-body pw__aside">{aside}</p>}
+    <p class="type-body">{price}</p>
+    {custom && <p class="type-body">{custom}</p>}
+    {linkLabel && <p class="type-body">{linkLead} <a class="pw__link" href={href}>{linkLabel}</a></p>}
+  </div>
+</div>
+
+<style>
+  .pw { position: relative; height: 100%; font-family: var(--font-mono); color: hsl(var(--foreground)); }
+  .pw__live {
+    position: absolute; inset: 0; padding-inline: var(--page-gutter-x);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+  }
+  .pw__n { color: hsl(var(--muted-foreground)); letter-spacing: 0.2em; margin-bottom: 1rem; }
+  .pw__title { margin: 0; font-weight: 700; line-height: 1; white-space: nowrap; }
+  .pw__line { margin: 1.5rem 0 0; color: hsl(var(--muted-foreground)); max-width: min(70vw, 60rem); }
+  [data-pw].is-binary .pw__title,
+  .pw__live .is-binary { opacity: 0.35; }
+
+  .pw__foot {
+    position: absolute; left: 0; right: 0; bottom: var(--page-gutter);
+    text-align: center; color: hsl(var(--muted-foreground));
+  }
+  .pw__foot p { margin: 0; }
+  .pw__aside { color: hsl(var(--foreground)); margin-bottom: 0.5rem !important; }
+  .pw__link { pointer-events: auto; color: hsl(var(--foreground)); text-decoration: underline; text-underline-offset: 0.25em; transition: color .2s ease; }
+  .pw__link:hover { color: hsl(var(--accent)); }
+
+  /* desktop: the static list is screen-reader only */
+  @media (min-width: 768px) {
+    .pw__list { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  }
+  /* mobile: no live block — the steps stacked, static */
+  @media (max-width: 767px) {
+    .pw { height: auto; padding-block: 2rem; }
+    .pw__live { display: none; }
+    .pw__list { padding-inline: var(--page-gutter-x); }
+    .pw__list ol { list-style: none; margin: 0; padding: 0; }
+    .pw__heading { margin: 0 0 2.5rem; font-weight: 400; }
+    .pw__item { margin-bottom: 3rem; }
+    .pw__item .pw__n { display: block; margin-bottom: 0.5rem; }
+    .pw__item .pw__title { white-space: normal; overflow-wrap: anywhere; }
+    .pw__item .pw__line { margin-top: 0.75rem; }
+    .pw__foot { position: static; text-align: left; }
+  }
+</style>

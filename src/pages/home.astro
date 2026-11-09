@@ -17,7 +17,8 @@ import SpatialDepth from '../components/modules/SpatialDepth.astro';
 import BinaryField from '../components/modules/BinaryField.astro';
 import PhilosophyScene from '../components/modules/PhilosophyScene.astro';
 import SoftCta from '../components/modules/SoftCta.astro';
-import HowWeWork from '../components/modules/HowWeWork.astro';
+// HowWeWork.astro (cards + chevrons version) is kept on disk but not used — trialling ProcessWords (big type).
+import ProcessWords from '../components/modules/ProcessWords.astro';
 import CtaScene from '../components/modules/CtaScene.astro';
 
 // ── COPY — edit the home page's scene text here ──
@@ -96,10 +97,10 @@ const HOW_STEPS = [
         </div>
       </div>
 
-      {/* HOW WE WORK — oat. Process (4 steps) + price/timing line + agency/detail link. Component: HowWeWork.astro. */}
+      {/* OUR PROCESS — oat. Big-type steps that scramble into each other + footer. Component: ProcessWords.astro (HowWeWork.astro = the cards version, unused). */}
       <div class="scene theme-oat how-scene" data-scene="how" style="z-index:27">
         <div class="scene-body">
-          <HowWeWork
+          <ProcessWords
             heading="How we work together"
             steps={HOW_STEPS}
             aside="Most of the time goes into listening."
@@ -123,7 +124,7 @@ const HOW_STEPS = [
   </div>
 
   <style>
-    #stage-track { position: relative; height: 2735vh; } /* ~106vh per timeline unit (unchanged). Measured 24.76u: hero/services 3.0 + binary field 2.95 + philosophy + soft CTA 1.8 + our process 4.59 + CTA. Re-measure if any scroll knob changes (see CLAUDE.md). */
+    #stage-track { position: relative; height: 2880vh; } /* ~106vh per timeline unit (unchanged). Measured 26.11u: hero/services 3.0 + binary field 2.95 + philosophy + soft CTA 1.8 + our process 5.94 + CTA. Re-measure if any scroll knob changes (see CLAUDE.md). */
     .stage-pin { position: sticky; top: 0; height: 100svh; overflow: hidden; }
 
     .scene { position: absolute; top: 0; left: 0; right: 0; height: 100svh; }
@@ -220,7 +221,7 @@ const HOW_STEPS = [
     import { initMobileSceneReveal } from '../lib/pixel-veil';
     import { buildPhilosophyScene } from '../lib/scenes/philosophy';
     import { initBinaryField, createBinaryFieldScene } from '../lib/scenes/binary-field';
-    import { buildHowWeWorkScene } from '../lib/scenes/how-we-work';
+    import { buildProcessWordsScene } from '../lib/scenes/process-words';
     gsap.registerPlugin(ScrollTrigger);
 
     function initStage() {
@@ -368,8 +369,8 @@ const HOW_STEPS = [
       atDir('howIn+=' + (OV + BAR_OUT), 1, HOW);                    // down: "How We Work" as the bar returns
       atDir('howIn+=' + (OV + BAR_OUT), -1, null);                  // up: clears as the bar hides
       atDir('howIn+=' + (BAR_OUT * 0.8), -1, SOFT);                 // up: "Let's Talk" back (bar already white)
-      // Scroll-built: each card scrambles in → the chevron after it fills → footer. Knobs = scroll units.
-      buildHowWeWorkScene(tl, scHow, { card: 0.45, chevron: 0.2, foot: 0.3, hold: 0.45 });
+      // Big type: the step title/number/line scramble in, then scramble into each next step; footer last.
+      buildProcessWordsScene(tl, scHow, { in: 0.4, hold: 0.5, swap: 0.45, foot: 0.3, end: 0.45 });
 
       // How we work → final CTA (small overlap); the CTA appears under a dark veil, then pixelates in.
       tl.addLabel('ctaIn', '>');
