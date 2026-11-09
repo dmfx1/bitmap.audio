@@ -75,7 +75,7 @@ Scene-stage pages (`home.astro`, `about.astro`) are **composition only**. Do NOT
 
 ### Type sizes — use the shared type scale
 
-Text sizes for the stage scenes come from the **shared type scale** in `global.css` (`--type-display` / `--type-lead` / `--type-title` / `--type-body`, with `.heading-hero`, `.type-lead`, `.type-title`, `.type-body`). Change a size THERE, not per component. Used by Hero, SoftCta, HowWeWork. (AboutHero / SolutionHero / ContactHero still use `text-2xl md:text-5xl` directly — same values as `.type-lead`; switch them when next touched.)
+Text sizes for the stage scenes come from the **shared type scale** in `global.css` (`--type-display` / `--type-lead` / `--type-title` / `--type-body`, with `.heading-hero`, `.type-lead`, `.type-title`, `.type-body`). Change a size THERE, not per component. Used by Hero, SoftCta, ProcessWords. (AboutHero / SolutionHero / ContactHero still use `text-2xl md:text-5xl` directly — same values as `.type-lead`; switch them when next touched.)
 
 ### Do Not Assume Stylistic Intent
 
@@ -189,13 +189,13 @@ Key variables: `--primary` (cyan), `--accent` (amber), `--background`, `--foregr
 - Use the `useBinaryScramble` hook (`src/hooks/use-binary-scramble.ts`) for 0/1 randomization effects
 - Characters cycle through `"01"` only, then lock in sequence
 - Do not replicate this logic inline — always use the hook
-- **Scroll-scrubbed scrambles** (must run backwards with scroll) can't use the time-based hook — use `scrambleAt(text, p, { keepSpaces })` in `src/lib/scene-kit.ts` (deterministic, reversible; `keepSpaces:false` when the text hides inside a binary field). `scrambleIn()` (same file) is the time-based, non-React version.
+- **Scroll-scrubbed scrambles** (must run backwards with scroll) can't use the time-based hook — use `scrambleAt(text, p, { keepSpaces })` in `src/lib/scene-kit.ts` (deterministic, reversible; `keepSpaces:false` when the text hides inside a binary field). `scrambleIn()` (same file) is the time-based, non-React version. `scrambleSwap(from, to, p)` scrambles one word into another, reversibly.
 
 ### Stage tracks — re-measure after changing scroll timings
 
 On scene-stage pages the master timeline is scrubbed across `#stage-track`, so the track height sets the scroll pace. **Any change to a scroll knob (`L`, `PHIL_SPEED`, `SOFT_HOLD`, holds, cross-fades) changes the timeline length — re-size the track.**
 - Home keeps **~106vh of scroll per timeline unit**: `height ≈ total_units × 106.4 + 100` (vh). Read `total` off the `#dev-hud` (`t … / total`) after scrolling, or measure the timeline offline.
-- About's pace is ~35vh/unit; home nests the philosophy scene with `PHIL_SPEED = 3` so it plays at About's tuned pace.
+- About's pace is ~35vh/unit; home nests the philosophy scene (`PHIL_SPEED = 3.5` + `hold: 0.5` — a little quicker than About's original pace; About no longer has the scene).
 - **Gotcha:** a `tl.call` / label helper placed AFTER a scene's own end silently stretches the timeline (e.g. `crossLabel`'s buffer is sized for 0.9 cross-fades — on a short fade, use `atDir` at explicit positions instead).
 
 ### The `cn()` Utility
@@ -400,13 +400,16 @@ gsap.fromTo(el, { opacity: 0, filter: "blur(30px)" }, { opacity: 0.8, filter: "b
 ### Other Pages
 
 - `index.astro` — Splash/landing. TypewriterHero + BitmapTypewriter + ConceptGrid. CSS-driven, minimal GSAP.
-- `home.astro` — SCENE-STAGE (GSAP master timeline over `#stage-track`; mobile unstacks to a static vertical scroll). Scenes in order: Hero (`Hero.tsx`) → What we do (`ServicePillars.tsx`) → Listening between the lines (`BinaryField.astro` + `lib/scenes/binary-field.ts`) → Our Philosophy (`PhilosophyScene.astro` + `lib/scenes/philosophy.ts`) → Soft CTA (`SoftCta.astro`) → How we work (`HowWeWork.astro` + `BitChevron.astro` + `lib/scenes/how-we-work.ts`) → CTA (`CtaScene.astro`). Planned: Proof & people, between Soft CTA and How we work. Copy for the scenes lives at the top of the file / in component props.
+- `home.astro` — SCENE-STAGE (GSAP master timeline over `#stage-track`; mobile unstacks to a static vertical scroll). Scenes in order: Hero (`Hero.tsx`) → What we do (`ServicePillars.tsx`) → Listening between the lines (`BinaryField.astro` + `lib/scenes/binary-field.ts`) → Our Philosophy (`PhilosophyScene.astro` + `lib/scenes/philosophy.ts`) → Soft CTA (`SoftCta.astro`) → Our Process (`ProcessWords.astro` + `lib/scenes/process-words.ts`; step icons from `lib/bit-motifs.ts`) → Partners & proof (`PartnersProof.astro`, ends with the pinned "Book a free call" — NO separate CtaScene on home; other pages still use `CtaScene.astro`). Planned: a hidden `/pricing` page (noindex, linked from Partners). Copy for the scenes lives at the top of the file / in component props.
 - `about.astro` — Standard vertical scroll. Section.astro + AboutIntro typewriter. No GSAP.
 - `contact.astro` — Standard vertical scroll. Pure CSS. No GSAP.
 - `solutions/*.astro` — Standard vertical scroll. Hero + Analysis + DeliverablesGrid. No GSAP.
 - `faq.astro` — Standard vertical scroll. Sticky header tabs (desktop). No GSAP.
 
 ### Navigation (`src/components/Navigation.tsx`)
+
+- **Home wordmark (2026-11-09):** `/home` is intentionally NOT in `ROUTE_NAMES`, so the home page's resting wordmark stays "bitmap.audio" throughout; hover shows "home" (as on every page).
+- **Compact header size:** `BRAND_MIN` in Layout.astro's header-squish script (0.68 = compact brand size at rest).
 
 Mobile hamburger menu current behaviour (do not revert):
 - Solutions dropdown is **collapsed by default** — toggled by tapping, with a rotating chevron indicator
@@ -517,7 +520,8 @@ Today `Navigation.tsx` → `BrandLockup` first-visit intro shows a CENTRE stage 
     already `-1` (above the scene bg, below the header + cards). Ref dom liked: a dashed 1-point
     perspective room that draws in from the vanishing point.
 
-- **🔖 BOOKMARK — "reverse the void" at the CTA** (dom's idea, 2026-09-02): the scene stage opens by
+- **✅ DONE on home (2026-11-09) — "reverse the void"**: as Partners (the page's ending) arrives, the oat fog lifts and `#grid-bg` zooms 3→1 behind Partners' 70% tint; the footer stays solid (rain only behind Partners). Scrubbed (reverses). Other stage pages could reuse the same two tweens.
+  Original note — **🔖 BOOKMARK — "reverse the void" at the CTA** (dom's idea, 2026-09-02): the scene stage opens by
   pulling the user INTO the void (binary rain `#grid-bg` scales up 1→3 + fog + portal). dom wants the
   END (the CTA finale) to reverse-engineer that: as the CTA resolves / the stage releases, pull the
   user BACK OUT — the CTA scene dissolves into the zoomed-out binary rain (grid-bg scaling 3→1 or
@@ -744,3 +748,8 @@ about-v2 got a persistent `#page-bar` + `FoundersScene.astro` (fixed-fog + pixel
 - Extract reusable `SceneStage`/`SceneLayer`; roll site-wide.
 - Mobile: stage is desktop-only; mobile is currently flat/bar-less — needs its own treatment.
 - Ship Departure Mono via `@font-face` if adopted.
+
+### Header vs section-bar height (2026-11-09)
+- `--solaris-height` (72px) = section bar. `--header-compact-h` (104px) = compact scrolled header. Decoupled: Layout.astro's squish reads `--header-compact-h`; brand/nav sizes unchanged (BRAND_MIN/NAV_MIN), only the box grew. Docking bars morph between the two.
+- Mobile home: Soft CTA + Our Process are transparent on the binary rain, light centred text; Process title is a solaris terminal tag (`> how_we_work_together_`). Partners client strip hidden on mobile.
+- Mobile section titles: `TermTag.astro` (first child of each home scene; desktop hidden). Rhythm tokens in global.css: `--m-section-pad`, `--m-tag-gap`, `--m-stack-gap`, `--m-icon-gap`, `--m-icon-box` (Philosophy + Process share them; every motif fits the icon box except the wide bits row). Roll out to other pages next.

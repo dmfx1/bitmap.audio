@@ -36,6 +36,13 @@ function smoothingAllowed(): boolean {
 
 export function initSmoothScroll(): void {
   destroySmoothScroll();
+  // DEV HMR guard: when Vite hot-updates this module (or anything importing it) the module re-runs with
+  // a FRESH `lenis = null`, so destroySmoothScroll() above can't see the OLD instance — two Lenis +
+  // two tickers then fight over the scroll position (blocky/jittery stage, flickering header). Tear
+  // down whatever a previous copy left on window. No effect in production (runs once).
+  const w = window as any;
+  if (w.__lenisTick) { gsap.ticker.remove(w.__lenisTick); w.__lenisTick = null; }
+  if (w.__lenis) { try { w.__lenis.destroy(); } catch {} w.__lenis = null; }
   if (!smoothingAllowed()) return; // native scroll; the page owns its own triggers
 
   lenis = new Lenis({
@@ -50,6 +57,7 @@ export function initSmoothScroll(): void {
 
   lenis.on('scroll', ScrollTrigger.update);
   gsap.ticker.add(tick);
+  (window as any).__lenisTick = tick;
   gsap.ticker.lagSmoothing(0);
 
   // Metrics settle after fonts swap — refresh so triggers measure correctly.
@@ -65,6 +73,7 @@ export function destroySmoothScroll(): void {
   lenis.destroy();
   lenis = null;
   (window as any).__lenis = null;
+  (window as any).__lenisTick = null;
 }
 
 /** Programmatic scroll helper (respects Lenis when active, else native). */

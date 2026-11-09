@@ -1,0 +1,117 @@
+---
+import { BOOKING_URL, isExternal } from '../../config/booking';
+/* src/components/modules/PartnersProof.astro
+ *
+ * "Partners" — who we work with + the proof, and the home page's LAST WORD (the ask). DARK, laid out like
+ * the Hero / SoftCta: big title (heading-hero) with its second line in solaris + the blinking cursor,
+ * then the terms (stacked) beside one named quote, a slow strip of client names, and the hero's outline
+ * button PINNED to the bottom with a quiet detail link beside it. Sizes from the shared type scale.
+ * Brand-safe: agency mechanics (white-label, retainers) live on a separate agency page / brochure, not here.
+ * Static on mobile.
+ *
+ * Place INSIDE the page's stage wrapper + scene body:
+ *   <div class="scene partners-scene" data-scene="partners"><div class="scene-body"><PartnersProof … /></div></div>
+ * COPY comes in as props (PARTNERS at the top of home.astro).
+ */
+import { buttonVariants } from '../ui/button-variants';
+import { cn } from '../../lib/utils';
+
+interface Props {
+  /** Title, first line. */
+  head: string;
+  /** Title, second line — solaris. */
+  accent?: string;
+  terms: readonly string[];
+  quote: string;
+  /** e.g. "Name Surname, Role, Company" */
+  cite: string;
+  names: readonly string[];
+  linkLead?: string;
+  linkLabel?: string;
+  href?: string;
+  /** The pinned call to action. */
+  ctaLabel?: string;
+  ctaHref?: string;
+}
+const { head, accent, terms, quote, cite, names, linkLead, linkLabel, href = '/contact', ctaLabel, ctaHref = BOOKING_URL } = Astro.props;
+const ctaExt = isExternal(ctaHref) ? { target: '_blank', rel: 'noopener noreferrer' } : {};
+---
+<div class="pp">
+  {/* ROW 1 — title, same type + accent-second-line + solaris cursor as the hero */}
+  <div class="container-page pp__top">
+    <h2 class="heading-hero leading-tight font-medium pp__title">
+      {head}{accent && <Fragment><br/><span class="text-accent font-medium">{accent}</span></Fragment>}<span class="inline-block w-[0.5ch] h-[0.9em] bg-accent brightness-125 ml-1 animate-pulse align-middle" aria-hidden="true"></span>
+    </h2>
+  </div>
+
+  {/* ROW 2 — terms (stacked) beside the quote */}
+  <div class="container-page pp__mid">
+    <ul class="pp__terms">
+      {terms.map((t) => <li class="type-title">{t}</li>)}
+    </ul>
+    <figure class="pp__quote">
+      <blockquote class="type-title">“{quote}”</blockquote>
+      <figcaption class="type-body">{cite}</figcaption>
+    </figure>
+  </div>
+
+  {/* ROW 3 — client names, slow seamless loop */}
+  <div class="pp__names" aria-label="Clients we've made sound for">
+    <ul class="pp__track">
+      {[...names, ...names].map((n, i) => <li class="type-body" aria-hidden={i >= names.length ? 'true' : undefined}>{n}</li>)}
+    </ul>
+  </div>
+
+  {/* ROW 4 — the ask, pinned to the bottom (= the hero's outline button) + the detail link */}
+  <div class="container-page pp__ask">
+    {ctaLabel && (
+      <a href={ctaHref} {...ctaExt} class="pp__btn">
+        <span class={cn(buttonVariants({ variant: 'outline', size: 'xl' }), 'morph-accent rounded-none w-full h-14 md:h-24 px-4 md:px-8 text-base md:text-xl')}>{ctaLabel}</span>
+      </a>
+    )}
+    {linkLabel && <p class="type-body pp__more">{linkLead} <a class="pp__link" href={href}>{linkLabel}</a></p>}
+  </div>
+</div>
+
+<style>
+  .pp {
+    height: 100%; display: grid; grid-template-rows: 1fr auto auto auto; gap: clamp(1.25rem, 3.2vh, 2.5rem);
+    padding-block: var(--page-gutter); box-sizing: border-box;
+    font-family: var(--font-mono); color: hsl(var(--foreground));
+  }
+  .pp__top { display: flex; flex-direction: column; justify-content: center; min-height: 0; }
+  .pp__title { margin: 0; max-width: min(80vw, 90rem); }
+
+  .pp__mid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: clamp(2rem, 5vw, 6rem); align-items: start; }
+  .pp__terms { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; color: hsl(var(--foreground) / 0.9); }
+  .pp__terms li::before { content: '▪'; color: hsl(var(--accent)); margin-right: 0.75ch; }
+  .pp__quote { margin: 0; }
+  .pp__quote blockquote { margin: 0 0 0.75rem; font-weight: 500; }
+  .pp__quote figcaption { color: hsl(var(--foreground) / 0.65); }
+
+  .pp__names { overflow: hidden; border-block: 2px solid hsl(var(--foreground) / 0.12); padding-block: 0.9rem;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+            mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent); }
+  .pp__track { list-style: none; margin: 0; padding: 0; display: flex; gap: 3rem; width: max-content; white-space: nowrap;
+    color: hsl(var(--foreground) / 0.5); letter-spacing: 0.12em; animation: pp-loop 60s linear infinite; }
+  @keyframes pp-loop { to { transform: translateX(-50%); } }
+  @media (prefers-reduced-motion: reduce) { .pp__track { animation: none; } }
+
+  .pp__ask { display: flex; align-items: center; gap: 2rem; }
+  .pp__btn { display: block; width: min(100%, calc((36rem - 1rem) / 2)); pointer-events: auto; }   /* = one hero button */
+  .pp__more { margin: 0; color: hsl(var(--foreground) / 0.75); }
+  .pp__link { pointer-events: auto; color: hsl(var(--foreground)); text-decoration: underline; text-underline-offset: 0.25em; transition: color .2s ease; }
+  .pp__link:hover { color: hsl(var(--accent)); }
+
+  /* short laptop screens: step the title down one size so everything fits above the pinned button */
+  @media (min-width: 768px) and (max-height: 860px) { .pp__title { font-size: 4.5rem; } }
+
+  @media (max-width: 767px) {
+    .pp { height: auto; display: flex; flex-direction: column; gap: 2.5rem; padding-block: 0 2rem; }   /* top space = TermTag */
+    .pp__title { max-width: none; }
+    .pp__mid { grid-template-columns: 1fr; gap: 2rem; }
+    .pp__names { display: none; }   /* client strip: desktop only (for now) */
+    .pp__ask { flex-direction: column; align-items: stretch; gap: 1.25rem; }
+    .pp__btn { width: 100%; }
+  }
+</style>

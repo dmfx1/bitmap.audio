@@ -1,3 +1,4 @@
+import { BOOKING_URL } from '@/config/booking';
 import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import ScrambleHeading from './ScrambleHeading';
@@ -76,9 +77,9 @@ export default function Hero() {
                       OUR STORY
                     </Button>
                   </a>
-                  <a href="/contact" className="flex-1">
+                  <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer" className="flex-1">
                     <Button variant="outline" size="xl" className="morph-accent rounded-none w-full h-14 md:h-24 px-4 md:px-8 text-base md:text-xl">
-                      START A PROJECT
+                      BOOK A CALL
                     </Button>
                   </a>
                 </div>

@@ -275,11 +275,23 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
         function initNavContrast() {
           const root = document.documentElement;
           const update = function () {
-            if (window.innerWidth < 768) { root.classList.remove('nav-over-oat'); return; }
+            const mobile = window.innerWidth < 768;
             const bar = document.getElementById('header-bar');
             const headerH = bar ? bar.offsetHeight : 140;
-            const el = document.elementFromPoint(Math.round(window.innerWidth / 2), headerH + 8);
-            const overOat = !!(el && el.closest && el.closest('.theme-oat'));
+            // mobile: sample under the logo; only sections marked data-oat-mobile are actually oat there
+            // (other .theme-oat scenes go transparent on the rain on mobile).
+            let overOat;
+            if (mobile) {
+              const y = 40;   // the logo's line
+              overOat = Array.prototype.some.call(document.querySelectorAll('[data-oat-mobile]'), function (s) {
+                // ignore the faded buffer (its padding) — flip only once the logo is over solid oat
+                const r = s.getBoundingClientRect(); const f = (parseFloat(getComputedStyle(s).paddingTop) || 0) * 0.6;
+                return r.top + f <= y && r.bottom - f >= y;
+              });
+            } else {
+              const el = document.elementFromPoint(Math.round(window.innerWidth / 2), headerH + 8);
+              overOat = !!(el && el.closest && el.closest('.theme-oat'));
+            }
             root.classList.toggle('nav-over-oat', overOat);
           };
           const onResize = function () { window.requestAnimationFrame(update); };
@@ -410,11 +422,14 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
            HEADER_START: px of scroll BEFORE the header reacts, so the hero TEXT starts
            pulling first and the header/nav only squish after — stops it feeling like the
            page is just scrolling down. SQUISH_DIST/SOLID_DIST run AFTER that offset. */
-        const BRAND_MIN = 0.62, NAV_MIN = 1.00, HEADER_START = 220, SQUISH_DIST = 800, SOLID_DIST = 160;
+        /* BRAND_MIN = compact brand size at rest (was 0.62 → 0.68, +10%, 2026-11-09). */
+        const BRAND_MIN = 0.68, NAV_MIN = 1.00, HEADER_START = 220, SQUISH_DIST = 800, SOLID_DIST = 160;
         // Compact header matches the solaris bar: shrink the gutter so header-h -> --solaris-height
         // while the brand holds its floor. GUTTER_PX = --page-gutter (2rem) resolved to px.
         const GUTTER_PX = parseFloat(getComputedStyle(root).fontSize) * 2 || 32;
-        const SOLARIS_H = parseFloat(getComputedStyle(root).getPropertyValue('--solaris-height')) || 96;
+        // Compact header height — its own token now (was tied to --solaris-height).
+        const SOLARIS_H = parseFloat(getComputedStyle(root).getPropertyValue('--header-compact-h'))
+          || parseFloat(getComputedStyle(root).getPropertyValue('--solaris-height')) || 96;
         const smooth = (x) => x * x * (3 - 2 * x);
         const prog = (y, dist) => smooth(Math.max(0, Math.min(1, (y - HEADER_START) / dist)));
 

@@ -47,7 +47,8 @@ export const BRAND_MOTION = {
  * "no scramble" (the wordmark just rests as bitmap.audio — e.g. the home page).
  */
 const ROUTE_NAMES: Record<string, string> = {
-  '/home': 'home',
+  // '/home' is deliberately NOT here: the home page's wordmark stays BRAND_NAME ('bitmap.audio');
+  // like every page, hovering it shows 'home'.
   '/about': 'about',
   '/contact': 'contact',
   '/faq': 'faq',

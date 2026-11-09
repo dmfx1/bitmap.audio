@@ -171,6 +171,12 @@ html.nav-over-oat nav[data-nav-chrome] a.link-underline { color: hsl(var(--accen
    Transition includes opacity so the intro fade-in still works. */
 [data-nav-chrome="brand"] span { transition: color 0.45s ease, opacity 0.4s ease; }
 html.nav-over-oat [data-nav-chrome="brand"] { --foreground: var(--content-foreground); }
+/* MOBILE: no header bar, so over an oat section (data-oat-mobile) the white b mark flips to dark ink.
+   invert + hue-rotate keeps the amber underline roughly amber. */
+@media (max-width: 767px) {
+  [data-nav-chrome="brand"] img { transition: filter 0.3s ease; }
+  html.nav-over-oat [data-nav-chrome="brand"] img:first-of-type { filter: invert(1) hue-rotate(180deg); }
+}
 
 /* DOCKED (desktop): the section's solaris bar has risen into the header zone (orange). Brand + nav
    must read DARK on it, and the nav pill drops its teal glass so the solaris shows through. Overrides
@@ -405,6 +411,72 @@ html { scrollbar-width: none; }
 /* blinking terminal cursor for the mobile section tags (used by ConceptGrid) */
 @keyframes term-blink { 50% { opacity: 0; } }
 
+/* ── MOBILE SECTION RHYTHM (2026-11-09) — one set of spacing tokens so every stacked mobile section
+   reads the same. Used by TermTag + the Philosophy / Process stacks (home first; roll out site-wide). ── */
+:root {
+  --m-section-pad: 5rem;                       /* top of every section (above the tag) + bottom */
+  --m-tag-gap: 2.5rem;                         /* terminal tag -> the section's content */
+  --m-stack-gap: clamp(6.5rem, 20vh, 9rem);    /* roomier, 2026-11-09 (was 4.5rem/14vh/6.5rem) */  /* between stacked items (philosophy captions, process steps) */
+  --m-icon-gap: 2.25rem;                        /* icon -> its text */
+  --m-icon-box: 64px;                          /* every square-ish motif fits this box; wide rows are the exception */
+  /* dark -> oat buffer at the top + bottom of an oat section on mobile. Scales with the screen height:
+     never under 40px, ~12% of a phone's height, capped so tall tablets don't get a huge wash. */
+  --m-oat-fade: clamp(120px, 36svh, 380px);   /* long, ease-IN (t^2.4) fade: starts very translucent, ramps up late */
+}
+/* Eased dark->oat fade (mobile). Apply .oat-fade-mobile to a section: it grows by the fade at the top +
+   bottom (padding) and its background ramps from transparent (the rain shows) to oat and back out. */
+@media (max-width: 767px) {
+  .oat-fade-mobile {
+    --oat: hsl(var(--content-background));
+    --oat-0: hsl(var(--content-background) / 0);
+    background-color: transparent !important;
+    background-image: linear-gradient(to bottom,
+      hsl(var(--content-background) / 0.0) calc(var(--m-oat-fade) * 0.0),
+      hsl(var(--content-background) / 0.003) calc(var(--m-oat-fade) * 0.0833),
+      hsl(var(--content-background) / 0.014) calc(var(--m-oat-fade) * 0.1667),
+      hsl(var(--content-background) / 0.036) calc(var(--m-oat-fade) * 0.25),
+      hsl(var(--content-background) / 0.072) calc(var(--m-oat-fade) * 0.3333),
+      hsl(var(--content-background) / 0.122) calc(var(--m-oat-fade) * 0.4167),
+      hsl(var(--content-background) / 0.189) calc(var(--m-oat-fade) * 0.5),
+      hsl(var(--content-background) / 0.274) calc(var(--m-oat-fade) * 0.5833),
+      hsl(var(--content-background) / 0.378) calc(var(--m-oat-fade) * 0.6667),
+      hsl(var(--content-background) / 0.501) calc(var(--m-oat-fade) * 0.75),
+      hsl(var(--content-background) / 0.646) calc(var(--m-oat-fade) * 0.8333),
+      hsl(var(--content-background) / 0.812) calc(var(--m-oat-fade) * 0.9167),
+      hsl(var(--content-background) / 1.0) calc(var(--m-oat-fade) * 1.0),
+      hsl(var(--content-background) / 1.0) calc(100% - var(--m-oat-fade) * 1.0),
+      hsl(var(--content-background) / 0.812) calc(100% - var(--m-oat-fade) * 0.9167),
+      hsl(var(--content-background) / 0.646) calc(100% - var(--m-oat-fade) * 0.8333),
+      hsl(var(--content-background) / 0.501) calc(100% - var(--m-oat-fade) * 0.75),
+      hsl(var(--content-background) / 0.378) calc(100% - var(--m-oat-fade) * 0.6667),
+      hsl(var(--content-background) / 0.274) calc(100% - var(--m-oat-fade) * 0.5833),
+      hsl(var(--content-background) / 0.189) calc(100% - var(--m-oat-fade) * 0.5),
+      hsl(var(--content-background) / 0.122) calc(100% - var(--m-oat-fade) * 0.4167),
+      hsl(var(--content-background) / 0.072) calc(100% - var(--m-oat-fade) * 0.3333),
+      hsl(var(--content-background) / 0.036) calc(100% - var(--m-oat-fade) * 0.25),
+      hsl(var(--content-background) / 0.014) calc(100% - var(--m-oat-fade) * 0.1667),
+      hsl(var(--content-background) / 0.003) calc(100% - var(--m-oat-fade) * 0.0833),
+      hsl(var(--content-background) / 0.0) calc(100% - var(--m-oat-fade) * 0.0)) !important;
+    padding-top: var(--m-oat-fade) !important;
+    padding-bottom: var(--m-oat-fade) !important;
+  }
+}
+.term-tag { display: none; }
+@media (max-width: 767px) {
+  .term-tag {
+    display: block; margin: 0;
+    padding: var(--m-section-pad) var(--page-gutter-x) var(--m-tag-gap);
+    font-family: var(--font-mono, ui-monospace, monospace); font-size: 1rem; letter-spacing: 0.08em;
+    text-align: left; color: hsl(var(--accent));   /* solaris on the dark sections… */
+  }
+  [data-oat-mobile] > .term-tag { color: hsl(var(--foreground)); }   /* …dark ink on the oat ones */
+  .term-tag__cursor { animation: term-blink 1s steps(1) infinite; }
+  /* the tag supplies the section's top space — drop the content's own */
+  .term-tag + .scene-body { padding-top: 0 !important; }
+  /* stacked icon sections (Philosophy, Process): tag -> first icon = the same gap as between items */
+  [data-scene="philosophy"] > .term-tag, [data-scene="how"] > .term-tag { padding-bottom: var(--m-stack-gap); }
+}
+
 /* ── SITE-WIDE CTA scene + pixel veil (see components/modules/CtaScene.astro) ──────────────────── */
 .cta-scene { background-color: hsl(var(--background)); }
 .scene-veil { position: absolute; inset: 0; z-index: 50; display: grid; pointer-events: none; }
@@ -558,7 +630,8 @@ html { scrollbar-width: none; }
     --content-accent: 28 90% 45%;        /* deepened orange for contrast on cream */
 
     /* SOLARIS beam — the dark→beige seam divider. Make it BIGGER via --solaris-height. */
-    --solaris-height: 96px;
+    --solaris-height: 72px;      /* section bar height — was 96px (smaller, 2026-11-09) */
+    --header-compact-h: 104px;   /* compact (scrolled) header height — DECOUPLED from the bar (2026-11-09); the brand + nav keep their sizes, this is the space they sit in. Docking bars grow to this height. */
     --solaris-from: #FF9E1A;             /* brand orange (left) */
     --solaris-mid: #FFC24A;
     --solaris-to: #FFEEB8;               /* hot / near-white (right) */
@@ -902,7 +975,7 @@ a, button, [role="button"] {
   }
 
   /* ── SHARED TYPE SCALE (2026-11-05) — change a size HERE and every scene using it follows.
-     Used by: Hero (title + lead), SoftCta, HowWeWork. Values reproduce the previous sizes exactly.
+     Used by: Hero (title + lead), SoftCta, ProcessWords. Values reproduce the previous sizes exactly.
        --type-display  big statement titles      (.heading-hero)
        --type-lead     the line under a title    (.type-lead)  = was text-2xl / md:text-5xl
        --type-title    card / step titles        (.type-title)

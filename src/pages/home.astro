@@ -6,6 +6,7 @@
  * portal bloom + beige fog) → Services → Philosophy (6-stage bitmap scene, ported from About) → CTA (dark,
  * oversized Departure Mono, pixelates in) → release into the footer. No real vertical scroll until then.
  */
+import TermTag from '../components/modules/TermTag.astro';
 import Layout from '../layouts/Layout.astro';
 import Hero from '../components/modules/Hero.tsx';
 import ServicePillars from '../components/modules/ServicePillars';
@@ -17,9 +18,9 @@ import SpatialDepth from '../components/modules/SpatialDepth.astro';
 import BinaryField from '../components/modules/BinaryField.astro';
 import PhilosophyScene from '../components/modules/PhilosophyScene.astro';
 import SoftCta from '../components/modules/SoftCta.astro';
-// HowWeWork.astro (cards + chevrons version) is kept on disk but not used — trialling ProcessWords (big type).
 import ProcessWords from '../components/modules/ProcessWords.astro';
-import CtaScene from '../components/modules/CtaScene.astro';
+import PartnersProof from '../components/modules/PartnersProof.astro';
+// CtaScene (pixelating final CTA) is NOT used on home — the page ends on Partners' pinned button. Other pages keep it.
 
 // ── COPY — edit the home page's scene text here ──
 const PHILOSOPHY_CAPTIONS = [
@@ -32,11 +33,28 @@ const PHILOSOPHY_CAPTIONS = [
 ];
 const HOW_STEPS = [
   // icon = a philosophy pixel motif (lib/bit-motifs.ts): 'pixel' · 'bits' · 'map' · 'master' · 'stems' · 'result'
-  { n: '00', name: 'Discovery', line: 'Who you are, and what you mean.', icon: 'pixel' },
-  { n: '01', name: 'Conceptualise', line: 'Two or three directions to choose from.', icon: 'bits' },
-  { n: '02', name: 'Production', line: 'The master sound, built.', icon: 'result' },   // big block, small blocks inside
-  { n: '03', name: 'Delivery', line: 'Stems, every version, cut from the master.', icon: 'stems' },
+  { n: '00', name: 'Discovery', line: 'Who you are, and what you want to say.', icon: 'pixel' },
+  { n: '01', name: 'Concepts', line: 'Two or three directions to choose from.', icon: 'bits' },
+  { n: '02', name: 'Production', line: 'The master sound, built.', icon: 'map' },   // small pixels + gap lines = one big block
+  { n: '03', name: 'Delivery', line: 'Final assets and stems, cut from the master.', icon: 'stems' },
 ] as const;
+// ⚠ PLACEHOLDER COPY — the quote + client are FAKE, there to show the layout. Replace before going live.
+const PARTNERS = {
+  head: 'Your sound team,',
+  accent: 'plugged in.',
+  // BRAND-SAFE: no agency mechanics here (white-label / retainers live on a separate agency page or brochure).
+  terms: [
+    'Working directly with brands, and alongside agencies',
+    'Confidential by default',
+    'From a single sonic logo to a full identity',
+  ],
+  quote: 'They heard something in our brief that we hadn\'t managed to put into words.',
+  cite: 'Alex Placeholder, Creative Director, Example Studio',
+  // client names (PlayStation left out — can't be shared). Check permissions before launch.
+  names: ['ADIDAS', 'BBC', 'SONY', 'LEGO', 'REEBOK', 'PUMA', 'F1', 'EA GAMES', 'HEINEKEN', 'BRITISH SCIENCE MUSEUM',
+    'MASSIVE MUSIC', 'SONICBRAND', 'FIFA', 'SEON', 'CHANNEL 4', 'MAN CITY', 'BMG', 'UNIVERSAL MUSIC',
+    'MATCHROOM BOXING × FRAMELESS', 'SAVE THE CHILDREN', 'WWF', 'ITV'],
+} as const;
 ---
 
 <Layout
@@ -63,6 +81,7 @@ const HOW_STEPS = [
         <SonicWaves />
         <UiuxNodes />
         <SpatialDepth />
+        <TermTag label="What we do" />
         <div class="scene-body">
           <ServicePillars client:load />
         </div>
@@ -79,56 +98,74 @@ const HOW_STEPS = [
 
       {/* Philosophy — the 6-stage bitmap scene (PhilosophyScene.astro + lib/scenes/philosophy.ts), ported from
           About. A stacked layer; the choreography is nested in the master timeline (see PHIL_SPEED). */}
-      <div class="scene phil-scene" data-scene="philosophy" style="z-index:20">
+      <div class="scene phil-scene oat-fade-mobile" data-scene="philosophy" data-oat-mobile style="z-index:20">
+        <TermTag label="Our philosophy" />
         <PhilosophyScene captions={PHILOSOPHY_CAPTIONS} />
       </div>
 
       {/* SOFT CTA — dark, follows on from philosophy's dark ending. Deliberately LIGHTER than the final CTA
           (mono, smaller, no pixel veil) so the page doesn't "end twice". Same action as the final CTA. */}
       <div class="scene soft-cta-scene" data-scene="soft-cta" style="z-index:25">
+        <TermTag label="Let's talk" />
         <div class="scene-body">
           <SoftCta
             head="How do you sound"
             accent="right now?"
             sub="Book a free, no-obligation 30-minute call with Dom and Nick to talk about how sound could work for your brand, product or space."
-            href="/contact"
-            label="Book a free call"
-          />{/* TODO: point href at a booking tool once chosen */}
+            label="Book a call"
+            people={[{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick', src: '/images/nick-cutout.webp' }]}
+            peopleNote="You'll talk to us, not a sales team."
+          />{/* href defaults to BOOKING_URL (config/booking.ts). people = TRIAL headshots (2026-11-09) */}
         </div>
       </div>
 
-      {/* OUR PROCESS — oat. Big-type steps that scramble into each other + footer. Component: ProcessWords.astro (HowWeWork.astro = the cards version, unused). */}
-      <div class="scene theme-oat how-scene" data-scene="how" style="z-index:27">
+      {/* OUR PROCESS — oat. Big-type steps that scramble into each other + footer. Component: ProcessWords.astro; animation: lib/scenes/process-words.ts. */}
+      <div class="scene theme-oat how-scene oat-fade-mobile" data-scene="how" data-oat-mobile style="z-index:27">
+        <TermTag label="Our process" />
         <div class="scene-body">
           <ProcessWords
             heading="How we work together"
             steps={HOW_STEPS}
-            aside="Most of the time goes into listening."
+            aside="We don't start with the sound. We start with what you need it to say."
             price="Sonic identities start from £4k and typically take 6–10 weeks."
             custom="UI/UX and immersive projects are planned around you."
-            linkLead="Agency, or want the detail?"
-            linkLabel="See how we price"
-            href="/contact"
           />{/* TODO: href → the planned pricing / working-with-us page once it exists */}
         </div>
       </div>
 
-      {/* CTA — dark void, oversized Departure Mono; pixelates in, then the stage releases into the footer. */}
-      <div class="scene cta-scene oat-on-mobile mobile-fill" data-scene="cta" style="z-index:30; --veil-color: hsl(var(--background))">
-        <div class="cta-mobile-bar-top md:hidden" aria-hidden="true"></div>
-        <div class="scene-body container-page">
-          <CtaScene head="Ready to define<br/>your sound?" href="/contact" linkLabel="start_project" />
+      {/* PARTNERS & PROOF — DARK, hero layout. Brand-safe title + terms + quote + client names + the pinned ask (the page's last word).
+          Component: PartnersProof.astro. No separate final CTA on home. */}
+      <div class="scene partners-scene" data-scene="partners" style="z-index:28">
+        <TermTag label="Partners" />
+        <div class="scene-body">
+          <PartnersProof
+            head={PARTNERS.head}
+            accent={PARTNERS.accent}
+            terms={PARTNERS.terms}
+            quote={PARTNERS.quote}
+            cite={PARTNERS.cite}
+            names={PARTNERS.names}
+            linkLead="Want the detail?"
+            linkLabel="See how we price"
+            href="/contact"
+            ctaLabel="Book a call"
+          />{/* ctaHref defaults to BOOKING_URL; TODO: href → the hidden /pricing page once built */}
         </div>
       </div>
     </div>
   </div>
 
   <style>
-    #stage-track { position: relative; height: 2880vh; } /* ~106vh per timeline unit (unchanged). Measured 26.11u: hero/services 3.0 + binary field 2.95 + philosophy + soft CTA 1.8 + our process 5.94 + CTA. Re-measure if any scroll knob changes (see CLAUDE.md). */
+    #stage-track { position: relative; height: 2420vh; } /* ~106vh per timeline unit (unchanged). Measured 21.79u: hero/services 3.0 + binary field 2.95 + philosophy (PHIL_SPEED 3.5, hold 0.5) + soft CTA 1.8 + our process 5.54 + partners 2.24 + bar collapse 0.3. Re-measure if any scroll knob changes (see CLAUDE.md). */
     .stage-pin { position: sticky; top: 0; height: 100svh; overflow: hidden; }
 
     .scene { position: absolute; top: 0; left: 0; right: 0; height: 100svh; }
     .scene[data-scene="hero"] { display: flex; flex-direction: column; padding-top: var(--header-h); box-sizing: border-box; }
+    /* Desktop: every stacked scene except the hero starts HIDDEN in CSS (GSAP's autoAlpha reveals them).
+       Otherwise, before the stage script runs, the top-most layer (Partners, oat) sits under the header and
+       Layout's nav-contrast check flips the header dark over the hero. Also avoids a first-paint flash.
+       visibility (not display) keeps them laid out, so measurements still work. Mobile forces them visible. */
+    @media (min-width: 768px) { .stage-pin > .scene:not([data-scene="hero"]) { visibility: hidden; } }
     .scene-body {
       position: absolute; left: 0; right: 0;
       top: calc(var(--header-h) + var(--solaris-height)); height: calc(100svh - var(--header-h) - var(--solaris-height));
@@ -154,8 +191,10 @@ const HOW_STEPS = [
 
     /* SOFT CTA — the scene wrapper is dark; the layout lives in SoftCta.astro. */
     .soft-cta-scene { background-color: hsl(var(--background)); }
+    /* Partners: a 70% DARK TINT (not solid) so the binary rain shows through as the void reverses (timeline).
+       Raise the alpha if any small text struggles over the rain. */
+    .partners-scene { background-color: hsl(var(--background) / 0.7); }
 
-    /* .cta-scene + .scene-veil styling is global (global.css); the CTA content is <CtaScene />. */
 
     #page-bar {
       position: fixed; top: var(--header-h); left: 0; right: 0; z-index: 40;
@@ -185,17 +224,22 @@ const HOW_STEPS = [
       .scene[data-scene="hero"] { min-height: 100svh; }
       /* OPTION B: light scenes go transparent on mobile so the fixed binary rain runs the whole page; content sits on light cards. */
       .scene.theme-oat { background-color: transparent; }
-      .scene.theme-oat.how-scene { background-color: hsl(var(--content-background)); }  /* dark text → keep solid oat */
+      .partners-scene { background-color: transparent; }  /* mobile: no tint — straight on the rain, like Soft CTA + Process */
       /* 'In computer science…' reads as LIGHT text straight on the rain (no card) */
-      .scene[data-scene="philosophy"] { --foreground: 0 0% 95%; --muted-foreground: 48 18% 82%; }
+      /* TRIAL (2026-11-09): Philosophy + Our Process sit on OAT on mobile (dark text); the rest stays on the rain. */
+      /* the oat itself + its eased dark<->oat buffer: .oat-fade-mobile (global.css, --m-oat-fade) */
+      .scene[data-scene="philosophy"], .scene.theme-oat.how-scene {
+        --foreground: var(--content-foreground); --muted-foreground: 48 6% 38%;
+      }
       .stage-fog, .stage-portal, .scene-veil, #page-bar { display: none; }
       .scene-body {
         position: static; top: auto; height: auto;
-        padding-block: 3rem;  /* vertical only — let container-page supply the 16px side gutter (CTA) */
+        padding-block: 3rem;  /* bottom ≈ --m-section-pad with components' 2rem; top dropped under a TermTag. vertical only — let container-page supply the 16px side gutter (CTA) */
         display: flex; flex-direction: column; justify-content: center;
       }
-      /* PHILOSOPHY + SOFT CTA mobile layouts live in their components. */
-      .soft-cta-scene { background-color: hsl(var(--background)); }
+      /* PHILOSOPHY + SOFT CTA mobile layouts live in their components. Soft CTA + Our Process sit straight on
+         the binary rain on mobile (transparent; light text). */
+      .soft-cta-scene { background-color: transparent; }
 
       /* Philosophy is ~6 screens tall on mobile, so the 0.2 IntersectionObserver threshold can never
          be met — exempt it from the fade-up or it stays invisible (About neutralises this too). */
@@ -207,10 +251,7 @@ const HOW_STEPS = [
     }
   </style>
 
-  {/* CTA is the same dark colour as the footer — drop the Solaris seam beam between them. */}
   <style is:global>
-    .solaris:has(+ footer) { display: none; }
-
     /* Binary-field styles live in BinaryField.astro (global there — the digits are built in JS). */
   </style>
 
@@ -238,8 +279,7 @@ const HOW_STEPS = [
       const scPhil = pin.querySelector<HTMLElement>('.scene[data-scene="philosophy"]')!;
       const scSoft = pin.querySelector<HTMLElement>('.scene[data-scene="soft-cta"]')!;
       const scHow = pin.querySelector<HTMLElement>('.scene[data-scene="how"]')!;
-      const scCta = pin.querySelector<HTMLElement>('.scene[data-scene="cta"]')!;
-      const vCta = scCta.querySelector<HTMLElement>('[data-cta-veil]')!; // built + started-covered by <CtaScene>
+      const scPartners = pin.querySelector<HTMLElement>('.scene[data-scene="partners"]')!;
       const gridBg = document.getElementById('grid-bg');
 
       prepareVoid(fog, portal);
@@ -248,7 +288,7 @@ const HOW_STEPS = [
       gsap.set(scPhil, { autoAlpha: 0 });
       gsap.set(scSoft, { autoAlpha: 0 });
       gsap.set(scHow, { autoAlpha: 0 });
-      gsap.set(scCta, { autoAlpha: 0 });
+      gsap.set(scPartners, { autoAlpha: 0 });
 
       const bar = document.getElementById('page-bar')!;
       const pageBar = createPageBar(bar);
@@ -257,7 +297,7 @@ const HOW_STEPS = [
       // Soft CTA stays in the dark world, so it keeps the WHITE bar — no colour change on a visible bar.
       const SOFT: BarCfg = { name: "Let's Talk", bg: '#ffffff', text: '#141414', glow: '0 0 24px rgba(255,255,255,0.35)' };
       const HOW: BarCfg = { name: 'Our Process' };
-      const CONTACT: BarCfg = { name: 'Get In Touch' };
+      const PARTNERS_BAR: BarCfg = { name: 'Partners' };
 
       const T = { heroHold: 0.8, fogStart: 0.8, fogDur: 1.0, portalStart: 0.5, voidScale: 3.0, barPush: 1.72, crossDur: 0.9 };
       // Incoming layer starts fading in only after the outgoing is ~60% gone — a small overlap, not a
@@ -323,7 +363,7 @@ const HOW_STEPS = [
       // (still scrubbed by the master — a nested timeline is driven by its parent, it doesn't auto-play).
       // PHIL_SPEED: About scrolls ~3x faster per timeline unit than home, so the scene plays 3x faster
       // here to keep About's tuned pace. Raise = quicker scene / lower = slower. Re-size #stage-track if changed.
-      const PHIL_SPEED = 3;
+      const PHIL_SPEED = 3.5;   // was 3 — +~15% (2026-11-09)
       const phil = gsap.timeline();
       buildPhilosophyScene(phil, scPhil, {
         heroScale: 2.52,                                                   // opening pixel 10% smaller
@@ -331,6 +371,7 @@ const HOW_STEPS = [
         finalScale: 0.96,                                                  // final "result" block ~16% smaller
         masterGrow: false,                                                 // master: glow up (exaggerated), no growth
         exit: 'flicker',                                                   // intro-style flicker-scale out (no TV-out)
+        hold: 0.5,                                                         // HOME: shorter PAUSES between stages (default 0.85) — the motion is untouched
       });
       phil.timeScale(PHIL_SPEED);
       // Caption 1 ("Think of your sound…") is set visible by the builder; on home it would play out during
@@ -369,18 +410,25 @@ const HOW_STEPS = [
       atDir('howIn+=' + (OV + BAR_OUT), 1, HOW);                    // down: "How We Work" as the bar returns
       atDir('howIn+=' + (OV + BAR_OUT), -1, null);                  // up: clears as the bar hides
       atDir('howIn+=' + (BAR_OUT * 0.8), -1, SOFT);                 // up: "Let's Talk" back (bar already white)
-      // Big type: the step title/number/line scramble in, then scramble into each next step; footer last.
-      buildProcessWordsScene(tl, scHow, { in: 0.4, hold: 0.5, swap: 0.45, foot: 0.3, end: 0.45 });
+      // Big type: step 00 already showing; each step scrambles into the next as the background deepens; footer last.
+      buildProcessWordsScene(tl, scHow, { hold: 0.5, swap: 0.45, foot: 0.3, end: 0.45 });
 
-      // How we work → final CTA (small overlap); the CTA appears under a dark veil, then pixelates in.
-      tl.addLabel('ctaIn', '>');
-      tl.to(scHow, { autoAlpha: 0, ease: 'none', duration: T.crossDur }, 'ctaIn')
-        .to(scCta, { autoAlpha: 1, ease: 'none', duration: 0.3 }, 'ctaIn+=' + OV);
-      crossLabel('ctaIn', CONTACT, HOW);   // down (buffered) → CTA; up (snappy) → how we work
-      tl.to(vCta, { '--reveal': 1, ease: 'none', duration: 1.6 }, 'ctaIn+=' + (OV + 0.3));
-      // Dwell on the fully-revealed CTA for a good beat BEFORE the stage unpins into the footer, so the
-      // pixelation lands and settles before any vertical scroll begins. Tune this to taste.
-      tl.to({}, { duration: 2.4 });
+      // ── PARTNERS & PROOF — process → partners (both oat + solaris bar: plain cross-fade, label swap). ──
+      const PARTNERS_HOLD = 0.8;   // [scroll units] time on the partners section (kept short — it's the page's end)
+      tl.addLabel('partnersIn', '>');
+      tl.to(scHow, { autoAlpha: 0, ease: 'none', duration: T.crossDur }, 'partnersIn')
+        .to(scPartners, { autoAlpha: 1, ease: 'none', duration: T.crossDur }, 'partnersIn+=' + OV);
+      crossLabel('partnersIn', PARTNERS_BAR, HOW);   // down → "Partners"; up → "Our Process"
+      // REVERSE THE VOID — the page opened by pulling you INTO the rain (grid-bg 1→3, fog in); it closes by
+      // pulling you back OUT: the oat fog lifts and the rain zooms 3→1 behind Partners' tinted background.
+      // Scrubbed, so scrolling back up dives back in. (CLAUDE.md bookmark "reverse the void".)
+      tl.to(fog, { opacity: 0, ease: 'none', duration: T.crossDur }, 'partnersIn');
+      if (gridBg) tl.to(gridBg, { scale: 1, ease: 'power2.out', duration: T.crossDur + OV }, 'partnersIn');
+      tl.to({}, { duration: PARTNERS_HOLD });
+
+      // The page ends on Partners (its pinned "Book a free call" is the last word). Then the solaris bar
+      // COLLAPSES back UP into the header (the push-in reversed) and the stage releases into the footer.
+      tl.to(bar, { clipPath: 'inset(0 0 100% 0)', opacity: 0.35, ease: 'steps(6)', duration: 0.3 });
 
       const fonts = (document as any).fonts;
       if (fonts?.ready) fonts.ready.then(() => ScrollTrigger.refresh());

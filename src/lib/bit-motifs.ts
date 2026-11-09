@@ -1,7 +1,7 @@
 /* src/lib/bit-motifs.ts
  *
  * The bitmap pixel motifs, one per philosophy stage (pixel → bits → map → master → stems → result).
- * Shared by PhilosophyScene (mobile captions) and HowWeWork (step icons) — edit them HERE.
+ * Shared by PhilosophyScene (mobile captions) and ProcessWords (step icons) — edit them HERE.
  * Raw SVG strings, injected with set:html.
  */
 export const MOTIFS = {
@@ -18,11 +18,10 @@ export type MotifName = keyof typeof MOTIFS;
 /** Philosophy order (index = stage). */
 export const PHILOSOPHY_MOTIFS = [MOTIFS.pixel, MOTIFS.bits, MOTIFS.map, MOTIFS.master, MOTIFS.stems, MOTIFS.result];
 
-/** A motif re-inked for use ON A LIGHT/OAT surface: its light fills/strokes follow --icon-ink and its
- *  solaris fills follow --icon-hi; 'result's inner blocks follow --icon-ground (set those on any ancestor). Presentation attributes can't take var(),
- *  so colours are rewritten as inline styles. */
+/** A motif re-inked for use on a light surface: light fills/strokes follow --icon-ink, solaris fills follow
+ *  --icon-hi, and 'result's small inner blocks follow --icon-ground (e.g. transparent = cut-outs).
+ *  Presentation attributes can't take var(), so colours are rewritten as inline styles. */
 export function inkedMotif(name: MotifName): string {
-  // 'result' is a big solaris block with small light blocks INSIDE — keep those as holes (--icon-ground).
   const light = name === 'result' ? 'var(--icon-ground)' : 'var(--icon-ink)';
   return MOTIFS[name]
     .replace(/fill="#(ECEAE0|FFFFFF)"/g, `style="fill:${light}"`)

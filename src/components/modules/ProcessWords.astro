@@ -1,19 +1,25 @@
 ---
 /* src/components/modules/ProcessWords.astro
  *
- * "Our process" as BIG TYPE — no cards, no colour. Desktop: one big bold step title in the centre of the
- * screen with its number above and its line below; scrolling scrambles each into the next step
- * (lib/scenes/process-words.ts), then the footer (aside / price / custom / link) fades up at the bottom.
- * Mobile: the steps simply stacked as big text, static.
+ * "Our process" as BIG TYPE — no cards. Desktop: one big bold step title pinned to the exact centre of the
+ * screen, its number hanging above and its line below (so the title never moves, whatever the line length).
+ * Step 00 is already showing when the section arrives; scrolling scrambles each part into the next step and
+ * cross-fades the section background to that step's gradient (lib/scenes/process-words.ts). The footer
+ * (aside / price / custom / link) fades up after the last step.
+ * Mobile: the steps simply stacked as big text, each on its own step background, static.
  *
  * Place INSIDE the page's stage wrapper + scene body:
  *   <div class="scene theme-oat how-scene" data-scene="how"><div class="scene-body"><ProcessWords … /></div></div>
- * Same props as HowWeWork (icons ignored here), COPY in HOW_* at the top of home.astro.
+ * COPY: HOW_* at the top of home.astro. BACKGROUNDS: `backgrounds` prop (one CSS background per step).
  */
-interface Step { n: string; name: string; line: string; icon?: string }
+import { inkedMotif, type MotifName } from '../../lib/bit-motifs';
+
+interface Step { n: string; name: string; line: string; /** pixel icon — a philosophy motif */ icon?: MotifName }
 interface Props {
   heading: string;
   steps: readonly Step[];
+  /** One CSS background per step — defaults continue the "What we do" palette, deepening step by step. */
+  backgrounds?: readonly string[];
   aside?: string;
   price: string;
   custom?: string;
@@ -21,25 +27,40 @@ interface Props {
   linkLabel?: string;
   href?: string;
 }
-const { heading, steps, aside, price, custom, linkLead, linkLabel, href = '/contact' } = Astro.props;
+const DEFAULT_BG = [
+  'linear-gradient(to right, hsl(0 0% 100%), hsl(48 20% 90%))',   // white → oat        (= What we do: UI/UX)
+  'linear-gradient(to right, hsl(48 20% 90%), hsl(44 14% 80%))',  // oat → spatial      (= Sonic)
+  'linear-gradient(to right, hsl(44 14% 80%), hsl(42 13% 62%))',  // spatial → darker   (= Spatial)
+  'linear-gradient(to right, hsl(42 13% 62%), hsl(40 12% 52%))',  // darker → deepest   (one step further)
+];
+const { heading, steps, backgrounds = DEFAULT_BG, aside, price, custom, linkLead, linkLabel, href = '/contact' } = Astro.props;
 const first = steps[0];
 const data = JSON.stringify(steps.map(({ n, name, line }) => ({ n, name, line })));
+const icons = JSON.stringify(steps.map((s) => (s.icon ? inkedMotif(s.icon) : '')));
+const iconNames = JSON.stringify(steps.map((s) => s.icon ?? ''));
+const bgData = JSON.stringify(backgrounds);
 ---
 <div class="pw">
-  {/* DESKTOP live block — the timeline rewrites these three as you scroll (aria-hidden: the list below is the
-      accessible version). Starts on step 0's text so there's no flash before the script runs. */}
-  <div class="pw__live" data-pw data-steps={data} aria-hidden="true">
-    <span class="type-body pw__n" data-pw-n>{first.n}</span>
-    <p class="heading-hero pw__title" data-pw-title>{first.name}</p>
-    <p class="type-lead pw__line" data-pw-line>{first.line}</p>
+  {/* DESKTOP live block — the timeline rewrites these as you scroll (aria-hidden: the list below is the
+      accessible version). Starts resolved on step 00. */}
+  <div class="pw__live" data-pw data-steps={data} data-bgs={bgData} data-icons={icons} data-icon-names={iconNames} aria-hidden="true">
+    <div class="pw__anchor">
+      <div class="pw__above">
+        <span class:list={['pw__icon', first.icon && `pw__icon--${first.icon}`]} data-pw-icon set:html={first.icon ? inkedMotif(first.icon) : ''} />
+        <span class="type-body pw__n" data-pw-n>{first.n}</span>
+      </div>
+      <p class="heading-hero pw__title" data-pw-title>{first.name}</p>
+      <p class="type-lead pw__line" data-pw-line>{first.line}</p>
+    </div>
   </div>
 
-  {/* MOBILE: the steps stacked (static). On desktop this is screen-reader only. */}
+  {/* MOBILE: the steps stacked (static), each on its own background. On desktop this is screen-reader only. */}
   <div class="pw__list">
-    <h2 class="type-lead pw__heading">{heading}</h2>
+    <h2 class="sr-only">{heading}</h2>{/* visible mobile title = the <TermTag> on the scene (home.astro) */}
     <ol>
-      {steps.map((s) => (
+      {steps.map((s, i) => (
         <li class="pw__item">
+          {s.icon && <span class:list={['pw__icon', `pw__icon--${s.icon}`]} aria-hidden="true" set:html={inkedMotif(s.icon)} />}
           <span class="type-body pw__n">{s.n}</span>
           <h3 class="heading-hero pw__title">{s.name}</h3>
           <p class="type-lead pw__line">{s.line}</p>
@@ -57,20 +78,27 @@ const data = JSON.stringify(steps.map(({ n, name, line }) => ({ n, name, line })
 </div>
 
 <style>
+  /* Line + footer use the foreground (not muted) so they stay readable on the deeper step backgrounds. */
   .pw { position: relative; height: 100%; font-family: var(--font-mono); color: hsl(var(--foreground)); }
-  .pw__live {
-    position: absolute; inset: 0; padding-inline: var(--page-gutter-x);
-    display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
-  }
-  .pw__n { color: hsl(var(--muted-foreground)); letter-spacing: 0.2em; margin-bottom: 1rem; }
+  .pw__live { position: absolute; inset: 0; }
+  /* The TITLE is pinned to the exact centre; the number hangs above it, the line below it. */
+  .pw__anchor { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); text-align: center; padding-inline: var(--page-gutter-x); }
+  /* icon + number hang ABOVE the title (the title itself never moves) */
+  .pw__above { position: absolute; left: 0; right: 0; bottom: calc(100% + 1rem); display: flex; flex-direction: column; align-items: center; gap: clamp(2.5rem, 6vh, 4rem); }   /* gap = space between icon and number */
+  .pw__icon { display: block; width: clamp(3.5rem, 4.5vw, 5rem); --icon-ink: hsl(var(--foreground)); --icon-hi: hsl(var(--foreground)); --icon-ground: transparent; }
+  .pw__icon--bits { width: clamp(10rem, 16vw, 15rem); }   /* a wide row */
+  .pw__icon--pixel { width: clamp(2rem, 2.6vw, 3rem); }    /* single block — smaller */
+  .pw__icon--map { width: clamp(2.75rem, 3.4vw, 3.75rem); } /* gridded block — smaller */
+  .pw__icon :global(svg) { display: block; width: 100%; height: auto; overflow: visible; }
+  .pw__anchor .pw__line { position: absolute; left: 50%; top: calc(100% + 1.5rem); transform: translateX(-50%); width: min(70vw, 60rem); }
+  .pw__n { color: hsl(var(--foreground) / 0.6); letter-spacing: 0.2em; }
   .pw__title { margin: 0; font-weight: 700; line-height: 1; white-space: nowrap; }
-  .pw__line { margin: 1.5rem 0 0; color: hsl(var(--muted-foreground)); max-width: min(70vw, 60rem); }
-  [data-pw].is-binary .pw__title,
+  .pw__line { margin: 0; color: hsl(var(--foreground) / 0.8); }
   .pw__live .is-binary { opacity: 0.35; }
 
   .pw__foot {
     position: absolute; left: 0; right: 0; bottom: var(--page-gutter);
-    text-align: center; color: hsl(var(--muted-foreground));
+    text-align: center; color: hsl(var(--foreground) / 0.8);
   }
   .pw__foot p { margin: 0; }
   .pw__aside { color: hsl(var(--foreground)); margin-bottom: 0.5rem !important; }
@@ -81,17 +109,24 @@ const data = JSON.stringify(steps.map(({ n, name, line }) => ({ n, name, line })
   @media (min-width: 768px) {
     .pw__list { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   }
-  /* mobile: no live block — the steps stacked, static */
+  /* mobile: no live block — the steps stacked, static, CENTRED, light text straight on the binary rain;
+     the section title is a solaris terminal tag (> how_we_work_together_), like the solutions pages. */
   @media (max-width: 767px) {
-    .pw { height: auto; padding-block: 2rem; }
+    .pw { height: auto; padding-block: 0; text-align: center; color: hsl(var(--foreground)); }   /* colours come from the scene (oat on mobile, home.astro) */
     .pw__live { display: none; }
-    .pw__list { padding-inline: var(--page-gutter-x); }
     .pw__list ol { list-style: none; margin: 0; padding: 0; }
-    .pw__heading { margin: 0 0 2.5rem; font-weight: 400; }
-    .pw__item { margin-bottom: 3rem; }
-    .pw__item .pw__n { display: block; margin-bottom: 0.5rem; }
+    /* same rhythm + icon box as Philosophy (tokens in global.css) */
+    .pw__item { padding: 0 var(--page-gutter-x); }
+    .pw__item + .pw__item { margin-top: var(--m-stack-gap); }
+    .pw__item .pw__icon { margin: 0 auto var(--m-icon-gap); width: var(--m-icon-box); height: var(--m-icon-box); }
+    .pw__item .pw__icon :global(svg) { width: 100%; height: 100%; }
+    .pw__item .pw__icon--bits { width: min(64vw, 220px); height: auto; }
+    .pw__item .pw__icon--bits :global(svg) { height: auto; }
+    /* stems: optically matched to the blocks (bigger box, negative margin keeps the spacing rhythm) */
+    .pw__item .pw__icon--stems { width: calc(var(--m-icon-box) * 1.4); height: calc(var(--m-icon-box) * 1.4); margin-top: calc(var(--m-icon-box) * -0.2); margin-bottom: calc(var(--m-icon-gap) - var(--m-icon-box) * 0.2); }
+    .pw__item .pw__n { display: block; margin-bottom: 0.75rem; }
     .pw__item .pw__title { white-space: normal; overflow-wrap: anywhere; }
-    .pw__item .pw__line { margin-top: 0.75rem; }
-    .pw__foot { position: static; text-align: left; }
+    .pw__item .pw__line { margin-top: 1rem; line-height: 1.45; }
+    .pw__foot { position: static; text-align: center; padding-block: var(--m-stack-gap) 0; }
   }
 </style>

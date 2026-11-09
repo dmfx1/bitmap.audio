@@ -1,0 +1,12 @@
+---
+/**
+ * TermTag — the MOBILE section title: a solaris terminal tag, e.g.  > our_process_
+ * One component so the spacing is identical on every section (tokens in global.css: --m-section-pad,
+ * --m-tag-gap). Place it as the FIRST child of a .scene; hidden on desktop (the page bar does that job).
+ * Decorative (aria-hidden) — each section keeps its own real heading for screen readers.
+ */
+interface Props { label: string }
+const { label } = Astro.props;
+const slug = label.toLowerCase().replace(/['’]/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+---
+<p class="term-tag" aria-hidden="true">&gt; {slug}<span class="term-tag__cursor">_</span></p>
