@@ -1,0 +1,95 @@
+---
+/* src/components/modules/Beat.astro
+ *
+ * ONE IDEA PER SCREEN — the reusable "beat" scene, laid out like the Hero / Soft CTA:
+ *   ROW 1 (top half):   title (heading-hero) — optional `accent` second line in solaris + the blinking cursor.
+ *   ROW 2 (bottom half): support line (type-lead), then an optional stats row and/or a booking button.
+ * Works on DARK (scene wrapper paints hsl(--background)) or OAT (wrap it in .theme-oat) — colours come
+ * from the tokens, nothing is hard-coded.
+ *
+ * Place it inside a page's stage scene body:
+ *   <div class="scene beat-dark" data-scene="who" style="z-index:20">
+ *     <TermTag label="Who we are" />
+ *     <div class="scene-body"><Beat head="…" accent="…" sub="…" stats={[…]} /></div>
+ *   </div>
+ *
+ * Mobile: stacks like the hero; top space comes from the TermTag (global.css rhythm tokens).
+ */
+import { buttonVariants } from '../ui/button-variants';
+import { cn } from '../../lib/utils';
+import { BOOKING_URL, isExternal } from '../../config/booking';
+
+interface Props {
+  /** First line(s) of the title. */
+  head: string;
+  /** Second line, in solaris (optional). */
+  accent?: string;
+  /** Support copy under the title. Blank-line separated paragraphs. */
+  sub?: string;
+  /** A short row of numbers: value + what it counts. */
+  stats?: { value: string; label: string }[];
+  /** Button label — omit for no button. */
+  ctaLabel?: string;
+  href?: string;
+}
+const { head, accent, sub, stats, ctaLabel, href = BOOKING_URL } = Astro.props;
+const ext = isExternal(href) ? { target: '_blank', rel: 'noopener noreferrer' } : {};
+---
+<div class="beat">
+  <div class="container-page relative flex flex-col min-h-0">
+    <h2 class="heading-hero leading-tight font-medium beat__title">
+      {head}{accent && <Fragment><br/><span class="text-accent font-medium">{accent}</span></Fragment>}<span class="inline-block w-[0.5ch] h-[0.9em] bg-accent brightness-125 ml-1 animate-pulse align-middle" aria-hidden="true"></span>
+    </h2>
+  </div>
+  <div class="container-page relative flex flex-col min-h-0 beat__lower">
+    {sub && (
+      <div class="beat__sub-wrap">
+        {sub.split('\n\n').map((para) => <p class="type-title font-mono beat__sub">{para}</p>)}
+      </div>
+    )}
+    {stats && stats.length > 0 && (
+      <dl class="beat__stats">
+        {stats.map((s) => (
+          <div class="beat__stat">
+            <dt class="beat__stat-value">{s.value}</dt>
+            <dd class="beat__stat-label type-body">{s.label}</dd>
+          </div>
+        ))}
+      </dl>
+    )}
+    {ctaLabel && (
+      <div class="w-full max-w-xl mt-8">
+        <div class="flex items-stretch gap-4 w-full">
+          <a href={href} {...ext} class="flex-1">
+            <span class={cn(buttonVariants({ variant: 'outline', size: 'xl' }), 'morph-accent rounded-none w-full h-14 md:h-24 px-4 md:px-8 text-base md:text-xl')}>{ctaLabel}</span>
+          </a>
+          <span class="flex-1 hidden md:block" aria-hidden="true"></span>
+        </div>
+      </div>
+    )}
+  </div>
+</div>
+
+<style>
+  /* Title, then the copy block, centred in the scene body as one group (beats carry more copy than the
+     Soft CTA, so not the hero's two fixed halves). */
+  .beat { height: 100%; display: flex; flex-direction: column; justify-content: center; gap: clamp(2rem, 6vh, 4.5rem); padding-block: var(--page-gutter); box-sizing: border-box; color: hsl(var(--foreground)); }
+  .beat__title { max-width: min(92vw, 90rem); margin: 0; }
+  .beat__lower { gap: clamp(1.5rem, 4vh, 3rem); }
+  .beat__sub-wrap { display: flex; flex-direction: column; gap: 0.8em; }
+  .beat__sub { margin: 0; max-width: min(64vw, 60rem); line-height: 1.3; color: hsl(var(--foreground) / 0.88); }
+  .beat__stats { display: flex; flex-wrap: wrap; gap: clamp(1.5rem, 5vw, 5rem); margin: 0; }
+  .beat__stat { display: flex; flex-direction: column; gap: 0.35rem; }
+  .beat__stat-value { font-family: var(--font-departure, var(--font-mono)); font-size: clamp(2.5rem, 4.5vw, 4.5rem); line-height: 1; color: hsl(var(--accent)); }
+  .beat__stat-label { margin: 0; font-family: var(--font-mono); color: hsl(var(--foreground) / 0.7); }
+  a { pointer-events: auto; }
+  /* Short laptop screens: step the support copy down so it never crowds the stats / button. */
+  @media (min-width: 768px) and (max-height: 860px) { .beat__sub { font-size: 1.75rem; } .beat__stat-value { font-size: clamp(2rem, 3.5vw, 3.25rem); } }
+
+  @media (max-width: 767px) {
+    .beat { height: auto; display: flex; flex-direction: column; gap: 2rem; padding-block: 0 2rem; }   /* top space = TermTag */
+    .beat__title, .beat__sub { max-width: 100%; }
+    .beat__lower { gap: 2rem; }
+    .beat__stats { gap: 1.5rem 2.5rem; }
+  }
+</style>

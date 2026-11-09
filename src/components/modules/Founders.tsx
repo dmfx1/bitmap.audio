@@ -45,6 +45,7 @@ function useHoverScramble(text: string, active: boolean, durationMs = 520, rollM
 // vignetteAt:   "x% y%" — centre of the radial vignette bright spot (aim for nose)
 // ─────────────────────────────────────────────────────────────────────────────
 
+// OLD DATA (pre-2026-11-09 rebuild) — kept as the default so _about-v3-old.astro renders unchanged.
 const founders = [
   {
     name: "[dom.storrs-fox]",
@@ -70,17 +71,28 @@ const founders = [
   },
 ];
 
-export default function Founders() {
+/** One person card. `role` is the small line under the name (now a personal tag, e.g. "Manchester · travel & space"). */
+export type Founder = {
+  name: string;
+  role: string;
+  /** Optional specialism line above the bio. */
+  focus?: string;
+  bio: string;
+  image?: { src: string; scale: number; position: string; vignetteAt: string };
+};
+
+export default function Founders({ people }: { people?: Founder[] } = {}) {
+  const list: Founder[] = people ?? founders;
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-0 bg-foreground/5 w-full">
-      {founders.map((f, index) => (
+      {list.map((f, index) => (
         <FounderCard key={index} f={f} index={index} />
       ))}
     </div>
   );
 }
 
-function FounderCard({ f, index }: { f: typeof founders[0]; index: number }) {
+function FounderCard({ f, index }: { f: Founder; index: number }) {
   const [hovered, setHovered] = useState(false);
   const name = useHoverScramble(f.name, hovered);
   const formattedId = String(index).padStart(4, '0');
@@ -130,6 +142,9 @@ function FounderCard({ f, index }: { f: typeof founders[0]; index: number }) {
                 style={{ textShadow: '0 0 15px hsl(var(--background)), 0 0 30px hsl(var(--background))' }}
               >{f.role}</p>
               <div className="h-px w-8 bg-foreground/50 mb-8 group-hover:w-full transition-all duration-700" />
+              {f.focus && (
+                <p className="text-accent font-mono text-sm md:text-base mb-4 tracking-wide">{f.focus}</p>
+              )}
               <p
                 className="text-foreground font-mono text-2xl mb-12 md:mb-0 leading-relaxed max-w-[90%] group-hover:text-foreground transition-colors"
                 style={{ textShadow: '0 0 15px hsl(var(--background)), 0 0 15px hsl(var(--background))' }}

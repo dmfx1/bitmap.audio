@@ -427,39 +427,43 @@ html { scrollbar-width: none; }
    bottom (padding) and its background ramps from transparent (the rain shows) to oat and back out. */
 @media (max-width: 767px) {
   .oat-fade-mobile {
+    --ft: var(--m-oat-fade); --fb: var(--m-oat-fade);   /* top / bottom buffer — zeroed where two oat sections touch */
     --oat: hsl(var(--content-background));
     --oat-0: hsl(var(--content-background) / 0);
     background-color: transparent !important;
     background-image: linear-gradient(to bottom,
-      hsl(var(--content-background) / 0.0) calc(var(--m-oat-fade) * 0.0),
-      hsl(var(--content-background) / 0.003) calc(var(--m-oat-fade) * 0.0833),
-      hsl(var(--content-background) / 0.014) calc(var(--m-oat-fade) * 0.1667),
-      hsl(var(--content-background) / 0.036) calc(var(--m-oat-fade) * 0.25),
-      hsl(var(--content-background) / 0.072) calc(var(--m-oat-fade) * 0.3333),
-      hsl(var(--content-background) / 0.122) calc(var(--m-oat-fade) * 0.4167),
-      hsl(var(--content-background) / 0.189) calc(var(--m-oat-fade) * 0.5),
-      hsl(var(--content-background) / 0.274) calc(var(--m-oat-fade) * 0.5833),
-      hsl(var(--content-background) / 0.378) calc(var(--m-oat-fade) * 0.6667),
-      hsl(var(--content-background) / 0.501) calc(var(--m-oat-fade) * 0.75),
-      hsl(var(--content-background) / 0.646) calc(var(--m-oat-fade) * 0.8333),
-      hsl(var(--content-background) / 0.812) calc(var(--m-oat-fade) * 0.9167),
-      hsl(var(--content-background) / 1.0) calc(var(--m-oat-fade) * 1.0),
-      hsl(var(--content-background) / 1.0) calc(100% - var(--m-oat-fade) * 1.0),
-      hsl(var(--content-background) / 0.812) calc(100% - var(--m-oat-fade) * 0.9167),
-      hsl(var(--content-background) / 0.646) calc(100% - var(--m-oat-fade) * 0.8333),
-      hsl(var(--content-background) / 0.501) calc(100% - var(--m-oat-fade) * 0.75),
-      hsl(var(--content-background) / 0.378) calc(100% - var(--m-oat-fade) * 0.6667),
-      hsl(var(--content-background) / 0.274) calc(100% - var(--m-oat-fade) * 0.5833),
-      hsl(var(--content-background) / 0.189) calc(100% - var(--m-oat-fade) * 0.5),
-      hsl(var(--content-background) / 0.122) calc(100% - var(--m-oat-fade) * 0.4167),
-      hsl(var(--content-background) / 0.072) calc(100% - var(--m-oat-fade) * 0.3333),
-      hsl(var(--content-background) / 0.036) calc(100% - var(--m-oat-fade) * 0.25),
-      hsl(var(--content-background) / 0.014) calc(100% - var(--m-oat-fade) * 0.1667),
-      hsl(var(--content-background) / 0.003) calc(100% - var(--m-oat-fade) * 0.0833),
-      hsl(var(--content-background) / 0.0) calc(100% - var(--m-oat-fade) * 0.0)) !important;
-    padding-top: var(--m-oat-fade) !important;
-    padding-bottom: var(--m-oat-fade) !important;
-  }
+      hsl(var(--content-background) / 0.0) calc(var(--ft) * 0.0),
+      hsl(var(--content-background) / 0.003) calc(var(--ft) * 0.0833),
+      hsl(var(--content-background) / 0.014) calc(var(--ft) * 0.1667),
+      hsl(var(--content-background) / 0.036) calc(var(--ft) * 0.25),
+      hsl(var(--content-background) / 0.072) calc(var(--ft) * 0.3333),
+      hsl(var(--content-background) / 0.122) calc(var(--ft) * 0.4167),
+      hsl(var(--content-background) / 0.189) calc(var(--ft) * 0.5),
+      hsl(var(--content-background) / 0.274) calc(var(--ft) * 0.5833),
+      hsl(var(--content-background) / 0.378) calc(var(--ft) * 0.6667),
+      hsl(var(--content-background) / 0.501) calc(var(--ft) * 0.75),
+      hsl(var(--content-background) / 0.646) calc(var(--ft) * 0.8333),
+      hsl(var(--content-background) / 0.812) calc(var(--ft) * 0.9167),
+      hsl(var(--content-background) / 1.0) calc(var(--ft) * 1.0),
+      hsl(var(--content-background) / 1.0) calc(100% - var(--fb) * 1.0),
+      hsl(var(--content-background) / 0.812) calc(100% - var(--fb) * 0.9167),
+      hsl(var(--content-background) / 0.646) calc(100% - var(--fb) * 0.8333),
+      hsl(var(--content-background) / 0.501) calc(100% - var(--fb) * 0.75),
+      hsl(var(--content-background) / 0.378) calc(100% - var(--fb) * 0.6667),
+      hsl(var(--content-background) / 0.274) calc(100% - var(--fb) * 0.5833),
+      hsl(var(--content-background) / 0.189) calc(100% - var(--fb) * 0.5),
+      hsl(var(--content-background) / 0.122) calc(100% - var(--fb) * 0.4167),
+      hsl(var(--content-background) / 0.072) calc(100% - var(--fb) * 0.3333),
+      hsl(var(--content-background) / 0.036) calc(100% - var(--fb) * 0.25),
+      hsl(var(--content-background) / 0.014) calc(100% - var(--fb) * 0.1667),
+      hsl(var(--content-background) / 0.003) calc(100% - var(--fb) * 0.0833),
+      hsl(var(--content-background) / 0.0) calc(100% - var(--fb) * 0.0)) !important;
+    padding-top: var(--ft) !important;
+    padding-bottom: var(--fb) !important;
+  }  /* Two oat sections back to back: no dark dip between them — drop the buffer on the touching edges. */
+  .oat-fade-mobile.oat-join-below { --fb: 0px; }
+  .oat-fade-mobile.oat-join-above { --ft: 0px; }
+
 }
 .term-tag { display: none; }
 @media (max-width: 767px) {

@@ -1,0 +1,39 @@
+---
+/* src/components/modules/Beliefs.astro
+ *
+ * "What we believe" — three columns. On desktop, while the scene is visible, each column in turn grows,
+ * goes solaris and its bitmap loading bar fills (hover takes over). Animation: lib/scenes/beliefs.ts
+ * (initBeliefsFocus). Moved out of about.astro's old "values" scene (2026-11-09) — same look + feel.
+ * Mobile: each belief is its own stacked block (static).
+ */
+interface Props {
+  items: { title: string; body: string }[];
+}
+const { items } = Astro.props;
+---
+<div class="beliefs" data-beliefs>
+  {items.map((it, i) => (
+    <div class="beliefs__col" data-vcol>
+      <span class="beliefs__id" data-vhi>{String(i + 1).padStart(2, '0')}</span>
+      <h3 data-vhi>{it.title}</h3>
+      <p>{it.body}</p>
+      <div class="bitmap-progress beliefs__progress" data-vprogress></div>
+    </div>
+  ))}
+</div>
+
+<style>
+  .beliefs { display: flex; flex-direction: row; gap: clamp(2rem, 6vw, 5rem); width: min(90vw, 82rem); margin-inline: auto; }
+  .beliefs__col { flex: 1 1 0; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 1rem; will-change: transform, opacity; }
+  .beliefs__id { font-family: var(--font-mono); font-size: clamp(2.5rem, 5vw, 3.75rem); font-weight: 300; color: hsl(var(--foreground)); }
+  .beliefs__col h3 { font-family: var(--font-mono); font-size: clamp(1.25rem, 2vw, 1.75rem); color: hsl(var(--foreground)); margin: 0; }
+  .beliefs__col p { font-family: var(--font-mono); font-size: clamp(1rem, 1.2vw, 1.15rem); line-height: 1.6; color: hsl(var(--foreground) / 0.82); max-width: 22rem; margin: 0; }
+  .beliefs__progress { margin-top: 0.75rem; }
+
+  @media (max-width: 767px) {
+    .beliefs { flex-direction: column; gap: var(--m-stack-gap); width: 100%; padding-inline: var(--page-gutter-x); box-sizing: border-box; }
+    .beliefs__col { align-items: center; text-align: center; gap: 1rem; }
+    .beliefs__col p { max-width: 100%; }
+    .beliefs__progress { display: none; }
+  }
+</style>

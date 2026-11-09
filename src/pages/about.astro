@@ -1,169 +1,213 @@
 ---
-/* src/pages/about.astro
+/* src/pages/about.astro — ABOUT (rebuilt 2026-11-09)
  *
- * SCENE-STAGE PROTOTYPE — "in-situ" about page. The hero/header stays LOCKED in the viewport the
- * whole time; nothing ever scrolls up or down. Every scene is a full-screen LAYER stacked in one
- * pinned frame. Scroll is only a TIMELINE: it drives a fog fade-in, then a pixel reveal, then plain
- * OPACITY cross-fades from one stacked layer to the next. No translation, vertical or horizontal.
+ * WHY / WHO, not what / how (home does that). One idea per screen, alternating dark + oat beats:
+ *   hero (dark) → the problem (oat) → who we are (DARK) → the team (oat) → why "bitmap" (oat)
+ *   → what we believe (oat) → different is the point (DARK) → brands we've made sound for (oat)
+ *   → let's talk (dark, the rain returns — "reverse the void").
  *
- * Structure:
- *   #stage-track  — a tall (empty) scroll track; its height IS the scrub distance.
- *   .stage-pin    — position: sticky; stays put for the whole track (the fixed "stage").
- *     .scene[hero] → .stage-fog → #page-bar → .scene[founders] → values → clients → cta  (stacked)
+ * Desktop: the scene stage (same as home) — a pinned frame, stacked .scene layers, ONE scrubbed master
+ * timeline. Dark beats get a WHITE page bar, oat beats the SOLARIS bar; the bar hides + is recoloured
+ * between them (never changes colour while visible). Track length is computed from the timeline.
+ * Mobile: scenes unstack into a normal scroll; oat beats get the eased dark→oat buffer, dark beats sit
+ * on the binary rain; every section opens with a terminal tag.
  *
- * The reusable scene-stage pattern, shared with the home page.
+ * Pages COMPOSE (see CLAUDE.md): Beat.astro (single-idea scene), Founders.tsx, Beliefs.astro
+ * (+ lib/scenes/beliefs.ts), Clients.tsx (the client terminal — unchanged), SoftCta.astro.
+ * The previous page is kept, unrouted, at src/pages/_about-v3-old.astro (cleanup list in CLAUDE.md).
  */
 import Layout from '../layouts/Layout.astro';
 import AboutHero from '../components/modules/AboutHero.tsx';
-import Founders from '../components/modules/Founders.tsx';
+import Founders, { type Founder } from '../components/modules/Founders.tsx';
 import Clients from '../components/modules/Clients.tsx';
-// The philosophy scene moved to the HOME page (2026-11-09). Founders → values → clients → cta.
+import Beat from '../components/modules/Beat.astro';
+import Beliefs from '../components/modules/Beliefs.astro';
+import SoftCta from '../components/modules/SoftCta.astro';
+import TermTag from '../components/modules/TermTag.astro';
+
+// ══════════ COPY — ⚠ FILLER (2026-11-09), built from dom's homework answers. DOM TO REWRITE. ══════════
+const HERO = {
+  title: 'Sound is easy.\nVoice is rare.',
+  sub: "We're Dom and Nick. We build sonic identities that sound like you, everywhere you show up.",
+  cta: 'BOOK A CALL',
+};
+const PROBLEM = {
+  head: 'Most sonic logos',
+  accent: 'are sound effects.',
+  sub: "A swoosh to match the animation, then silence. Nothing in the app, the ad or the room that sounds like the brand.\n\nThat isn't an identity. It's a jingle with good timing.",
+};
+const WHO = {
+  head: 'We started as',
+  accent: "each other's backup.",
+  sub: "Two freelance sound designers, same clients. When one of us was booked up, the job went to the other, because we trusted the ear on the other end. bitmap.audio is that trust, made official.",
+  // ⚠ FILLER NUMBERS — confirm before launch.
+  stats: [
+    { value: '20+', label: 'years in sound between us' },
+    { value: '24', label: 'brands we\'ve made sound for' },
+    { value: '2', label: 'studios: Manchester + Scarborough' },
+  ],
+};
+const TEAM: Founder[] = [
+  {
+    name: '[dom.storrs-fox]',
+    role: 'Manchester · travel + space',
+    focus: 'Surround for film · Dolby Atmos · MPEG-H',
+    bio: "I've spent over a decade making sound for advertising and animation, and more recently mixing surround for film. These days I'm deep in Dolby Atmos and MPEG-H, building sound that moves around you.",
+    image: { src: '/images/dom-headshot-01.webp', scale: 1.0, position: 'center 45%', vignetteAt: '50% 50%' },
+  },
+  {
+    name: '[nick.granville-fall]',
+    role: 'Scarborough · surf + off grid',
+    focus: 'Installations · galleries · museums',
+    bio: "I've made sound for advertising and for installations in galleries and museums, where people walk through it rather than past it. I'm obsessed with why a sound makes you feel something, and how to make it happen on purpose.",
+    image: { src: '/images/nick-headshot-01.webp', scale: 1.0, position: 'center 45%', vignetteAt: '50% 50%' },
+  },
+];
+const NAME = {
+  head: 'Why',
+  accent: '"bitmap"?',
+  sub: 'In computer science, a bitmap maps tiny data points across a grid to build a complete image.\n\nWe do the same with sound: small, deliberate pieces that add up to one voice you recognise anywhere.',
+};
+const BELIEFS = [
+  { title: 'Hairs on the neck', body: "If it doesn't move us, it won't move anyone. We don't mind how a sound gets made, only how it makes you feel." },
+  { title: 'Happy accidents', body: 'The best discoveries rarely come from the plan. We leave room for them, then chase them down.' },
+  { title: 'Better than fine', body: 'Play it safe and you get "fine". We push past the obvious until it sounds like nobody else.' },
+];
+const FOR = {
+  head: 'Different',
+  accent: 'is the point.',
+  sub: "Sonic identity is new ground for most brands, so feeling a little nervous is normal. We'll take you somewhere you didn't expect, and keep it unmistakably you.\n\nIf you'd rather not be challenged, we're probably not your team.",
+};
+const WORK = {
+  head: "Brands we've made sound for",
+  sub: 'Over our freelance careers, before bitmap.audio. Not bitmap.audio clients (yet).',
+};
+const CLOSE = {
+  head: "Let's make you",
+  accent: 'sound like you.',
+  sub: "Book a free 30-minute call with Dom and Nick. Bring the brand; we'll bring the questions.",
+  label: 'Book a call',
+};
+const PEOPLE = [{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick', src: '/images/nick-cutout.webp' }];
 ---
 <Layout
-  title="About v3 (scene stage) | bitmap.audio"
-  description="Scene-stage prototype."
+  title="About | bitmap.audio"
+  description="Meet Dom and Nick: two sound designers building sonic identities that sound like your brand, from the logo to the app to the room."
 >
-  {/* Persistent solaris bar — page-level FIXED so it carries across the WHOLE page (the pinned stage
-      AND the scrolling sections after it). Revealed by the stage timeline (bitmap push-down at
-      barPush); its label is swapped per section. */}
+  {/* Persistent bar — page-level FIXED; revealed + relabelled by the stage timeline. */}
   <div id="page-bar" aria-hidden="true">
     <span class="solaris-text" data-page-label></span>
   </div>
 
-  {/* ══════════ THE PINNED STAGE — hero + founders assemble IN PLACE (fog / void / portal). ══════════ */}
   <div id="stage-track">
-    {/* id="hero-sticky" is the anchor useHeroSquish looks for. */}
     <div class="stage-pin" id="hero-sticky">
       <div class="scene" data-scene="hero" style="z-index:0">
-        <AboutHero client:load />
+        <AboutHero client:load title={HERO.title} sub={HERO.sub} ctaLabel={HERO.cta} />
       </div>
       <div class="stage-fog" data-stage="fog" aria-hidden="true"></div>
       <div class="stage-portal" data-stage="portal" aria-hidden="true"></div>
-      <div class="scene theme-oat" data-scene="founders" style="z-index:10; --veil-color: hsl(var(--content-background))">
+
+      {/* 1 · THE PROBLEM — oat */}
+      <div class="scene theme-oat oat-fade-mobile" data-scene="problem" data-oat-mobile style="z-index:10">
+        <TermTag label="The problem" />
+        <div class="scene-body"><Beat head={PROBLEM.head} accent={PROBLEM.accent} sub={PROBLEM.sub} /></div>
+      </div>
+
+      {/* 2 · WHO WE ARE — DARK (hero layout) + stats */}
+      <div class="scene beat-dark" data-scene="who" style="z-index:15">
+        <TermTag label="Who we are" />
+        <div class="scene-body"><Beat head={WHO.head} accent={WHO.accent} sub={WHO.sub} stats={WHO.stats} /></div>
+      </div>
+
+      {/* 3 · THE TEAM — oat (founder cards) */}
+      <div class="scene theme-oat oat-fade-mobile oat-join-below" data-scene="team" data-oat-mobile style="z-index:20">
+        <TermTag label="The team" />
         <div class="scene-body container-page">
-          <Founders client:visible />
-          <div class="scene-veil" data-veil aria-hidden="true"></div>
+          <Founders client:visible people={TEAM} />
         </div>
       </div>
 
-      {/* ── LAYER: values — cross-fades in over founders. (The philosophy scene moved to HOME, 2026-11-09.) ── */}
-      <div class="scene values-scene theme-oat" data-scene="values" style="z-index:30; opacity:0">
+      {/* 4 · WHY "BITMAP" — oat */}
+      <div class="scene theme-oat oat-fade-mobile oat-join-above oat-join-below" data-scene="name" data-oat-mobile style="z-index:25">
+        <TermTag label="Why bitmap" />
+        <div class="scene-body"><Beat head={NAME.head} accent={NAME.accent} sub={NAME.sub} /></div>
+      </div>
+
+      {/* 5 · WHAT WE BELIEVE — oat (focus columns) */}
+      <div class="scene theme-oat oat-fade-mobile oat-join-above beliefs-scene" data-scene="beliefs" data-oat-mobile style="z-index:30">
+        <TermTag label="What we believe" />
+        <div class="scene-body"><Beliefs items={BELIEFS} /></div>
+      </div>
+
+      {/* 6 · DIFFERENT IS THE POINT — DARK */}
+      <div class="scene beat-dark" data-scene="for" style="z-index:35">
+        <TermTag label="Who we're for" />
+        <div class="scene-body"><Beat head={FOR.head} accent={FOR.accent} sub={FOR.sub} /></div>
+      </div>
+
+      {/* 7 · BRANDS WE'VE MADE SOUND FOR — oat; the client terminal, unchanged, with honest framing above */}
+      <div class="scene theme-oat oat-fade-mobile work-scene" data-scene="work" data-oat-mobile style="z-index:40">
+        <TermTag label="Our work" />
         <div class="scene-body">
-          <div class="values-cols">
-            <div class="values-col" data-vcol>
-              <span class="values-id" data-vhi>01</span>
-              <h3 data-vhi>Precision</h3>
-              <p>Sound should feel deliberate and every frequency intentional.</p>
-              <div class="bitmap-progress values-progress" data-vprogress></div>
+          <div class="work-wrap">
+            <div class="work-head container-page">
+              <h2 class="type-title work-head__title">{WORK.head}<span class="text-accent">_</span></h2>
+              <p class="type-body work-head__sub">{WORK.sub}</p>
             </div>
-            <div class="values-col" data-vcol>
-              <span class="values-id" data-vhi>02</span>
-              <h3 data-vhi>Empathy</h3>
-              <p>Sound should feel intuitive, not intrusive and systems should be collaborative.</p>
-              <div class="bitmap-progress values-progress" data-vprogress></div>
-            </div>
-            <div class="values-col" data-vcol>
-              <span class="values-id" data-vhi>03</span>
-              <h3 data-vhi>Innovation</h3>
-              <p>Sounds should remain adaptable and allow scope for future development.</p>
-              <div class="bitmap-progress values-progress" data-vprogress></div>
-            </div>
+            <Clients client:visible heightClass="h-[100svh] md:h-[52vh]" />
           </div>
         </div>
       </div>
 
-      {/* ── LAYER: clients ("Client Terminal") — cross-fades in over values. Same scrambling binary →
-          client-name terminal as about-v2 (Clients.tsx), themed beige to sit in the oat world. ── */}
-      <div class="scene clients-scene theme-oat" data-scene="clients" style="z-index:35; opacity:0">
+      {/* 8 · LET'S TALK — dark tint over the returning rain ("reverse the void"), the soft CTA */}
+      <div class="scene close-scene" data-scene="close" style="z-index:45">
+        <TermTag label="Let's talk" />
         <div class="scene-body">
-          <div class="clients-wrap">
-            <Clients client:visible />
-          </div>
-        </div>
-      </div>
-
-      {/* ── LAYER: CTA (finale) — oversized Departure Mono, PIXELATES in via a bitmap veil, on the void. ── */}
-      <div class="scene cta-scene oat-on-mobile mobile-fill" data-scene="cta" style="z-index:40; opacity:0; --veil-color: hsl(var(--background))">
-        <div class="scene-body container-page">
-          <div class="cta-copy">
-            <h2 class="cta-head">Let's make you<br/>sound like you.</h2>
-            <a class="cta-link" href="/contact"><span class="cta-caret">&gt;</span> start_project<span class="cta-cursor">_</span></a>
-          </div>
-          <div class="scene-veil" data-cta-veil aria-hidden="true"></div>
+          <SoftCta
+            head={CLOSE.head}
+            accent={CLOSE.accent}
+            sub={CLOSE.sub}
+            label={CLOSE.label}
+            people={PEOPLE}
+            peopleNote="You'll talk to us, not a sales team."
+          />
         </div>
       </div>
     </div>
   </div>
 
-  {/* The bitmap fader scrollbar + #dev-hud tracker are now GLOBAL (Layout.astro / global.css). This
-      page's master timeline still writes the richer `t / total` readout into #dev-hud via onUpdate. */}
-
   <style>
-    #stage-track { position: relative; height: 605vh; } /* hero + founders + values + clients + cta, all in one pin. ~36vh per timeline unit (unchanged pace); measured 13.92u after the philosophy moved to home (2026-11-09). */
-    /* .scroll-fader + #dev-hud styles are GLOBAL now (global.css). */
-    .stage-pin {
-      position: sticky; top: 0; height: 100svh; overflow: hidden;
-    }
-    /* Explicit viewport height (NOT inset:0 — the sticky pin's containing block was resolving to 2×
-       viewport here, so inset-based children came out double-height). */
+    #stage-track { position: relative; height: 1500vh; } /* fallback only — the stage script sets the real height from the timeline (VH_PER_UNIT). */
+    .stage-pin { position: sticky; top: 0; height: 100svh; overflow: hidden; }
     .scene { position: absolute; top: 0; left: 0; right: 0; height: 100svh; }
-    /* Hero fills the frame so AboutHero's flex-1 / row layout (title + blurb) distributes as before. */
     .scene[data-scene="hero"] { display: flex; flex-direction: column; padding-top: var(--header-h); box-sizing: border-box; }
+    /* Desktop: non-hero scenes start hidden in CSS (GSAP autoAlpha reveals them) — no first-paint flash,
+       and the nav-contrast check doesn't see an oat layer over the hero. */
+    @media (min-width: 768px) { .stage-pin > .scene:not([data-scene="hero"]) { visibility: hidden; } }
     .scene-body {
       position: absolute; left: 0; right: 0;
       top: calc(var(--header-h) + var(--solaris-height)); height: calc(100svh - var(--header-h) - var(--solaris-height));
       display: flex; flex-direction: column; justify-content: center;
     }
-
-    /* Fog — a BEIGE takeover that EMANATES from the centre (radial + scaled from the void point),
-       so it opens like a portal rather than a flat fade. */
-    /* Fog — SOLID beige, uniform, full coverage (no radial cutoff at top/bottom). */
-    .stage-fog {
-      position: absolute; inset: 0; z-index: 5;
-      background-color: hsl(var(--content-background));
-      opacity: 0; pointer-events: none;
-    }
-    /* Portal — a SOFT warm bloom from the centre that just follows the receding text into the void. */
+    .stage-fog { position: absolute; inset: 0; z-index: 5; background-color: hsl(var(--content-background)); opacity: 0; pointer-events: none; }
     .stage-portal {
-      position: absolute; inset: 0; z-index: 6;
-      transform-origin: 50% 45%;
-      background: radial-gradient(circle at 50% 45%,
-        rgba(255,250,238,0.7) 0%,
-        rgba(255,250,238,0.22) 24%,
-        transparent 58%);
+      position: absolute; inset: 0; z-index: 6; transform-origin: 50% 45%;
+      background: radial-gradient(circle at 50% 45%, rgba(255,250,238,0.7) 0%, rgba(255,250,238,0.22) 24%, transparent 58%);
       opacity: 0; pointer-events: none;
     }
 
-    /* Pixel veil (built in JS). Colour comes from each scene's --veil-color. */
-    .scene-veil { position: absolute; inset: 0; z-index: 50; display: grid; pointer-events: none; }
+    /* Tones */
+    .theme-oat.scene { background-color: hsl(var(--content-background)); }
+    .beat-dark { background-color: hsl(var(--background)); }
+    .close-scene { background-color: hsl(var(--background) / 0.7); }   /* the rain shows through as the void reverses */
 
-    /* ── VALUES layer — beige, cross-fades in over founders. Focus-columns look/feel from
-       about-v2 (each column grows + goes accent in turn, a bitmap loading bar fills under it). ── */
-    .values-scene { background-color: hsl(var(--content-background)); }
-    .values-scene .scene-body { align-items: center; }
-    .values-cols { display: flex; flex-direction: row; gap: clamp(2rem, 6vw, 5rem); width: min(90vw, 82rem); }
-    .values-col { flex: 1 1 0; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 1rem; will-change: transform, opacity; }
-    .values-id { font-family: var(--font-mono); font-size: clamp(2.5rem, 5vw, 3.75rem); font-weight: 300; color: hsl(var(--content-foreground)); }
-    .values-col h3 { font-family: var(--font-mono); font-size: clamp(1.25rem, 2vw, 1.5rem); color: hsl(var(--content-foreground)); margin: 0; }
-    .values-col p { font-family: var(--font-mono); font-size: 1rem; line-height: 1.6; color: hsl(var(--content-foreground) / 0.82); max-width: 20rem; }
-    .values-progress { margin-top: 0.75rem; }
+    /* Work — framing line + the terminal, centred as one block */
+    .work-wrap { display: flex; flex-direction: column; gap: clamp(1rem, 3vh, 2rem); width: 100%; }
+    .work-head { display: flex; flex-direction: column; gap: 0.5rem; }
+    .work-head__title { margin: 0; color: hsl(var(--foreground)); }
+    .work-head__sub { margin: 0; color: hsl(var(--foreground) / 0.7); font-family: var(--font-mono); }
+    .work-scene :global(astro-island) { display: block; padding-inline: clamp(1rem, 6vw, 6rem); }
 
-    /* ── CTA layer (finale) — oversized Departure Mono on the void; pixelates in. ── */
-    /* Clients ("Client Terminal") — beige oat world; centre the terminal grid with page gutters. */
-    .clients-scene { background-color: hsl(var(--content-background)); }
-    .clients-scene .scene-body { align-items: center; }
-    .clients-wrap { width: 100%; padding-inline: clamp(1rem, 6vw, 6rem); }
-
-    .cta-scene { background-color: hsl(var(--background)); }
-    .cta-kicker { font-family: var(--font-departure); text-transform: uppercase; letter-spacing: 0.25em; color: hsl(var(--accent)); font-size: 0.95rem; margin-bottom: 1.8rem; }
-    .cta-head { font-family: var(--font-departure); font-size: clamp(2.6rem, 8vw, 7rem); line-height: 1.05; color: hsl(var(--foreground)); margin: 0 0 2.6rem; }
-    .cta-link { font-family: var(--font-departure); font-size: clamp(1.3rem, 3vw, 2.1rem); color: hsl(var(--foreground)); display: inline-flex; align-items: center; gap: 0.5ch; text-decoration: none; transition: color 0.2s ease; pointer-events: auto; }
-    .cta-link:hover { color: hsl(var(--accent)); }
-    .cta-caret, .cta-cursor { color: hsl(var(--accent)); }
-    .cta-cursor { animation: cta-blink 1s steps(1) infinite; }
-    @keyframes cta-blink { 50% { opacity: 0; } }
-
-    /* Persistent solaris bar — flips down from the header edge once the fog is in. */
     #page-bar {
       position: fixed; top: var(--header-h); left: 0; right: 0; z-index: 40;
       height: var(--solaris-height);
@@ -171,101 +215,43 @@ import Clients from '../components/modules/Clients.tsx';
       box-shadow: var(--solaris-glow);
       display: flex; align-items: center; justify-content: center;
       pointer-events: none;
-      /* revealed via a stepped clip-path "data load" push-down (set in JS); start clipped away */
       clip-path: inset(0 0 100% 0);
       transition: background 0.45s ease, box-shadow 0.45s ease;
     }
     #page-bar [data-page-label] { opacity: 0; white-space: nowrap; text-align: center; transition: color 0.45s ease; }
 
-    /* ── MOBILE (≤767px): the scene-stage unstacks into a NORMAL vertical scroll (matches home —
-       no scroll-snap). Desktop GSAP stage is gated off (<768px). Each scene reveals with a subtle
-       rise/fade via .mob-reveal (progressive-enhanced). svh only. ── */
+    /* ── MOBILE: unstack into a normal scroll. Oat beats: .oat-fade-mobile (eased buffer, global.css);
+       dark beats: transparent on the binary rain, light text. Terminal tags open every section. ── */
     @media (max-width: 767px) {
-      #stage-track { height: auto; }
+      #stage-track { height: auto !important; }
       .stage-pin { position: static; height: auto; overflow: visible; }
-      .scene {
-        position: relative; inset: auto; height: auto;
-        margin-bottom: 0; padding-top: 0;   /* cancel the global .scene desktop pin-tail (-100svh) + lead */
-        opacity: 1 !important; visibility: visible !important;
-      }
+      .scene { position: relative; inset: auto; height: auto; margin-bottom: 0; padding-top: 0; visibility: visible !important; opacity: 1 !important; }
       .scene[data-scene="hero"] { min-height: 100svh; }
-      .stage-fog, .stage-portal, .scene-veil, #page-bar { display: none; }
-      .scene-body {
-        position: static; top: auto; height: auto;
-        padding-block: 3rem;  /* vertical only — let container-page supply the side gutter */
-        display: flex; flex-direction: column; justify-content: center;
-      }
-
-      /* ── Light scenes: CLIENTS stays rain-through (its terminal carries its own panel);
-         FOUNDERS + VALUES are solid OAT (override the theme-oat transparent above). ── */
-      .scene.theme-oat { background-color: transparent; }
-      .scene[data-scene="founders"], .scene[data-scene="values"] { background-color: hsl(var(--content-background)); }
-
-      /* FOUNDERS — full-bleed oat (no side gutter) */
-      .scene[data-scene="founders"] .scene-body { padding-inline: 0; padding-block: 0; }
-      .scene[data-scene="founders"] { border-top: 2px solid hsl(var(--accent)); border-bottom: 2px solid hsl(var(--accent)); }
-
-      /* VALUES — each point is its OWN full-screen oat slide: dark text, generous padding */
-      .values-scene .scene-body { align-items: stretch; padding-block: clamp(4rem, 12vh, 7rem); }
-      .values-cols { flex-direction: column; gap: 0; width: 100%; }
-      .values-col {
-        min-height: max(100svh, 34rem);
-        align-items: flex-start; text-align: left; justify-content: center;
-        padding: 3rem var(--page-gutter-x); gap: 1.25rem;
-      }
-      .values-id, .values-col h3, .values-col p { color: hsl(var(--content-foreground)); }
-      .values-col p { max-width: 75%; }
-
-      /* CLIENTS — full-width, full-screen terminal; no bands so it butts flush to values + cta */
-      .scene[data-scene="clients"] { min-height: 0; }
-      .clients-scene .scene-body { padding-inline: 0; padding-block: 0; }
-      .clients-wrap { padding-inline: 0; }
-      /* CTA button — bordered, dark/background colour, accent flashing underscore (matches home) */
-      .cta-link {
-        font-size: clamp(1.25rem, 5vw, 1.75rem);
-        color: hsl(var(--foreground));
-        border: 2px solid hsl(var(--foreground));
-        padding: 0.6em 1.1em; margin-top: 0.6rem; min-height: 44px;
-      }
-      .cta-link .cta-caret { color: hsl(var(--foreground)); }
-      .cta-link .cta-cursor { color: hsl(var(--accent)); }
-      .cta-link:active { background: hsl(var(--foreground)); color: hsl(var(--background)); }
-
-      /* entrance fade-up removed on mobile — every section stays visible (no black->oat flash,
-         and philosophy no longer gets hidden after first paint). The JS still tags .mob-reveal/.is-in
-         but this neutralises it. */
-      .mob-reveal .scene { opacity: 1 !important; transform: none !important; transition: none !important; }
+      .stage-fog, .stage-portal, #page-bar { display: none; }
+      .scene-body { position: static; top: auto; height: auto; padding-block: 3rem; display: flex; flex-direction: column; justify-content: center; }
+      .beat-dark, .close-scene { background-color: transparent; }
+      .scene.theme-oat { --foreground: var(--content-foreground); }
+      /* Team: cards run full-bleed */
+      .scene[data-scene="team"] .scene-body { padding-inline: 0; padding-block: 0; }
+      /* Work: the terminal fills the width */
+      .work-scene .scene-body { padding-block: 0; }
+      .work-scene :global(astro-island) { padding-inline: 0; }
+      .work-head { padding-bottom: 1.5rem; }
     }
   </style>
 
-  {/* Veil cell rule must be global (cells are built in JS, outside Astro's scoped styles). */}
   <style is:global>
-    /* This page uses the custom .scroll-fader, so hide the native scrollbar here. */
-    ::-webkit-scrollbar { width: 0 !important; height: 0 !important; }
-    html { scrollbar-width: none; }
-    .scene-veil > i {
-      display: block;
-      background: var(--veil-color, hsl(var(--content-background)));
-      opacity: clamp(0, calc((var(--o) - var(--reveal, 0)) * 26), 1);
-    }
-
-    /* Founders fill the FULL section height with the usual big-text styling (like the old about page).
-       The scene-height bug is fixed, so the cards fit the frame without shrinking the type.
-       NB: the React island is wrapped in <astro-island>, so target by CLASS, not > child. */
-    #stage-track [data-scene="founders"] .grid { height: 100%; }
-    #stage-track [data-scene="founders"] .grid > div { min-height: 0 !important; }
-
-    /* CTA is the same dark colour as the footer, so drop the Solaris seam beam between them —
-       the CTA reads straight into the footer as one continuous section. (The moving #page-bar
-       is its own element, not a .solaris, so it is untouched.) */
-    .solaris:has(+ footer) { display: none; }
+    /* Founders: the React island sits inside <astro-island>, so target by class. Fill the scene body. */
+    #stage-track [data-scene="team"] .grid { height: 100%; }
+    #stage-track [data-scene="team"] .grid > div { min-height: 0 !important; }
+    @media (max-width: 767px) { #stage-track [data-scene="team"] .grid { height: auto; } }
   </style>
 
   <script>
     import { gsap } from 'gsap';
     import { ScrollTrigger } from 'gsap/ScrollTrigger';
     import { createStageTimeline, createPageBar, stageLabels, prepareVoid, enterTheVoid, pushInBar, type BarCfg } from '../lib/stage';
-    import { fillPixelVeil } from '../lib/pixel-veil';
+    import { initBeliefsFocus } from '../lib/scenes/beliefs';
     gsap.registerPlugin(ScrollTrigger);
 
     function initStage() {
@@ -277,155 +263,87 @@ import Clients from '../components/modules/Clients.tsx';
 
       const fog = pin.querySelector<HTMLElement>('[data-stage="fog"]')!;
       const portal = pin.querySelector<HTMLElement>('[data-stage="portal"]')!;
-      const scFounders = pin.querySelector<HTMLElement>('.scene[data-scene="founders"]')!;
-      const scValues = pin.querySelector<HTMLElement>('.scene[data-scene="values"]')!;
-      const scClients = pin.querySelector<HTMLElement>('.scene[data-scene="clients"]')!;
-      const scCta = pin.querySelector<HTMLElement>('.scene[data-scene="cta"]')!;
-      const vCta = scCta.querySelector<HTMLElement>('[data-cta-veil]')!;
-      const vFounders = scFounders.querySelector<HTMLElement>('[data-veil]')!;
-      const gridBg = document.getElementById('grid-bg'); // fixed binary-rain layer — for the "enter the void" zoom
-
-      // Build a pixel veil (large cells) sized to its scene body (falls back to the viewport size).
-      const buildVeil = (veil: HTMLElement) => {
-        const host = veil.parentElement as HTMLElement;
-        fillPixelVeil(veil, host.clientWidth || window.innerWidth, host.clientHeight || window.innerHeight);
-      };
-      // BOOKMARK (pixels): the pixel veil is dropped for now — founders just fade in. Re-enable
-      // buildVeil + the two veil tweens in the timeline to bring the pixel break-up back.
-      // buildVeil(vFounders);
-      // vFounders.style.setProperty('--reveal', '-0.05');
-      void vFounders; void buildVeil; // keep refs alive while bookmarked
-      prepareVoid(fog, portal); // solid beige fog + soft bloom from the void centre, both hidden
-      // autoAlpha (opacity + visibility) so a faded-OUT scene goes visibility:hidden and stops
-      // intercepting the pointer — otherwise the top-z scene (e.g. CTA at z40) dictates the cursor
-      // even at opacity 0, giving a light (dark-scene) cursor over the beige scenes. With autoAlpha
-      // the VISIBLE scene wins, so its own cursor rule (theme-oat → dark dot; dark → light dot) applies.
-      gsap.set(scFounders, { autoAlpha: 0 }); // shown only AFTER the fog is fully in
-      gsap.set(scValues, { autoAlpha: 0 });   // cross-faded in after founders
-      gsap.set(scClients, { autoAlpha: 0 });  // cross-faded in after values (the client terminal)
-      gsap.set(scCta, { autoAlpha: 0 });      // cross-faded in after clients, then pixelates in
-      buildVeil(vCta);                      // CTA pixel veil (dark cells, --veil-color = void)
-      vCta.style.setProperty('--reveal', '-0.05'); // start fully covered
-
-      // ── Persistent bar ────────────────────────────────────────────────────────
+      const gridBg = document.getElementById('grid-bg');
       const bar = document.getElementById('page-bar')!;
       const pageBar = createPageBar(bar);
-      const FOUNDERS: BarCfg = { name: 'Who We Are' };
-      const VALUES: BarCfg = { name: 'Our Values' };
-      const CLIENTS: BarCfg = { name: 'Client Terminal' };
-      const CONTACT: BarCfg = { name: 'Get In Touch' };
+      const q = (id: string) => pin.querySelector<HTMLElement>(`.scene[data-scene="${id}"]`)!;
 
-      // ── Master scrubbed timeline (1 unit ≈ 1 viewport of scroll) ──
-      //   hero holds while the copy recedes into the void (useHeroSquish, first ~80vh) → DARK void
-      //   delay → fog takes over CLEAN + slow (no pixels yet) → founders veil appears seamlessly →
-      //   pixel reveal → hold → opacity cross-fade to philosophy → hold.
-      // ── TIMING KNOBS — units ≈ viewports of scroll. Tune the whole entrance here. ──
-      //   Overlap pixStart with the fog so the beige "breaks up" WHILE the fog is still arriving
-      //   (binary rain → pixels, entering a new dimension) rather than fog-then-pixelate.
-      const T = {
-        heroHold:    0.8,   // hero holds while the copy recedes into the void (kept short)
-        fogStart:    0.8,   // when the beige fog begins (≈ when the words have receded)
-        fogDur:      1.0,   // fog fade duration
-        portalStart: 0.5,   // soft white bloom starts EARLY — follows the receding text into the void
-        foundersHold:0.7,   // settle on founders
-        crossDur:    0.9,   // scene cross-fade
-        voidScale:   3.0,   // ENTER THE VOID — how far the binary rain rushes toward you (zoom)
-        barPush:     1.72,  // solaris bar "data-load" push-down (t) — just as the beige fully occupies
-        // bookmarked pixel knobs — only used if the veil is re-enabled
-        veilInStart: 1.0, veilInDur: 0.2, pixStart: 1.5, pixDur: 1.0,
-      };
-      // Incoming layer starts fading in only after the outgoing is ~60% gone — small overlap, not a
-      // long simultaneous cross-fade (stops scenes smearing into each other).
-      const OV = T.crossDur * 0.6;
+      // ── SCENE ORDER — tone decides the bar colour (oat → solaris, dark → white). hold = scroll units on it. ──
+      const WHITE = { bg: '#ffffff', text: '#141414', glow: '0 0 24px rgba(255,255,255,0.35)' };
+      type Beat = { el: HTMLElement; tone: 'oat' | 'dark'; cfg: BarCfg; hold: number };
+      const beat = (id: string, tone: 'oat' | 'dark', name: string, hold: number): Beat =>
+        ({ el: q(id), tone, cfg: tone === 'dark' ? { name, ...WHITE } : { name }, hold });
+      const BEATS: Beat[] = [
+        beat('problem', 'oat',  'The Problem',     0.9),
+        beat('who',     'dark', 'Who We Are',      1.1),
+        beat('team',    'oat',  'The Team',        1.2),
+        beat('name',    'oat',  'Why bitmap',      0.9),
+        beat('beliefs', 'oat',  'What We Believe', 1.4),
+        beat('for',     'dark', "Who We're For",   1.0),
+        beat('work',    'oat',  'Our Work',        1.4),
+        beat('close',   'dark', "Let's Talk",      1.0),
+      ];
+      // ── TIMING KNOBS (timeline units). The track height follows the timeline (VH_PER_UNIT). ──
+      const T = { heroHold: 0.8, fogStart: 0.8, fogDur: 1.0, portalStart: 0.5, voidScale: 3.0, barPush: 1.72, crossDur: 0.9 };
+      const OV = T.crossDur * 0.6;      // incoming starts once the outgoing is ~60% gone
+      const BAR_OUT = 0.3;              // bar fade out / back in around a dark↔oat switch
+      const VH_PER_UNIT = 95;           // scroll per timeline unit (home ≈ 106). Lower = faster page.
+
+      prepareVoid(fog, portal);
+      BEATS.forEach((b) => gsap.set(b.el, { autoAlpha: 0 }));
+
       const tl = createStageTimeline(track);
-      // Direction-aware bar labels: `boundary` at a scene edge (label = CURRENT scene both ways);
-      // `crossLabel` on a cross-fade (DOWN waits until the incoming scene is in focus, UP is snappy).
-      const { boundary, crossLabel } = stageLabels(tl, pageBar, T.crossDur);
-      // ENTER THE VOID — hero holds + copy recedes, binary rain zooms, portal blooms, beige fog takes over.
+      const { boundary, atDir, crossLabel } = stageLabels(tl, pageBar, T.crossDur);
+      const dir = () => (tl.scrollTrigger ? tl.scrollTrigger.direction : 1);
+      const SOLARIS_BG = 'linear-gradient(90deg, var(--solaris-from) 0%, var(--solaris-mid) 55%, var(--solaris-to) 100%)';
+      const paint = (c: BarCfg) => { bar.style.background = c.bg ?? SOLARIS_BG; bar.style.boxShadow = c.glow ?? 'var(--solaris-glow)'; };
+
+      // HERO → ENTER THE VOID → the first oat beat fades in through the fog; the bar pushes down.
       enterTheVoid(tl, { fog, portal, gridBg }, T);
-      // BOOKMARK (pixels): founders just FADE in for now. Re-enable these two to bring pixels back:
-      //   tl.to(scFounders, { opacity: 1, duration: T.veilInDur }, T.veilInStart);
-      //   tl.to(vFounders, { '--reveal': 1, duration: T.pixDur }, T.pixStart);
-      tl.to(scFounders, { autoAlpha: 1, ease: 'none', duration: 0.9 }, T.fogStart + T.fogDur);  // founders fade in (no pixels)
-      // SOLARIS BAR — bitmappy "data-load" push-down from the header, then the label scrambles in
-      // (binary) — in place + scrambled by ~t 1.90.
+      tl.to(BEATS[0].el, { autoAlpha: 1, ease: 'power2.out', duration: 0.45 }, T.fogStart + T.fogDur);
       pushInBar(tl, bar, T.barPush);
-      boundary(1.91, FOUNDERS, null);   // down → "Who We Are"; up → clear (back to hero)
-      tl.to({}, { duration: T.foundersHold });      // settle on the resolved founders
+      boundary(1.91, BEATS[0].cfg, null);
+      tl.to({}, { duration: BEATS[0].hold });
 
-      // ── VALUES — cross-fade in over founders (same beige world), hold. (Philosophy moved to HOME.) ──
-      tl.addLabel('valuesIn', '>');
-      tl.to(scFounders, { autoAlpha: 0, ease: 'none', duration: T.crossDur }, 'valuesIn')
-        .to(scValues, { autoAlpha: 1, ease: 'none', duration: T.crossDur }, 'valuesIn+=' + OV);
-      crossLabel('valuesIn', VALUES, FOUNDERS);   // down (buffered) → values; up (snappy) → founders
-      tl.to({}, { duration: 1.4 }); // hold on the values
+      // Each next beat: a cross-fade. Same tone → a plain label swap. Tone change → the bar hides, is
+      // recoloured while hidden, and returns with the new label (both scroll directions).
+      for (let i = 1; i < BEATS.length; i++) {
+        const prev = BEATS[i - 1], next = BEATS[i];
+        const L = `b${i}`;
+        tl.addLabel(L, '>');
+        tl.to(prev.el, { autoAlpha: 0, ease: 'none', duration: T.crossDur }, L)
+          .to(next.el, { autoAlpha: 1, ease: 'none', duration: T.crossDur }, `${L}+=${OV}`);
+        if (prev.tone === next.tone) {
+          crossLabel(L, next.cfg, prev.cfg);
+        } else {
+          tl.to(bar, { autoAlpha: 0, ease: 'none', duration: BAR_OUT }, L)
+            .to(bar, { autoAlpha: 1, ease: 'none', duration: BAR_OUT }, `${L}+=${OV + BAR_OUT}`);
+          atDir(L, 1, null);
+          tl.call(() => paint(dir() === 1 ? next.cfg : prev.cfg), [], `${L}+=${BAR_OUT}`);
+          atDir(`${L}+=${OV + BAR_OUT}`, 1, next.cfg);
+          atDir(`${L}+=${OV + BAR_OUT}`, -1, null);
+          atDir(`${L}+=${BAR_OUT * 0.8}`, -1, prev.cfg);
+        }
+        // REVERSE THE VOID on the close: the oat fog lifts and the rain zooms back out behind the tint.
+        if (next.el.dataset.scene === 'close') {
+          tl.to(fog, { opacity: 0, ease: 'none', duration: T.crossDur }, L);
+          if (gridBg) tl.to(gridBg, { scale: 1, ease: 'power2.out', duration: T.crossDur + OV }, L);
+        }
+        tl.to({}, { duration: next.hold });
+      }
 
-      // ── CLIENTS ("Client Terminal") — cross-fade in over values (same beige world), hold. ──
-      tl.addLabel('clientsIn', '>');
-      tl.to(scValues, { autoAlpha: 0, ease: 'none', duration: T.crossDur }, 'clientsIn')
-        .to(scClients, { autoAlpha: 1, ease: 'none', duration: T.crossDur }, 'clientsIn+=' + OV);
-      crossLabel('clientsIn', CLIENTS, VALUES);   // down (buffered) → clients; up (snappy) → values
-      tl.to({}, { duration: 1.4 }); // hold on the client terminal
+      // The bar collapses back up into the header, then the stage releases into the footer.
+      tl.to(bar, { clipPath: 'inset(0 0 100% 0)', opacity: 0.35, ease: 'steps(6)', duration: 0.3 });
+      tl.to({}, { duration: 0.4 });
 
-      // ── CTA (finale) — clients fades out, the CTA layer appears (veil covering), then PIXELATES in. ──
-      tl.addLabel('ctaIn', '>');
-      tl.to(scClients, { autoAlpha: 0, ease: 'none', duration: T.crossDur }, 'ctaIn')
-        .to(scCta, { autoAlpha: 1, ease: 'none', duration: 0.3 }, 'ctaIn+=' + OV);   // veil (dark) still covering
-      crossLabel('ctaIn', CONTACT, CLIENTS);   // down (buffered) → CTA; up (snappy) → clients
-      tl.to(vCta, { '--reveal': 1, ease: 'none', duration: 1.6 }, 'ctaIn+=' + (OV + 0.3)); // pixel break-up reveal
-      // Dwell on the fully-revealed CTA before the stage unpins into the footer (pixelation settles first).
-      tl.to({}, { duration: 2.4 });
+      // Track length follows the timeline (scroll distance = track height − one viewport).
+      track.style.height = `${Math.ceil(tl.duration() * VH_PER_UNIT + 100)}vh`;
 
-      // ── VALUES focus cycle (same feel as about-v2 FocusColumns): while the values layer is VISIBLE,
-      //    each column grows + goes accent in turn and its bitmap loading bar fills; hover overrides. ──
-      (() => {
-        const readToken = (name: string, el: Element) => {
-          const raw = getComputedStyle(el).getPropertyValue(name).trim();
-          return !raw ? '' : (/^#|^rgb|^hsl/.test(raw) ? raw : `hsl(${raw.split(/\s+/).join(', ')})`);
-        };
-        const vcols = Array.from(scValues.querySelectorAll<HTMLElement>('[data-vcol]'));
-        if (!vcols.length) return;
-        const vhi = vcols.map((c) => c.querySelectorAll<HTMLElement>('[data-vhi]'));
-        const vbars = vcols.map((c) => c.querySelector<HTMLElement>('[data-vprogress]'));
-        const accent = readToken('--accent', scValues);
-        const ink = readToken('--content-foreground', scValues) || readToken('--foreground', scValues);
-        const FOCUS_SCALE = 1.18, DULL = 0.28, FOCUS_DUR = 0.4, INTERVAL = 4500;
-        gsap.set(vcols, { transformOrigin: '50% 50%' });
-        const applyFocus = (a: number) => {
-          vcols.forEach((col, i) => {
-            gsap.to(col, { scale: i === a ? FOCUS_SCALE : 1, opacity: i === a ? 1 : DULL, duration: FOCUS_DUR, ease: 'power2.out' });
-            gsap.to(vhi[i], { color: i === a ? accent : ink, duration: FOCUS_DUR });
-          });
-        };
-        const setProg = (idx: number, p: number) => vbars.forEach((b, i) => { if (b) b.style.setProperty('--progress', String(i === idx ? p : 0)); });
-        applyFocus(0); setProg(0, 0);
-        let active = 0, hover: number | null = null, elapsed = 0, last: number | undefined;
-        // Read the opacity GSAP writes inline (autoAlpha) instead of getComputedStyle — this runs every
-        // frame, and getComputedStyle forced a synchronous style recalc on each one. Falls back to the
-        // computed value only if no inline opacity has been set.
-        const visible = () => {
-          const o = scValues.style.opacity;
-          return parseFloat(o !== '' ? o : getComputedStyle(scValues).opacity) > 0.5;
-        };
-        const stepV = (t: number) => {
-          const dt = last === undefined ? 0 : t - last; last = t;
-          if (hover !== null) { elapsed = 0; setProg(hover, 1); }
-          else if (visible()) {
-            elapsed += dt;
-            const p = Math.min(1, elapsed / INTERVAL);
-            setProg(active, p);
-            if (p >= 1) { active = (active + 1) % vcols.length; applyFocus(active); elapsed = 0; }
-          }
-          requestAnimationFrame(stepV);
-        };
-        requestAnimationFrame(stepV);
-        vcols.forEach((col, i) => {
-          col.addEventListener('mouseenter', () => { hover = i; applyFocus(i); });
-          col.addEventListener('mouseleave', () => { hover = null; applyFocus(active); });
-        });
-      })();
+      initBeliefsFocus(q('beliefs'));
 
       ScrollTrigger.refresh();
+      const fonts = (document as any).fonts;
+      if (fonts?.ready) fonts.ready.then(() => ScrollTrigger.refresh());
     }
 
     document.addEventListener('astro:page-load', initStage);
@@ -440,6 +358,4 @@ import Clients from '../components/modules/Clients.tsx';
     if (document.readyState === 'complete') initMobileSceneReveal();
     else window.addEventListener('load', initMobileSceneReveal);
   </script>
-
-  {/* The bitmap fader driver is GLOBAL now (Layout.astro). */}
 </Layout>

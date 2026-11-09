@@ -67,7 +67,9 @@ function ClientWord({ text, isActive }: { text: string, isActive: boolean }) {
 }
 
 // 2. MAIN COMPONENT
-export default function Clients() {
+/** heightClass: terminal height (default unchanged). The rebuilt About passes a slightly shorter one so
+ *  its framing line ("Brands we've made sound for") fits above it. Look + behaviour are untouched. */
+export default function Clients({ heightClass = 'h-[100svh] md:h-[68vh]' }: { heightClass?: string } = {}) {
     const [activeSlots, setActiveSlots] = useState<{id: string, name: string}[]>([]);
     // Shuffled no-repeat queue: the full client list is dealt in random order and only
     // reshuffled once drained, so every client appears before any repeats — none is missed.
@@ -178,7 +180,7 @@ export default function Clients() {
     return (
         <div className="w-full relative overflow-hidden">
             {/* Added dynamic grid-cols-3 for mobile and responsive height h-[30vh] */}
-            <div className="w-full grid grid-cols-3 md:grid-cols-7 gap-0 h-[100svh] md:h-[68vh] border-y border-border/20 bg-background">
+            <div className={`w-full grid grid-cols-3 md:grid-cols-7 gap-0 ${heightClass} border-y border-border/20 bg-background`}>
                 {columnsData.map((col, colIndex) => (
                     <div 
                         key={`col-${colIndex}`} 

@@ -753,3 +753,20 @@ about-v2 got a persistent `#page-bar` + `FoundersScene.astro` (fixed-fog + pixel
 - `--solaris-height` (72px) = section bar. `--header-compact-h` (104px) = compact scrolled header. Decoupled: Layout.astro's squish reads `--header-compact-h`; brand/nav sizes unchanged (BRAND_MIN/NAV_MIN), only the box grew. Docking bars morph between the two.
 - Mobile home: Soft CTA + Our Process are transparent on the binary rain, light centred text; Process title is a solaris terminal tag (`> how_we_work_together_`). Partners client strip hidden on mobile.
 - Mobile section titles: `TermTag.astro` (first child of each home scene; desktop hidden). Rhythm tokens in global.css: `--m-section-pad`, `--m-tag-gap`, `--m-stack-gap`, `--m-icon-gap`, `--m-icon-box` (Philosophy + Process share them; every motif fits the icon box except the wide bits row). Roll out to other pages next.
+
+## About page (rebuilt 2026-11-09)
+- Composition only: `src/pages/about.astro`. ⚠ ALL COPY IS FILLER (COPY block at the top) — dom to rewrite.
+- Scenes: hero (dark, AboutHero props + Book a call) → the problem (oat) → who we are (DARK, stats) → the team (oat, Founders `people`) → why "bitmap" (oat) → what we believe (oat, Beliefs) → who we're for (DARK) → our work (oat, Clients terminal UNCHANGED + honest framing) → let's talk (dark tint, SoftCta + cut-outs, reverse the void).
+- New: `Beat.astro` (one-idea scene, dark or oat, optional stats + button), `Beliefs.astro` + `lib/scenes/beliefs.ts` (the old values focus cycle).
+- Bar: oat beats → solaris, dark beats → WHITE; a tone change hides the bar, recolours it, brings it back (both directions). Scene order/holds = `BEATS` array in the page script.
+- Track height is SET FROM THE TIMELINE (`VH_PER_UNIT`, ~95) — no manual re-measure on About.
+- Mobile: oat beats `.oat-fade-mobile`; back-to-back oat sections use `.oat-join-above/below` (no dark dip).
+
+## PENDING CLEANUP — remove once the About rebuild is signed off (nothing deleted yet)
+- `src/pages/_about-v3-old.astro` — the previous About (unrouted; underscore).
+- Old-copy defaults kept for it: `AboutHero.tsx` (OLD_TITLE / OLD_SUB), `Founders.tsx` (old `founders` array + roles).
+- Old About values/clients/CTA CSS + pixel-veil CTA live only in `_about-v3-old.astro`.
+- `src/components/modules/Philosophy.tsx` (unused since philosophy moved to home).
+- `CtaScene.astro` / `CTA.tsx` — check usage before removing.
+- `src/assets/images/*-headshot-01.png` (15 MB, unused originals; public/ has the webps).
+- Known: React hydration warning (#418) on About — likely `Clients.tsx` building random binary noise during SSR (pre-existing). Fix = generate the noise after mount.
