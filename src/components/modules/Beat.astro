@@ -26,70 +26,95 @@ interface Props {
   accent?: string;
   /** Support copy under the title. Blank-line separated paragraphs. */
   sub?: string;
+  /** The closing payoff line — rendered after the copy with the global .copy-summary style. */
+  summary?: string;
   /** A short row of numbers: value + what it counts. */
   stats?: { value: string; label: string }[];
+  /** DEPRECATED (2026-11-10): stats are now always pinned to the bottom (the beat grid). Accepted + ignored. */
+  pinStats?: boolean;
+  /** TERMINAL-COMMAND link in text (e.g. "Book a call" → "> book_a_call_"), under the copy. Goes to `href`. */
+  cmd?: string;
+  /** Copy width override in vw (else AUTO from the word count — see autoSpan). A span-* class on the scene also overrides. */
+  span?: number;
   /** Button label — omit for no button. */
   ctaLabel?: string;
   href?: string;
 }
-const { head, accent, sub, stats, ctaLabel, href = BOOKING_URL } = Astro.props;
+const { head, accent, sub, summary, stats, pinStats = false, cmd, ctaLabel, span, href = BOOKING_URL } = Astro.props;
+void pinStats;
+// AUTO COPY WIDTH (dom, 2026-11-10): wordier copy runs wider, short copy narrower, so every section has a
+// similar block shape (≈ the same number of lines). Tune the steps here.
+const words = sub ? sub.trim().split(/\s+/).length : 0;
+const autoSpan = span ?? (words <= 25 ? 48 : words <= 40 ? 56 : words <= 48 ? 68 : 80);
+const cmdSlug = cmd ? cmd.toLowerCase().replace(/['’]/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') : '';
 const ext = isExternal(href) ? { target: '_blank', rel: 'noopener noreferrer' } : {};
 ---
-<div class="beat">
+<div class="beat copy-grid" style={`--grid-span-auto:${autoSpan}vw`}>
+  {/* Layout = the global COPY GRID (global.css): title → copy → [space] summary [space] → action on the bottom edge */}
   <div class="container-page relative flex flex-col min-h-0">
-    <h2 class="heading-hero leading-tight font-medium beat__title">
+    <h2 class="heading-hero leading-tight font-medium beat__title copy-grid__title">
       {head}{accent && <Fragment><br/><span class="text-accent font-medium">{accent}</span></Fragment>}<span class="inline-block w-[0.5ch] h-[0.9em] bg-accent brightness-125 ml-1 animate-pulse align-middle" aria-hidden="true"></span>
     </h2>
   </div>
-  <div class="container-page relative flex flex-col min-h-0 beat__lower">
-    {sub && (
-      <div class="beat__sub-wrap">
-        {sub.split('\n\n').map((para) => <p class="type-title font-mono beat__sub">{para}</p>)}
-      </div>
-    )}
-    {stats && stats.length > 0 && (
-      <dl class="beat__stats">
-        {stats.map((s) => (
-          <div class="beat__stat">
-            <dt class="beat__stat-value">{s.value}</dt>
-            <dd class="beat__stat-label type-body">{s.label}</dd>
+  {sub && (
+    <div class="container-page copy-grid__copy beat__copy">
+      {sub.split('\n\n').map((para) => <p class="type-title font-mono beat__sub">{para}</p>)}
+    </div>
+  )}
+  {summary && <div class="copy-grid__space copy-grid__space--a" aria-hidden="true"></div>}
+  {summary && <p class="container-page type-title font-mono beat__sub copy-summary copy-grid__summary">{summary}</p>}
+  {(cmd || ctaLabel || (stats && stats.length > 0)) && (
+    <Fragment>
+      <div class="copy-grid__space copy-grid__space--b" aria-hidden="true"></div>
+      <div class="container-page copy-grid__action">
+        {stats && stats.length > 0 && (
+          <dl class="beat__stats">
+            {stats.map((st) => (
+              <div class="beat__stat">
+                <dt class="beat__stat-value">{st.value}</dt>
+                <dd class="beat__stat-label type-body">{st.label}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+        {cmd && <a href={href} {...ext} class="beat__cmd" aria-label={cmd}><span aria-hidden="true">&gt; {cmdSlug}<span class="beat__cmd-cursor">_</span></span></a>}
+        {ctaLabel && (
+          <div class="w-full max-w-xl">
+            <div class="flex items-stretch gap-4 w-full">
+              <a href={href} {...ext} class="flex-1">
+                <span class={cn(buttonVariants({ variant: 'outline', size: 'xl' }), 'morph-accent rounded-none w-full h-14 md:h-24 px-4 md:px-8 text-base md:text-xl beat__btn')}>{ctaLabel}</span>
+              </a>
+              <span class="flex-1 hidden md:block" aria-hidden="true"></span>
+            </div>
           </div>
-        ))}
-      </dl>
-    )}
-    {ctaLabel && (
-      <div class="w-full max-w-xl mt-8">
-        <div class="flex items-stretch gap-4 w-full">
-          <a href={href} {...ext} class="flex-1">
-            <span class={cn(buttonVariants({ variant: 'outline', size: 'xl' }), 'morph-accent rounded-none w-full h-14 md:h-24 px-4 md:px-8 text-base md:text-xl')}>{ctaLabel}</span>
-          </a>
-          <span class="flex-1 hidden md:block" aria-hidden="true"></span>
-        </div>
+        )}
       </div>
-    )}
-  </div>
+    </Fragment>
+  )}
+  {summary && !(cmd || ctaLabel || (stats && stats.length > 0)) && <div class="copy-grid__space copy-grid__space--b" aria-hidden="true"></div>}
 </div>
 
 <style>
-  /* Title, then the copy block, centred in the scene body as one group (beats carry more copy than the
-     Soft CTA, so not the hero's two fixed halves). */
-  .beat { height: 100%; display: flex; flex-direction: column; justify-content: center; gap: clamp(2rem, 6vh, 4.5rem); padding-block: var(--page-gutter); box-sizing: border-box; color: hsl(var(--foreground)); }
-  .beat__title { max-width: min(92vw, 90rem); margin: 0; }
-  .beat__lower { gap: clamp(1.5rem, 4vh, 3rem); }
-  .beat__sub-wrap { display: flex; flex-direction: column; gap: 0.8em; }
-  .beat__sub { margin: 0; max-width: min(64vw, 60rem); line-height: 1.3; color: hsl(var(--foreground) / 0.88); }
-  .beat__stats { display: flex; flex-wrap: wrap; gap: clamp(1.5rem, 5vw, 5rem); margin: 0; }
+  /* LAYOUT lives in global.css (.copy-grid — every spacing/size knob is a variable, media-query-able).
+     Below is only how a beat LOOKS. Copy width = span-* class on the scene, else autoSpan (by word count),
+     × --span-scale. */
+  .beat { color: hsl(var(--foreground)); }
+  .beat__title { max-width: min(92vw, 90rem); }
+  .beat__copy { display: flex; flex-direction: column; gap: 0.8em; }
+  .beat__sub { margin: 0; line-height: 1.3; color: hsl(var(--foreground) / 0.88); }
+  .beat__stats { display: flex; flex-wrap: wrap; gap: clamp(1.5rem, 5vw, 5rem); margin: 0; padding-inline: 0; }
   .beat__stat { display: flex; flex-direction: column; gap: 0.35rem; }
   .beat__stat-value { font-family: var(--font-departure, var(--font-mono)); font-size: clamp(2.5rem, 4.5vw, 4.5rem); line-height: 1; color: hsl(var(--accent)); }
   .beat__stat-label { margin: 0; font-family: var(--font-mono); color: hsl(var(--foreground) / 0.7); }
+  /* Terminal-command link: solaris mono, like the mobile TermTag; inverts on hover like a selected line. */
+  .beat__cmd { padding: 0.15em 0.35em; margin-left: -0.35em; font-family: var(--font-mono); font-size: clamp(1.1rem, 1.5vw, 1.5rem); letter-spacing: 0.08em; color: hsl(var(--accent)); text-decoration: none; transition: background-color 0.15s steps(2), color 0.15s steps(2); }
+  .beat__cmd:hover, .beat__cmd:focus-visible { background: hsl(var(--accent)); color: hsl(var(--background)); outline: none; }
+  .beat__cmd-cursor { animation: term-blink 1s steps(1) infinite; }
   a { pointer-events: auto; }
-  /* Short laptop screens: step the support copy down so it never crowds the stats / button. */
-  @media (min-width: 768px) and (max-height: 860px) { .beat__sub { font-size: 1.75rem; } .beat__stat-value { font-size: clamp(2rem, 3.5vw, 3.25rem); } }
-
+  @media (min-width: 768px) and (max-height: 980px) { .beat__btn { height: 3.5rem; font-size: 1.125rem; } .beat__stat-value { font-size: clamp(2rem, 3.5vw, 3.25rem); } }
   @media (max-width: 767px) {
-    .beat { height: auto; display: flex; flex-direction: column; gap: 2rem; padding-block: 0 2rem; }   /* top space = TermTag */
-    .beat__title, .beat__sub { max-width: 100%; }
-    .beat__lower { gap: 2rem; }
+    .beat { padding-bottom: 2rem; }   /* top space = TermTag */
+    .beat__title { max-width: 100%; }
     .beat__stats { gap: 1.5rem 2.5rem; }
   }
 </style>

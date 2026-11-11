@@ -1,0 +1,235 @@
+---
+/* src/components/modules/FounderSplit.astro
+ *
+ * ABOUT › THE TEAM — on the SAME split as Why bitmap (2026-11-10, dom's idea): the scene shares the bit|map
+ * backgrounds (data-same-bg), so scrolling on the bit/map copy fades away and the two founders appear in the
+ * halves that are already there — no second split arriving. Dom left (dark), Nick right (oat).
+ * Each card: a big, washed-out colour photo BEHIND the text (edges faded), name, place · the non-audio thing, a QUOTE about sound + why we care
+ * (their own words), and a small focus line. No history — Who we are already covers the experience.
+ * Entrance (about.astro timeline): photos step in (opacity, bitmappy), Dom then Nick, then the text. Quotes italic.
+ * Layout uses the global COPY GRID knobs so the zones line up with every other section.
+ * Mobile: Dom block (dark), then Nick block on oat.
+ */
+
+export interface Person { name: string; meta: string; quote: string; focus?: string; photo: string; photoPos?: string; /** POSTER mode: the quote broken into lines, each stretched to the full width */ quoteLines?: string[]; /** POSTER: the photo inside the letters (a full, uncut photo reads best) */ posterPhoto?: string; /** the poster quote as a sentence for screen readers (with punctuation) */ quoteSr?: string }
+interface Props { left: Person; right: Person; /** TRIAL (2026-11-10): the quote as a poster — huge, fit-to-width lines with the photo INSIDE the letters */ poster?: boolean }
+const { left, right, poster = false } = Astro.props;
+const sides = [ { p: left, tone: 'dark' }, { p: right, tone: 'oat' } ] as const;
+---
+<div class:list={["copy-grid fs", poster && "fs--poster"]}>
+  <div class="fs__halves">
+    {sides.map(({ p, tone }) => (
+      <div class={`fs__half fs__half--${tone}`}>
+        {/* no binary rain on the founders (dom, 2026-11-11) */}
+        {/* the photo sits BEHIND the text: big, colour, washed out, edges faded to nothing (no hard edges) */}
+        {!poster && <div class="fs__bg" data-enter="photo" aria-hidden="true" style={`--src:url('${p.photo}')`}>
+          <div class="fs__block"></div>
+          <img class="fs__photo" src={p.photo} alt="" width="1050" height="1400" loading="lazy" decoding="async" style={p.photoPos ? `object-position:${p.photoPos}` : undefined} />
+        </div>}
+        {/* POSTER: the quote fills the half, each line stretched to full width, the photo showing only through the letters */}
+        {poster && (
+          <div class="fs__poster-wrap" data-enter="text" style={`--src:url('${p.posterPhoto ?? p.photo}');--src-letters:url('${p.photo}')`}>
+            <div class="fs__ghost" aria-hidden="true"></div>{/* the headshot, faint, BEHIND the type — lined up with the photo in the letters */}
+            {/* ONE quote for everyone: screen readers + search get the same words people see, as a proper sentence
+                (quoteSr adds the punctuation the poster leaves out). It sits OUTSIDE the poster: inside it, the
+                photo-in-the-letters effect would paint the hidden text too. */}
+            <blockquote class="sr-only">“{p.quoteSr ?? (p.quoteLines ?? [p.quote]).join(' ')}”</blockquote>
+            <div class="fs__poster" data-fit-poster aria-hidden="true">
+              {(p.quoteLines ?? [p.quote]).map((l, i, all) => (
+                <span class="fs__line">{i === 0 ? '“' : ''}{l}{i === all.length - 1 ? '”' : ''}</span>
+              ))}
+            </div>
+          </div>
+        )}
+        <div class="fs__top" aria-hidden="true"></div>
+        <div class="fs__id" data-enter="text">
+          <p class="type-title font-mono fs__name">{p.name}</p>
+          <p class="type-body font-mono fs__meta">{p.meta}</p>
+        </div>
+        <span class="fs__gap" aria-hidden="true"></span>
+        {!poster && <blockquote class="fs__quote" data-enter="text"><p class="type-title font-mono">“{p.quote}”</p></blockquote>}
+        <span class="fs__gap2" aria-hidden="true"></span>
+        {p.focus && <p class="type-body font-mono fs__focus" data-enter="text">{p.focus}</p>}
+      </div>
+    ))}
+  </div>
+</div>
+
+<style>
+  /* rows (shared by both halves via subgrid): photo · name/meta · gap · quote · gap · focus — so the two cards
+     line up whatever the quote lengths. */
+  .fs__halves {
+    flex: 1 1 auto; display: grid; grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto minmax(var(--grid-summary-min), 1fr) auto minmax(var(--grid-action-min), 2fr) auto;
+  }
+  .fs__half { grid-row: 1 / -1; display: grid; grid-template-rows: subgrid; justify-items: center; text-align: center; padding-inline: clamp(2rem, 5vw, 6rem); position: relative; }
+  /* the photo sits in the TITLE zone (same box height as a 2-line title), bottom-aligned */
+  .fs__top { display: flex; align-items: flex-end; justify-content: center; min-height: calc(var(--type-display) * var(--grid-title-scale) * 1.25 * 2); }
+  /* PHOTO BEHIND THE TEXT (dom, 2026-11-10): a background-removed cut-out (public/images/*-cutout-lg.webp), big,
+     colour, washed out. It sits IN FRONT of the binary rain: .fs__block is the person's silhouette filled with the
+     half's own background colour (opaque — hides the rain), and the photo sits on it at --fs-photo-o.
+     The whole thing fades to opacity 0 at its edges (mask), so it melts into the background. No blend modes, no glow. */
+  .fs__bg {
+    position: absolute; inset: -16% -4% 0%; z-index: 0; pointer-events: none;
+    -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 45%, #000 45%, rgba(0,0,0,0.6) 68%, transparent 100%);
+            mask-image: radial-gradient(ellipse 50% 50% at 50% 45%, #000 45%, rgba(0,0,0,0.6) 68%, transparent 100%);
+  }
+  .fs__block, .fs__photo { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .fs__block {
+    -webkit-mask: var(--src) center 15% / cover no-repeat; mask: var(--src) center 15% / cover no-repeat;
+  }
+  .fs__half--dark .fs__block { background: hsl(var(--background)); }
+  .fs__half--oat .fs__block { background: hsl(var(--content-background)); }
+  .fs__photo { object-fit: cover; object-position: center 15%; display: block; }
+  .fs__half--dark .fs__photo { opacity: var(--fs-photo-o, 0.45); filter: saturate(0.85) contrast(0.9); }
+  .fs__half--oat .fs__photo { opacity: var(--fs-photo-o, 0.4); filter: saturate(0.85) contrast(0.85) brightness(1.1); }
+  .fs__half > :not(.fs__bg):not(.fs__oat-rain) { position: relative; z-index: 1; }
+  .fs__id { margin-top: var(--grid-title-gap); display: flex; flex-direction: column; gap: 0.35rem; }
+  .fs__name, .fs__meta, .fs__focus { margin: 0; }
+  .fs__half--dark .fs__name { color: hsl(var(--foreground)); }
+  .fs__half--oat .fs__name { color: hsl(var(--content-foreground)); }
+  .fs__half--dark .fs__meta, .fs__half--dark .fs__focus { color: hsl(var(--foreground) / 0.7); }
+  .fs__half--oat .fs__meta, .fs__half--oat .fs__focus { color: hsl(var(--content-foreground) / 0.7); }   /* dimmed by colour, not opacity — the entrance animates opacity */
+  .fs__gap { grid-row: 3; } .fs__gap2 { grid-row: 5; }
+  .fs__quote { grid-row: 4; margin: 0; max-width: 30rem; }
+  .fs__quote p { margin: 0; font-size: var(--grid-copy-size); line-height: 1.3; text-wrap: balance; font-style: italic; }
+  .fs__half--dark .fs__quote p { color: hsl(var(--foreground)); }
+  .fs__half--oat .fs__quote p { color: hsl(var(--content-foreground)); }
+  .fs__focus { grid-row: 6; }
+  .fs__oat-rain { position: absolute; inset: 0; z-index: -1; }
+
+  /* DESKTOP TEXT POSITIONS (dom, 2026-11-10) — measured on the WHOLE section (the split fills the screen):
+     name + place start a third of the way down, the quote starts halfway, the focus line sits on the bottom.
+     --fs-name-at / --fs-quote-at are fractions of the screen height; the scene body starts below the
+     header + bar zone, so that offset is taken off. */
+  @media (min-width: 768px) {
+    .fs { --fs-name-at: 0.3333; --fs-quote-at: 0.5; --fs-body-top: calc(var(--header-h) + var(--solaris-height) + var(--grid-top)); }   /* where the halves start on screen */
+    .fs__halves { position: relative; display: grid; grid-template-rows: 1fr; flex: 1 1 auto; }
+    .fs__half { display: block; grid-row: 1; height: 100%; }
+    .fs__top, .fs__gap, .fs__gap2 { display: none; }
+    .fs:not(.fs--poster) .fs__half > .fs__id, .fs:not(.fs--poster) .fs__half > .fs__quote, .fs:not(.fs--poster) .fs__half > .fs__focus { position: absolute; left: 50%; transform: translateX(-50%); width: min(30rem, 86%); }
+    .fs:not(.fs--poster) .fs__half > .fs__id { top: calc(100svh * var(--fs-name-at) - var(--fs-body-top)); margin-top: 0; }
+    .fs:not(.fs--poster) .fs__half > .fs__quote { top: calc(100svh * var(--fs-quote-at) - var(--fs-body-top)); }
+    .fs:not(.fs--poster) .fs__half > .fs__focus { bottom: 0; width: max-content; max-width: 90%; }
+  }
+
+  @media (max-width: 767px) {
+    .fs__halves { display: flex; flex-direction: column; }
+    .fs__half { display: flex; flex-direction: column; align-items: flex-start; text-align: left; gap: 1.25rem; padding: 2.5rem var(--page-gutter-x); }
+    .fs__top { min-height: 0; justify-content: flex-start; }
+    .fs__bg { inset: 0; }
+    .fs__top { display: none; }
+    .fs__id { margin-top: 0; }
+    .fs__gap, .fs__gap2 { display: none; }
+    .fs__half--oat {
+      isolation: isolate; --rain-o: 0.45; background-color: hsl(var(--content-background));
+      border-top: 8px solid transparent;
+      border-image: linear-gradient(90deg, var(--solaris-from), var(--solaris-mid) 55%, var(--solaris-to)) 1;
+    }
+  }
+
+  /* ── POSTER MODE (2026-11-10/11) ── the quote IS the picture.
+     • The photo (full headshot, background kept) fills the WHOLE half of the screen, faint (.fs__ghost).
+     • The quote sits over it in huge stacked lines, each stretched to the full width (script below), filled with
+       the SAME photo at full strength (background-clip: text) — ghost and letters share one box (.fs__poster-wrap
+       = the whole half), so the face lines up exactly. The lines are placed with padding inside that box.
+     • Name + place + focus sit small at the bottom, above the photo.
+     Knobs: --fs-ghost (photo strength behind), --fs-face-y (photo height), --fs-size (cover / a zoom like 120%),
+     --fs-squish (75% = most condensed), --fs-pad-x, --fs-name-zone (space kept for the name block).
+     Quotes: ~8–12 words, broken into lines by hand (quoteLines). */
+  .fs__poster-wrap, .fs__poster { --fs-bg: var(--src) center var(--fs-face-y, 30%) / var(--fs-size, cover) no-repeat; }
+  /* the LETTERS use the cut-out (same size + framing as the headshot, so it lines up with the ghost): the person
+     fills the letters, everywhere else the letters are solid --fs-fill — readable on both halves */
+  .fs__poster { --fs-letters: var(--src-letters) var(--fs-letters-pos, center var(--fs-face-y, 30%)) / var(--fs-letters-size, var(--fs-size, cover)) no-repeat; }
+  .fs__ghost { position: absolute; inset: 0; pointer-events: none; background: var(--fs-bg); opacity: var(--fs-ghost, 0.22); }
+  .fs__poster {
+    /* Martian Mono: a monospace with a WIDTH axis, set condensed + extra bold → tall, squished, heavy letters */
+    position: relative; margin: 0; font-family: 'Martian Mono', var(--font-mono); font-weight: 800; font-stretch: var(--fs-squish, 75%);
+    text-transform: uppercase; line-height: var(--fs-leading, 0.95); letter-spacing: -0.03em;
+    background: var(--fs-letters), linear-gradient(var(--fs-fill), var(--fs-fill));
+    -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent;
+  }
+  .fs__half--dark { --fs-fill: hsl(var(--foreground) / 0.92); }
+  .fs__half--oat { --fs-fill: hsl(var(--content-foreground)); }
+  .fs__line { display: block; width: max-content; white-space: nowrap; font-size: 4rem; }   /* max-content = the script measures the WORDS; it sets the size */
+  .fs--poster .fs__poster-wrap { position: relative; }
+
+  @media (min-width: 768px) {
+    /* how far the half starts below the top of the screen (header + bar zone + grid top padding) */
+    .fs--poster { --fs-top: calc(var(--header-h) + var(--solaris-height) + var(--grid-top)); --fs-pad-x: clamp(1.5rem, 3.5vw, 4rem); --fs-name-zone: 9.5rem; --fs-stretch: 1.18; --fs-face-y: 30%; }   /* stretch = how much TALLER the letters are (1 = normal) */
+    .fs--poster .fs__halves { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: 1fr; flex: 1 1 auto; min-height: 0; }
+    .fs--poster .fs__half { grid-row: 1; position: relative; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-start; text-align: left; padding-inline: var(--fs-pad-x); }
+    .fs--poster .fs__top, .fs--poster .fs__gap, .fs--poster .fs__gap2 { display: none; }
+    /* the WHOLE half of the screen: from the top edge to the bottom edge */
+    .fs.fs--poster .fs__half > .fs__poster-wrap { position: absolute; left: 0; right: 0; top: calc(-1 * var(--fs-top)); bottom: calc(-1 * var(--grid-bottom)); z-index: 0; overflow: hidden; }
+    .fs--poster .fs__poster {
+      /* TALLER, NOT WIDER: the whole poster is stretched vertically (--fs-stretch) around the middle of the text;
+         the script counter-sizes the photo inside the letters so the face still lines up with the photo behind */
+      transform: scaleY(var(--fs-stretch)); transform-origin: 50% var(--fs-origin-y, 50%);
+      position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center;
+      padding: calc(var(--fs-top) - var(--grid-top) + 1rem) var(--fs-pad-x) calc(var(--fs-name-zone) + var(--grid-bottom));
+    }
+    .fs--poster .fs__id, .fs--poster .fs__focus { position: relative; z-index: 1; }
+    .fs--poster .fs__id { flex-direction: column; align-items: flex-start; gap: 0.35rem; }   /* name, then place + likes, then the speciality line below */
+    .fs--poster .fs__focus { margin-top: 0.35rem; }
+  }
+  @media (max-width: 767px) {
+    .fs--poster .fs__poster-wrap { width: 100%; }
+    .fs--poster .fs__ghost { display: none; }
+  }
+</style>
+<script>
+  // POSTER FIT — the rules:
+  //  1. each line is sized to fill the half's width → SHORT lines come out BIG, long lines small (it's the number
+  //     of CHARACTERS per line that sets the size, not the number of words);
+  //  2. if the stack is then too tall, the whole stack shrinks together;
+  //  3. MATCHING (dom, 2026-11-11): both posters are brought to the SAME average letter size — the bigger one
+  //     shrinks to match the smaller (its lines then stop short of the right edge);
+  //  4. nothing may run past the side.
+  // Best result: the same number of lines on both, with similar characters per line (~12–17).
+  const fitPosters = () => {
+    const desktop = window.matchMedia('(min-width: 768px)').matches;
+    const posters = Array.from(document.querySelectorAll<HTMLElement>('[data-fit-poster]')).map((poster) => {
+      const lines = Array.from(poster.querySelectorAll<HTMLElement>('.fs__line'));
+      const cs = getComputedStyle(poster);
+      const W = (poster.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)) * 0.98;   // 2% spare: glyph overhang (the closing ”)
+      const s = desktop ? (parseFloat(cs.getPropertyValue('--fs-stretch')) || 1) : 1;
+      const padT = parseFloat(cs.paddingTop), padB = parseFloat(cs.paddingBottom);
+      const H = (poster.clientHeight - padT - padB) / s;   // the stretch makes the stack s× taller
+      // rule 1
+      let sizes = lines.map((l) => { l.style.fontSize = '100px'; return (100 * W) / Math.max(1, l.getBoundingClientRect().width); });
+      lines.forEach((l, i) => { l.style.fontSize = `${sizes[i]}px`; });
+      // rule 2
+      const used = lines.reduce((h, l) => h + l.offsetHeight, 0);
+      if (desktop && H > 0 && used > H) sizes = sizes.map((z) => (z * H) / used);
+      return { poster, lines, sizes, W, s, padT, padB };
+    }).filter((p) => p.W > 0 && p.lines.length);
+    // rule 3 (desktop: the two sit side by side)
+    if (desktop && posters.length > 1) {
+      const mean = (a: number[]) => a.reduce((x, y) => x + y, 0) / a.length;
+      const target = Math.min(...posters.map((p) => mean(p.sizes)));
+      posters.forEach((p) => { const f = target / mean(p.sizes); p.sizes = p.sizes.map((z) => z * f); });
+    }
+    posters.forEach(({ poster, lines, sizes, W, s, padT, padB }) => {
+      lines.forEach((l, i) => { l.style.fontSize = `${sizes[i]}px`; });
+      // rule 4
+      lines.forEach((l, i) => { const w = l.getBoundingClientRect().width; if (w > W) l.style.fontSize = `${(sizes[i] * W) / w}px`; });
+      // counter-scale the photo in the letters: stretch origin = the middle of the text area; place the image (in
+      // pre-stretch px) so that AFTER the stretch it sits exactly where the 'cover' photo behind sits
+      if (desktop) {
+        const Wb = poster.clientWidth, Hb = poster.clientHeight, oy = padT + (Hb - padT - padB) / 2;
+        poster.style.setProperty('--fs-origin-y', `${oy}px`);
+        const fy = (parseFloat(getComputedStyle(poster).getPropertyValue('--fs-face-y')) || 30) / 100;
+        const k = Math.max(Wb / 1050, Hb / 1400), w = 1050 * k, h = 1400 * k, x = (Wb - w) / 2, y = (Hb - h) * fy;
+        poster.style.setProperty('--fs-letters-size', `${w}px ${h / s}px`);
+        poster.style.setProperty('--fs-letters-pos', `${x}px ${oy + (y - oy) / s}px`);
+      }
+    });
+  };
+  fitPosters();
+  document.fonts?.ready.then(fitPosters);
+  // the 800 weight only starts loading when the scene first SHOWS — refit whenever any font finishes loading
+  document.fonts?.addEventListener?.('loadingdone', () => requestAnimationFrame(fitPosters));
+  document.fonts?.load?.('800 100px "Martian Mono"').then(fitPosters).catch(() => {});
+  window.addEventListener('resize', () => requestAnimationFrame(fitPosters));
+</script>

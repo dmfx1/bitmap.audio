@@ -2,9 +2,9 @@
 /* src/pages/about.astro — ABOUT (rebuilt 2026-11-09)
  *
  * WHY / WHO, not what / how (home does that). One idea per screen, alternating dark + oat beats:
- *   hero (dark) → the problem (oat) → who we are (DARK) → the team (oat) → why "bitmap" (oat)
- *   → what we believe (oat) → different is the point (DARK) → brands we've made sound for (oat)
- *   → let's talk (dark, the rain returns — "reverse the void").
+ *   SPLIT HERO ("Two minds, / one voice.") → curtain → who we are (oat) → the problem (DARK)
+ *   → why "bitmap" (DARK) → the team (oat) → what we believe (oat) → who we're for (DARK)
+ *   → brands we've made sound for (oat) → let's talk (dark, the rain returns — "reverse the void").
  *
  * Desktop: the scene stage (same as home) — a pinned frame, stacked .scene layers, ONE scrubbed master
  * timeline. Dark beats get a WHITE page bar, oat beats the SOLARIS bar; the bar hides + is recoloured
@@ -24,7 +24,10 @@ import Clients from '../components/modules/Clients.tsx';
 import Beat from '../components/modules/Beat.astro';
 import Beliefs from '../components/modules/Beliefs.astro';
 import SoftCta from '../components/modules/SoftCta.astro';
+import BitMapSplit from '../components/modules/BitMapSplit.astro';
+import FounderSplit, { type Person } from '../components/modules/FounderSplit.astro';
 import TermTag from '../components/modules/TermTag.astro';
+import Rain from '../components/Rain.astro';
 
 // ══════════ COPY — ⚠ FILLER (2026-11-09), built from dom's homework answers. DOM TO REWRITE. ══════════
 // SPLIT HERO — left half dark (Dom), right half oat (Nick); the title runs across the seam.
@@ -33,54 +36,64 @@ const HERO = {
   left:  { title: 'Two minds,' },
   right: { title: 'one voice.' },
 };
-// (previous single-hero filler: 'Sound is easy. / Voice is rare.')
-const PROBLEM = {
-  head: 'Most sonic logos',
-  accent: 'are sound effects.',
-  sub: "A swoosh to match the animation, then silence. Nothing in the app, the ad or the room that sounds like the brand.\n\nThat isn't an identity. It's a jingle with good timing.",
-};
 const WHO = {
-  head: 'We started as',
-  accent: "each other's backup.",
-  sub: "Two freelance sound designers, same clients. When one of us was booked up, the job went to the other, because we trusted the ear on the other end. bitmap.audio is that trust, made official.",
+  head: 'Moving in',
+  accent: "the same orbit.",
+  // ⚠ DRAFT sub (Claude's tightening of dom's rough, 2026-11-10) — dom to approve / rewrite
+  sub: "What started as two freelancers in the same circle of clients turned into a partnership. When the work got heavy, we\'d pass it across, trusting the ear on the other end. After years of making sound for some of the world\'s biggest brands, it felt right to build something of our own.",
+  summary: 'bitmap.audio is that trust, made official.',   // the payoff line (.copy-summary)
   // ⚠ FILLER NUMBERS — confirm before launch.
   stats: [
     { value: '20+', label: 'years in sound between us' },
-    { value: '24', label: 'brands we\'ve made sound for' },
+    { value: '40+', label: 'brands we\'ve made sound for' },
     { value: '2', label: 'studios: Manchester + Scarborough' },
   ],
 };
-const TEAM: Founder[] = [
-  {
-    name: '[dom.storrs-fox]',
-    role: 'Manchester · travel + space',
-    focus: 'Surround for film · Dolby Atmos · MPEG-H',
-    bio: "I've spent over a decade making sound for advertising and animation, and more recently mixing surround for film. These days I'm deep in Dolby Atmos and MPEG-H, building sound that moves around you.",
-    image: { src: '/images/dom-headshot-01.webp', scale: 1.0, position: 'center 45%', vignetteAt: '50% 50%' },
-  },
-  {
-    name: '[nick.granville-fall]',
-    role: 'Scarborough · surf + off grid',
-    focus: 'Installations · galleries · museums',
-    bio: "I've made sound for advertising and for installations in galleries and museums, where people walk through it rather than past it. I'm obsessed with why a sound makes you feel something, and how to make it happen on purpose.",
-    image: { src: '/images/nick-headshot-01.webp', scale: 1.0, position: 'center 45%', vignetteAt: '50% 50%' },
-  },
-];
-const NAME = {
-  head: 'Why',
-  accent: '"bitmap"?',
-  sub: 'In computer science, a bitmap maps tiny data points across a grid to build a complete image.\n\nWe do the same with sound: small, deliberate pieces that add up to one voice you recognise anywhere.',
+// (previous single-hero filler: 'Sound is easy. / Voice is rare.')
+const PROBLEM = {
+  head: 'Sound as an',
+  accent: 'afterthought.',
+  sub: "It\'s the most common mistake we come across. Sounds only added to a logo once the animation\'s finished. App sounds pulled from a library or prompt. Installations where sound fills the gaps, when it could lift the whole experience into a new dimension. Anyone can make a sound in seconds; not everyone can plan an identity. The earlier we\'re in the room, the more it pays off.",
+  summary: 'We don\'t start with the sound, we start with what you want it to say.'
 };
+
+// WHY "BITMAP" — the name split in two (copy LOCKED 2026-11-10). Old version kept below for reference.
+const NAME = {
+  left:  { title: 'bit',  body: "The parts of the sum. The bits that make you whole. Every piece a detail, and all of them considered.", payoff: 'Small parts.' },
+  right: { title: 'map', body: 'Where we bring all those bits together: one sonic framework across your branding, product or space.', payoff: 'One whole.' },
+};
+
+// THE TEAM on the bit|map split (2026-11-10). QUOTES ARE PLACEHOLDERS — Dom + Nick write their own.
+const FOUNDERS: { left: Person; right: Person } = {
+  left: {
+    name: '[dom.storrs-fox]', meta: 'Manchester · travel + space',
+    quote: "I'm obsessed by the way sound can totally transform any experience. It can dictate how you feel about it and the possibilities are endless.",
+    posterPhoto: '/images/dom-headshot-clean.webp',   // full headshot (background kept) behind the poster — ✦ mark removed
+    quoteSr: "I'm obsessed by the way sound can transform any experience. The possibilities are endless.",   // what screen readers hear (the poster without its punctuation)
+    quoteLines: ['I\'m obsessed by the', 'way sound can', 'transform', 'any experience. The', 'possibilities are', 'endless.'],   // POSTER trial — dom's line distilled (11 words)
+    focus: 'Dolby Atmos · surround for film · MPEG-H', photo: '/images/dom-cutout-lg.webp',
+  },
+  right: {
+    name: '[nick.granville-fall]', meta: 'Scarborough · surf + off grid',
+    quote: "The craft and the journey from starting with nothing to full blown immersive experiences is what drives me. I love the challenge of a blank canvas.",
+    posterPhoto: '/images/nick-headshot-01.webp',
+    quoteLines: ["Starting with no-", 'thing and creating', 'something', 'new. I love the', 'challenge of', 'a blank canvas.'],   // POSTER trial — placeholder
+    focus: 'Installations · galleries · museums', photo: '/images/nick-cutout-lg.webp',
+  },
+};
+
 const BELIEFS = [
   { title: 'Hairs on the neck', body: "If it doesn't move us, it won't move anyone. We don't mind how a sound gets made, only how it makes you feel." },
   { title: 'Happy accidents', body: 'The best discoveries rarely come from the plan. We leave room for them, then chase them down.' },
   { title: 'Better than fine', body: 'Play it safe and you get "fine". We push past the obvious until it sounds like nobody else.' },
 ];
+
 const FOR = {
   head: 'Different',
   accent: 'is the point.',
   sub: "Sonic identity is new ground for most brands, so feeling a little nervous is normal. We'll take you somewhere you didn't expect, and keep it unmistakably you.\n\nIf you'd rather not be challenged, we're probably not your team.",
 };
+
 const WORK = {
   head: "Brands we've made sound for",
   sub: 'Over our freelance careers, before bitmap.audio. Not bitmap.audio clients (yet).',
@@ -108,41 +121,54 @@ const PEOPLE = [{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick',
         {/* Split backgrounds + seam fill the WHOLE scene (under the header too); the hero copy sits on top. */}
         <div class="split-bg" aria-hidden="true">
           <div class="split-bg__dark"></div>
-          <div class="split-bg__oat"><div class="split-bg__rain" data-split-rain></div></div>
+          <div class="split-bg__oat"><Rain tone="oat" /></div>
           <div class="split-bg__seam" data-split-seam></div>
         </div>
         <AboutSplitHero client:load left={HERO.left} right={HERO.right} />
         {/* The exit WIPE: the seam splits into two bars that sweep out left + right, oat behind them. */}
-        <div class="split-wipe split-wipe--l theme-oat" data-split-wipe="l" aria-hidden="true"></div>
-        <div class="split-wipe split-wipe--r theme-oat" data-split-wipe="r" aria-hidden="true"></div>
+        <div class="split-wipe split-wipe--l" data-split-wipe="l" aria-hidden="true"></div>
+        <div class="split-wipe split-wipe--r" data-split-wipe="r" aria-hidden="true"></div>
       </div>
-      <div class="stage-fog" data-stage="fog" aria-hidden="true"></div>
+      <div class="stage-fog theme-oat" data-stage="fog" aria-hidden="true"></div>{/* .theme-oat: once it is IN, the header reads it as oat (see timeline) */}
       <div class="stage-portal" data-stage="portal" aria-hidden="true"></div>
 
-      {/* 1 · THE PROBLEM — oat */}
-      <div class="scene theme-oat oat-fade-mobile" data-scene="problem" data-oat-mobile style="z-index:10">
-        <TermTag label="The problem" />
-        <div class="scene-body"><Beat head={PROBLEM.head} accent={PROBLEM.accent} sub={PROBLEM.sub} /></div>
-      </div>
+      {/* ORDER (2026-11-10): the hero's "two minds" is paid off FIRST (who we are), then the problem they kept
+          seeing, then the answer (bitmap). Tones: oat → dark → dark → oat → oat → dark → oat → dark. */}
 
-      {/* 2 · WHO WE ARE — DARK (hero layout) + stats */}
-      <div class="scene beat-dark" data-scene="who" style="z-index:15">
+      {/* 1 · WHO WE ARE — oat (revealed by the hero's curtain) + stats */}
+      <div class="scene theme-oat oat-fade-mobile oat-join-above" data-scene="who" data-header-clear data-oat-mobile style="z-index:10">
         <TermTag label="Who we are" />
-        <div class="scene-body"><Beat head={WHO.head} accent={WHO.accent} sub={WHO.sub} stats={WHO.stats} /></div>
+        <div class="scene-body"><Beat head={WHO.head} accent={WHO.accent} sub={WHO.sub} summary={WHO.summary} stats={WHO.stats} pinStats /></div>
       </div>
 
-      {/* 3 · THE TEAM — oat (founder cards) */}
-      <div class="scene theme-oat oat-fade-mobile oat-join-below" data-scene="team" data-oat-mobile style="z-index:20">
-        <TermTag label="The team" />
-        <div class="scene-body container-page">
-          <Founders client:visible people={TEAM} />
+      {/* 2 · THE PROBLEM — DARK */}
+      <div class="scene beat-dark" data-scene="problem" style="z-index:15">
+        <TermTag label="The problem" />
+        <div class="scene-body"><Beat head={PROBLEM.head} accent={PROBLEM.accent} sub={PROBLEM.sub} summary={PROBLEM.summary} ctaLabel="Book a call" /></div>
+      </div>
+
+      {/* 3 · WHY "BITMAP" — the name SPLIT: bit (dark) | map. (oat). No solaris bar; the split runs under the header. */}
+      <div class="scene beat-dark" data-scene="name" data-no-bar style="z-index:20">
+        <div class="split-bg" aria-hidden="true">
+          <div class="split-bg__dark"></div>
+          <div class="split-bg__oat"><Rain tone="oat" /></div>
+          <div class="split-bg__seam"></div>
         </div>
+        <TermTag label="Why bitmap" />
+        <div class="scene-body"><BitMapSplit left={NAME.left} right={NAME.right} /></div>
       </div>
 
-      {/* 4 · WHY "BITMAP" — oat */}
-      <div class="scene theme-oat oat-fade-mobile oat-join-above oat-join-below" data-scene="name" data-oat-mobile style="z-index:25">
-        <TermTag label="Why bitmap" />
-        <div class="scene-body"><Beat head={NAME.head} accent={NAME.accent} sub={NAME.sub} /></div>
+      {/* 4 · THE TEAM — oat (founder cards) */}
+      {/* data-same-bg: shares Why bitmap's split — only the content swaps (timeline), the halves stay put */}
+      <div class="scene beat-dark no-rain" data-scene="team" data-no-bar data-same-bg style="z-index:25">{/* no-rain: the founders sit on their photos, no binary rain */}
+        <div class="split-bg" aria-hidden="true">
+          <div class="split-bg__dark"></div>
+          <div class="split-bg__oat"></div>
+          <div class="split-bg__seam"></div>
+        </div>
+        <TermTag label="The team" />
+        <div class="scene-body"><FounderSplit left={FOUNDERS.left} right={FOUNDERS.right} poster /></div>
+        {/* <Founders client:visible people={TEAM} /> — old cards, unused */}
       </div>
 
       {/* 5 · WHAT WE BELIEVE — oat (focus columns) */}
@@ -216,14 +242,7 @@ const PEOPLE = [{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick',
     .split-bg { position: absolute; inset: 0; z-index: -1; display: grid; grid-template-columns: 1fr 1fr; pointer-events: none; }
     .split-bg__dark { background: transparent; }
     .split-bg__oat { position: relative; background-color: hsl(var(--content-background)); overflow: hidden; }
-    .split-bg__rain {
-      position: absolute; inset: 0;
-      background-image: var(--pattern-binary-rain); background-size: 600px 800px; background-repeat: repeat;
-      background-position: 0 var(--rain-y, 0px);   /* moved with scroll (script below) */
-      filter: invert(1); opacity: 0.55;   /* white glyphs → dark ink on oat. Raise/lower to taste. */
-      -webkit-mask-image: radial-gradient(circle at 0% 40%, rgba(0,0,0,0.25) 0%, #000 60%);
-      mask-image: radial-gradient(circle at 0% 40%, rgba(0,0,0,0.25) 0%, #000 60%);   /* knocked back near the seam's glow, like the dark side */
-    }
+    .split-bg__oat { isolation: isolate; --rain-o: 0.55; }   /* the shared oat rain (Rain.astro); strength here */
     .split-bg__seam {
       position: absolute; top: 0; bottom: 0; left: 50%; width: var(--split-seam-w, 22px); transform: translateX(-50%);   /* seam thickness */
       transform-origin: 50% 50%;
@@ -232,12 +251,21 @@ const PEOPLE = [{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick',
     }
 
     .split-wipe {
-      position: absolute; top: 0; bottom: 0; width: 0; z-index: 3; pointer-events: auto;   /* auto + .theme-oat: the nav-contrast check sees oat once wiped → dark logo */
-      background-color: hsl(var(--content-background));   /* = the white-out fog, so the hand-off is seamless */
+      position: absolute; top: 0; bottom: 0; width: 0; z-index: 3; pointer-events: none;
+      background: transparent;   /* just the travelling solaris EDGE — the section behind is revealed by its clip */
       visibility: hidden;
     }
-    .split-wipe--l { right: 50%; border-left: calc(var(--split-seam-w, 22px) / 2) solid var(--solaris-mid); box-shadow: -18px 0 40px -10px var(--solaris-from); }
-    .split-wipe--r { left: 50%;  border-right: calc(var(--split-seam-w, 22px) / 2) solid var(--solaris-mid); box-shadow: 18px 0 40px -10px var(--solaris-from); }
+    /* Each travelling edge is LITERALLY half the seam: same solaris gradient, half its width, hard edges, no glow
+       (dom, 2026-11-10 — the old soft glow read as smooth, not bitmappy). Flicker = opacity via --edge-o. */
+    .split-wipe::before {
+      content: ''; position: absolute; top: 0; bottom: 0; width: calc(var(--split-seam-w, 22px) / 2);
+      background: linear-gradient(to bottom, var(--solaris-from) 0%, var(--solaris-mid) 55%, var(--solaris-to) 100%);
+      opacity: var(--edge-o, 1);
+    }
+    .split-wipe--l { right: 50%; }
+    .split-wipe--l::before { left: calc(var(--split-seam-w, 22px) / -2); }   /* rides just outside the revealed edge; at width 0 the two halves = the seam */
+    .split-wipe--r { left: 50%; }
+    .split-wipe--r::before { right: calc(var(--split-seam-w, 22px) / -2); }
 
     /* Tones */
     .theme-oat.scene { background-color: hsl(var(--content-background)); }
@@ -311,11 +339,7 @@ const PEOPLE = [{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick',
         border-top: 8px solid transparent;
         border-image: linear-gradient(90deg, var(--solaris-from), var(--solaris-mid) 55%, var(--solaris-to)) 1;
       }
-      .split-hero__half--oat::before {
-        content: ''; position: absolute; inset: 0; pointer-events: none;
-        background-image: var(--pattern-binary-rain); background-size: 600px 800px; background-position: 0 var(--rain-y, 0px); filter: invert(1); opacity: 0.45;
-      }
-      .split-hero__half--oat > * { position: relative; }
+      .split-hero__half--oat { isolation: isolate; --rain-o: 0.45; }
       .split-hero__title { margin: 0; font-size: var(--type-display); white-space: normal; }
       .split-hero--titles .split-hero__half { min-height: 50svh; }
     }
@@ -353,17 +377,20 @@ const PEOPLE = [{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick',
       const beat = (id: string, tone: 'oat' | 'dark', name: string, hold: number): Beat =>
         ({ el: q(id), tone, cfg: tone === 'dark' ? { name, ...WHITE } : { name }, hold });
       const BEATS: Beat[] = [
-        beat('problem', 'oat',  'The Problem',     0.9),
-        beat('who',     'dark', 'Who We Are',      1.1),
-        beat('team',    'oat',  'The Team',        1.2),
-        beat('name',    'oat',  'Why bitmap',      0.9),
+        beat('who',     'oat',  'Who We Are',      1.1),
+        beat('problem', 'dark', 'The Problem',     0.9),
+        beat('name',    'dark', 'Why bitmap',      0.9),
+        beat('team',    'dark', 'The Team',        1.2),
         beat('beliefs', 'oat',  'What We Believe', 1.4),
         beat('for',     'dark', "Who We're For",   1.0),
         beat('work',    'oat',  'Our Work',        1.4),
         beat('close',   'dark', "Let's Talk",      1.0),
       ];
       // ── TIMING KNOBS (timeline units). The track height follows the timeline (VH_PER_UNIT). ──
-      const T = { heroHold: 0.8, fogStart: 0.8, fogDur: 1.0, portalStart: 0.5, voidScale: 3.0, barPush: 1.72, crossDur: 0.9 };
+      // About's entrance is the split-hero WIPE: it starts on the first scroll (WIPE.start 0), and the oat fog
+      // overtakes it BEFORE the bars reach the screen edges (fog fully in at fogStart + fogDur < WIPE end).
+      const WIPE = { start: 0, dur: 1.0, steps: 16 };   // steps = how "bitmappy" (fewer = chunkier jumps)
+      const T = { heroHold: 0.8, fogStart: 0.3, fogDur: 0.5, portalStart: 0.15, voidScale: 3.0, barPush: WIPE.start + WIPE.dur + 0.05, crossDur: 0.9 };
       const OV = T.crossDur * 0.6;      // incoming starts once the outgoing is ~60% gone
       const BAR_OUT = 0.3;              // bar fade out / back in around a dark↔oat switch
       const VH_PER_UNIT = 95;           // scroll per timeline unit (home ≈ 106). Lower = faster page.
@@ -377,18 +404,25 @@ const PEOPLE = [{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick',
       const SOLARIS_BG = 'linear-gradient(90deg, var(--solaris-from) 0%, var(--solaris-mid) 55%, var(--solaris-to) 100%)';
       const paint = (c: BarCfg) => { bar.style.background = c.bg ?? SOLARIS_BG; bar.style.boxShadow = c.glow ?? 'var(--solaris-glow)'; };
 
-      // HERO → ENTER THE VOID → the first oat beat fades in through the fog; the bar pushes down.
-      // No dive into the rain here (gridBg null) — the split hero WIPES out instead: the seam splits and
-      // sweeps left + right, then the oat white-out fog takes over as usual.
-      enterTheVoid(tl, { fog, portal, gridBg: null }, T);
+      // HERO → THE CURTAIN: the seam splits and the two solaris edges step outward (bitmappy), OPENING the hero
+      // like curtains to reveal "The problem" underneath — no white-out, no dive into the rain. Once it's fully
+      // open the fog is set behind everything (it's the oat base the later scenes sit on).
+      tl.to({}, { duration: WIPE.start + WIPE.dur });   // the hero's stretch of scroll
       buildSplitHeroEntrance(tl, {
         seam: pin.querySelector<HTMLElement>('[data-split-seam]'),
         wipeL: pin.querySelector<HTMLElement>('[data-split-wipe="l"]'),
         wipeR: pin.querySelector<HTMLElement>('[data-split-wipe="r"]'),
-      }, { start: 0.15, dur: 0.85 });
-      tl.to(BEATS[0].el, { autoAlpha: 1, ease: 'power2.out', duration: 0.45 }, T.fogStart + T.fogDur);
+        reveal: BEATS[0].el,
+      }, WIPE);
+      tl.set(fog, { opacity: 1, pointerEvents: 'auto' }, WIPE.start + WIPE.dur);
+      // once fully open, the hero leaves the stack — otherwise it shows through the close's tint when the fog lifts
+      tl.set(pin.querySelector<HTMLElement>('.scene[data-scene="hero"]'), { autoAlpha: 0 }, WIPE.start + WIPE.dur);
+      void portal; void enterTheVoid;   // the void entrance isn't used on About (kept imported for reference)
+      // data-no-bar: put it on a scene and the solaris bar hides while that scene is showing (2026-11-10).
+      const noBar = (b: { el: HTMLElement }) => b.el.hasAttribute('data-no-bar');
+      if (noBar(BEATS[0])) tl.set(bar, { autoAlpha: 0 }, T.barPush);   // the push-in still runs, just invisibly
       pushInBar(tl, bar, T.barPush);
-      boundary(1.91, BEATS[0].cfg, null);
+      if (!noBar(BEATS[0])) boundary(T.barPush + 0.19, BEATS[0].cfg, null);   // label once the push-in has landed
       tl.to({}, { duration: BEATS[0].hold });
 
       // Each next beat: a cross-fade. Same tone → a plain label swap. Tone change → the bar hides, is
@@ -397,14 +431,44 @@ const PEOPLE = [{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick',
         const prev = BEATS[i - 1], next = BEATS[i];
         const L = `b${i}`;
         tl.addLabel(L, '>');
-        tl.to(prev.el, { autoAlpha: 0, ease: 'none', duration: T.crossDur }, L)
-          .to(next.el, { autoAlpha: 1, ease: 'none', duration: T.crossDur }, `${L}+=${OV}`);
-        if (prev.tone === next.tone) {
+        if (next.el.hasAttribute('data-same-bg')) {
+          // SAME BACKGROUND (data-same-bg): the backgrounds don't move — the old content steps out, the new scene
+          // (identical backgrounds) takes over, and its content builds in: photos stepped, then the text.
+          const pb = prev.el.querySelector<HTMLElement>('.scene-body'), nb = next.el.querySelector<HTMLElement>('.scene-body');
+          const OUT = 0.4;
+          if (pb) tl.to(pb, { autoAlpha: 0, ease: 'steps(6)', duration: OUT }, L);
+          tl.set(next.el, { autoAlpha: 1 }, `${L}+=${OUT}`).set(prev.el, { autoAlpha: 0 }, `${L}+=${OUT}`);
+          if (nb) {
+            const photos = nb.querySelectorAll('[data-enter="photo"]'), text = nb.querySelectorAll('[data-enter="text"]');
+            // start states set up front (a staggered fromTo only pre-renders its FIRST target)
+            gsap.set(photos, { autoAlpha: 0 }); gsap.set(text, { autoAlpha: 0 });
+            tl.to(photos, { autoAlpha: 1, ease: 'steps(8)', duration: 0.4, stagger: 0.2 }, `${L}+=${OUT}`);
+            tl.to(text, { autoAlpha: 1, ease: 'steps(4)', duration: 0.2, stagger: 0.06 }, `${L}+=${OUT + 0.3}`);
+          }
+        } else {
+          tl.to(prev.el, { autoAlpha: 0, ease: 'none', duration: T.crossDur }, L)
+            .to(next.el, { autoAlpha: 1, ease: 'none', duration: T.crossDur }, `${L}+=${OV}`);
+        }
+        if (noBar(prev) && noBar(next)) {
+          // bar stays hidden
+        } else if (noBar(next)) {
+          // INTO a no-bar scene: the bar (and its label) fade out together with the outgoing scene
+          tl.to(bar, { autoAlpha: 0, ease: 'none', duration: BAR_OUT }, L);
+          atDir(`${L}+=${BAR_OUT}`, 1, null);
+          tl.call(() => { if (dir() === -1) paint(prev.cfg); }, [], `${L}+=${BAR_OUT}`);   // up: right colour before it returns
+          atDir(`${L}+=${BAR_OUT * 0.8}`, -1, prev.cfg);
+        } else if (noBar(prev)) {
+          // OUT of a no-bar scene: the bar comes back, already recoloured, with the incoming scene
+          tl.call(() => { if (dir() === 1) paint(next.cfg); }, [], L);
+          tl.to(bar, { autoAlpha: 1, ease: 'none', duration: BAR_OUT }, `${L}+=${OV}`);
+          atDir(`${L}+=${OV}`, 1, next.cfg);
+          atDir(`${L}+=${OV}`, -1, null);
+        } else if (prev.tone === next.tone) {
           crossLabel(L, next.cfg, prev.cfg);
         } else {
           tl.to(bar, { autoAlpha: 0, ease: 'none', duration: BAR_OUT }, L)
             .to(bar, { autoAlpha: 1, ease: 'none', duration: BAR_OUT }, `${L}+=${OV + BAR_OUT}`);
-          atDir(L, 1, null);
+          atDir(`${L}+=${BAR_OUT}`, 1, null);   // the label leaves WITH the bar (cleared once it's hidden), not before it
           tl.call(() => paint(dir() === 1 ? next.cfg : prev.cfg), [], `${L}+=${BAR_OUT}`);
           atDir(`${L}+=${OV + BAR_OUT}`, 1, next.cfg);
           atDir(`${L}+=${OV + BAR_OUT}`, -1, null);
@@ -438,15 +502,12 @@ const PEOPLE = [{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick',
   </script>
 
   <script>
-    // RAIN MOTION: the split hero's oat rain + the per-scene rain drift with scroll like the global "near" rain layer
-    // (GridBackground.astro: 0.3 × scroll, 800px repeat) so both halves rain together.
-    // --rain-y on <html>: drives the split hero's oat rain AND every [data-rain-all] scene's rain.
-    const moveRain = () => {
-      document.documentElement.style.setProperty('--rain-y', `${(window.scrollY * 0.3) % 800}px`);
-    };
-    const w = window as any;
-    if (w.__bmOnScroll) w.__bmOnScroll(moveRain); else window.addEventListener('scroll', moveRain, { passive: true });
-    moveRain();
+    // RAIN THROUGHOUT: give every scene (except .no-rain) its own rain — lib/rain.ts. Motion comes from
+    // GridBackground's scroll loop, so it's in step with the page rain.
+    import { mountSceneRain } from '../lib/rain';
+    const mount = () => mountSceneRain();
+    document.addEventListener('astro:page-load', mount);
+    if (document.readyState !== 'loading') mount(); else document.addEventListener('DOMContentLoaded', mount);
   </script>
 
   <script>

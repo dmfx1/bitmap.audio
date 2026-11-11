@@ -171,8 +171,6 @@ html.nav-over-oat nav[data-nav-chrome] a.link-underline { color: hsl(var(--accen
    Transition includes opacity so the intro fade-in still works. */
 [data-nav-chrome="brand"] span { transition: color 0.45s ease, opacity 0.4s ease; }
 html.nav-over-oat [data-nav-chrome="brand"] { --foreground: var(--content-foreground); }
-/* No glass header bar (removed 2026-11-09), so over oat — or a docked solaris bar — the white b mark
-   flips to dark ink (desktop + mobile). invert + hue-rotate keeps the amber underline roughly amber. */
 /* HEADER BAR — solid, no glass: it takes the colour of the section behind it (dark by default, oat when
    the nav-contrast check sees oat). Transparent while a solaris section bar is docked, so the bar shows. */
 #header-bar { background-color: hsl(var(--background)); transition: background-color 0.3s ease; }
@@ -181,9 +179,13 @@ html.nav-docked #header-bar { background-color: transparent; }
 /* PER-SECTION OPT-OUT: put data-header-clear on a section (e.g. About's split hero) and, while it's under
    the header, NO header background shows — neither the bar nor the top-of-page cover. Logo + nav stay. */
 html.header-clear #header-bar, html.header-clear #nav-top-cover { opacity: 0 !important; }
-[data-nav-chrome="brand"] img { transition: filter 0.3s ease; }
-html.nav-over-oat [data-nav-chrome="brand"] img:first-of-type,
-html.nav-docked [data-nav-chrome="brand"] img:first-of-type { filter: invert(1) hue-rotate(180deg); }
+/* Over oat — or a docked solaris bar — the b mark swaps to its OAT version (logo-b-oat.svg: dark b +
+   brand-teal underline). Desktop + mobile. Hover still shows the invert version. */
+html.nav-over-oat [data-nav-chrome="brand"] img[data-logo="default"],
+html.nav-docked [data-nav-chrome="brand"] img[data-logo="default"] { opacity: 0; }
+html.nav-over-oat [data-nav-chrome="brand"] img[data-logo="oat"],
+html.nav-docked [data-nav-chrome="brand"] img[data-logo="oat"] { opacity: 1; }
+[data-nav-chrome="brand"]:hover img[data-logo="oat"] { opacity: 0 !important; }
 
 /* DOCKED (desktop): the section's solaris bar has risen into the header zone (orange). Brand + nav
    must read DARK on it, and the nav pill drops its teal glass so the solaris shows through. Overrides
@@ -475,21 +477,92 @@ html { scrollbar-width: none; }
 /* ONE-WAY SCENES (lib/stage.ts oneWayScene): beat GSAP's inline autoAlpha while a one-way scene is skipped. */
 .stage-skip { visibility: hidden !important; opacity: 0 !important; }
 
-/* RAIN THROUGHOUT (opt-in per page: put data-rain-all on the stage track / wrapper). Every .scene inside
-   gets its own binary rain over its background — white on dark, inverted (dark ink) on .theme-oat — moving
-   with scroll via --rain-y (set on <html> by the page). Opt a section OUT with .no-rain (its plain
-   background shows). Tune strength with --scene-rain-o on a section. */
-[data-rain-all] .scene:not(.no-rain) { isolation: isolate; }   /* so the rain (z -1) sits over the bg, under the content */
-[data-rain-all] .scene:not(.no-rain)::before {
-  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: -1;
-  background-image: var(--pattern-binary-rain); background-size: 600px 800px; background-repeat: repeat;
-  background-position: 0 var(--rain-y, 0px);
-  opacity: var(--scene-rain-o, 0.6);
-}
-[data-rain-all] .scene.theme-oat:not(.no-rain)::before { filter: invert(1); opacity: var(--scene-rain-o, 0.45); }
-/* Mobile: dark sections are already transparent over the page's own rain — only the oat ones need theirs. */
-@media (max-width: 767px) { [data-rain-all] .scene:not(.theme-oat)::before { content: none; } }
+/* SHARED RAIN (lib/rain.ts, Rain.astro) — the page rain's structure (two parallax layers + centre-dim mask)
+   placed INSIDE an element, behind its content. .rain--oat = dark ink on oat. Strength per element:
+   --rain-o (opacity of the whole rain). Moved by GridBackground's scroll loop (transforms only).
+   RAIN THROUGHOUT a page: data-rain-all on the stage track → lib/rain.ts mountSceneRain() gives every
+   .scene its rain (tone from .theme-oat). Opt a section out with .no-rain. */
+.has-rain { isolation: isolate; }                        /* rain at z -1: over the bg, under the content */
+.binary-waterfall.rain { z-index: -1; opacity: var(--rain-o, 0.6); }
+.binary-waterfall.rain--oat { filter: invert(1); opacity: var(--rain-o, 0.45); }
+/* Mobile: dark sections already sit on the page's own rain — only oat ones draw theirs. */
+@media (max-width: 767px) { [data-rain-all] .scene:not(.theme-oat) > .rain { display: none; } }
 .stage-hold { visibility: visible !important; opacity: 1 !important; }
+/* COPY SPAN — how far supporting copy runs across the screen. Put ONE class on a section (or any wrapper):
+   span-40 · span-55 · span-64 · span-70 · span-80. OPTIONAL: a Beat with no span class sizes its copy by word
+   count (Beat.astro autoSpan) — only add a class to override that. % of the viewport width, capped at 90rem on huge
+   screens; full width on mobile. Components that honour it read var(--copy-span) (e.g. Beat.astro's copy). */
+/* SUMMARY LINE — the payoff sentence that closes a block of copy ("bitmap.audio is that trust, made
+   official."). Bold, with a blank line's worth of space above it. Use .copy-summary anywhere. */
+.copy-summary { font-weight: 700; margin-top: 1lh !important; }
+/* PAGE ENTER — the veil every page (except enter="none") dissolves out of on load: a stepped, bitmappy fade
+   from the void. Tune: duration (0.9s), steps (9 = how chunky), delay (0.15s). Pure CSS — no JS needed. */
+#page-enter {
+  position: fixed; inset: 0; z-index: 9999; pointer-events: none;
+  background: hsl(var(--background));
+  animation: page-enter-out 0.9s steps(50, end) 0.15s forwards;
+}
+@keyframes page-enter-out { to { opacity: 0; visibility: hidden; } }
+@media (prefers-reduced-motion: reduce) { #page-enter { display: none; } }
+:root { /* no default --copy-span: Beat falls back to its auto width (by word count); others use their own fallback */ }
+/* SPAN SCALE — shrinks/grows every copy width (span-* classes AND Beat's auto width) per screen size.
+   1 = as set. Tune here; add breakpoints as needed. (dom, 2026-11-10) */
+:root { --span-scale: 1; }
+@media (min-width: 768px) and (max-width: 1599px) { :root { --span-scale: 1; } }      /* laptop */
+@media (min-width: 1600px) { :root { --span-scale: 0.85; } }                          /* big desktop: long lines get hard to read */
+/* ── COPY GRID (dom, 2026-11-10) — the shared layout for a "title + copy + summary + action" section.
+   Used by Beat.astro; any section can opt in (e.g. SoftCta) by using these classes:
+     .copy-grid            the wrapper (fills the scene body, column)
+       .copy-grid__title   ZONE 1 — starts --grid-top below the bar; reserves 2 lines, so…
+       .copy-grid__copy    ZONE 2 — …the copy starts at the same height on every section. Width = span (below)
+       .copy-grid__space   flexible gap (put one before the summary and one before the action)
+       .copy-grid__summary ZONE 3 — the payoff line; floats in the free space (--grid-space-a : --grid-space-b)
+       .copy-grid__action  ZONE 4 — stats / link / button, on the bottom edge
+   EVERY KNOB IS A VARIABLE, so it can be changed per screen size in the media queries below. Mobile: zones stack. */
+:root {
+  --grid-top: clamp(2.5rem, 7vh, 6rem);          /* bar → title */
+  --grid-bottom: var(--page-gutter);             /* action → bottom edge */
+  --grid-title-gap: clamp(2rem, 6vh, 4.5rem);    /* title → copy */
+  --grid-title-scale: 1;                         /* × the .heading-hero size */
+  --grid-copy-size: var(--type-title);           /* the copy + summary font-size */
+  --grid-summary-min: 1lh;                       /* copy → summary, at least */
+  --grid-action-min: 1.5rem;                     /* summary → action, at least */
+  --grid-space-a: 1;                             /* share of the free space ABOVE the summary… */
+  --grid-space-b: 2;                             /* …and BELOW it (1:2 = a third of the way down) */
+  --grid-action-gap: clamp(1.25rem, 3vh, 2.25rem);
+}
+/* mid-height desktop screens (981–1100px high, e.g. 1920×1080) */
+@media (min-width: 768px) and (min-height: 981px) and (max-height: 1100px) {
+  :root { --grid-top: clamp(2.5rem, 5vh, 4rem); --grid-title-gap: 2rem; --grid-title-scale: 0.9; --grid-copy-size: 2rem; }
+}
+/* short desktop screens (≤980px high, e.g. 1440×900) */
+@media (min-width: 768px) and (max-height: 980px) {
+  :root {
+    --grid-top: 3.5rem; --grid-title-gap: 1.5rem; --grid-title-scale: 0.82; --grid-copy-size: 1.75rem;
+    --grid-summary-min: 1.5rem; --grid-action-min: 1.25rem; --grid-action-gap: clamp(1rem, 2.5vh, 1.75rem);
+  }
+}
+.copy-grid { height: 100%; display: flex; flex-direction: column; padding-top: var(--grid-top); padding-bottom: var(--grid-bottom); box-sizing: border-box; }
+.copy-grid > * { flex-shrink: 0; }   /* overflow must never squash the title into the copy */
+.copy-grid .copy-grid__title { margin: 0; min-height: 2lh; font-size: calc(var(--type-display) * var(--grid-title-scale)); }
+.copy-grid__copy { margin-top: var(--grid-title-gap); }
+.copy-grid__copy > p, .copy-grid__copy > .copy-grid__text { font-size: var(--grid-copy-size); max-width: min(calc(var(--copy-span, var(--grid-span-auto, 64vw)) * var(--span-scale, 1)), 90rem); }
+.copy-grid__space--a { flex: var(--grid-space-a) 0 var(--grid-summary-min); }
+.copy-grid__space--b { flex: var(--grid-space-b) 0 var(--grid-action-min); }
+.copy-grid .copy-grid__summary { margin: 0 !important; font-size: var(--grid-copy-size); max-width: min(92vw, 90rem); }
+.copy-grid__action { display: flex; flex-direction: column; align-items: flex-start; gap: var(--grid-action-gap); }
+@media (max-width: 767px) {
+  .copy-grid { height: auto; padding-top: 0; gap: 2rem; }
+  .copy-grid .copy-grid__title { min-height: 0; font-size: var(--type-display); }
+  .copy-grid__copy { margin-top: 0; }
+  .copy-grid__copy > p { max-width: 100%; }
+  .copy-grid__space { display: none; }
+}
+.span-40 { --copy-span: 40vw; }
+.span-55 { --copy-span: 55vw; }
+.span-64 { --copy-span: 64vw; }
+.span-70 { --copy-span: 70vw; }
+.span-80 { --copy-span: 80vw; }
 .term-tag { display: none; }
 @media (max-width: 767px) {
   .term-tag {

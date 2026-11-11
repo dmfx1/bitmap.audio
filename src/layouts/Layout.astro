@@ -7,7 +7,9 @@ import Solaris from '../components/Solaris.astro';
 import GridBackground from '../components/GridBackground.astro';
 import { resolvePageName } from '../config/brandMotion';
 
-const { title, description = "", canonical = "" } = Astro.props;
+// enter: how the page arrives when you land on it. 'fade' (default) = a short bitmappy dissolve from the
+// void so a click never "jumps" in; 'none' = no veil (e.g. home, which has its own intro animation).
+const { title, description = "", canonical = "", enter = "fade" } = Astro.props as { title: string; description?: string; canonical?: string; enter?: "fade" | "none" };
 const currentPath = Astro.url.pathname;
 const pageName = resolvePageName(currentPath);
 // NB: "/" (index.astro) is a standalone redirect and never renders this layout, so there is no
@@ -53,7 +55,7 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
         global.css). Same families/weights; the --font-mono switch in global.css still applies. */}
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@300;400&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@300;400&family=Martian+Mono:wdth,wght@75..112.5,700..800&display=swap" />
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='-1 0.5 7 8' shape-rendering='crispEdges' fill='black' stroke='black' stroke-width='0.25'><rect x='0' y='1' width='1' height='1' /><rect x='1' y='2' width='1' height='5' /><rect x='0' y='4' width='4' height='1' /><rect x='4' y='4' width='1' height='3' /><rect x='1' y='7' width='3' height='1' /></svg>" />
     <title>{title}</title>
     <!-- Open Graph -->
@@ -93,6 +95,8 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
   </head>
   
   <body class="bg-background text-foreground antialiased selection:bg-primary/30">
+    {/* PAGE ENTER veil — dissolves away on load (pure CSS, global.css #page-enter). Per page: <Layout enter="none">. */}
+    {enter === "fade" && <div id="page-enter" aria-hidden="true"></div>}
     {/* ONE rAF-throttled scroll scheduler shared by every inline scroll effect below (fader, nav
         contrast, nav cover, mobile glow, section docking, header squish). Previously each script
         added its own scroll listener and queued a rAF per scroll EVENT, so a busy frame ran every
@@ -294,17 +298,61 @@ const resolvedCanonical = canonical || `${siteUrl}${currentPath}`;
                 return r.top + f <= y && r.bottom - f >= y;
               });
             } else {
-              const el = document.elementFromPoint(Math.round(window.innerWidth / 2), headerH + 8);
-              overOat = !!(el && el.closest && el.closest('.theme-oat'));
+              // SCROLL-STAGE pages: the section "under the header" is the TOP-MOST VISIBLE layer of the pinned
+              // stage — not whatever elementFromPoint hits (it skips pointer-events:none layers like the binary
+              // field and falls through to the hero underneath, which wrongly picked up the hero's data-header-clear).
+              let el = null;
+              const pin = document.querySelector('.stage-pin');
+              if (pin) {
+                // The section under the header = the MOST VISIBLE scene (highest opacity; ties → the higher
+                // layer). Mid cross-fade that's whichever scene dominates, so dark→dark never flashes oat. The
+                // hero only counts until the oat fog covers it; the fog itself counts only when no scene shows.
+                const fogEl = pin.querySelector('[data-stage="fog"]');
+                const fogOp = fogEl ? parseFloat(getComputedStyle(fogEl).opacity) || 0 : 0;
+                let bestOp = 0, bestZ = -Infinity;
+                Array.prototype.forEach.call(pin.querySelectorAll(':scope > .scene'), function (c) {
+                  if (c.style.pointerEvents === 'none') return;   // a layer the timeline marks as 'not yet arrived' (About's curtain reveal)
+                  const isHero = c.getAttribute('data-scene') === 'hero';
+                  if (isHero && fogOp >= 0.5) return;   // covered by the fog
+                  const cs = getComputedStyle(c);
+                  if (cs.visibility === 'hidden' || cs.display === 'none') return;
+                  // the hero sits UNDER every scene: it only wins when nothing else is showing at all
+                  const op = isHero ? 0.02 : (parseFloat(cs.opacity) || 0), z = parseInt(cs.zIndex, 10) || 0;
+                  if (!isHero && op < 0.02) return;
+                  if (op > bestOp + 0.001 || (Math.abs(op - bestOp) <= 0.001 && z >= bestZ)) { bestOp = op; bestZ = z; el = c; }
+                });
+                if (!el && fogOp >= 0.5) el = fogEl;
+              }
+              if (!el) el = document.elementFromPoint(Math.round(window.innerWidth / 2), headerH + 8);
+              // the stage's FOG is the oat white-out — when it's the top layer, the header is oat (not dark)
+              overOat = !!(el && el.closest && (el.closest('.theme-oat') || el.getAttribute('data-stage') === 'fog'));
               clear = !!(el && el.closest && el.closest('[data-header-clear]'));
+            }
+            // Coming OUT of a clear section the bar must appear in its final colour at once — otherwise its
+            // background transition plays from the old colour (the dark flash between hero and the oat fog).
+            if (!clear && root.classList.contains('header-clear') && bar) {
+              bar.style.transition = 'none';
+              root.classList.toggle('nav-over-oat', overOat);
+              root.classList.remove('header-clear');
+              void bar.offsetWidth;
+              bar.style.transition = '';
+              return;
             }
             root.classList.toggle('nav-over-oat', overOat);
             root.classList.toggle('header-clear', clear);
           };
+          // The stage timeline is SCRUBBED (it eases ~0.6s behind the scroll), so re-check a few times after
+          // scrolling stops — otherwise the header can be left on the state from mid cross-fade.
+          let trail = [];
+          const onScroll = function () {
+            update();
+            trail.forEach(clearTimeout);
+            trail = [150, 400, 750].map(function (ms) { return setTimeout(update, ms); });
+          };
           const onResize = function () { window.requestAnimationFrame(update); };
           const lenis = window.__lenis;
-          if (lenis && lenis.on) lenis.on('scroll', update);
-          window.__bmOnScroll(update);
+          if (lenis && lenis.on) lenis.on('scroll', onScroll);
+          window.__bmOnScroll(onScroll);
           window.addEventListener('resize', onResize, { passive: true });
           update();
         }

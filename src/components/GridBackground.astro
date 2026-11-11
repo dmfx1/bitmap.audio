@@ -52,8 +52,10 @@ const { showRain = true, showGrid = true } = Astro.props;
 </div>
 
 <script>
-  const deepLayer = document.getElementById('layer-deep');
-  const nearLayer = document.getElementById('layer-near');
+  // EVERY rain on the page (this one + any built with lib/rain.ts / Rain.astro) shares these classes.
+  // Live collections: rains added later are picked up automatically.
+  const deepLayers = document.getElementsByClassName('layer-deep') as HTMLCollectionOf<HTMLElement>;
+  const nearLayers = document.getElementsByClassName('layer-near') as HTMLCollectionOf<HTMLElement>;
   const root = document.documentElement;
 
   // FREEZE support: while <html data-rain-frozen="1"> (set during the About peel), the
@@ -67,8 +69,9 @@ const { showRain = true, showGrid = true } = Astro.props;
   const apply = () => {
     const s = window.scrollY - accum;
     // heights match the .layer-deep / .layer-near background-size (400 / 800)
-    if (deepLayer) deepLayer.style.transform = `translateY(${(s * 0.1) % 400}px)`;
-    if (nearLayer) nearLayer.style.transform = `translateY(${(s * 0.3) % 800}px)`;
+    const deep = `translateY(${(s * 0.1) % 400}px)`, near = `translateY(${(s * 0.3) % 800}px)`;
+    for (let i = 0; i < deepLayers.length; i++) deepLayers[i].style.transform = deep;
+    for (let i = 0; i < nearLayers.length; i++) nearLayers[i].style.transform = near;
   };
 
   const handleScroll = () => {

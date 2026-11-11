@@ -75,6 +75,10 @@ export default function AboutSplitHero({ left, right, ctaLabel }: Props) {
 
           {/* RIGHT — oat */}
           <div className="split-hero__half split-hero__half--oat">
+            {/* mobile only: the shared oat rain (same markup as lib/rain.ts; desktop's lives in .split-bg) */}
+            <div className="binary-waterfall rain rain--oat md:hidden" aria-hidden="true">
+              <div className="binary-layer layer-deep" /><div className="binary-layer layer-near" />
+            </div>
             <div data-hero-pull="title" className="hero-copy split-hero__title-wrap">
               {rightOn && (
                 <ScrambleHeading

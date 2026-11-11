@@ -252,7 +252,17 @@ const BrandLockup = ({ pageName }: { pageName: string }) => {
           <img
             src="/images/brand/logo-b.svg"
             alt=""
+            data-logo="default"
             className="w-full h-full object-contain transition-opacity duration-200 group-hover:opacity-0"
+            loading="eager"
+          />
+          {/* OAT version (dark b + brand-teal underline) — swapped in over oat / a docked bar (global.css) */}
+          <img
+            src="/images/brand/logo-b-oat.svg"
+            alt=""
+            aria-hidden="true"
+            data-logo="oat"
+            className="absolute inset-0 w-full h-full object-contain opacity-0 transition-opacity duration-200"
             loading="eager"
           />
           <img

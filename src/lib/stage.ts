@@ -46,6 +46,8 @@ export function createStageTimeline(track: HTMLElement): Timeline {
 /** Controller for the persistent solaris #page-bar. */
 export function createPageBar(bar: HTMLElement) {
   const label = bar.querySelector<HTMLElement>('[data-page-label]')!;
+  // Labels FADE out (and in) rather than snapping, so a cleared label never just vanishes (dom, 2026-11-10).
+  label.style.transition = 'color 0.45s ease, opacity 0.35s ease';
   let current = '';
   const setBar = (s: BarCfg) => {
     if (s.name === current) return;
@@ -86,12 +88,13 @@ export function stageLabels(tl: Timeline, pageBar: ReturnType<typeof createPageB
   const DOWN_BUF = (OV + crossDur * 0.6).toFixed(3);
 
   /**
-   * Cross-fade label. DOWN: the old label leaves WITH its scene (clear at the fade start), then the
+   * Cross-fade label. DOWN: the old label leaves WITH its scene (clears once the scene is ~60% gone), then the
    * new label scrambles in only once the incoming scene is in focus — never over the old scene.
    * UP: mirror — clear as the scene leaves, restore the previous label snappily once it's back.
    */
   const crossLabel = (start: string, downCfg: BarCfg, upCfg: BarCfg) => {
-    atDir(start, 1, null);
+    // DOWN: the old label stays until its scene is ~60% gone (was: cleared the moment the fade began).
+    atDir(start + '+=' + OV.toFixed(3), 1, null);
     atDir(start + '+=' + DOWN_BUF, 1, downCfg);
     atDir(start + '+=' + DOWN_BUF, -1, null);
     atDir(start + '+=0.2', -1, upCfg);
@@ -145,19 +148,33 @@ export function pushInBar(tl: Timeline, bar: HTMLElement, at: number) {
  *                     onSkip: () => pageBar.setBar(SERVICES) });
  */
 const oneWayRegistry = new WeakMap<Timeline, Array<() => void>>();
+// Several one-way scenes can HOLD the same element (e.g. two skipped scenes in a row both holding "What we
+// do") — count holders so one scene releasing doesn't drop another's hold.
+const hold = (el: HTMLElement, on: boolean) => {
+  const n = Math.max(0, (parseInt(el.dataset.holdN || '0', 10) || 0) + (on ? 1 : -1));
+  el.dataset.holdN = String(n);
+  el.classList.toggle('stage-hold', n > 0);
+};
 export function oneWayScene(
   tl: Timeline,
   o: { scene: HTMLElement; from: string | number; to: string | number; hold?: HTMLElement[]; onSkip?: () => void; onRelease?: () => void },
 ) {
-  const at = (p: string | number) => (typeof p === 'number' ? p : tl.labels[p]);
+  // positions: a number, a label, or "label+=n" / "label-=n"
+  const at = (p: string | number) => {
+    if (typeof p === 'number') return p;
+    const m = p.match(/^(.+?)([+-]=)([\d.]+)$/);
+    if (!m) return tl.labels[p];
+    const base = tl.labels[m[1]];
+    return base === undefined ? undefined : base + (m[2] === '+=' ? 1 : -1) * parseFloat(m[3]);
+  };
   let prevT = tl.time();
   let skipping = false;
   const set = (on: boolean) => {
     if (on === skipping) return;
     skipping = on;
     o.scene.classList.toggle('stage-skip', on);
-    (o.hold || []).forEach((el) => el.classList.toggle('stage-hold', on));
-    if (on) o.onSkip?.(); else o.onRelease?.();
+    (o.hold || []).forEach((el) => hold(el, on));
+    if (!on) o.onRelease?.();
   };
   const check = () => {
     const a = at(o.from), b = at(o.to), t = tl.time();
@@ -165,6 +182,9 @@ export function oneWayScene(
     const inside = t > a && t < b;
     if (!inside) set(false);
     else if (!(prevT > a && prevT < b)) set(prevT >= b);   // just entered: from the END side → skip
+    // while skipping, re-assert the held state every update — the timeline's own label callbacks inside this
+    // stretch would otherwise put the skipped scene's bar label back
+    if (skipping) o.onSkip?.();
     prevT = t;
   };
   let list = oneWayRegistry.get(tl);

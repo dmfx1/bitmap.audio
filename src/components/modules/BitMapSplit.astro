@@ -1,0 +1,87 @@
+---
+/* src/components/modules/BitMapSplit.astro
+ *
+ * ABOUT › WHY "BITMAP" — the name split in two (copy LOCKED 2026-11-10). A bitmap is a map of bits: each
+ * pixel means nothing alone, arranged on the grid they make the picture. So:
+ *   LEFT  (dark):  "bit"  — the smallest part   … payoff "Small parts."   (white)
+ *   RIGHT (oat):   "map." — how it fits together … payoff "One whole."     (solaris)
+ * The payoff halves rhyme with the hero's "Two minds, / one voice." and sit at the SAME height in both halves
+ * (a shared subgrid), floating a third of the way down the free space like a summary line.
+ * The dark/oat backgrounds + seam are the page's .split-bg (about.astro), same as the hero. Layout uses the
+ * global COPY GRID knobs (global.css): titles + copy start at the same heights as every other section.
+ * Mobile: bit block (+ "Small parts,"), then the map block on oat (+ "one whole.").
+ */
+import Rain from '../Rain.astro';
+
+interface Side { title: string; body: string; payoff?: string }
+interface Props { left: Side; right: Side }
+const { left, right } = Astro.props;
+// OPTICAL CENTRING: a trailing full stop "hangs" outside the line (it doesn't count in the centring), so
+// "Small parts." / "One whole." look centred on their words, not their words + the dot.
+const hang = (t?: string) => (t && t.endsWith('.') ? { words: t.slice(0, -1), stop: true } : { words: t ?? '', stop: false });
+const L = hang(left.payoff), R = hang(right.payoff);
+---
+<div class="copy-grid bms">
+  <div class="bms__halves">
+    <div class="bms__half bms__half--dark">
+      <h2 class="heading-hero leading-tight font-medium copy-grid__title bms__title">{left.title}</h2>
+      <p class="type-title font-mono bms__body">{left.body}</p>
+      <span class="bms__gap" aria-hidden="true"></span>
+      {left.payoff && <p class="heading-hero font-medium bms__payoff">{L.words}{L.stop && <span class="bms__stop">.</span>}</p>}
+    </div>
+    <div class="bms__half bms__half--oat">
+      <div class="md:hidden bms__oat-rain" aria-hidden="true"><Rain tone="oat" /></div>
+      <h2 class="heading-hero leading-tight font-medium copy-grid__title bms__title text-accent">
+        {right.title}
+      </h2>
+      <p class="type-title font-mono bms__body bms__body--oat">{right.body}</p>
+      <span class="bms__gap" aria-hidden="true"></span>
+      {right.payoff && <p class="heading-hero font-medium bms__payoff text-accent">{R.words}{R.stop && <span class="bms__stop">.</span>}</p>}
+    </div>
+  </div>
+</div>
+
+<style>
+  /* rows: title · copy · gap above the payoff (1 share) · payoff · gap below (2 shares) — shared by both halves
+     (subgrid), so the payoffs line up whatever the copy length. 1fr / 2fr = the grid's --grid-space-a / -b. */
+  .bms__halves {
+    flex: 1 1 auto; display: grid; grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto minmax(var(--grid-summary-min), 1fr) auto minmax(var(--grid-action-min), 2fr);
+  }
+  .bms__half { grid-row: 1 / -1; display: grid; grid-template-rows: subgrid; justify-items: center; text-align: center; padding-inline: clamp(2rem, 5vw, 6rem); position: relative; }
+  /* single-word titles sit on the 2nd line of the grid's 2-line title box, so the copy lines up with every other section */
+  .bms__title { display: flex; align-items: flex-end; justify-content: center; max-width: 100%; }
+  /* "bit" + "map" in Departure Mono — a pixel (bitmap) font for the two words that explain the name. The ONLY
+     use of Departure for a title on the page (dom, 2026-11-10). Payoffs stay in the normal mono. */
+  .bms__title { font-family: var(--font-departure, var(--font-mono)); }
+  /* BIGGER than other sections' titles (one short word each), but the title BOX keeps the normal 2-line height,
+     so the copy below still starts at the same height as every other section. --bms-title-size = the multiplier. */
+  .bms { --bms-title-size: 1.2; }
+  .bms .bms__title {
+    font-size: calc(var(--type-display) * var(--grid-title-scale) * var(--bms-title-size));
+    line-height: 1; min-height: calc(var(--type-display) * var(--grid-title-scale) * 1.25 * 2);
+  }
+  .bms__half--dark .bms__title { color: hsl(var(--foreground)); }
+  .bms__body { margin: var(--grid-title-gap) 0 0; font-size: calc(var(--grid-copy-size) * 0.75); line-height: 1.4; max-width: 30rem; text-wrap: balance;   /* balance = even line lengths, no dangling last line. Smaller than other sections' copy: two short blocks, side by side */ color: hsl(var(--foreground) / 0.88); }
+  .bms__body--oat { color: hsl(var(--content-foreground) / 0.88); }
+  .bms__gap { grid-row: 3; }
+  .bms__payoff { grid-row: 4; margin: 0; line-height: 1.1; white-space: nowrap; font-size: calc(var(--type-display) * var(--grid-title-scale) * 0.55); }   /* ~60% of bit / map */
+  .bms__half--dark .bms__payoff { color: hsl(var(--foreground)); }
+  .bms__payoff { position: relative; }
+  .bms__stop { position: absolute; }   /* hangs: sits after the last letter but takes no width */
+  .bms__oat-rain { position: absolute; inset: 0; z-index: -1; }
+
+  @media (max-width: 767px) {
+    .bms__halves { display: flex; flex-direction: column; }
+    .bms__half { display: flex; flex-direction: column; align-items: flex-start; text-align: left; gap: 1.5rem; padding: 2.5rem var(--page-gutter-x); }   /* left-aligned like every other mobile section */
+    .bms .bms__title { min-height: 0; justify-content: flex-start; font-size: calc(var(--type-display) * 1.3); }
+    .bms__body { margin: 0; }
+    .bms__gap { display: none; }
+    .bms__payoff { white-space: normal; font-size: calc(var(--type-display) * 0.6); }
+    .bms__half--oat {
+      isolation: isolate; --rain-o: 0.45; background-color: hsl(var(--content-background));
+      border-top: 8px solid transparent;
+      border-image: linear-gradient(90deg, var(--solaris-from), var(--solaris-mid) 55%, var(--solaris-to)) 1;
+    }
+  }
+</style>

@@ -1,0 +1,10 @@
+---
+/* src/components/Rain.astro — server-rendered binary rain (dark | oat). Same markup as lib/rain.ts;
+ * moved by GridBackground's scroll loop. Put it as the FIRST child of a positioned element. */
+interface Props { tone?: 'dark' | 'oat' }
+const { tone = 'dark' } = Astro.props;
+---
+<div class={`binary-waterfall rain rain--${tone}`} aria-hidden="true">
+  <div class="binary-layer layer-deep"></div>
+  <div class="binary-layer layer-near"></div>
+</div>
