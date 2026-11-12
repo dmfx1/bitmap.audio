@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { BitmapClose } from '../ui/icons';
 import { buildEmbedUrl, DEFAULT_THEME } from '@/data/videos';
 
 interface VideoModalProps {
@@ -10,9 +9,12 @@ interface VideoModalProps {
   mobileFramerateId?: string | null;
   /** Framerate embed theme. Defaults to 'minimal' (strips the page header). */
   theme?: string;
+  /** A direct video file (e.g. a Mux .mp4). When set, the modal plays it in a native <video> (with sound,
+   *  controls) in the desktop-style box on every screen, instead of the FrameRate iframe. (2026-11-12) */
+  src?: string;
 }
 
-export default function VideoModal({ isOpen, onClose, framerateId, mobileFramerateId, theme = DEFAULT_THEME }: VideoModalProps) {
+export default function VideoModal({ isOpen, onClose, framerateId, mobileFramerateId, theme = DEFAULT_THEME, src }: VideoModalProps) {
   const [activeId, setActiveId] = useState(framerateId);
   const [isVertical, setIsVertical] = useState(false);
 
@@ -21,7 +23,7 @@ export default function VideoModal({ isOpen, onClose, framerateId, mobileFramera
       const isMobile = window.innerWidth < 768;
       // Use the vertical (9:16) edit on mobile only when one exists — otherwise fall
       // back to the landscape edit in the desktop layout.
-      if (isMobile && mobileFramerateId) {
+      if (isMobile && mobileFramerateId && !src) {
         setActiveId(mobileFramerateId);
         setIsVertical(true);
       } else {
@@ -78,10 +80,11 @@ export default function VideoModal({ isOpen, onClose, framerateId, mobileFramera
         <button
           onClick={onClose}
           style={{ position: 'absolute', top: '1rem', right: '1rem', zIndex: 50 }}
-          className="flex items-center gap-2 font-mono text-[10px] tracking-[0.3em] text-muted-foreground hover:text-accent bg-background/80 px-2 py-1"
+          aria-label="Close"
+          className="group flex items-center gap-3 text-foreground hover:opacity-80 bg-background/80 px-3 py-2"
         >
-          <span className="opacity-50 uppercase">[ Decommission ]</span>
-          <BitmapClose className="w-5 h-5 text-accent" />
+          <span style={{ fontFamily: 'var(--font-departure)', fontSize: '1rem', letterSpacing: '0.04em', WebkitTextStroke: '0.04em currentColor' }}>[ close ]</span>
+          <span style={{ fontFamily: 'var(--font-departure)', fontSize: '2rem', lineHeight: 1, WebkitTextStroke: '0.05em currentColor' }}>X</span>
         </button>
       </div>,
       document.body,
@@ -98,23 +101,27 @@ export default function VideoModal({ isOpen, onClose, framerateId, mobileFramera
         className="relative aspect-video min-h-[200px] bg-card border border-foreground/10 shadow-2xl animate-fade-in-up"
         style={{ width: 'min(85vw, calc(85svh * 16 / 9))' }}
       >
-        <div className="absolute -top-px -left-px w-10 h-10 border-t border-l border-accent z-10" />
-        <div className="absolute -bottom-px -right-px w-10 h-10 border-b border-r border-accent z-10" />
 
         <button
           onClick={onClose}
-          className="absolute -top-12 right-0 flex items-center gap-2 font-mono text-[10px] tracking-[0.3em] text-muted-foreground hover:text-accent group transition-all z-30"
+          aria-label="Close"
+          className="absolute -top-16 right-0 flex items-center gap-4 text-foreground hover:opacity-80 group transition-opacity z-30"
         >
-          <span className="opacity-50 group-hover:opacity-100 uppercase">[ Decommission ]</span>
-          <BitmapClose className="w-5 h-5 text-accent" />
+          {/* 2026-11-12: bitmap close — [ close ] + a big Departure Mono X (was [ Decommission ] + icon, corner marks removed) */}
+          <span style={{ fontFamily: 'var(--font-departure)', fontSize: '1.15rem', letterSpacing: '0.04em', WebkitTextStroke: '0.04em currentColor' }}>[ close ]</span>
+          <span style={{ fontFamily: 'var(--font-departure)', fontSize: '2.75rem', lineHeight: 1, WebkitTextStroke: '0.05em currentColor' }}>X</span>
         </button>
 
-        <iframe
-          src={buildEmbedUrl(activeId, { theme, autoplay: true })}
-          className="absolute inset-0 w-full h-full border-0"
-          allow="autoplay; fullscreen; picture-in-picture"
-          allowFullScreen
-        />
+        {src ? (
+          <video src={src} className="absolute inset-0 w-full h-full bg-black" autoPlay controls playsInline />
+        ) : (
+          <iframe
+            src={buildEmbedUrl(activeId, { theme, autoplay: true })}
+            className="absolute inset-0 w-full h-full border-0"
+            allow="autoplay; fullscreen; picture-in-picture"
+            allowFullScreen
+          />
+        )}
 
         <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.02),rgba(0,255,0,0.01),rgba(0,0,255,0.02))] bg-[length:100%_4px,3px_100%] z-20 opacity-10" />
       </div>

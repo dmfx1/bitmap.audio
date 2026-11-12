@@ -1,0 +1,11 @@
+---
+/* Goes in <Layout>'s head slot on pages using SolutionForHero. Runs before first paint:
+   • the page opens on the oat "for…" hero, which sits under the header → header-clear + nav-over-oat now
+     (Layout's nav-contrast script takes over once it runs).
+   • after a cross-page view transition, nudge Layout's nav-contrast check (it samples elementFromPoint,
+     which hits the transition overlay mid-swap and would leave the header dark).
+   • arriving from a sibling solutions page (it stored its line < 6s ago) → sol-sibling (no page-enter
+     dissolve) + brand-hold (the wordmark shows the PREVIOUS page name via --prev-brand until Navigation.tsx
+     hydrates, drops the class and scrambles in its own name). */
+---
+<script is:inline>(function(){var r=document.documentElement;if(!location.hash&&scrollY<10)r.classList.add('header-clear');try{var s=JSON.parse(sessionStorage.getItem('bm-sol-line')||'null');if(s&&Date.now()-s.t<6000){r.classList.add('sol-sibling','brand-hold');r.style.setProperty('--prev-brand',JSON.stringify(s.brand||''))}}catch(e){}addEventListener('pagereveal',function(e){var re=function(){dispatchEvent(new Event('resize'))};if(e.viewTransition)e.viewTransition.finished.then(re,re);});})();</script>

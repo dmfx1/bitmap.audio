@@ -179,6 +179,11 @@ html.nav-docked #header-bar { background-color: transparent; }
 /* PER-SECTION OPT-OUT: put data-header-clear on a section (e.g. About's split hero) and, while it's under
    the header, NO header background shows — neither the bar nor the top-of-page cover. Logo + nav stay. */
 html.header-clear #header-bar, html.header-clear #nav-top-cover { opacity: 0 !important; }
+/* brand-hold (Navigation.tsx wordmark, solutions trial 2026-11-12): static page name while the live one resolves */
+.brand-hold-static { display: none; }
+html.brand-hold .brand-hold-static { display: inline; }
+.brand-hold-static::before { content: var(--prev-brand, ""); }
+html.brand-hold .brand-hold-live { display: none; }
 /* Over oat — or a docked solaris bar — the b mark swaps to its OAT version (logo-b-oat.svg: dark b +
    brand-teal underline). Desktop + mobile. Hover still shows the invert version. */
 html.nav-over-oat [data-nav-chrome="brand"] img[data-logo="default"],

@@ -1,0 +1,335 @@
+---
+/* src/components/modules/solutions/SolutionForHero.astro — TRIAL (2026-11-12), used by src/pages/solutions2/*
+ *
+ * The "for…" hero shared by the three solutions pages. Big oat screen, text centred, NO description:
+ *   for how you speak to others.   ("for" on the left, never moves; the line scrambles in)
+ *
+ * Moving between solutions pages keeps the screen in place and only re-scrambles the line:
+ *   • native CROSS-DOCUMENT view transitions (@view-transition, below) — a real page load, but the browser
+ *     holds the old screen and cuts to the new one with no flash (Chrome/Edge/Safari; others just navigate).
+ *   • on leaving, the page stores its line (sessionStorage). The next solutions page paints THAT line first
+ *     (inline script, before first paint) and scrambles from it to its own. Arriving from elsewhere → from blank.
+ *   • arriving from a sibling skips the page-enter dissolve (html.sol-sibling, set in the head script).
+ * No React, no ClientRouter — nothing else on the site changes.
+ */
+import ReelModalHost from './ReelModalHost.tsx';
+interface Props {
+  line: string; label?: string; description?: string;
+  /** the SILENT background loop (direct .mp4) */ video?: string;
+  /** the sound-on reel for the click: a direct .mp4 (reelSrc) or a FrameRate slug from data/videos.ts (reelSlug) */
+  reelSrc?: string; reelSlug?: string;
+  /** background loop window in seconds (only this much plays, then it loops) — until a short loop file exists */
+  loopEnd?: number;
+}
+const { line, label = '', description = '', video = '', reelSrc = '', reelSlug = '', loopEnd = 12 } = Astro.props;
+const hasReel = !!(reelSrc || reelSlug);
+---
+{/* PINNED STAGE (desktop, 2026-11-12): the title stays put while a DARK panel slides in from the right over it,
+    led by a vertical solaris bar (FLIPPED 2026-11-12: base = dark, panel = OAT); the description lands on the dark, then the page scrolls on. The dark panel
+    holds an identical copy of the title (light ink), counter-moved so it never shifts — so the title appears to
+    change colour as the edge passes. Mobile: no pin — oat title, then the dark block below (horizontal seam). */}
+<section class="sol-for" data-sol-for aria-label={label || undefined}>
+  <div class="sol-for__stage">
+    <div class="sol-for__base has-rain" data-header-clear>
+      <div class="binary-waterfall rain rain--dark rain--static" aria-hidden="true"><div class="binary-layer layer-deep"></div><div class="binary-layer layer-near"></div></div>
+      <div class="sol-for__layer">
+        <h1 class="sol-for__title">
+          <span class="sr-only">for {line}</span>
+          <span class="sol-for__visual" aria-hidden="true">
+            <span class="sol-for__for">for</span>
+            <span class="sol-for__line"><span id="sol-for-line" data-sol-line data-line={line}>{line}</span><span class="sol-for__cursor"></span></span>
+          </span>
+        </h1>
+      </div>
+    </div>
+    <div class="sol-for__panel theme-oat" data-sol-panel data-header-clear data-oat-mobile>
+      <span class="sol-for__seam" aria-hidden="true"></span>
+      <div class="sol-for__clip has-rain">
+        <div class="binary-waterfall rain rain--oat rain--static" aria-hidden="true"><div class="binary-layer layer-deep"></div><div class="binary-layer layer-near"></div></div>
+        {/* PHASE 2 back to DARK: fades in over the oat (with its own dark rain) as the frame grows */}
+        <div class="sol-for__dim has-rain" data-sol-dim aria-hidden="true"><div class="binary-waterfall rain rain--dark rain--static"><div class="binary-layer layer-deep"></div><div class="binary-layer layer-near"></div></div></div>
+        <div class="sol-for__layer sol-for__layer--panel" data-sol-inner>
+          <div class="sol-for__title sol-for__title--ghost" aria-hidden="true">
+            <span class="sol-for__visual">
+              <span class="sol-for__for">for</span>
+              <span class="sol-for__line"><span data-sol-line>{line}</span><span class="sol-for__cursor"></span></span>
+            </span>
+          </div>
+          {description && <p class="sol-for__desc" data-sol-desc>{description}</p>}
+        </div>
+        {/* PHASE 2: the video frame grows into the space under the title (afternow-style). No reels yet → placeholder. */}
+        <div class="sol-for__video" aria-hidden="true">
+          <div class="sol-for__video-box" data-sol-video>
+            {/* the reel (muted, looping, chromeless) — fades in as the pixel grows; the play icon hands over to it */}
+            {video && <video class="sol-for__reel" src={video} muted loop playsinline preload="metadata" data-sol-reel data-loop-end={loopEnd}></video>}
+            {/* afternow pattern: the frame's reel is a SILENT background loop; over it the cursor becomes ▶ PLAY and a
+                click opens the sound-on reel in the shared VideoModal (FrameRate, by reelSlug). */}
+            {hasReel && <button type="button" class="sol-for__open" data-sol-open aria-label="Play the reel with sound"></button>}
+            {hasReel && <span class="sol-for__cursor-play" data-sol-cursor aria-hidden="true"><svg viewBox="0 0 5 9" shape-rendering="crispEdges"><rect x="0" y="0" width="1" height="9" /><rect x="1" y="1" width="1" height="7" /><rect x="2" y="2" width="1" height="5" /><rect x="3" y="3" width="1" height="3" /><rect x="4" y="4" width="1" height="1" /></svg>PLAY</span>}
+            {/* bitmap PLAY icon — a pixel triangle (5 × 9 grid) */}
+            <svg class="sol-for__play" viewBox="0 0 5 9" shape-rendering="crispEdges" aria-hidden="true">
+              <rect x="0" y="0" width="1" height="9" /><rect x="1" y="1" width="1" height="7" /><rect x="2" y="2" width="1" height="5" /><rect x="3" y="3" width="1" height="3" /><rect x="4" y="4" width="1" height="1" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{/* the dark carries on below the stage as it scrolls away — one solaris-bar height (desktop) */}
+<div class="sol-for-tail" aria-hidden="true"></div>
+{hasReel && <ReelModalHost client:idle slug={reelSlug} src={reelSrc || undefined} />}
+
+<script>
+  // Desktop pin: the dark panel slides in from the right over the title, then the description lands.
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  gsap.registerPlugin(ScrollTrigger);
+  const init = () => {
+    const root = document.querySelector<HTMLElement>('[data-sol-for]');
+    if (!root || root.dataset.init) return; root.dataset.init = '1';
+    const dark = root.querySelector<HTMLElement>('[data-sol-panel]')!;   // the panel that slides in
+    const inner = root.querySelector<HTMLElement>('[data-sol-inner]')!;
+    const desc = root.querySelector<HTMLElement>('[data-sol-desc]');
+    const seam = root.querySelector<HTMLElement>('.sol-for__seam');
+    const mm = gsap.matchMedia();
+    mm.add('(min-width: 768px)', () => {
+      gsap.set(dark, { x: 0, xPercent: 100 }); gsap.set(inner, { x: 0, xPercent: -100 });   // x:0 — don't stack on the CSS start offset
+      if (desc) gsap.set(desc, { autoAlpha: 0, y: 24 });
+      // NO GSAP PIN (2026-11-12): the stage is held by CSS position:sticky inside a tall section (below), so nothing
+      // switches between relative/fixed — that switch snapped the title when scrolling back up (with Lenis).
+      // GSAP only scrubs the slide across the section's extra height. (Was: pin + pinSpacing:true, which GSAP
+      // otherwise turns OFF when the parent is flex.)
+      const tl = gsap.timeline({ scrollTrigger: { trigger: root, start: 'top top', end: 'bottom bottom', scrub: 0.6, invalidateOnRefresh: true } });
+      // Smooth glide (dom, 2026-11-12: preferred over the About-style stepped wipe — tried: ease steps(16) on panel +
+      // inner, and the seam opacity flicker keyframes from lib/scenes/split-hero.ts).
+      tl.to(dark, { xPercent: 0, ease: 'none', duration: 1 }, 0)
+        .to(inner, { xPercent: 0, ease: 'none', duration: 1 }, 0);
+      if (desc) tl.to(desc, { autoAlpha: 1, y: 0, ease: 'steps(6)', duration: 0.3 }, 0.95);
+      tl.to({}, { duration: 0.35 });   // read the description
+      // PHASE 2 (dom, 2026-11-12): still held — the title rises to the top hero position, the description fades
+      // away, and the video frame grows from small into the space below (afternow). Then the page scrolls on.
+      const title = inner.querySelector<HTMLElement>('.sol-for__title')!;
+      const forWord = inner.querySelector<HTMLElement>('.sol-for__for')!;
+      const wrap = root.querySelector<HTMLElement>('.sol-for__video');
+      // Geometry (px, re-measured on refresh).
+      const rem = () => parseFloat(getComputedStyle(root).fontSize);
+      const GAP = () => rem() * 2;                                              // title → frame
+      const restTop = () => title.getBoundingClientRect().top - (gsap.getProperty(title, 'y') as number);
+      const target = () => parseFloat(getComputedStyle(root).getPropertyValue('--sol-top')) || 130;
+      const riseBy = () => target() - restTop();
+      const pix = () => forWord.getBoundingClientRect().width;                  // the PIXEL = as wide as "for"
+      // THE PIXEL (dom, 2026-11-12): once the solaris swipe lands, a black square — as wide as "for" — appears in the
+      // bottom-left corner (gutter margins), then grows UP and RIGHT into the frame while the title rises; its top
+      // edge meets the title's bottom (+ gap) as both finish.
+      // GROW (the version that felt right, 2026-11-12): the frame is anchored bottom-left and its width/height grow
+      // from a "for"-wide square to the full frame. NO border (the solaris border + a clip-path grow were tried —
+      // flicker). Full size = to the right gutter, and up to the risen title's bottom + gap.
+      const fullW = () => wrap!.parentElement!.clientWidth - 2 * parseFloat(getComputedStyle(wrap!).left);
+      const fullH = () => wrap!.parentElement!.clientHeight - parseFloat(getComputedStyle(wrap!).bottom) - (target() + title.offsetHeight + GAP());
+      if (wrap) gsap.set(wrap, { width: pix, height: pix, autoAlpha: 0 });
+      if (wrap) tl.to(wrap, { autoAlpha: 1, ease: 'steps(3)', duration: 0.12 }, 1);   // instantiated after the swipe
+      tl.addLabel('rise');
+      if (desc) tl.to(desc, { autoAlpha: 0, y: -12, ease: 'none', duration: 0.15 }, 'rise');
+      const RISE = 0.7;
+      tl.to(title, { y: riseBy, ease: 'power2.inOut', duration: RISE }, 'rise+=0.1');
+      if (wrap) tl.to(wrap, { width: fullW, height: fullH, ease: 'power2.inOut', duration: RISE }, 'rise+=0.1');
+      // …and the scene goes back to DARK behind it (dom, 2026-11-12): the dark layer fades in over the oat with the
+      // scroll, "for" goes back to light, and the header reads it as dark once it's mostly there.
+      const dim = root.querySelector<HTMLElement>('[data-sol-dim]');
+      const lightFor = getComputedStyle(root.querySelector<HTMLElement>('.sol-for__base .sol-for__for')!).color;
+      if (dim) {
+        gsap.set(dim, { opacity: 0 });   // OPACITY only (not autoAlpha): flipping visibility on a full-screen rain layer
+                                         // forced a full repaint each time — the fast-scroll flicker
+        // timing (dom): between the two tried (whole size-up / last third) — the dark arrives over the last TWO thirds
+        const D0 = 0.1 + RISE * 0.33, DD = RISE * 0.67;
+        tl.to(dim, { opacity: 1, ease: 'power1.in', duration: DD }, `rise+=${D0}`);
+        tl.to(forWord, { color: lightFor, ease: 'power1.in', duration: DD }, `rise+=${D0}`);
+        const darkAt = tl.labels.rise + D0 + DD * 0.5;
+        // header: the panel stops counting as oat once the dark is half in (read off the SCRUBBED timeline, not the
+        // scroll — the scroll value runs ahead of it)
+        let isOat = true;
+        tl.eventCallback('onUpdate', () => { const o = tl.time() < darkAt; if (o !== isOat) { isOat = o; dark.classList.toggle('theme-oat', o); } });
+        // ⚠ NO window 'resize' nudge here — GSAP treats resize as a refresh cue and re-measured the whole timeline
+        // mid-scroll (the FLICKER, 2026-11-12). Layout's nav-contrast picks the class change up on its own scroll checks.
+      }
+      // the reel: starts playing as the frame begins to grow, fades in over the play icon, which fades out
+      const reel = root.querySelector<HTMLVideoElement>('[data-sol-reel]');
+      // PLAY CURSOR (afternow): over the frame the cursor becomes a ▶ PLAY label; click → sound-on reel modal.
+      // (Replaces the trial sound_on/off toggle — browsers only autoplay MUTED, so the background loop stays silent.)
+      const opener = root.querySelector<HTMLButtonElement>('[data-sol-open]');
+      const cur = root.querySelector<HTMLElement>('[data-sol-cursor]');
+      if (opener && cur && wrap) {
+        const bit = document.getElementById('cursor-bit');
+        const move = (e: PointerEvent) => { const r = wrap.getBoundingClientRect(); cur.style.transform = `translate(${e.clientX - r.left}px, ${e.clientY - r.top}px)`; };
+        opener.addEventListener('pointerenter', (e) => { move(e); cur.classList.add('is-on'); bit?.classList.add('is-hover'); });
+        opener.addEventListener('pointermove', move);
+        opener.addEventListener('pointerleave', () => { cur.classList.remove('is-on'); bit?.classList.remove('is-hover'); });
+        const bg = root.querySelector<HTMLVideoElement>('[data-sol-reel]');
+        opener.addEventListener('click', () => { bg?.pause(); window.dispatchEvent(new CustomEvent('sol-reel-open')); });   // the loop rests while the reel plays
+        window.addEventListener('sol-reel-close', () => { if (bg && wrap.getBoundingClientRect().bottom > 0) bg.play().catch(() => {}); });
+      }
+      const play = root.querySelector<SVGElement>('.sol-for__play');
+      if (reel) {
+        gsap.set(reel, { autoAlpha: 0 });
+        // SPEED: only the first `loopEnd` seconds play (then back to 0), and only while the frame is on screen —
+        // so the browser fetches ~that slice of the file, not the whole film. (Proper fix: a short loop file.)
+        const loopEnd = parseFloat(reel.dataset.loopEnd || '12');
+        reel.addEventListener('timeupdate', () => { if (reel.currentTime >= loopEnd) reel.currentTime = 0; });
+        let started = false, inView = true;
+        new IntersectionObserver(([e]) => { inView = e.isIntersecting; if (!inView) reel.pause(); else if (started) reel.play().catch(() => {}); }).observe(wrap!);
+        tl.call(() => { started = true; if (inView) reel.play().catch(() => {}); }, [], 'rise+=0.1');
+        tl.to(reel, { autoAlpha: 1, ease: 'none', duration: RISE * 0.5 }, `rise+=${0.1 + RISE * 0.25}`);
+        if (play) tl.to(play, { autoAlpha: 0, ease: 'steps(3)', duration: 0.12 }, `rise+=${0.1 + RISE * 0.25}`);
+      }
+      tl.to({}, { duration: 0.4 });   // hold on the full frame before the page scrolls on
+      return () => { dark.classList.add('theme-oat'); gsap.set([dark, inner, desc, seam, title, wrap, forWord, root.querySelector('[data-sol-dim]')].filter(Boolean) as HTMLElement[], { clearProps: 'all' }); };
+    });
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+</script>
+
+<script is:inline>
+  (function () {
+    var KEY = 'bm-sol-line';
+    var el = document.getElementById('sol-for-line');
+    if (!el) return;
+    var all = document.querySelectorAll('[data-sol-line]');
+    var put = function (t) { for (var k = 0; k < all.length; k++) all[k].textContent = t; };
+    var target = el.getAttribute('data-line') || '';
+    var from = '';
+    try {
+      var s = JSON.parse(sessionStorage.getItem(KEY) || 'null');
+      if (s && Date.now() - s.t < 6000 && s.line !== target) from = s.line;
+      sessionStorage.removeItem(KEY);
+    } catch (e) {}
+    // remember this line for the next solutions page
+    addEventListener('pagehide', function () { try { var w = document.querySelector('.brand-hold-live'); sessionStorage.setItem(KEY, JSON.stringify({ line: target, brand: w ? w.textContent : '', t: Date.now() })); } catch (e) {} });
+
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) { put(target); return; }
+
+    // paint the OLD line (or nothing) before first paint, then scramble to the new one
+    put(from);
+    var n = Math.max(from.length, target.length);
+    var outAt = [], inAt = [];
+    var OUT = 160, START = 140, RESOLVE = 520, FLICK = 55;   // ms (FLICK = brandMotion.flickerMs)
+    for (var i = 0; i < n; i++) { outAt.push(Math.random() * OUT); inAt.push(START + Math.random() * RESOLVE); }
+    var bin = function () { return Math.random() < 0.5 ? '0' : '1'; };
+    var t0 = null, last = -1e9, roll = [];
+    function frame(t) {
+      if (t0 === null) t0 = t;
+      var e = t - t0, reroll = t - last >= FLICK; if (reroll) last = t;
+      var out = '';
+      for (var i = 0; i < n; i++) {
+        var a = from[i] || '', b = target[i] || '';
+        if (e >= inAt[i]) { out += b; continue; }
+        if (e < outAt[i] && a) { out += a; continue; }
+        if (b === ' ') { out += ' '; continue; }
+        if (reroll || !roll[i]) roll[i] = bin();
+        out += roll[i];
+      }
+      put(out.replace(/\s+$/, ''));
+      if (e < START + RESOLVE) requestAnimationFrame(frame); else put(target);
+    }
+    requestAnimationFrame(frame);
+  })();
+
+  // TRIAL ONLY: while the new pages live at /solutions2/, send the nav's solutions links there too.
+  document.addEventListener('click', function (ev) {
+    var a = ev.target && ev.target.closest && ev.target.closest('a[href^="/solutions/"]');
+    if (a) a.setAttribute('href', a.getAttribute('href').replace('/solutions/', '/solutions2/'));
+  }, true);
+</script>
+
+<style is:global>
+  /* cross-document view transitions — only on pages that include this hero (both ends must opt in) */
+  @view-transition { navigation: auto; }
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none; }   /* a clean cut: the hero is identical, only the line changes */
+  html.sol-sibling #page-enter { display: none; }
+</style>
+
+<style>
+  /* Title: ONE line, "for" on the LEFT, heavy, anchored at the page gutter (never moves between pages).
+     ALWAYS ONE LINE (dom): sized so the LONGEST of the three lines fits — same size on every page.
+     --sol-for-chars = characters in the longest line ("for how you speak to others." = 28; +1.5 for the cursor).
+     JetBrains Mono advance = 0.6em, minus the -0.04em tracking. */
+  /* global.css gives every <section> a 1s transform transition + content-visibility:auto — both break a GSAP
+     pin (the release reposition played as a slide: the hero "shot down from the top"). Off here. */
+  .sol-for { position: relative; width: 100%; transition: none; content-visibility: visible; contain-intrinsic-size: none;
+    --sol-fs: min(var(--sol-for-max, 8rem), calc((100vw - 2 * var(--page-gutter-x)) / ((var(--sol-for-chars, 28) + 1.5) * 0.57)));
+    --sol-top: calc(var(--header-compact-h, 104px) + 1.75rem);   /* where the title rises to in phase 2 */
+    --sol-dark: hsl(var(--background));   /* resolved HERE (dark) — inside the .theme-oat panel --background is oat */
+    --sol-light: hsl(var(--foreground));  /* the dark theme's light foreground, resolved here for the same reason */ }
+  /* the HOLD: the section is one screen + the scroll distance of the slide; the stage sticks while it plays */
+  .sol-for__stage { position: relative; height: 100svh; overflow: hidden; }
+  @media (min-width: 768px) {
+    .sol-for { height: calc(100svh + var(--sol-for-hold, 280svh)); }   /* phase 1 (reveal) + phase 2 (rise + video grow) */
+    .sol-for__stage { position: sticky; top: 0; }
+  }
+  .sol-for__base { position: absolute; inset: 0; background: hsl(var(--background)); color: hsl(var(--foreground)); }   /* FLIPPED (dom, 2026-11-12): dark first, oat slides in */
+  /* centred against the FINAL (compact) header height, not the live --header-h — so the title never moves when the
+     header shrinks on scroll (no jank scrolling back up). */
+  .sol-for__layer { position: absolute; inset: 0; display: flex; align-items: center; padding: var(--header-compact-h, 104px) var(--page-gutter-x) 0; }
+  .sol-for__title { position: relative; margin: 0; width: 100%; font-family: var(--font-mono); font-weight: 800; letter-spacing: -0.04em; line-height: 1;
+    white-space: nowrap;
+    font-size: var(--sol-fs); }
+  .sol-for__visual { display: flex; align-items: baseline; gap: 0.56em; }
+  .sol-for__for { color: hsl(var(--content-background)); }
+  .sol-for__line { color: hsl(var(--accent)); }
+  .sol-for__cursor { display: inline-block; width: 0.5ch; height: 0.82em; margin-left: 0.06em; vertical-align: -0.06em; background: hsl(var(--accent)); opacity: 0.85; animation: sol-blink 1s steps(1) infinite; }
+  @keyframes sol-blink { 50% { opacity: 0; } }
+
+  /* the DARK panel (+ its light copy of the title) and the vertical solaris bar on its leading edge */
+  .sol-for__panel { position: absolute; inset: 0; transform: translateX(100%); will-change: transform; }
+  .sol-for__clip { position: absolute; inset: 0; overflow: hidden; background: hsl(var(--content-background)); }
+  .sol-for__layer--panel { will-change: transform; transform: translateX(-100%); }
+  .sol-for__layer--panel .sol-for__for { color: hsl(var(--content-foreground)); }   /* light → DARK after the swipe (tried: solaris) */
+  /* TRIAL (dom, 2026-11-12): on the oat panel the orange line turns DARK too — a lighter step than "for".
+     (Tried + rejected: the swap — muted on the dark hero, orange on the oat.) */
+  /* (dom, 2026-11-12): after the swipe only "for" changes (light → dark); the line stays solaris.
+     (Also tried on the oat: line muted / teal / dark; "for" in solaris.) (Tried + rejected on the oat: the line in content-muted-foreground; the line in brand teal.) */
+  /* the line STAYS solaris on the oat (no change) — inherits .sol-for__line / .sol-for__cursor (accent) */
+  .sol-for__seam { position: absolute; top: 0; bottom: 0; right: 100%; width: var(--split-seam-w, 22px); z-index: 2;
+    background: linear-gradient(180deg, var(--solaris-from), var(--solaris-mid) 55%, var(--solaris-to)); }
+  /* the description sits under the title, aligned with the line (after "for "), so the title never shifts */
+  .sol-for__desc { position: absolute; left: calc(var(--page-gutter-x) + 4 * 0.57 * min(var(--sol-for-max, 8rem), calc((100vw - 2 * var(--page-gutter-x)) / ((var(--sol-for-chars, 28) + 1.5) * 0.57))));
+    top: calc(50% + var(--header-compact-h, 104px) / 2 + 0.9 * min(var(--sol-for-max, 8rem), calc((100vw - 2 * var(--page-gutter-x)) / ((var(--sol-for-chars, 28) + 1.5) * 0.57))));
+    max-width: min(38ch, 52vw); margin: 0; font-family: var(--font-mono); font-size: var(--type-title); line-height: var(--type-title-lh, 1.35); color: hsl(var(--content-foreground) / 0.85); }   /* (tried + rejected: solaris orange) */
+
+  /* PHASE 2 video frame: final rect = under the risen title to the bottom gutter; grows from scale 0.32 */
+  /* anchored BOTTOM-LEFT (gutter margins); width/height driven by JS — starts as a square pixel the width of "for" */
+  /* anchored BOTTOM-LEFT (gutter margins); width/height driven by JS — starts as a square pixel the width of "for" */
+  .sol-for__video { position: absolute; left: var(--page-gutter-x); bottom: var(--page-gutter); width: 0; height: 0;
+    z-index: 3; visibility: hidden; }
+  .sol-for__video-box { position: relative; width: 100%; height: 100%; background: var(--sol-dark); overflow: hidden; display: grid; place-items: center; overflow: hidden; }
+  .sol-for__reel { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }   /* fills the frame at every size */
+  /* the click target covers the frame; the ▶ PLAY label follows the pointer (afternow) */
+  .sol-for__open { position: absolute; inset: 0; z-index: 2; border: 0; padding: 0; background: transparent; cursor: none; }
+  .sol-for__cursor-play { position: absolute; left: 0; top: 0; z-index: 3; pointer-events: none; opacity: 0; transition: opacity 0.15s steps(3);
+    display: inline-flex; align-items: center; gap: 0.6rem; margin: -1.6rem 0 0 -3.2rem; padding: 0.7rem 1.1rem;
+    font-family: var(--font-departure); font-size: 1.6rem; line-height: 1; letter-spacing: 0.04em;
+    background: hsl(var(--content-background)); color: hsl(var(--content-foreground)); }
+  .sol-for__cursor-play.is-on { opacity: 1; }
+  .sol-for__cursor-play svg { width: 0.7rem; height: auto; fill: currentColor; }
+  .sol-for__dim { position: absolute; inset: 0; background: var(--sol-dark); opacity: 0; will-change: opacity; transform: translateZ(0); }   /* own compositor layer: fades without repainting the rain */
+  /* the play icon keeps its size (sized off the starting pixel = the width of "for") and stays centred as the frame grows */
+  .sol-for__play { position: relative; z-index: 1; width: calc(var(--sol-fs) * 0.3); height: auto; fill: var(--sol-light); transform: translateX(8%); }   /* centred by the box's grid */   /* light foreground (was solaris) */   /* nudged right: optical centre of a triangle */
+  :global(.sol-for-tail) { display: none; }
+  @media (min-width: 768px) { :global(.sol-for-tail) { display: block; width: 100%; height: var(--solaris-height, 96px); background: hsl(var(--background)); } }
+  /* rain held still here (the stage is pinned) — opts out of GridBackground's scroll movement */
+  :global(.rain--static .binary-layer) { transform: none !important; }
+
+  @media (max-width: 767px) {
+    .sol-for__stage { height: auto; overflow: visible; }
+    .sol-for__base { position: relative; min-height: 100svh; }
+    .sol-for__layer { position: relative; min-height: 100svh; }
+    .sol-for__panel { position: relative; transform: none; border-top: var(--seam-m) solid transparent;
+      border-image: linear-gradient(90deg, var(--solaris-from), var(--solaris-mid) 55%, var(--solaris-to)) 1; }
+    .sol-for__seam, .sol-for__title--ghost { display: none; }
+    .sol-for__clip { position: relative; }
+    .sol-for__layer--panel { position: relative; transform: none; min-height: 0; padding: var(--m-section-pad) var(--page-gutter-x); }
+    .sol-for__desc { position: static; max-width: none; }
+    .sol-for__video { position: relative; inset: auto; width: auto; height: auto; visibility: visible; padding: 0 var(--page-gutter-x) var(--m-section-pad); }
+    .sol-for__video-box { aspect-ratio: 16 / 9; height: auto; }
+  }
+</style>

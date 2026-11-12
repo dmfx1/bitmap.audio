@@ -56,6 +56,10 @@ const ROUTE_NAMES: Record<string, string> = {
   '/solutions/sonic-branding': 'sonic branding',
   '/solutions/uiux-sound': 'ui/ux sound',
   '/solutions/immersive-audio': 'immersive audio',
+  // TRIAL pages (2026-11-12) — remove with /solutions2/
+  '/solutions2/sonic-branding': 'sonic branding',
+  '/solutions2/uiux-sound': 'ui/ux sound',
+  '/solutions2/immersive-audio': 'immersive audio',
 };
 
 export function resolvePageName(path: string): string {

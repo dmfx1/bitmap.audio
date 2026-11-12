@@ -89,6 +89,7 @@ const BrandLockup = ({ pageName }: { pageName: string }) => {
       // hero's own title + description follow.
       setCurrent(pageName);
       const done = window.setTimeout(signalIntroDone, scrambleInMsFor(pageName.length) + 200);
+      document.documentElement.classList.remove('brand-hold');   // old name → live scramble to this page's name
       return () => window.clearTimeout(done);
     }
     sessionStorage.setItem(SEEN_KEY, "1");
@@ -285,7 +286,10 @@ const BrandLockup = ({ pageName }: { pageName: string }) => {
             transitionDuration: `${BRAND_MOTION.fadeInMs}ms`,
           }}
         >
-          {display}
+          {/* brand-hold (solutions trial, 2026-11-12): arriving from a sibling solutions page, the PREVIOUS page
+              name shows (CSS ::before, --prev-brand) until hydration, then the live name scrambles in from there. */}
+          <span className="brand-hold-static" aria-hidden="true"></span>
+          <span className="brand-hold-live">{display}</span>
           <span className="text-accent opacity-70">_</span>
         </span>
       </a>
@@ -368,23 +372,23 @@ const Navigation = ({ currentPath, pageName = BRAND_NAME }: { currentPath: strin
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>
-                  <a href="/solutions/sonic-branding" className={cn(
+                  <a href="/solutions2/sonic-branding" className={cn(
                     "font-mono text-sm uppercase tracking-wider link-underline transition-colors",
-                    isActive("/solutions/sonic-branding") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
+                    isActive("/solutions2/sonic-branding") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
                   )}>Branding</a>
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>
-                  <a href="/solutions/uiux-sound" className={cn(
+                  <a href="/solutions2/uiux-sound" className={cn(
                     "font-mono text-sm uppercase tracking-wider link-underline transition-colors",
-                    isActive("/solutions/uiux-sound") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
+                    isActive("/solutions2/uiux-sound") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
                   )}>UI/UX</a>
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>
-                  <a href="/solutions/immersive-audio" className={cn(
+                  <a href="/solutions2/immersive-audio" className={cn(
                     "font-mono text-sm uppercase tracking-wider link-underline transition-colors",
-                    isActive("/solutions/immersive-audio") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
+                    isActive("/solutions2/immersive-audio") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
                   )}>Immersive</a>
                 </NavigationMenuItem>
 
