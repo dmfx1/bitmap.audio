@@ -368,17 +368,17 @@ const Navigation = ({ currentPath, pageName = BRAND_NAME }: { currentPath: strin
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>
-                  <a href="/solutions/uiux-sound" className={cn(
-                    "font-mono text-sm uppercase tracking-wider link-underline transition-colors",
-                    isActive("/solutions/uiux-sound") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
-                  )}>UI/UX</a>
-                </NavigationMenuItem>
-
-                <NavigationMenuItem>
                   <a href="/solutions/sonic-branding" className={cn(
                     "font-mono text-sm uppercase tracking-wider link-underline transition-colors",
                     isActive("/solutions/sonic-branding") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
                   )}>Branding</a>
+                </NavigationMenuItem>
+
+                <NavigationMenuItem>
+                  <a href="/solutions/uiux-sound" className={cn(
+                    "font-mono text-sm uppercase tracking-wider link-underline transition-colors",
+                    isActive("/solutions/uiux-sound") ? "text-accent underline underline-offset-8 decoration-accent" : "text-muted-foreground hover:text-accent"
+                  )}>UI/UX</a>
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>
