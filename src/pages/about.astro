@@ -77,26 +77,36 @@ const FOUNDERS: { left: Person; right: Person } = {
     name: '[nick.granville-fall]', meta: 'Scarborough · surf + off grid',
     quote: "The craft and the journey from starting with nothing to full blown immersive experiences is what drives me. I love the challenge of a blank canvas.",
     posterPhoto: '/images/nick-headshot-01.webp',
+    quoteSr: "Starting with nothing and creating something new. I love the challenge of a blank canvas.",   // what screen readers hear (the poster without its punctuation)
     quoteLines: ["Starting with no-", 'thing and creating', 'something', 'new. I love the', 'challenge of', 'a blank canvas.'],   // POSTER trial — placeholder
     focus: 'Installations · galleries · museums', photo: '/images/nick-cutout-lg.webp',
   },
 };
 
+// OUR STANDARDS (2026-11-11, dom): the confidence section — the old values, each made specific + proof-backed.
+const STANDARDS = [   // copy agreed "for now" 2026-11-11 — revisit in the final pass
+  { title: 'Precision', body: 'Every sound has a job, and every frequency earns its place.' },
+  { title: 'Empathy', body: 'The best sound is felt, not just heard. Intuitive, never intrusive.' },
+  { title: 'Innovation', body: 'We never stop evolving. With us, neither does your sound.' },
+];
+/* OLD filler beliefs (UNUSED since 2026-11-11 — remove at cleanup):
 const BELIEFS = [
   { title: 'Hairs on the neck', body: "If it doesn't move us, it won't move anyone. We don't mind how a sound gets made, only how it makes you feel." },
   { title: 'Happy accidents', body: 'The best discoveries rarely come from the plan. We leave room for them, then chase them down.' },
   { title: 'Better than fine', body: 'Play it safe and you get "fine". We push past the obvious until it sounds like nobody else.' },
 ];
+*/
 
 const FOR = {
   head: 'Different',
   accent: 'is the point.',
-  sub: "Sonic identity is new ground for most brands, so feeling a little nervous is normal. We'll take you somewhere you didn't expect, and keep it unmistakably you.\n\nIf you'd rather not be challenged, we're probably not your team.",
+  sub: "Sonic identity is new ground for most teams, so it's easy to treat it as a luxury, until you realise what's been missing. We'll take you somewhere you didn't expect, and keep it unmistakably you.",
+  summary: "Want to hear things differently? Let's talk.",   // copy locked 2026-11-11 (was: "If you'd rather not be challenged, we're probably not your team.")
 };
 
 const WORK = {
   head: "Brands we've made sound for",
-  sub: 'Over our freelance careers, before bitmap.audio. Not bitmap.audio clients (yet).',
+  sub: 'Collectively, over our freelance careers.',   // locked 2026-11-11 (was: "Over our freelance careers, before bitmap.audio. Not bitmap.audio clients (yet).")
 };
 const CLOSE = {
   head: "Let's make you",
@@ -148,7 +158,7 @@ const PEOPLE = [{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick',
       </div>
 
       {/* 3 · WHY "BITMAP" — the name SPLIT: bit (dark) | map. (oat). No solaris bar; the split runs under the header. */}
-      <div class="scene beat-dark" data-scene="name" data-no-bar style="z-index:20">
+      <div class="scene beat-dark ends-in-fade" data-scene="name" data-no-bar style="z-index:20">
         <div class="split-bg" aria-hidden="true">
           <div class="split-bg__dark"></div>
           <div class="split-bg__oat"><Rain tone="oat" /></div>
@@ -171,20 +181,20 @@ const PEOPLE = [{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick',
         {/* <Founders client:visible people={TEAM} /> — old cards, unused */}
       </div>
 
-      {/* 5 · WHAT WE BELIEVE — oat (focus columns) */}
-      <div class="scene theme-oat oat-fade-mobile oat-join-above beliefs-scene" data-scene="beliefs" data-oat-mobile style="z-index:30">
-        <TermTag label="What we believe" />
-        <div class="scene-body"><Beliefs items={BELIEFS} /></div>
+      {/* 6 · OUR STANDARDS — oat (focus columns): the confidence section */}
+      <div class="scene theme-oat oat-fade-mobile oat-join-above beliefs-scene m-stack" data-scene="beliefs" data-oat-mobile style="z-index:30">
+        <TermTag label="Our standards" />
+        <div class="scene-body"><Beliefs items={STANDARDS} /></div>
       </div>
 
       {/* 6 · DIFFERENT IS THE POINT — DARK */}
       <div class="scene beat-dark" data-scene="for" style="z-index:35">
         <TermTag label="Who we're for" />
-        <div class="scene-body"><Beat head={FOR.head} accent={FOR.accent} sub={FOR.sub} /></div>
+        <div class="scene-body"><Beat head={FOR.head} accent={FOR.accent} sub={FOR.sub} summary={FOR.summary} ctaLabel="Get in touch" href="/contact" /></div>
       </div>
 
       {/* 7 · BRANDS WE'VE MADE SOUND FOR — oat; the client terminal, unchanged, with honest framing above */}
-      <div class="scene theme-oat oat-fade-mobile work-scene" data-scene="work" data-oat-mobile style="z-index:40">
+      <div class="scene theme-oat oat-fade-mobile oat-to-footer work-scene" data-scene="work" data-oat-mobile style="z-index:40">
         <TermTag label="Our work" />
         <div class="scene-body">
           <div class="work-wrap">
@@ -197,8 +207,10 @@ const PEOPLE = [{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick',
         </div>
       </div>
 
-      {/* 8 · LET'S TALK — dark tint over the returning rain ("reverse the void"), the soft CTA */}
-      <div class="scene close-scene no-rain" data-scene="close" style="z-index:45">{/* the REAL rain shows through its tint */}
+      {/* 8 · LET'S TALK — REMOVED from the page (dom, 2026-11-12): "Who we're for" now ends on "Want to hear things
+          differently? Let's talk." + a Get in touch button, so a second CTA was a repeat. Kept below (unrendered) until sign-off.
+      {/ * 8 · LET'S TALK — dark tint over the returning rain ("reverse the void"), the soft CTA * /}
+      <div class="scene close-scene no-rain" data-scene="close" style="z-index:45">{/ * the REAL rain shows through its tint * /}
         <TermTag label="Let's talk" />
         <div class="scene-body">
           <SoftCta
@@ -211,6 +223,7 @@ const PEOPLE = [{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick',
           />
         </div>
       </div>
+      */}
     </div>
   </div>
 
@@ -316,6 +329,7 @@ const PEOPLE = [{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick',
   <style is:global>
     /* SPLIT HERO copy (AboutSplitHero.tsx — a React island, so global). Same 50/50 grid as .split-bg. */
     .split-hero { display: grid; grid-template-columns: 1fr 1fr; }
+    .split-hero__seam-m { display: none; }
     /* Everything CENTRED within its own half. */
     .split-hero__half { display: grid; grid-template-rows: 1fr 1fr; justify-items: center; text-align: center; padding: var(--page-gutter) var(--page-gutter-x); min-height: 0; }
     .split-hero__title-wrap { align-self: end; justify-self: center; }
@@ -336,12 +350,18 @@ const PEOPLE = [{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick',
       .split-hero__half--oat {
         position: relative; padding-left: var(--page-gutter-x);
         background-color: hsl(var(--content-background));
-        border-top: 8px solid transparent;
-        border-image: linear-gradient(90deg, var(--solaris-from), var(--solaris-mid) 55%, var(--solaris-to)) 1;
       }
       .split-hero__half--oat { isolation: isolate; --rain-o: 0.45; }
       .split-hero__title { margin: 0; font-size: var(--type-display); white-space: normal; }
-      .split-hero--titles .split-hero__half { min-height: 50svh; }
+      /* MOBILE HERO (dom, 2026-11-12): the screen splits exactly in two — "Two minds," a quarter of the way down,
+         "one voice." three quarters down, the solaris seam (--seam-m) dead centre. */
+      /* …measured on the part of the screen BELOW the header, so the seam reads as the visual centre */
+      .split-hero { height: calc(100svh - var(--header-h)); margin-top: var(--header-h); grid-template-rows: 1fr 1fr; position: relative; }
+      .split-hero__seam-m {
+        display: block; position: absolute; left: 0; right: 0; top: 50%; height: var(--seam-m); transform: translateY(-50%); z-index: 2;
+        background: linear-gradient(90deg, var(--solaris-from), var(--solaris-mid) 55%, var(--solaris-to));
+      }
+      .split-hero--titles .split-hero__half { min-height: 0; height: 100%; padding-block: 0; align-content: center; box-sizing: border-box; }
     }
     /* Founders: the React island sits inside <astro-island>, so target by class. Fill the scene body. */
     #stage-track [data-scene="team"] .grid { height: 100%; }
@@ -381,10 +401,10 @@ const PEOPLE = [{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick',
         beat('problem', 'dark', 'The Problem',     0.9),
         beat('name',    'dark', 'Why bitmap',      0.9),
         beat('team',    'dark', 'The Team',        1.2),
-        beat('beliefs', 'oat',  'What We Believe', 1.4),
+        beat('beliefs', 'oat',  'Our Standards',   1.4),
         beat('for',     'dark', "Who We're For",   1.0),
         beat('work',    'oat',  'Our Work',        1.4),
-        beat('close',   'dark', "Let's Talk",      1.0),
+        // beat('close', 'dark', "Let's Talk", 1.0),   // REMOVED 2026-11-12 (see the markup note)
       ];
       // ── TIMING KNOBS (timeline units). The track height follows the timeline (VH_PER_UNIT). ──
       // About's entrance is the split-hero WIPE: it starts on the first scroll (WIPE.start 0), and the oat fog

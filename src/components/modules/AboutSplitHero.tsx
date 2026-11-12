@@ -46,6 +46,8 @@ export default function AboutSplitHero({ left, right, ctaLabel }: Props) {
 
   return (
     <div ref={heroRef} data-has-hero className={`split-hero relative w-full flex-1 min-h-0${titlesOnly ? ' split-hero--titles' : ''}`}>
+      {/* MOBILE seam: a real solaris bar between the two stacked halves (desktop uses the page's .split-bg seam) */}
+      {started && <div className="split-hero__seam-m" aria-hidden="true" />}   {/* seam waits for the content (2026-11-12) */}
       {started && (
         <>
           {/* LEFT — dark */}

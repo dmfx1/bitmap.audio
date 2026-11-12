@@ -205,6 +205,9 @@ html.nav-docked nav[data-nav-chrome] .morph-accent-loop { color: hsl(var(--solar
   background: linear-gradient(90deg, var(--solaris-from) 0%, var(--solaris-mid) 55%, var(--solaris-to) 100%);
   box-shadow: var(--solaris-glow);
 }
+/* SOLID variant (dom + nick, 2026-11-12) — one flat solaris colour, no gradient fade, no glow; --band-h tall
+   (smaller on mobile). Used for the bar above the footer: <Solaris class="solaris--solid" />. */
+.solaris--solid { height: var(--band-h); background: var(--solaris-from) !important; box-shadow: none !important; }
 /* GHOST variant — for a bar sitting over a DARK background (e.g. the philosophy pixel scene):
    the beam goes transparent and the label turns accent, so it reads on the void instead of a
    bright bar. Add via the Solaris `class` prop: <Solaris text="…" class="solaris--ghost" />. */
@@ -425,13 +428,19 @@ html { scrollbar-width: none; }
 :root {
   --m-section-pad: 5rem;                       /* top of every section (above the tag) + bottom */
   --m-tag-gap: 2.5rem;                         /* terminal tag -> the section's content */
+  --m-fade-gap: var(--m-stack-gap);           /* content -> start of a dark<->oat fade, both directions (2026-11-12) */
   --m-stack-gap: clamp(6.5rem, 20vh, 9rem);    /* roomier, 2026-11-09 (was 4.5rem/14vh/6.5rem) */  /* between stacked items (philosophy captions, process steps) */
   --m-icon-gap: 2.25rem;                        /* icon -> its text */
   --m-icon-box: 64px;                          /* every square-ish motif fits this box; wide rows are the exception */
   /* dark -> oat buffer at the top + bottom of an oat section on mobile. Scales with the screen height:
      never under 40px, ~12% of a phone's height, capped so tall tablets don't get a huge wash. */
-  --m-oat-fade: clamp(120px, 36svh, 380px);   /* long, ease-IN (t^2.4) fade: starts very translucent, ramps up late */
+  --m-oat-fade: clamp(64px, 14svh, 140px);   /* ease-IN (t^2.4) fade; shortened 2026-11-12 (dom: the fades left big empty bands; was clamp(120px, 36svh, 380px)) */
+  --seam-m: 8px;                               /* the solaris seam between two halves on mobile (hero, bit|map, founders) */
 }
+/* BAND (dom, 2026-11-12) — ONE size, site-wide, for (a) the solaris bar above the footer and (b) the DARK GAP
+   between two oat sections. Desktop = the solaris bar height; mobile = smaller. */
+:root { --band-h: var(--solaris-height); }
+@media (max-width: 767px) { :root { --band-h: 12px; } }   /* was 48px — dom: try a quarter (2026-11-12) */
 /* Eased dark->oat fade (mobile). Apply .oat-fade-mobile to a section: it grows by the fade at the top +
    bottom (padding) and its background ramps from transparent (the rain shows) to oat and back out. */
 @media (max-width: 767px) {
@@ -471,7 +480,32 @@ html { scrollbar-width: none; }
     padding-bottom: var(--fb) !important;
   }  /* Two oat sections back to back: no dark dip between them — drop the buffer on the touching edges. */
   .oat-fade-mobile.oat-join-below { --fb: 0px; }
-  .oat-fade-mobile.oat-join-above { --ft: 0px; }
+  /* RULE (dom, 2026-11-12): two oat sections never touch — a DARK GAP of --band-h sits between them (no fades
+     on the touching edges). Put .oat-join-above on the LOWER section (and .oat-join-below on the upper one). */
+  .oat-fade-mobile.oat-join-above { --ft: 0px; margin-top: var(--band-h); }
+  .band-gap-above { margin-top: var(--band-h); }
+  /* the LAST oat section above the footer: no fade out — the oat runs down to the footer's solaris bar, with
+     normal section padding so the content never sits flush on the bar (dom, 2026-11-12) */
+  .oat-fade-mobile.oat-to-footer { --fb: 0px; padding-bottom: var(--m-section-pad) !important; }
+  /* RULE (dom, 2026-11-12): the FADE GAP. Either side of a dark<->oat fade, the last content sits the same
+     distance before the fade starts (= --m-fade-gap, the gap under Our standards). Then fade, then the next
+     section's own top (--m-section-pad) before its title. Baked in: sections' own bottom padding is replaced.
+       oat -> dark : solid oat gap under the content, then the fade out */
+  .oat-fade-mobile:not(.oat-to-footer):not(.oat-join-below) { padding-bottom: calc(var(--m-fade-gap) + var(--fb)) !important; }
+  .oat-fade-mobile:not(.oat-to-footer):not(.oat-join-below) > .scene-body:last-child { padding-bottom: 0 !important; }
+  /*   dark -> oat : dark gap under the content, then the next section's fade in */
+  .scene:not(.oat-fade-mobile):has(+ .oat-fade-mobile:not(.oat-join-above)) { padding-bottom: var(--m-fade-gap) !important; }
+  .scene:not(.oat-fade-mobile):has(+ .oat-fade-mobile:not(.oat-join-above)) > .scene-body:last-child { padding-bottom: 0 !important; }
+  /*   a dark section whose CONTENT ends in its own oat fade (e.g. About's bit|map block): add .ends-in-fade so
+       nothing sits under that fade — the next section's title follows at --m-section-pad, as everywhere else */
+  .ends-in-fade > .scene-body:last-child,
+  .ends-in-fade > .scene-body:last-child > :last-child { padding-bottom: 0 !important; margin-bottom: 0 !important; }
+  /*   dark -> oat, after the fade IN: the oat reads as arriving late (the eased ramp), so the title sits a
+       stacked gap down rather than the normal section top (dom, 2026-11-12) */
+  .oat-fade-mobile:not(.oat-join-above) > .term-tag { padding-top: var(--m-stack-gap); }
+  /* …and the component inside (Beat/SoftCta copy-grid etc.) adds no bottom padding of its own next to a fade */
+  .oat-fade-mobile:not(.oat-to-footer):not(.oat-join-below) > .scene-body:last-child > :last-child,
+  .scene:not(.oat-fade-mobile):has(+ .oat-fade-mobile:not(.oat-join-above)) > .scene-body:last-child > :last-child { padding-bottom: 0 !important; margin-bottom: 0 !important; }
 
 }
 /* ONE-WAY SCENES (lib/stage.ts oneWayScene): beat GSAP's inline autoAlpha while a one-way scene is skipped. */
@@ -577,6 +611,16 @@ html { scrollbar-width: none; }
   .term-tag + .scene-body { padding-top: 0 !important; }
   /* stacked icon sections (Philosophy, Process): tag -> first icon = the same gap as between items */
   [data-scene="philosophy"] > .term-tag, [data-scene="how"] > .term-tag { padding-bottom: var(--m-stack-gap); }
+  /* STACKED SECTIONS (dom, 2026-11-12) — one rule for every section of stacked items (home philosophy + process,
+     About's standards): tag → first item = the gap between items, and the same gap after the LAST item before the
+     section ends / its fade starts. Add .m-stack to the scene. */
+  .m-stack > .term-tag { padding-bottom: var(--m-stack-gap); }
+  .m-stack > .scene-body { padding-bottom: var(--m-stack-gap) !important; }
+  /* MOBILE SPACING RULES (2026-11-12) — two only:
+     NORMAL  tag -> content = --m-tag-gap (default; components must add NO top padding of their own)
+     STACKED tag -> content = --m-stack-gap (add .m-stack: philosophy, process, standards) */
+  /* No fade-up on mobile (2026-11-12): content just appears. Section.astro's .reveal-on-scroll is neutralised here; its JS stays. */
+  .reveal-on-scroll { opacity: 1 !important; transform: none !important; }
 }
 
 /* ── SITE-WIDE CTA scene + pixel veil (see components/modules/CtaScene.astro) ──────────────────── */

@@ -99,7 +99,7 @@ const PARTNERS = {
 
       {/* Philosophy — the 6-stage bitmap scene (PhilosophyScene.astro + lib/scenes/philosophy.ts), ported from
           About. A stacked layer; the choreography is nested in the master timeline (see PHIL_SPEED). */}
-      <div class="scene phil-scene oat-fade-mobile" data-scene="philosophy" data-oat-mobile style="z-index:20">
+      <div class="scene phil-scene oat-fade-mobile m-stack" data-scene="philosophy" data-oat-mobile style="z-index:20">
         <TermTag label="Our philosophy" />
         <PhilosophyScene captions={PHILOSOPHY_CAPTIONS} />
       </div>
@@ -121,7 +121,7 @@ const PARTNERS = {
       </div>
 
       {/* OUR PROCESS — oat. Big-type steps that scramble into each other + footer. Component: ProcessWords.astro; animation: lib/scenes/process-words.ts. */}
-      <div class="scene theme-oat how-scene oat-fade-mobile" data-scene="how" data-oat-mobile style="z-index:27">
+      <div class="scene theme-oat how-scene oat-fade-mobile m-stack" data-scene="how" data-oat-mobile style="z-index:27">
         <TermTag label="Our process" />
         <div class="scene-body">
           <ProcessWords
@@ -245,8 +245,10 @@ const PARTNERS = {
       .mob-reveal .scene[data-scene="philosophy"] { opacity: 1 !important; transform: none !important; }
 
       /* entrance transition — only after JS marks the stage (else everything stays visible) */
+      /* UNUSED 2026-11-12: mobile fade-up removed (no lazy-load benefit, content just appears). Keep until cleanup.
       .mob-reveal .scene:not([data-scene="hero"]) { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
       .mob-reveal .scene.is-in { opacity: 1; transform: none; }
+      */
     }
   </style>
 

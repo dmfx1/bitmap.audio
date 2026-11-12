@@ -114,8 +114,10 @@ const sides = [ { p: left, tone: 'dark' }, { p: right, tone: 'oat' } ] as const;
   }
 
   @media (max-width: 767px) {
+    .fs { padding-bottom: 0; }   /* Nick's oat block ends the section: the dark gap below is the oat-to-oat band (--band-h), nothing extra */
     .fs__halves { display: flex; flex-direction: column; }
     .fs__half { display: flex; flex-direction: column; align-items: flex-start; text-align: left; gap: 1.25rem; padding: 2.5rem var(--page-gutter-x); }
+    .fs__half:first-of-type { padding-top: 0; }   /* NORMAL tag rule: tag -> content = --m-tag-gap only (2026-11-12) */
     .fs__top { min-height: 0; justify-content: flex-start; }
     .fs__bg { inset: 0; }
     .fs__top { display: none; }
@@ -123,7 +125,7 @@ const sides = [ { p: left, tone: 'dark' }, { p: right, tone: 'oat' } ] as const;
     .fs__gap, .fs__gap2 { display: none; }
     .fs__half--oat {
       isolation: isolate; --rain-o: 0.45; background-color: hsl(var(--content-background));
-      border-top: 8px solid transparent;
+      border-top: var(--seam-m) solid transparent;
       border-image: linear-gradient(90deg, var(--solaris-from), var(--solaris-mid) 55%, var(--solaris-to)) 1;
     }
   }
@@ -175,7 +177,7 @@ const sides = [ { p: left, tone: 'dark' }, { p: right, tone: 'oat' } ] as const;
   }
   @media (max-width: 767px) {
     .fs--poster .fs__poster-wrap { width: 100%; }
-    .fs--poster .fs__ghost { display: none; }
+    .fs--poster .fs__ghost { display: none; }   /* mobile: no faint photo behind (it read as a grey box) */
   }
 </style>
 <script>

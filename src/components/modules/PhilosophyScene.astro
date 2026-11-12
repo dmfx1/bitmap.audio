@@ -77,7 +77,7 @@ const MOTIFS = PHILOSOPHY_MOTIFS;
       :global(.phil-scene) .scene-cap + .scene-cap { margin-top: var(--m-stack-gap); }
       /* lead-in so the founders section is fully gone before the first slide */
       :global(.phil-scene) .scene-cap:nth-child(1) { margin-top: 0; }   /* the TermTag above supplies the top space */
-      :global(.phil-scene) .scene-caps { padding-bottom: var(--m-section-pad); }
+      :global(.phil-scene) .scene-caps { padding-bottom: 0; }   /* was var(--m-section-pad) — the global FADE GAP rule now owns the space under the last caption (2026-11-12) */
       /* motif SVG above each caption (hidden on desktop, sized per slide) */
       .phil-viz { display: block; line-height: 0; }
       /* every motif fits ONE box (--m-icon-box) — except the wide bits row ('We translate traits…'). */

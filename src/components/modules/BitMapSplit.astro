@@ -74,13 +74,23 @@ const L = hang(left.payoff), R = hang(right.payoff);
   @media (max-width: 767px) {
     .bms__halves { display: flex; flex-direction: column; }
     .bms__half { display: flex; flex-direction: column; align-items: flex-start; text-align: left; gap: 1.5rem; padding: 2.5rem var(--page-gutter-x); }   /* left-aligned like every other mobile section */
+    .bms__half:first-child { padding-top: 0; }   /* NORMAL tag rule: tag -> content = --m-tag-gap only (2026-11-12) */
     .bms .bms__title { min-height: 0; justify-content: flex-start; font-size: calc(var(--type-display) * 1.3); }
     .bms__body { margin: 0; }
     .bms__gap { display: none; }
     .bms__payoff { white-space: normal; font-size: calc(var(--type-display) * 0.6); }
+    /* the map block fades out into the dark below (same eased fade + length as every oat section, --m-oat-fade) */
     .bms__half--oat {
-      isolation: isolate; --rain-o: 0.45; background-color: hsl(var(--content-background));
-      border-top: 8px solid transparent;
+      isolation: isolate; --rain-o: 0.45; background-color: transparent;
+      padding-bottom: calc(var(--m-fade-gap) + var(--m-oat-fade));   /* FADE GAP rule (was 2.5rem) 2026-11-12 */
+      background-image: linear-gradient(to bottom,
+        hsl(var(--content-background)) calc(100% - var(--m-oat-fade)),
+        hsl(var(--content-background) / 0.812) calc(100% - var(--m-oat-fade) * 0.9167),
+        hsl(var(--content-background) / 0.501) calc(100% - var(--m-oat-fade) * 0.75),
+        hsl(var(--content-background) / 0.189) calc(100% - var(--m-oat-fade) * 0.5),
+        hsl(var(--content-background) / 0.036) calc(100% - var(--m-oat-fade) * 0.25),
+        hsl(var(--content-background) / 0) 100%);
+      border-top: var(--seam-m) solid transparent;
       border-image: linear-gradient(90deg, var(--solaris-from), var(--solaris-mid) 55%, var(--solaris-to)) 1;
     }
   }

@@ -37,7 +37,7 @@ const ext = isExternal(href) ? { target: '_blank', rel: 'noopener noreferrer' } 
 ---
 <div class="soft-cta">
   {/* ROW 1 — question, same type + accent-second-line + solaris cursor as the hero title */}
-  <div class="container-page relative flex flex-col justify-start md:justify-center min-h-0">
+  <div class="container-page relative flex flex-col justify-start min-h-0 soft-cta__top">
     <h2 class="heading-hero mb-8 leading-tight font-medium soft-cta__title">
       {head}{accent && <Fragment><br/><span class="text-accent font-medium">{accent}</span></Fragment>}<span class="inline-block w-[0.5ch] h-[0.9em] bg-accent brightness-125 ml-1 animate-pulse align-middle" aria-hidden="true"></span>
     </h2>
@@ -81,6 +81,16 @@ const ext = isExternal(href) ? { target: '_blank', rel: 'noopener noreferrer' } 
     padding-block: var(--page-gutter); box-sizing: border-box;
   }
   .soft-cta__title { max-width: min(66vw, 80rem); }   /* = .hero-copy[data-hero-pull="title"] */
+  /* TITLE LINES UP WITH EVERY OTHER SECTION (dom, 2026-11-11): top-anchored at the COPY GRID's --grid-top and the
+     same size (incl. the short-screen scale), instead of centred in the top half. Only the title moves — the two
+     rows (and so the support line + button) stay exactly where they were. */
+  @media (min-width: 768px) {
+    .soft-cta__top { padding-top: calc(var(--grid-top) - var(--page-gutter)); }
+    .soft-cta .soft-cta__title { font-size: calc(var(--type-display) * var(--grid-title-scale)); }
+    /* the support line sits a couple of lines HIGHER than dead-centre in its half, so it never runs into the
+       button on shorter screens (dom, 2026-11-12). It's centred, so a bottom margin of 2× lifts it 1×. */
+    .soft-cta__sub { margin-bottom: calc(2 * var(--sc-sub-lift, 1.25lh));   /* 2lh ran into the title at 1280×800 */ }
+  }
   .soft-cta__sub { max-width: min(55vw, 84rem); }     /* = .hero-copy[data-hero-pull="sub"] */
   a { pointer-events: auto; }
   /* The support line is longer than the hero's: step it down a size on short laptop screens so it
