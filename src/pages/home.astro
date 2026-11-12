@@ -208,8 +208,8 @@ const PARTNERS = {
     #page-bar [data-page-label] { opacity: 0; white-space: nowrap; text-align: center; transition: color 0.45s ease; }
 
     /* ── MOBILE (≤767px): scenes unstack into a NORMAL vertical scroll (no scroll-snap —
-       snapping felt jumpy on touch). Each section still reveals with a subtle rise/fade as
-       it enters (progressive-enhanced via .mob-reveal). Desktop GSAP stage is untouched. */
+       snapping felt jumpy on touch). No reveal animation on mobile — content just appears.
+       Desktop GSAP stage is untouched. */
     @media (max-width: 767px) {
       #stage-track { height: auto; }
       .stage-pin { position: static; height: auto; overflow: visible; }
@@ -240,15 +240,7 @@ const PARTNERS = {
          the binary rain on mobile (transparent; light text). */
       .soft-cta-scene { background-color: transparent; }
 
-      /* Philosophy is ~6 screens tall on mobile, so the 0.2 IntersectionObserver threshold can never
-         be met — exempt it from the fade-up or it stays invisible (About neutralises this too). */
-      .mob-reveal .scene[data-scene="philosophy"] { opacity: 1 !important; transform: none !important; }
 
-      /* entrance transition — only after JS marks the stage (else everything stays visible) */
-      /* UNUSED 2026-11-12: mobile fade-up removed (no lazy-load benefit, content just appears). Keep until cleanup.
-      .mob-reveal .scene:not([data-scene="hero"]) { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
-      .mob-reveal .scene.is-in { opacity: 1; transform: none; }
-      */
     }
   </style>
 
@@ -260,7 +252,6 @@ const PARTNERS = {
     import { gsap } from 'gsap';
     import { ScrollTrigger } from 'gsap/ScrollTrigger';
     import { createStageTimeline, createPageBar, stageLabels, prepareVoid, enterTheVoid, pushInBar, oneWayScene, type BarCfg } from '../lib/stage';
-    import { initMobileSceneReveal } from '../lib/pixel-veil';
     import { buildPhilosophyScene } from '../lib/scenes/philosophy';
     import { initBinaryField, createBinaryFieldScene } from '../lib/scenes/binary-field';
     import { buildProcessWordsScene } from '../lib/scenes/process-words';
@@ -456,9 +447,5 @@ const PARTNERS = {
     if (document.readyState === 'complete') boot();
     else window.addEventListener('load', boot);
 
-    // MOBILE-only: reveal each unstacked scene as it enters (desktop uses the GSAP stage).
-    document.addEventListener('astro:page-load', initMobileSceneReveal);
-    if (document.readyState === 'complete') initMobileSceneReveal();
-    else window.addEventListener('load', initMobileSceneReveal);
   </script>
 </Layout>

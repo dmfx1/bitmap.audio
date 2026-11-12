@@ -12,18 +12,14 @@
  * Mobile: scenes unstack into a normal scroll; oat beats get the eased dark→oat buffer, dark beats sit
  * on the binary rain; every section opens with a terminal tag.
  *
- * Pages COMPOSE (see CLAUDE.md): Beat.astro (single-idea scene), Founders.tsx, Beliefs.astro
- * (+ lib/scenes/beliefs.ts), Clients.tsx (the client terminal — unchanged), SoftCta.astro.
- * The previous page is kept, unrouted, at src/pages/_about-v3-old.astro (cleanup list in CLAUDE.md).
+ * Pages COMPOSE (see CLAUDE.md): AboutSplitHero, Beat.astro (single-idea scene), BitMapSplit, FounderSplit,
+ * Beliefs.astro (+ lib/scenes/beliefs.ts), Clients.tsx (the client terminal).
  */
 import Layout from '../layouts/Layout.astro';
-import AboutHero from '../components/modules/AboutHero.tsx';   // previous single hero — kept (unused) until sign-off
 import AboutSplitHero from '../components/modules/AboutSplitHero.tsx';
-import Founders, { type Founder } from '../components/modules/Founders.tsx';
 import Clients from '../components/modules/Clients.tsx';
 import Beat from '../components/modules/Beat.astro';
 import Beliefs from '../components/modules/Beliefs.astro';
-import SoftCta from '../components/modules/SoftCta.astro';
 import BitMapSplit from '../components/modules/BitMapSplit.astro';
 import FounderSplit, { type Person } from '../components/modules/FounderSplit.astro';
 import TermTag from '../components/modules/TermTag.astro';
@@ -89,13 +85,6 @@ const STANDARDS = [   // copy agreed "for now" 2026-11-11 — revisit in the fin
   { title: 'Empathy', body: 'The best sound is felt, not just heard. Intuitive, never intrusive.' },
   { title: 'Innovation', body: 'We never stop evolving. With us, neither does your sound.' },
 ];
-/* OLD filler beliefs (UNUSED since 2026-11-11 — remove at cleanup):
-const BELIEFS = [
-  { title: 'Hairs on the neck', body: "If it doesn't move us, it won't move anyone. We don't mind how a sound gets made, only how it makes you feel." },
-  { title: 'Happy accidents', body: 'The best discoveries rarely come from the plan. We leave room for them, then chase them down.' },
-  { title: 'Better than fine', body: 'Play it safe and you get "fine". We push past the obvious until it sounds like nobody else.' },
-];
-*/
 
 const FOR = {
   head: 'Different',
@@ -108,13 +97,6 @@ const WORK = {
   head: "Brands we've made sound for",
   sub: 'Collectively, over our freelance careers.',   // locked 2026-11-11 (was: "Over our freelance careers, before bitmap.audio. Not bitmap.audio clients (yet).")
 };
-const CLOSE = {
-  head: "Let's make you",
-  accent: 'sound like you.',
-  sub: "Book a free 30-minute call with Dom and Nick. Bring the brand; we'll bring the questions.",
-  label: 'Book a call',
-};
-const PEOPLE = [{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick', src: '/images/nick-cutout.webp' }];
 ---
 <Layout
   title="About | bitmap.audio"
@@ -178,7 +160,6 @@ const PEOPLE = [{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick',
         </div>
         <TermTag label="The team" />
         <div class="scene-body"><FounderSplit left={FOUNDERS.left} right={FOUNDERS.right} poster /></div>
-        {/* <Founders client:visible people={TEAM} /> — old cards, unused */}
       </div>
 
       {/* 6 · OUR STANDARDS — oat (focus columns): the confidence section */}
@@ -207,23 +188,6 @@ const PEOPLE = [{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick',
         </div>
       </div>
 
-      {/* 8 · LET'S TALK — REMOVED from the page (dom, 2026-11-12): "Who we're for" now ends on "Want to hear things
-          differently? Let's talk." + a Get in touch button, so a second CTA was a repeat. Kept below (unrendered) until sign-off.
-      {/ * 8 · LET'S TALK — dark tint over the returning rain ("reverse the void"), the soft CTA * /}
-      <div class="scene close-scene no-rain" data-scene="close" style="z-index:45">{/ * the REAL rain shows through its tint * /}
-        <TermTag label="Let's talk" />
-        <div class="scene-body">
-          <SoftCta
-            head={CLOSE.head}
-            accent={CLOSE.accent}
-            sub={CLOSE.sub}
-            label={CLOSE.label}
-            people={PEOPLE}
-            peopleNote="You'll talk to us, not a sales team."
-          />
-        </div>
-      </div>
-      */}
     </div>
   </div>
 
@@ -283,7 +247,6 @@ const PEOPLE = [{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick',
     /* Tones */
     .theme-oat.scene { background-color: hsl(var(--content-background)); }
     .beat-dark { background-color: hsl(var(--background)); }
-    .close-scene { background-color: hsl(var(--background) / 0.7); }   /* the rain shows through as the void reverses */
 
     /* Work — framing line + the terminal, centred as one block */
     .work-wrap { display: flex; flex-direction: column; gap: clamp(1rem, 3vh, 2rem); width: 100%; }
@@ -315,7 +278,7 @@ const PEOPLE = [{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick',
       .split-bg { display: none; }
       .stage-fog, .stage-portal, #page-bar { display: none; }
       .scene-body { position: static; top: auto; height: auto; padding-block: 3rem; display: flex; flex-direction: column; justify-content: center; }
-      .beat-dark, .close-scene { background-color: transparent; }
+      .beat-dark { background-color: transparent; }
       .scene.theme-oat { --foreground: var(--content-foreground); }
       /* Team: cards run full-bleed */
       .scene[data-scene="team"] .scene-body { padding-inline: 0; padding-block: 0; }
@@ -363,10 +326,6 @@ const PEOPLE = [{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick',
       }
       .split-hero--titles .split-hero__half { min-height: 0; height: 100%; padding-block: 0; align-content: center; box-sizing: border-box; }
     }
-    /* Founders: the React island sits inside <astro-island>, so target by class. Fill the scene body. */
-    #stage-track [data-scene="team"] .grid { height: 100%; }
-    #stage-track [data-scene="team"] .grid > div { min-height: 0 !important; }
-    @media (max-width: 767px) { #stage-track [data-scene="team"] .grid { height: auto; } }
   </style>
 
   <script>
@@ -386,7 +345,6 @@ const PEOPLE = [{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick',
 
       const fog = pin.querySelector<HTMLElement>('[data-stage="fog"]')!;
       const portal = pin.querySelector<HTMLElement>('[data-stage="portal"]')!;
-      const gridBg = document.getElementById('grid-bg');
       const bar = document.getElementById('page-bar')!;
       const pageBar = createPageBar(bar);
       const q = (id: string) => pin.querySelector<HTMLElement>(`.scene[data-scene="${id}"]`)!;
@@ -404,7 +362,6 @@ const PEOPLE = [{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick',
         beat('beliefs', 'oat',  'Our Standards',   1.4),
         beat('for',     'dark', "Who We're For",   1.0),
         beat('work',    'oat',  'Our Work',        1.4),
-        // beat('close', 'dark', "Let's Talk", 1.0),   // REMOVED 2026-11-12 (see the markup note)
       ];
       // ── TIMING KNOBS (timeline units). The track height follows the timeline (VH_PER_UNIT). ──
       // About's entrance is the split-hero WIPE: it starts on the first scroll (WIPE.start 0), and the oat fog
@@ -494,11 +451,6 @@ const PEOPLE = [{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick',
           atDir(`${L}+=${OV + BAR_OUT}`, -1, null);
           atDir(`${L}+=${BAR_OUT * 0.8}`, -1, prev.cfg);
         }
-        // REVERSE THE VOID on the close: the oat fog lifts and the rain zooms back out behind the tint.
-        if (next.el.dataset.scene === 'close') {
-          tl.to(fog, { opacity: 0, ease: 'none', duration: T.crossDur }, L);
-          if (gridBg) tl.to(gridBg, { scale: 1, ease: 'power2.out', duration: T.crossDur + OV }, L);
-        }
         tl.to({}, { duration: next.hold });
       }
 
@@ -530,11 +482,4 @@ const PEOPLE = [{ name: 'Dom', src: '/images/dom-cutout.webp' }, { name: 'Nick',
     if (document.readyState !== 'loading') mount(); else document.addEventListener('DOMContentLoaded', mount);
   </script>
 
-  <script>
-    // MOBILE-only: reveal each unstacked scene as it enters (desktop uses the GSAP stage).
-    import { initMobileSceneReveal } from '../lib/pixel-veil';
-    document.addEventListener('astro:page-load', initMobileSceneReveal);
-    if (document.readyState === 'complete') initMobileSceneReveal();
-    else window.addEventListener('load', initMobileSceneReveal);
-  </script>
 </Layout>

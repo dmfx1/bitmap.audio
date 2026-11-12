@@ -5,9 +5,6 @@
  *   fillPixelVeil      — fills a .scene-veil with a grid of large cells, each tagged with a random
  *                        reveal order (--o). A page reveals it by tweening `--reveal` 0 → 1
  *                        (styling in global.css: `.scene-veil > i`).
- *   initMobileSceneReveal — MOBILE-only subtle rise/fade of each unstacked .scene in #stage-track
- *                        as it enters (desktop uses the GSAP stage). Progressive enhancement:
- *                        without JS nothing is hidden.
  */
 
 export const VEIL_CELL = 54;
@@ -27,14 +24,3 @@ export function fillPixelVeil(veil: HTMLElement, w: number, h: number, cell = VE
 }
 
 /** MOBILE-only: reveal each unstacked scene of #stage-track as it scrolls into view. */
-export function initMobileSceneReveal(): void {
-  if (!window.matchMedia('(max-width: 767px)').matches) return;
-  const track = document.getElementById('stage-track');
-  if (!track || track.dataset.mobInit === '1') return;
-  track.dataset.mobInit = '1';
-  track.classList.add('mob-reveal');
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } });
-  }, { threshold: 0.2 });
-  track.querySelectorAll('.scene').forEach((s) => io.observe(s));
-}
